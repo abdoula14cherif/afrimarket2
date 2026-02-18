@@ -5,16 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Afrimarket - Plateforme de petites annonces</title>
     <style>
-        :root {
-            --primary-blue: #0066cc;
-            --primary-red: #ff4444;
-            --primary-orange: #ff8800;
-            --primary-turquoise: #40e0d0;
-            --white: #ffffff;
-            --light-gray: #f5f5f5;
-            --dark-gray: #333333;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -23,368 +13,448 @@
         }
 
         body {
-            background: linear-gradient(135deg, var(--primary-blue), var(--primary-red), var(--primary-turquoise), var(--primary-orange));
             min-height: 100vh;
+            background: linear-gradient(135deg, #0066cc 0%, #ff3300 50%, #40e0d0 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
         }
 
+        /* Loader overlay */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.5s ease 5s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0066cc;
+            border-right: 5px solid #ff3300;
+            border-bottom: 5px solid #40e0d0;
+            border-left: 5px solid #ff8c00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Container principal */
         .container {
             width: 100%;
             max-width: 500px;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
             overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 3px solid transparent;
+            background-image: linear-gradient(white, white), 
+                              linear-gradient(135deg, #0066cc, #ff3300, #40e0d0, #ff8c00);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
         }
 
-        .logo {
-            background: var(--white);
+        /* En-tête */
+        .header {
+            background: linear-gradient(135deg, #0066cc, #ff3300);
             padding: 30px 20px;
             text-align: center;
-            border-bottom: 3px solid var(--primary-turquoise);
+            color: white;
+            border-bottom: 3px solid #40e0d0;
         }
 
-        .logo h1 {
-            font-size: 2.8rem;
+        .header h1 {
+            font-size: 2.5em;
             margin-bottom: 5px;
-            color: var(--primary-blue);
-            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 2px;
         }
 
-        .logo span {
-            color: var(--dark-gray);
-            font-size: 0.9rem;
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            color: #ffffff;
         }
 
+        /* Formulaire */
         .form-container {
             padding: 30px;
         }
 
-        .form-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            background: var(--light-gray);
-            padding: 5px;
-            border-radius: 10px;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: transparent;
-            color: var(--dark-gray);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            background: var(--primary-blue);
-            color: var(--white);
-        }
-
-        .tab-btn:hover {
-            background: var(--primary-turquoise);
-            color: var(--white);
-        }
-
-        .form {
-            display: none;
-        }
-
-        .form.active {
+        label {
             display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
         }
 
-        .form h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: var(--dark-gray);
-            font-size: 1.8rem;
+        .required::after {
+            content: " *";
+            color: #ff3300;
         }
 
-        .form input, .form select {
+        input, select {
             width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 12px 15px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 1em;
             transition: all 0.3s ease;
-        }
-
-        .form input:focus, .form select:focus {
             outline: none;
-            border-color: var(--primary-turquoise);
         }
 
-        .btn-primary {
+        input:focus, select:focus {
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        input:hover, select:hover {
+            border-color: #ff8c00;
+        }
+
+        /* Style spécifique pour les inputs */
+        input[type="tel"], input[type="email"], input[type="password"] {
+            background-color: #f9f9f9;
+        }
+
+        /* Grille pour le pays et la ville */
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Bouton de soumission */
+        .btn-submit {
             width: 100%;
             padding: 15px;
-            background: var(--primary-blue);
-            color: var(--white);
+            background: linear-gradient(135deg, #0066cc, #ff3300);
+            color: white;
             border: none;
             border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.2em;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 10px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-orange);
+        .btn-submit:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 102, 204, 0.3);
         }
 
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .btn-submit:active {
+            transform: translateY(0);
         }
 
-        .alert {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 10px;
-            color: white;
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        /* Message de statut */
+        .status-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
             font-weight: 600;
             display: none;
-            z-index: 1000;
         }
 
-        .alert.success {
-            background: #28a745;
+        .status-message.success {
+            background-color: #40e0d0;
+            color: #0066cc;
+            border: 2px solid #0066cc;
+            display: block;
         }
 
-        .alert.error {
-            background: #dc3545;
+        .status-message.error {
+            background-color: #ff3300;
+            color: white;
+            border: 2px solid #ff8c00;
+            display: block;
         }
 
-        .alert.info {
-            background: var(--primary-blue);
+        /* Pied de page */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #40e0d0, #ff8c00);
+            color: white;
+            font-size: 0.9em;
+            border-top: 3px solid #0066cc;
         }
 
-        .color-bar {
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--primary-red), var(--primary-turquoise), var(--primary-orange));
-            margin: 20px 0;
+        .footer a {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Loader -->
+    <div class="loader-overlay" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Conteneur principal -->
     <div class="container">
-        <div class="logo">
+        <div class="header">
             <h1>AFRIMARKET</h1>
-            <span>Petites annonces • Facile • Rapide • Local</span>
+            <p>Votre plateforme de petites annonces</p>
         </div>
-        
+
         <div class="form-container">
-            <div class="form-tabs">
-                <button class="tab-btn active" onclick="showForm('login')">Connexion</button>
-                <button class="tab-btn" onclick="showForm('register')">Inscription</button>
-            </div>
-            
-            <!-- Formulaire de connexion -->
-            <div id="loginForm" class="form active">
-                <h2>Bienvenue !</h2>
-                <input type="email" id="loginEmail" placeholder="Email" required>
-                <input type="password" id="loginPassword" placeholder="Mot de passe" required>
-                <button class="btn-primary" onclick="login()">Se connecter</button>
-            </div>
-            
-            <!-- Formulaire d'inscription -->
-            <div id="registerForm" class="form">
-                <h2>Créer un compte</h2>
-                <input type="text" id="regName" placeholder="Nom complet" required>
-                <input type="tel" id="regWhatsapp" placeholder="Numéro WhatsApp" required>
-                <input type="email" id="regEmail" placeholder="Email" required>
-                <input type="password" id="regPassword" placeholder="Mot de passe (min. 6 caractères)" required>
-                
-                <select id="regCountry" required>
-                    <option value="">Sélectionnez votre pays</option>
-                    <option value="Senegal">Sénégal</option>
-                    <option value="Mali">Mali</option>
-                    <option value="Cote d'Ivoire">Côte d'Ivoire</option>
-                    <option value="Burkina Faso">Burkina Faso</option>
-                    <option value="Niger">Niger</option>
-                </select>
-                
-                <input type="text" id="regCity" placeholder="Ville" required>
-                
-                <button class="btn-primary" onclick="register()">S'inscrire sur Afrimarket</button>
-                <div class="color-bar"></div>
-            </div>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="nomComplet" class="required">Nom complet</label>
+                    <input type="text" id="nomComplet" name="nomComplet" placeholder="Entrez votre nom complet" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsapp" class="required">Numéro WhatsApp</label>
+                    <input type="tel" id="whatsapp" name="whatsapp" placeholder="+221 77 123 45 67" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="required">Email</label>
+                    <input type="email" id="email" name="email" placeholder="votre@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="required">Mot de passe</label>
+                    <input type="password" id="password" name="password" placeholder="Créez un mot de passe sécurisé" required>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label for="pays" class="required">Pays</label>
+                        <select id="pays" name="pays" required>
+                            <option value="">Sélectionnez un pays</option>
+                            <option value="senegal">Sénégal</option>
+                            <option value="cote divoire">Côte d'Ivoire</option>
+                            <option value="mali">Mali</option>
+                            <option value="burkina faso">Burkina Faso</option>
+                            <option value="cameroon">Cameroun</option>
+                            <option value="maroc">Maroc</option>
+                            <option value="tunisie">Tunisie</option>
+                            <option value="algerie">Algérie</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ville" class="required">Ville</label>
+                        <input type="text" id="ville" name="ville" placeholder="Votre ville" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    S'INSCRIRE SUR AFRIMARKET
+                </button>
+            </form>
+
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Afrimarket - Tous droits réservés</p>
+            <p><a href="#">Conditions d'utilisation</a> | <a href="#">Politique de confidentialité</a></p>
         </div>
     </div>
-    
-    <div id="alertMessage" class="alert"></div>
 
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
         // Configuration Supabase
         const SUPABASE_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
-        
-        // Initialisation de Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
 
-        // Fonction pour afficher les alertes
-        function showAlert(message, type) {
-            const alert = document.getElementById('alertMessage');
-            alert.textContent = message;
-            alert.className = `alert ${type}`;
-            alert.style.display = 'block';
-            
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 4000);
-        }
+        // Initialisation de Supabase (à décommenter quand vous installez la librairie)
+        // const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Fonction pour changer d'onglet - DÉFINIE GLOBALEMENT
-        window.showForm = function(form) {
-            const tabs = document.querySelectorAll('.tab-btn');
-            const forms = document.querySelectorAll('.form');
-            
-            tabs.forEach(btn => btn.classList.remove('active'));
-            forms.forEach(f => f.classList.remove('active'));
-            
-            if(form === 'login') {
-                tabs[0].classList.add('active');
-                document.getElementById('loginForm').classList.add('active');
-            } else {
-                tabs[1].classList.add('active');
-                document.getElementById('registerForm').classList.add('active');
+        // Gestion du loader (disparaît après 5 secondes)
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.animation = 'fadeOut 0.5s ease forwards';
             }
-        }
+        }, 5000);
 
-        // Fonction de connexion - DÉFINIE GLOBALEMENT
-        window.login = async function() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+        // Gestion du formulaire
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            if(!email || !password) {
-                showAlert('Veuillez remplir tous les champs', 'error');
+            const submitBtn = document.getElementById('submitBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Récupération des données du formulaire
+            const formData = {
+                nom_complet: document.getElementById('nomComplet').value,
+                whatsapp: document.getElementById('whatsapp').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                pays: document.getElementById('pays').value,
+                ville: document.getElementById('ville').value,
+                created_at: new Date().toISOString()
+            };
+
+            // Validation basique
+            if (!formData.nom_complet || !formData.whatsapp || !formData.email || !formData.password || !formData.pays || !formData.ville) {
+                statusMessage.className = 'status-message error';
+                statusMessage.textContent = 'Veuillez remplir tous les champs obligatoires.';
                 return;
             }
 
+            // Validation email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                statusMessage.className = 'status-message error';
+                statusMessage.textContent = 'Veuillez entrer une adresse email valide.';
+                return;
+            }
+
+            // Validation mot de passe (minimum 6 caractères)
+            if (formData.password.length < 6) {
+                statusMessage.className = 'status-message error';
+                statusMessage.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+                return;
+            }
+
+            // Simulation d'envoi (à remplacer par l'appel Supabase réel)
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Inscription en cours...';
+            
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+                // Simulation d'un délai réseau
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
-                if (error) {
-                    showAlert('Email ou mot de passe incorrect', 'error');
-                    return;
-                }
+                // Pour l'instant, on simule une réussite
+                console.log('Données à envoyer à Supabase:', formData);
+                
+                // Code réel pour Supabase (à décommenter quand vous aurez créé la table)
+                /*
+                const { data, error } = await supabase
+                    .from('utilisateurs')
+                    .insert([formData]);
 
-                if (data.user) {
-                    showAlert('Connexion réussie !', 'success');
-                    console.log('Utilisateur connecté:', data.user);
-                }
+                if (error) throw error;
+                */
+
+                // Message de succès
+                statusMessage.className = 'status-message success';
+                statusMessage.textContent = 'Inscription réussie ! Bienvenue sur Afrimarket.';
+                
+                // Réinitialisation du formulaire
+                this.reset();
 
             } catch (error) {
-                showAlert('Erreur de connexion', 'error');
+                console.error('Erreur:', error);
+                statusMessage.className = 'status-message error';
+                statusMessage.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'S\'INSCRIRE SUR AFRIMARKET';
             }
-        }
+        });
 
-        // Fonction d'inscription - DÉFINIE GLOBALEMENT
-        window.register = async function() {
-            // Récupération des valeurs
-            const name = document.getElementById('regName').value;
-            const whatsapp = document.getElementById('regWhatsapp').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const country = document.getElementById('regCountry').value;
-            const city = document.getElementById('regCity').value;
-
-            // Vérification simple
-            if(!name || !whatsapp || !email || !password || !country || !city) {
-                showAlert('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                showAlert('Le mot de passe doit contenir au moins 6 caractères', 'error');
-                return;
-            }
-
-            // Test simple - Sans Supabase pour vérifier que le bouton fonctionne
-            showAlert('Test : Inscription réussie (mode démo)', 'success');
-            
-            // Réinitialiser le formulaire
-            document.getElementById('regName').value = '';
-            document.getElementById('regWhatsapp').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regCountry').value = '';
-            document.getElementById('regCity').value = '';
-            
-            // NOTE: Pour le moment, c'est en mode DÉMO
-            // Pour activer Supabase, décommentez le code ci-dessous et commentez le test ci-dessus
-            /*
-            try {
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            full_name: name,
-                            whatsapp: whatsapp,
-                            country: country,
-                            city: city
-                        }
-                    }
-                });
-
-                if (authError) {
-                    if (authError.message.includes('already registered')) {
-                        showAlert('Cet email est déjà utilisé', 'error');
-                    } else {
-                        showAlert(authError.message, 'error');
-                    }
-                    return;
+        // Validation en temps réel pour le numéro WhatsApp
+        document.getElementById('whatsapp').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 2) {
+                    value = '+' + value;
+                } else if (value.length <= 5) {
+                    value = '+' + value.slice(0, 2) + ' ' + value.slice(2);
+                } else if (value.length <= 8) {
+                    value = '+' + value.slice(0, 2) + ' ' + value.slice(2, 5) + ' ' + value.slice(5);
+                } else {
+                    value = '+' + value.slice(0, 2) + ' ' + value.slice(2, 5) + ' ' + value.slice(5, 8) + ' ' + value.slice(8, 12);
                 }
-
-                if (authData.user) {
-                    showAlert('Inscription réussie ! Vérifiez votre email.', 'success');
-                    
-                    // Réinitialiser le formulaire
-                    document.getElementById('regName').value = '';
-                    document.getElementById('regWhatsapp').value = '';
-                    document.getElementById('regEmail').value = '';
-                    document.getElementById('regPassword').value = '';
-                    document.getElementById('regCountry').value = '';
-                    document.getElementById('regCity').value = '';
-                    
-                    // Basculer vers connexion
-                    setTimeout(() => {
-                        window.showForm('login');
-                    }, 2000);
-                }
-
-            } catch (error) {
-                showAlert('Erreur lors de l\'inscription', 'error');
             }
-            */
-        }
+            e.target.value = value;
+        });
 
-        // Test au chargement
-        window.onload = function() {
-            console.log('Page chargée - Afrimarket prêt');
-            showAlert('Bienvenue sur Afrimarket !', 'info');
-        }
+        // Animation supplémentaire au focus
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
     </script>
+
+    <!-- Note: Pour utiliser Supabase en production, ajoutez cette ligne dans votre head -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
 </body>
 </html>
