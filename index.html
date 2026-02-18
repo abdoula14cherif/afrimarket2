@@ -34,7 +34,7 @@
         .container {
             width: 100%;
             max-width: 500px;
-            background: rgba(255, 255, 255, 0.95);
+            background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
@@ -52,7 +52,6 @@
             margin-bottom: 5px;
             color: var(--primary-blue);
             font-weight: 800;
-            letter-spacing: 2px;
         }
 
         .logo span {
@@ -148,7 +147,6 @@
         .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
         .alert {
@@ -157,11 +155,10 @@
             right: 20px;
             padding: 15px 25px;
             border-radius: 10px;
-            color: var(--white);
+            color: white;
             font-weight: 600;
             display: none;
             z-index: 1000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
 
         .alert.success {
@@ -180,20 +177,6 @@
             height: 3px;
             background: linear-gradient(90deg, var(--primary-blue), var(--primary-red), var(--primary-turquoise), var(--primary-orange));
             margin: 20px 0;
-        }
-
-        .forgot-password {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .forgot-password a {
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
-
-        .forgot-password a:hover {
-            color: var(--primary-red);
         }
     </style>
 </head>
@@ -216,9 +199,6 @@
                 <input type="email" id="loginEmail" placeholder="Email" required>
                 <input type="password" id="loginPassword" placeholder="Mot de passe" required>
                 <button class="btn-primary" onclick="login()">Se connecter</button>
-                <div class="forgot-password">
-                    <a href="#" onclick="showAlert('Contactez le support pour réinitialiser votre mot de passe', 'info')">Mot de passe oublié ?</a>
-                </div>
             </div>
             
             <!-- Formulaire d'inscription -->
@@ -271,26 +251,26 @@
             }, 4000);
         }
 
-        // Fonction pour changer d'onglet
+        // Fonction pour changer d'onglet - DÉFINIE GLOBALEMENT
         window.showForm = function(form) {
-            // Mettre à jour les boutons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const tabs = document.querySelectorAll('.tab-btn');
+            const forms = document.querySelectorAll('.form');
             
-            // Mettre à jour les formulaires
-            document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+            tabs.forEach(btn => btn.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
             
             if(form === 'login') {
-                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                tabs[0].classList.add('active');
                 document.getElementById('loginForm').classList.add('active');
             } else {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                tabs[1].classList.add('active');
                 document.getElementById('registerForm').classList.add('active');
             }
         }
 
-        // Fonction de connexion
+        // Fonction de connexion - DÉFINIE GLOBALEMENT
         window.login = async function() {
-            const email = document.getElementById('loginEmail').value.trim();
+            const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
             if(!email || !password) {
@@ -305,7 +285,6 @@
                 });
 
                 if (error) {
-                    console.error('Erreur Supabase:', error);
                     showAlert('Email ou mot de passe incorrect', 'error');
                     return;
                 }
@@ -313,28 +292,24 @@
                 if (data.user) {
                     showAlert('Connexion réussie !', 'success');
                     console.log('Utilisateur connecté:', data.user);
-                    // Redirection après connexion
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
                 }
 
             } catch (error) {
-                console.error('Erreur:', error);
-                showAlert('Erreur de connexion au serveur', 'error');
+                showAlert('Erreur de connexion', 'error');
             }
         }
 
-        // Fonction d'inscription
+        // Fonction d'inscription - DÉFINIE GLOBALEMENT
         window.register = async function() {
-            const name = document.getElementById('regName').value.trim();
-            const whatsapp = document.getElementById('regWhatsapp').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
+            // Récupération des valeurs
+            const name = document.getElementById('regName').value;
+            const whatsapp = document.getElementById('regWhatsapp').value;
+            const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
             const country = document.getElementById('regCountry').value;
-            const city = document.getElementById('regCity').value.trim();
+            const city = document.getElementById('regCity').value;
 
-            // Validations
+            // Vérification simple
             if(!name || !whatsapp || !email || !password || !country || !city) {
                 showAlert('Veuillez remplir tous les champs', 'error');
                 return;
@@ -345,25 +320,21 @@
                 return;
             }
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showAlert('Email invalide', 'error');
-                return;
-            }
-
-            const phoneRegex = /^[0-9+\s]{8,}$/;
-            if (!phoneRegex.test(whatsapp)) {
-                showAlert('Numéro WhatsApp invalide', 'error');
-                return;
-            }
-
-            // Désactiver le bouton
-            const submitBtn = document.querySelector('#registerForm .btn-primary');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Inscription en cours...';
-
+            // Test simple - Sans Supabase pour vérifier que le bouton fonctionne
+            showAlert('Test : Inscription réussie (mode démo)', 'success');
+            
+            // Réinitialiser le formulaire
+            document.getElementById('regName').value = '';
+            document.getElementById('regWhatsapp').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regCountry').value = '';
+            document.getElementById('regCity').value = '';
+            
+            // NOTE: Pour le moment, c'est en mode DÉMO
+            // Pour activer Supabase, décommentez le code ci-dessous et commentez le test ci-dessus
+            /*
             try {
-                // 1. Créer l'utilisateur
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: email,
                     password: password,
@@ -378,8 +349,6 @@
                 });
 
                 if (authError) {
-                    console.error('Erreur auth:', authError);
-                    
                     if (authError.message.includes('already registered')) {
                         showAlert('Cet email est déjà utilisé', 'error');
                     } else {
@@ -401,41 +370,21 @@
                     
                     // Basculer vers connexion
                     setTimeout(() => {
-                        showForm('login');
+                        window.showForm('login');
                     }, 2000);
                 }
 
             } catch (error) {
-                console.error('Erreur:', error);
                 showAlert('Erreur lors de l\'inscription', 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "S'inscrire sur Afrimarket";
             }
+            */
         }
 
-        // Vérifier la connexion au démarrage
-        async function checkConnection() {
-            try {
-                const { data, error } = await supabase.auth.getSession();
-                if (error) {
-                    console.error('Erreur de session:', error);
-                    showAlert('Problème de connexion à Supabase', 'error');
-                } else {
-                    console.log('Supabase connecté avec succès');
-                    if (data.session) {
-                        console.log('Utilisateur déjà connecté');
-                    }
-                }
-            } catch (error) {
-                console.error('Erreur de connexion:', error);
-            }
-        }
-
-        // Lancer la vérification au chargement
+        // Test au chargement
         window.onload = function() {
-            checkConnection();
-        };
+            console.log('Page chargée - Afrimarket prêt');
+            showAlert('Bienvenue sur Afrimarket !', 'info');
+        }
     </script>
 </body>
 </html>
