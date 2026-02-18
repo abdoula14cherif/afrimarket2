@@ -3,59 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Afrimarket - Inscription</title>
+    <title>Afrimarket - Plateforme de petites annonces</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            position: relative;
         }
 
-        /* Couleurs de la plateforme */
-        :root {
-            --bleu: #0066cc;
-            --rouge: #ff4444;
-            --blanc: #ffffff;
-            --turquoise: #40e0d0;
-            --orange: #ffa500;
+        /* Loader styles */
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72, #2a5298, #ff6b6b, #40e0d0, #ffa500);
+            background-size: 400% 400%;
+            animation: gradientBG 5s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        /* Contenu principal */
+        .loader-wrapper.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loader-content h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 4px;
+        }
+
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Main content styles */
         .main-content {
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, rgba(0,102,204,0.1), rgba(255,68,68,0.1), rgba(64,224,208,0.1), rgba(255,165,0,0.1));
             padding: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .main-content.visible {
+            opacity: 1;
         }
 
         .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             max-width: 500px;
             width: 100%;
-        }
-
-        .card {
-            background: var(--blanc);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            padding: 40px;
+            backdrop-filter: blur(10px);
             border: 3px solid transparent;
-            background-image: linear-gradient(white, white), 
-                            linear-gradient(135deg, var(--bleu), var(--rouge), var(--turquoise), var(--orange));
-            background-origin: border-box;
-            background-clip: content-box, border-box;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #1e3c72, #ff6b6b, #40e0d0, #ffa500) border-box;
+            border: 3px solid transparent;
         }
 
-        .logo {
+        h2 {
             text-align: center;
             margin-bottom: 30px;
-        }
-
-        .logo h1 {
-            font-size: 2.5em;
-            background: linear-gradient(135deg, var(--bleu), var(--rouge), var(--turquoise), var(--orange));
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #1e3c72, #ff6b6b, #40e0d0, #ffa500);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -68,280 +118,309 @@
 
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            color: #2c3e50;
             font-weight: 600;
-            color: #333;
         }
 
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 12px 15px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             transition: all 0.3s ease;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: var(--turquoise);
-            box-shadow: 0 0 0 3px rgba(64,224,208,0.2);
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255,107,107,0.3);
         }
 
         input:hover, select:hover {
-            border-color: var(--orange);
+            border-color: #40e0d0;
         }
 
-        .submit-btn {
+        .btn-submit {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--bleu), var(--turquoise));
-            color: var(--blanc);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            margin-top: 10px;
         }
 
-        .submit-btn:hover {
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,102,204,0.4);
-            background: linear-gradient(135deg, var(--rouge), var(--orange));
+            box-shadow: 0 10px 25px rgba(255,107,107,0.4);
         }
 
         .message {
             margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
             display: none;
         }
 
         .message.success {
-            display: block;
-            background-color: #d4edda;
+            background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+            display: block;
         }
 
         .message.error {
-            display: block;
-            background-color: #f8d7da;
+            background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
+            display: block;
         }
 
-        .payment-methods {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 5px;
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
         }
 
-        .payment-method {
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 10px;
+        .color-bar {
+            height: 5px;
+            background: linear-gradient(90deg, #1e3c72, #ff6b6b, #40e0d0, #ffa500);
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        footer {
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .payment-method.selected {
-            border-color: var(--turquoise);
-            background: linear-gradient(135deg, rgba(64,224,208,0.1), rgba(255,165,0,0.1));
-        }
-
-        .payment-method:hover {
-            border-color: var(--orange);
-            transform: scale(1.05);
-        }
-
-        .payment-method i {
-            font-size: 24px;
-            margin-bottom: 5px;
+            margin-top: 20px;
+            color: #fff;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <!-- Contenu principal -->
-    <div class="main-content">
-        <div class="container">
-            <div class="card">
-                <div class="logo">
-                    <h1>AFRIMARKET</h1>
-                </div>
-                
-                <form id="signupForm">
-                    <div class="form-group">
-                        <label for="fullname">Nom complet *</label>
-                        <input type="text" id="fullname" name="fullname" required placeholder="Entrez votre nom complet">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="whatsapp">Numéro WhatsApp *</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" required placeholder="Ex: +221 77 123 45 67">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required placeholder="votre@email.com">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">Mot de passe *</label>
-                        <input type="password" id="password" name="password" required placeholder="Créez un mot de passe">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="payment">Moyen de paiement *</label>
-                        <div class="payment-methods">
-                            <div class="payment-method" onclick="selectPayment('Orange Money')">
-                                <i>📱</i>
-                                <span>Orange Money</span>
-                            </div>
-                            <div class="payment-method" onclick="selectPayment('Wave')">
-                                <i>🌊</i>
-                                <span>Wave</span>
-                            </div>
-                            <div class="payment-method" onclick="selectPayment('Free Money')">
-                                <i>💳</i>
-                                <span>Free Money</span>
-                            </div>
-                            <div class="payment-method" onclick="selectPayment('Carte Bancaire')">
-                                <i>💳</i>
-                                <span>Carte Bancaire</span>
-                            </div>
-                        </div>
-                        <input type="hidden" id="payment" name="payment" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="city">Ville *</label>
-                        <select id="city" name="city" required>
-                            <option value="">Sélectionnez votre ville</option>
-                            <option value="Dakar">Dakar</option>
-                            <option value="Thiès">Thiès</option>
-                            <option value="Saint-Louis">Saint-Louis</option>
-                            <option value="Kaolack">Kaolack</option>
-                            <option value="Ziguinchor">Ziguinchor</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="submit-btn" id="submitBtn">
-                        S'inscrire sur Afrimarket
-                    </button>
-
-                    <div class="message" id="message"></div>
-                </form>
-            </div>
+    <!-- Loader -->
+    <div class="loader-wrapper" id="loader">
+        <div class="loader-content">
+            <h1>AFRIMARKET</h1>
+            <div class="loader-spinner"></div>
+            <p>Votre plateforme de confiance...</p>
         </div>
     </div>
 
+    <!-- Main content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <h2>Inscription</h2>
+            <div class="color-bar"></div>
+            
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="fullName">Nom complet</label>
+                    <input type="text" id="fullName" name="fullName" required placeholder="Entrez votre nom complet">
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsapp">Numéro WhatsApp</label>
+                    <input type="tel" id="whatsapp" name="whatsapp" required placeholder="Ex: +221 77 123 45 67">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="exemple@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required placeholder="Minimum 6 caractères" minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="pay">Pays</label>
+                    <select id="pay" name="pay" required>
+                        <option value="">Sélectionnez votre pays</option>
+                        <option value="Senegal">Sénégal</option>
+                        <option value="Mali">Mali</option>
+                        <option value="Cote d'Ivoire">Côte d'Ivoire</option>
+                        <option value="Burkina Faso">Burkina Faso</option>
+                        <option value="Niger">Niger</option>
+                        <option value="Guinee">Guinée</option>
+                        <option value="Mauritanie">Mauritanie</option>
+                        <option value="Maroc">Maroc</option>
+                        <option value="Algerie">Algérie</option>
+                        <option value="Tunisie">Tunisie</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ville">Ville</label>
+                    <input type="text" id="ville" name="ville" required placeholder="Entrez votre ville">
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">S'inscrire</button>
+                
+                <div id="message" class="message"></div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Afrimarket - Tous droits réservés</p>
+    </footer>
+
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
         // Configuration Supabase
-        const supabaseUrl = 'https://elgbvitijyjriozvzqpf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const SUPABASE_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
+        
+        // Initialisation de Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Sélection du moyen de paiement
-        function selectPayment(method) {
-            document.getElementById('payment').value = method;
-            
-            // Mise à jour visuelle
-            document.querySelectorAll('.payment-method').forEach(el => {
-                el.classList.remove('selected');
-                if (el.textContent.includes(method)) {
-                    el.classList.add('selected');
-                }
-            });
-        }
+        // Gestion du loader
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loader').classList.add('fade-out');
+                document.getElementById('mainContent').classList.add('visible');
+            }, 5000);
+        });
 
-        // Validation du formulaire
+        // Gestion du formulaire
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const messageDiv = document.getElementById('message');
             const submitBtn = document.getElementById('submitBtn');
+            const messageDiv = document.getElementById('message');
             
-            // Vérification du moyen de paiement
-            if (!document.getElementById('payment').value) {
-                messageDiv.className = 'message error';
-                messageDiv.textContent = 'Veuillez sélectionner un moyen de paiement';
+            // Récupération des valeurs
+            const fullName = document.getElementById('fullName').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const pay = document.getElementById('pay').value;
+            const ville = document.getElementById('ville').value.trim();
+
+            // Validation basique
+            if (!fullName || !whatsapp || !email || !password || !pay || !ville) {
+                showMessage('Veuillez remplir tous les champs', 'error');
                 return;
             }
 
-            // Désactiver le bouton pendant l'envoi
+            if (password.length < 6) {
+                showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+                return;
+            }
+
+            // Validation email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('Veuillez entrer un email valide', 'error');
+                return;
+            }
+
+            // Désactivation du bouton pendant l'envoi
             submitBtn.disabled = true;
             submitBtn.textContent = 'Inscription en cours...';
+            messageDiv.style.display = 'none';
 
             try {
-                // Récupération des données
-                const formData = {
-                    fullname: document.getElementById('fullname').value,
-                    whatsapp: document.getElementById('whatsapp').value,
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value,
-                    payment_method: document.getElementById('payment').value,
-                    city: document.getElementById('city').value,
-                    created_at: new Date()
-                };
-
-                // Insertion dans Supabase
-                const { data, error } = await supabase
-                    .from('users')
-                    .insert([formData]);
-
-                if (error) throw error;
-
-                // Succès
-                messageDiv.className = 'message success';
-                messageDiv.textContent = 'Inscription réussie ! Bienvenue sur Afrimarket.';
-                
-                // Réinitialisation du formulaire
-                document.getElementById('signupForm').reset();
-                document.querySelectorAll('.payment-method').forEach(el => {
-                    el.classList.remove('selected');
+                // 1. Création de l'utilisateur dans Auth
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: fullName,
+                            whatsapp: whatsapp,
+                            country: pay,
+                            city: ville
+                        }
+                    }
                 });
 
+                if (authError) throw authError;
+
+                // 2. Insertion des données supplémentaires dans une table 'profiles'
+                if (authData.user) {
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([
+                            {
+                                id: authData.user.id,
+                                full_name: fullName,
+                                whatsapp: whatsapp,
+                                email: email,
+                                country: pay,
+                                city: ville,
+                                created_at: new Date()
+                            }
+                        ]);
+
+                    if (profileError) {
+                        console.error('Erreur profil:', profileError);
+                        // On continue même si l'insertion échoue, l'utilisateur est créé
+                    }
+                }
+
+                showMessage('Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.', 'success');
+                document.getElementById('signupForm').reset();
+
             } catch (error) {
-                messageDiv.className = 'message error';
-                messageDiv.textContent = 'Erreur lors de l\'inscription : ' + error.message;
+                console.error('Erreur complète:', error);
+                
+                let errorMessage = "Une erreur est survenue lors de l'inscription.";
+                
+                if (error.message) {
+                    if (error.message.includes('already registered')) {
+                        errorMessage = "Cet email est déjà utilisé.";
+                    } else if (error.message.includes('password')) {
+                        errorMessage = "Le mot de passe doit contenir au moins 6 caractères.";
+                    } else {
+                        errorMessage = error.message;
+                    }
+                }
+                
+                showMessage(errorMessage, 'error');
             } finally {
+                // Réactivation du bouton
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'S\'inscrire sur Afrimarket';
+                submitBtn.textContent = 'S\'inscrire';
             }
         });
 
-        // Création de la table users dans Supabase (à exécuter une fois)
-        async function createTable() {
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .limit(1);
-
-                if (error && error.code === '42P01') { // Table n'existe pas
-                    console.log('La table users n\'existe pas. Veuillez la créer dans Supabase avec les colonnes :');
-                    console.log('- fullname (text)');
-                    console.log('- whatsapp (text)');
-                    console.log('- email (text)');
-                    console.log('- password (text)');
-                    console.log('- payment_method (text)');
-                    console.log('- city (text)');
-                    console.log('- created_at (timestamp)');
-                }
-            } catch (error) {
-                console.log('Vérification de la table:', error);
-            }
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            // Scroll jusqu'au message
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // Appeler la fonction au chargement
-        createTable();
+        // Création de la table profiles si elle n'existe pas
+        // Note: Cette partie doit être exécutée dans l'éditeur SQL de Supabase
+        /*
+        CREATE TABLE profiles (
+            id UUID REFERENCES auth.users PRIMARY KEY,
+            full_name TEXT NOT NULL,
+            whatsapp TEXT NOT NULL,
+            email TEXT NOT NULL,
+            country TEXT NOT NULL,
+            city TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+        */
     </script>
 </body>
 </html>
