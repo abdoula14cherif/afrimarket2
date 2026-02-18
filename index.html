@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Afrimarket - Inscription</title>
+    <title>Afrimarket - Authentification</title>
     <style>
         * {
             margin: 0;
@@ -64,7 +64,7 @@
         /* Container principal */
         .container {
             width: 100%;
-            max-width: 550px;
+            max-width: 500px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -98,16 +98,48 @@
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
-            color: #ffffff;
         }
 
-        /* Formulaire */
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            border: none;
+            outline: none;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #0066cc, #ff3300);
+            color: white;
+            border-bottom: 3px solid #40e0d0;
+        }
+
+        .tab:not(.active):hover {
+            background: #f5f5f5;
+            color: #0066cc;
+        }
+
+        /* Formulaires */
         .form-container {
             padding: 30px;
+            transition: all 0.3s ease;
         }
 
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
         label {
@@ -134,17 +166,31 @@
             left: 15px;
             color: #0066cc;
             font-size: 1.2em;
+            z-index: 1;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            cursor: pointer;
+            color: #666;
+            font-size: 1.2em;
+            z-index: 1;
+        }
+
+        .toggle-password:hover {
+            color: #0066cc;
         }
 
         input, select {
             width: 100%;
-            padding: 12px 15px 12px 45px;
+            padding: 12px 45px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 1em;
             transition: all 0.3s ease;
             outline: none;
-            background-color: #f9f9f9;
+            background: #f9f9f9;
         }
 
         select {
@@ -159,6 +205,7 @@
         input:focus, select:focus {
             border-color: #0066cc;
             box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            background: white;
         }
 
         input:hover, select:hover {
@@ -177,7 +224,7 @@
         .strength-bar {
             height: 100%;
             width: 0;
-            transition: width 0.3s ease, background-color 0.3s ease;
+            transition: width 0.3s ease;
         }
 
         .strength-text {
@@ -186,46 +233,47 @@
             text-align: right;
         }
 
-        /* Grille pour le pays et la ville */
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        /* Checkbox des conditions */
-        .terms-checkbox {
+        /* Options */
+        .form-options {
             display: flex;
-            align-items: flex-start;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
             margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .terms-checkbox input {
+        .remember-me, .terms-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remember-me input, .terms-checkbox input {
             width: auto;
             padding: 0;
-            margin-top: 3px;
         }
 
-        .terms-checkbox label {
+        .remember-me label, .terms-checkbox label {
             margin-bottom: 0;
             font-weight: normal;
             font-size: 0.95em;
         }
 
-        .terms-checkbox a {
+        .forgot-password a {
             color: #0066cc;
             text-decoration: none;
+            font-size: 0.95em;
             font-weight: 600;
         }
 
-        .terms-checkbox a:hover {
+        .forgot-password a:hover {
             color: #ff3300;
             text-decoration: underline;
         }
 
-        /* Bouton d'inscription */
-        .btn-submit {
+        /* Bouton principal */
+        .btn-primary {
             width: 100%;
             padding: 15px;
             background: linear-gradient(135deg, #0066cc, #ff3300);
@@ -241,16 +289,16 @@
             overflow: hidden;
         }
 
-        .btn-submit:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0, 102, 204, 0.3);
         }
 
-        .btn-submit:active {
+        .btn-primary:active {
             transform: translateY(0);
         }
 
-        .btn-submit::before {
+        .btn-primary::before {
             content: '';
             position: absolute;
             top: 0;
@@ -261,16 +309,16 @@
             transition: left 0.5s;
         }
 
-        .btn-submit:hover::before {
+        .btn-primary:hover::before {
             left: 100%;
         }
 
-        .btn-submit.loading {
+        .btn-primary.loading {
             pointer-events: none;
             opacity: 0.7;
         }
 
-        .btn-submit.loading::after {
+        .btn-primary.loading::after {
             content: '';
             position: absolute;
             width: 20px;
@@ -320,30 +368,36 @@
             font-size: 0.9em;
         }
 
-        /* Bouton de connexion */
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background: white;
-            color: #0066cc;
-            border: 2px solid #0066cc;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
+        /* Boutons sociaux */
+        .social-login {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
         }
 
-        .btn-login:hover {
-            background: linear-gradient(135deg, #0066cc, #ff3300);
-            color: white;
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 102, 204, 0.3);
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
         }
+
+        .social-btn:hover {
+            border-color: #0066cc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-btn.google { color: #DB4437; }
+        .social-btn.facebook { color: #4267B2; }
 
         /* Message de statut */
         .status-message {
@@ -353,6 +407,18 @@
             text-align: center;
             font-weight: 600;
             display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .status-message.success {
@@ -396,6 +462,94 @@
             text-decoration: underline;
         }
 
+        /* Grille pour le pays et la ville */
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Validation visuelle */
+        .input-valid {
+            border-color: #40e0d0 !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2340e0d0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+        }
+
+        .input-invalid {
+            border-color: #ff3300 !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff3300' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3ccircle cx='12' cy='12' r='10'%3e%3c/circle%3e%3cline x1='12' y1='8' x2='12' y2='12'%3e%3c/line%3e%3cline x1='12' y1='16' x2='12.01' y2='16'%3e%3c/line%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0066cc, #ff3300);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            text-align: right;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #0066cc, #ff3300);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             .container {
@@ -413,23 +567,15 @@
             .form-container {
                 padding: 20px;
             }
-        }
-
-        /* Animation de validation */
-        .input-valid {
-            border-color: #40e0d0 !important;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2340e0d0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 20px;
-        }
-
-        .input-invalid {
-            border-color: #ff3300 !important;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff3300' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3ccircle cx='12' cy='12' r='10'%3e%3c/circle%3e%3cline x1='12' y1='8' x2='12' y2='12'%3e%3c/line%3e%3cline x1='12' y1='16' x2='12.01' y2='16'%3e%3c/line%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 20px;
+            
+            .social-login {
+                flex-direction: column;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -443,41 +589,97 @@
     <div class="container">
         <div class="header">
             <h1>AFRIMARKET</h1>
-            <p>Créez votre compte gratuitement</p>
+            <p>Bienvenue sur votre plateforme</p>
         </div>
 
-        <div class="form-container">
-            <!-- Formulaire d'inscription -->
-            <form id="registrationForm">
-                <div class="form-group">
-                    <label for="nomComplet" class="required">Nom complet</label>
-                    <div class="input-group">
-                        <span class="input-icon">👤</span>
-                        <input type="text" id="nomComplet" name="nomComplet" placeholder="Entrez votre nom complet" required>
-                    </div>
-                </div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" id="loginTab" onclick="switchTab('login')">CONNEXION</button>
+            <button class="tab" id="registerTab" onclick="switchTab('register')">INSCRIPTION</button>
+        </div>
 
+        <!-- Formulaire de connexion -->
+        <div id="loginForm" class="form-container" style="display: block;">
+            <form onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="whatsapp" class="required">Numéro WhatsApp</label>
-                    <div class="input-group">
-                        <span class="input-icon">📱</span>
-                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="+221 77 123 45 67" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="email" class="required">Email</label>
+                    <label for="loginEmail" class="required">Email ou WhatsApp</label>
                     <div class="input-group">
                         <span class="input-icon">📧</span>
-                        <input type="email" id="email" name="email" placeholder="votre@email.com" required>
+                        <input type="text" id="loginEmail" name="email" placeholder="votre@email.com ou +221 77 123 45 67" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="password" class="required">Mot de passe</label>
+                    <label for="loginPassword" class="required">Mot de passe</label>
                     <div class="input-group">
                         <span class="input-icon">🔒</span>
-                        <input type="password" id="password" name="password" placeholder="Créez un mot de passe sécurisé" required>
+                        <input type="password" id="loginPassword" name="password" placeholder="Entrez votre mot de passe" required>
+                        <span class="toggle-password" onclick="togglePassword('loginPassword')">👁️</span>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="remember">
+                        <label for="rememberMe">Se souvenir de moi</label>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="#" onclick="showForgotPassword()">Mot de passe oublié ?</a>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    SE CONNECTER
+                </button>
+            </form>
+
+            <div class="separator">
+                <span>ou connectez-vous avec</span>
+            </div>
+
+            <div class="social-login">
+                <button class="social-btn google" onclick="socialLogin('google')">
+                    <span style="font-weight: bold;">G</span> Google
+                </button>
+                <button class="social-btn facebook" onclick="socialLogin('facebook')">
+                    <span style="font-weight: bold;">f</span> Facebook
+                </button>
+            </div>
+        </div>
+
+        <!-- Formulaire d'inscription -->
+        <div id="registerForm" class="form-container" style="display: none;">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerNom" class="required">Nom complet</label>
+                    <div class="input-group">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="registerNom" name="nom" placeholder="Entrez votre nom complet" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerWhatsapp" class="required">Numéro WhatsApp</label>
+                    <div class="input-group">
+                        <span class="input-icon">📱</span>
+                        <input type="tel" id="registerWhatsapp" name="whatsapp" placeholder="+221 77 123 45 67" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail" class="required">Email</label>
+                    <div class="input-group">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="registerEmail" name="email" placeholder="votre@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword" class="required">Mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="registerPassword" name="password" placeholder="Créez un mot de passe" required>
+                        <span class="toggle-password" onclick="togglePassword('registerPassword')">👁️</span>
                     </div>
                     <div class="password-strength">
                         <div class="strength-bar" id="strengthBar"></div>
@@ -487,8 +689,8 @@
 
                 <div class="row">
                     <div class="form-group">
-                        <label for="pays" class="required">Pays</label>
-                        <select id="pays" name="pays" required>
+                        <label for="registerPays" class="required">Pays</label>
+                        <select id="registerPays" name="pays" required>
                             <option value="">Sélectionnez</option>
                             <option value="senegal">Sénégal</option>
                             <option value="cote divoire">Côte d'Ivoire</option>
@@ -502,40 +704,49 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="ville" class="required">Ville</label>
+                        <label for="registerVille" class="required">Ville</label>
                         <div class="input-group">
                             <span class="input-icon">🏙️</span>
-                            <input type="text" id="ville" name="ville" placeholder="Votre ville" required>
+                            <input type="text" id="registerVille" name="ville" placeholder="Votre ville" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="terms-checkbox">
-                    <input type="checkbox" id="terms" name="terms" required>
-                    <label for="terms">J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a></label>
+                    <input type="checkbox" id="acceptTerms" name="terms" required>
+                    <label for="acceptTerms">J'accepte les <a href="#">conditions</a> et la <a href="#">politique</a></label>
                 </div>
 
-                <button type="submit" class="btn-submit" id="submitBtn">
+                <button type="submit" class="btn-primary" id="registerBtn">
                     CRÉER MON COMPTE
                 </button>
             </form>
-
-            <!-- Message de statut -->
-            <div id="statusMessage" class="status-message"></div>
-
-            <div class="separator">
-                <span>déjà inscrit ?</span>
-            </div>
-
-            <!-- Bouton de connexion -->
-            <a href="connexion.html" class="btn-login">
-                SE CONNECTER
-            </a>
         </div>
 
+        <!-- Message de statut -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- Pied de page -->
         <div class="footer">
             <p>© 2024 Afrimarket - Tous droits réservés</p>
-            <p><a href="#">Conditions d'utilisation</a> | <a href="#">Politique de confidentialité</a></p>
+            <p><a href="#">Aide</a> | <a href="#">Contact</a></p>
+        </div>
+    </div>
+
+    <!-- Modal Mot de passe oublié -->
+    <div class="modal" id="forgotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Réinitialiser le mot de passe</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px;">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+                <input type="email" id="resetEmail" placeholder="votre@email.com" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" style="background: #666; margin-right: 10px;">Annuler</button>
+                <button onclick="sendResetLink()">Envoyer</button>
+            </div>
         </div>
     </div>
 
@@ -550,14 +761,41 @@
 
         // Gestion du loader
         setTimeout(() => {
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.animation = 'fadeOut 0.5s ease forwards';
-            }
+            document.getElementById('loader').style.animation = 'fadeOut 0.5s ease forwards';
         }, 5000);
 
-        // Formatage du numéro WhatsApp
-        document.getElementById('whatsapp').addEventListener('input', function(e) {
+        // Switch entre les tabs
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusMessage.style.display = 'none';
+            
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            }
+        }
+
+        // Afficher/Cacher mot de passe
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const type = input.type === 'password' ? 'text' : 'password';
+            input.type = type;
+        }
+
+        // Formatage WhatsApp
+        document.getElementById('registerWhatsapp')?.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 0) {
                 if (value.length <= 2) {
@@ -573,14 +811,13 @@
             e.target.value = value;
         });
 
-        // Vérification de la force du mot de passe
-        document.getElementById('password').addEventListener('input', function(e) {
+        // Force du mot de passe
+        document.getElementById('registerPassword')?.addEventListener('input', function(e) {
             const password = e.target.value;
             const strengthBar = document.getElementById('strengthBar');
             const strengthText = document.getElementById('strengthText');
             
             let strength = 0;
-            
             if (password.length >= 8) strength += 25;
             if (password.match(/[a-z]+/)) strength += 25;
             if (password.match(/[A-Z]+/)) strength += 25;
@@ -608,8 +845,8 @@
             }
         });
 
-        // Validation en temps réel
-        document.getElementById('email').addEventListener('input', function(e) {
+        // Validation email en temps réel
+        document.getElementById('registerEmail')?.addEventListener('input', function(e) {
             const email = e.target.value;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
@@ -622,57 +859,93 @@
             }
         });
 
+        // Gestion de la connexion
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (!email || !password) {
+                showStatus('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'CONNEXION...';
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                showStatus('Connexion réussie ! Redirection...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatus('Email ou mot de passe incorrect', 'error');
+            } finally {
+                loginBtn.classList.remove('loading');
+                loginBtn.textContent = 'SE CONNECTER';
+            }
+        }
+
         // Gestion de l'inscription
-        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        async function handleRegister(event) {
+            event.preventDefault();
             
-            const submitBtn = document.getElementById('submitBtn');
-            const statusMessage = document.getElementById('statusMessage');
-            
-            // Récupération des données
             const formData = {
-                nom_complet: document.getElementById('nomComplet').value,
-                whatsapp: document.getElementById('whatsapp').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                pays: document.getElementById('pays').value,
-                ville: document.getElementById('ville').value
+                nom: document.getElementById('registerNom').value,
+                whatsapp: document.getElementById('registerWhatsapp').value,
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value,
+                pays: document.getElementById('registerPays').value,
+                ville: document.getElementById('registerVille').value
             };
 
-            // Validation
-            if (!formData.nom_complet || !formData.whatsapp || !formData.email || !formData.password || !formData.pays || !formData.ville) {
-                showStatus('Veuillez remplir tous les champs obligatoires.', 'error');
+            const registerBtn = document.getElementById('registerBtn');
+
+            // Validations
+            if (!formData.nom || !formData.whatsapp || !formData.email || !formData.password || !formData.pays || !formData.ville) {
+                showStatus('Veuillez remplir tous les champs', 'error');
                 return;
             }
 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(formData.email)) {
-                showStatus('Veuillez entrer une adresse email valide.', 'error');
+                showStatus('Email invalide', 'error');
                 return;
             }
 
             if (formData.password.length < 6) {
-                showStatus('Le mot de passe doit contenir au moins 6 caractères.', 'error');
+                showStatus('Le mot de passe doit contenir au moins 6 caractères', 'error');
                 return;
             }
 
-            if (!document.getElementById('terms').checked) {
-                showStatus('Vous devez accepter les conditions d\'utilisation.', 'error');
+            if (!document.getElementById('acceptTerms').checked) {
+                showStatus('Vous devez accepter les conditions', 'error');
                 return;
             }
 
-            // Désactiver le bouton
-            submitBtn.classList.add('loading');
-            submitBtn.textContent = 'CRÉATION EN COURS...';
-            
+            registerBtn.classList.add('loading');
+            registerBtn.textContent = 'INSCRIPTION...';
+
             try {
-                // 1. Créer l'utilisateur dans Supabase Auth
+                // Inscription dans Auth
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: formData.email,
                     password: formData.password,
                     options: {
                         data: {
-                            nom_complet: formData.nom_complet,
+                            nom_complet: formData.nom,
                             whatsapp: formData.whatsapp,
                             pays: formData.pays,
                             ville: formData.ville
@@ -682,90 +955,119 @@
 
                 if (authError) throw authError;
 
-                // 2. Ajouter les informations supplémentaires dans la table utilisateurs
-                const { data: userData, error: userError } = await supabase
+                // Insertion dans la table utilisateurs
+                const { error: userError } = await supabase
                     .from('utilisateurs')
-                    .insert([
-                        {
-                            id: authData.user.id,
-                            nom_complet: formData.nom_complet,
-                            whatsapp: formData.whatsapp,
-                            email: formData.email,
-                            password: formData.password, // Note: En production, ne stockez pas le mot de passe en clair
-                            pays: formData.pays,
-                            ville: formData.ville,
-                            created_at: new Date().toISOString()
-                        }
-                    ]);
+                    .insert([{
+                        id: authData.user.id,
+                        nom_complet: formData.nom,
+                        whatsapp: formData.whatsapp,
+                        email: formData.email,
+                        password: formData.password,
+                        pays: formData.pays,
+                        ville: formData.ville
+                    }]);
 
                 if (userError) throw userError;
 
-                // Succès
-                showStatus('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.', 'success');
+                showStatus('Inscription réussie ! Vérifiez votre email', 'success');
                 
-                // Réinitialiser le formulaire
-                this.reset();
-                
-                // Redirection après 3 secondes
                 setTimeout(() => {
-                    window.location.href = 'connexion.html';
+                    switchTab('login');
                 }, 3000);
 
             } catch (error) {
                 console.error('Erreur:', error);
                 
-                let errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
-                
-                if (error.message.includes('duplicate key') || error.message.includes('already registered')) {
-                    errorMessage = 'Cet email est déjà utilisé. Veuillez vous connecter.';
-                } else if (error.message.includes('password')) {
-                    errorMessage = 'Le mot de passe n\'est pas assez sécurisé.';
+                if (error.message.includes('already registered')) {
+                    showStatus('Cet email est déjà utilisé', 'error');
+                } else {
+                    showStatus('Erreur lors de l\'inscription', 'error');
                 }
-                
-                showStatus(errorMessage, 'error');
             } finally {
-                submitBtn.classList.remove('loading');
-                submitBtn.textContent = 'CRÉER MON COMPTE';
+                registerBtn.classList.remove('loading');
+                registerBtn.textContent = 'CRÉER MON COMPTE';
             }
-        });
+        }
 
-        // Fonction pour afficher les messages
+        // Connexion sociale
+        async function socialLogin(provider) {
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: provider,
+                    options: {
+                        redirectTo: window.location.origin + '/dashboard.html'
+                    }
+                });
+                
+                if (error) throw error;
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatus(`Erreur de connexion avec ${provider}`, 'error');
+            }
+        }
+
+        // Mot de passe oublié
+        function showForgotPassword() {
+            document.getElementById('forgotModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('forgotModal').classList.remove('active');
+        }
+
+        async function sendResetLink() {
+            const email = document.getElementById('resetEmail').value;
+            
+            if (!email) {
+                alert('Veuillez entrer votre email');
+                return;
+            }
+
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/reset-password.html',
+                });
+
+                if (error) throw error;
+
+                alert('Lien de réinitialisation envoyé !');
+                closeModal();
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'envoi');
+            }
+        }
+
+        // Afficher les messages
         function showStatus(message, type) {
             const statusMessage = document.getElementById('statusMessage');
             statusMessage.className = `status-message ${type}`;
             statusMessage.textContent = message;
             
-            // Auto-cacher après 5 secondes pour les messages de succès
-            if (type === 'success') {
-                setTimeout(() => {
-                    statusMessage.style.display = 'none';
-                }, 5000);
-            }
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
         }
 
-        // Animation au focus
-        const inputs = document.querySelectorAll('input, select');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-                this.parentElement.style.transition = 'transform 0.3s ease';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
-
-        // Vérifier si l'utilisateur est déjà connecté
+        // Vérifier la session
         async function checkSession() {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
-                // Proposer de se déconnecter ou rediriger
-                console.log('Utilisateur déjà connecté');
+                window.location.href = 'dashboard.html';
             }
         }
 
+        // Initialisation
         checkSession();
+
+        // Fermer le modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modal = document.getElementById('forgotModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 </html>
