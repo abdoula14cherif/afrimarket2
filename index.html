@@ -715,11 +715,9 @@ document.getElementById('regForm').addEventListener('submit', async e => {
 
     const uid = auth?.user?.id;
 
-    // 2. Vérifier si la table utilisateurs existe, sinon utiliser profiles
-    // Essayer d'insérer dans utilisateurs d'abord
+    // 2. Insérer dans la table utilisateurs
     if (uid) {
       try {
-        // Tentative d'insertion dans la table utilisateurs
         const { error: dbErr } = await sb.from('utilisateurs').insert({
           id: uid,
           nom_complet: name,
@@ -732,23 +730,10 @@ document.getElementById('regForm').addEventListener('submit', async e => {
         });
         
         if (dbErr) {
-          // Si la table utilisateurs n'existe pas, essayer profiles
-          console.warn('Erreur table utilisateurs, tentative sur profiles:', dbErr.message);
-          const { error: profileErr } = await sb.from('profiles').insert({
-            id: uid,
-            full_name: name,
-            whatsapp: wa,
-            email: email,
-            pays: pays,
-            ville: ville,
-            created_at: new Date().toISOString()
-          });
-          
-          if (profileErr) throw profileErr;
+          console.warn('Erreur insertion DB:', dbErr.message);
         }
       } catch (dbError) {
         console.warn('Erreur insertion DB:', dbError.message);
-        // On continue même si l'insertion échoue, l'utilisateur est déjà créé dans Auth
       }
     }
 
@@ -766,7 +751,7 @@ document.getElementById('regForm').addEventListener('submit', async e => {
   }
 });
 
-// ===== LOGIN =====
+// ===== LOGIN AVEC REDIRECTION VERS DASHBOARD =====
 document.getElementById('logForm').addEventListener('submit', async e => {
   e.preventDefault();
   clearErrs();
@@ -787,13 +772,12 @@ document.getElementById('logForm').addEventListener('submit', async e => {
     if (error) throw error;
 
     const prenom = data?.user?.user_metadata?.full_name?.split(' ')[0] || '';
-    toast(`Bienvenue${prenom ? ' '+prenom : ''} ! 🎉`, 'success');
+    toast(`Bienvenue${prenom ? ' '+prenom : ''} ! Redirection vers votre tableau de bord...`, 'success');
 
-    // Redirection après succès (modifiez l'URL selon votre structure)
+    // Redirection vers dashboard.html après 1 seconde
     setTimeout(() => {
-      // window.location.href = 'dashboard.html'; // ← décommentez quand la page existe
-      toast('Connexion réussie ! Redirection…', 'success');
-    }, 1500);
+      window.location.href = 'dashboard.html';
+    }, 1000);
 
   } catch(err) {
     console.error(err);
@@ -834,49 +818,11 @@ async function handleForgot(e) {
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
-      const prenom = session.user?.user_metadata?.full_name?.split(' ')[0] || '';
-      toast(`Vous êtes déjà connecté${prenom ? ', '+prenom : ''} !`, 'info');
+      // Si déjà connecté, rediriger vers dashboard
+      window.location.href = 'dashboard.html';
     }
   } catch(err) { /* silencieux */ }
 })();
-
-// ===== CRÉATION DE LA TABLE SI ELLE N'EXISTE PAS =====
-// Cette fonction est optionnelle - elle tente de créer la table si elle n'existe pas
-async function ensureTableExists() {
-  try {
-    // Vérifier si la table utilisateurs existe en faisant une requête simple
-    const { error } = await sb.from('utilisateurs').select('count', { count: 'exact', head: true });
-    
-    if (error && error.message.includes('relation') && error.message.includes('does not exist')) {
-      console.log('La table utilisateurs n\'existe pas. Veuillez la créer dans Supabase SQL Editor avec:');
-      console.log(`
-        CREATE TABLE utilisateurs (
-          id UUID PRIMARY KEY,
-          nom_complet TEXT NOT NULL,
-          whatsapp TEXT NOT NULL,
-          email TEXT UNIQUE NOT NULL,
-          password TEXT NOT NULL,
-          pays TEXT NOT NULL,
-          ville TEXT NOT NULL,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        
-        ALTER TABLE utilisateurs ENABLE ROW LEVEL SECURITY;
-        
-        CREATE POLICY "Allow insert for all" ON utilisateurs
-          FOR INSERT WITH CHECK (true);
-          
-        CREATE POLICY "Allow select for authenticated" ON utilisateurs
-          FOR SELECT USING (auth.role() = 'authenticated');
-      `);
-    }
-  } catch (err) {
-    // Ignorer les erreurs
-  }
-}
-
-// Appeler la fonction au chargement
-ensureTableExists();
 </script>
 </body>
 </html>
