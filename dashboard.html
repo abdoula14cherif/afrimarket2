@@ -527,7 +527,7 @@
     <div class="btn-notif" onclick="showToast('Aucune nouvelle notification','info')">
       🔔<div class="notif-dot"></div>
     </div>
-    <div class="avatar-btn" id="avatarBtn">?</div>
+    <div class="avatar-btn" id="avatarBtn" onclick="window.location.href='profil.html'">?</div>
   </div>
 </div>
 
@@ -559,10 +559,10 @@
       <button class="qbtn qbtn-turq" onclick="scrollToAds()">
         🔥 Tendances
       </button>
-      <button class="qbtn qbtn-orange" onclick="showToast('Fonctionnalité Premium bientôt !','info')">
-        ⭐ Premium
+      <button class="qbtn qbtn-orange" onclick="window.location.href='gagner.html'">
+        ⭐ Gagner
       </button>
-      <button class="qbtn qbtn-red" onclick="showToast('Partage en cours…','info')">
+      <button class="qbtn qbtn-red" onclick="shareApp()">
         📤 Partager
       </button>
     </div>
@@ -816,25 +816,10 @@ async function loadAds() {
     renderAds();
   } catch(err) {
     console.error('Erreur chargement annonces:', err);
-    // Afficher données de démo si la table n'existe pas encore
-    allAds = getDemoAds();
+    allAds = [];
     renderAds();
-    showToast('Mode démo — créez la table "annonces" dans Supabase', 'warning');
+    showToast('Erreur de chargement des annonces', 'error');
   }
-}
-
-// ===== DEMO ADS =====
-function getDemoAds() {
-  return [
-    { id:'d1', titre:'iPhone 14 Pro 256Go', description:'iPhone 14 Pro Max noir, très bon état, boîte d\'origine. Acheté en janvier 2024.', prix:350000, categorie:'electronique', ville:'Abidjan', created_at: new Date(Date.now()-3600000).toISOString(), profiles:{full_name:'Koné Jean',whatsapp:'+2250707000001'}, urgent:true },
-    { id:'d2', titre:'Appartement F3 Cocody', description:'Beau appartement 3 pièces à louer à Cocody. Climatisé, gardiennage 24h.', prix:250000, categorie:'immobilier', ville:'Cocody', created_at: new Date(Date.now()-7200000).toISOString(), profiles:{full_name:'Ouattara Awa',whatsapp:'+2250707000002'} },
-    { id:'d3', titre:'Toyota Corolla 2019', description:'Voiture en parfait état, première main. Kilométrage : 45 000 km.', prix:9500000, categorie:'vehicules', ville:'Yopougon', created_at: new Date(Date.now()-10800000).toISOString(), profiles:{full_name:'Bamba Drissa',whatsapp:'+2250707000003'} },
-    { id:'d4', titre:'Robe Wax Élégante', description:'Belle robe en tissu wax de qualité, taille M. Couturière professionnelle.', prix:15000, categorie:'mode', ville:'Treichville', created_at: new Date(Date.now()-14400000).toISOString(), profiles:{full_name:'Fadiga Mariame',whatsapp:'+2250707000004'}, promo:true },
-    { id:'d5', titre:'Plombier Professionnel', description:'Plombier disponible 7j/7. Intervention rapide à domicile. Devis gratuit.', prix:5000, categorie:'services', ville:'Plateau', created_at: new Date(Date.now()-18000000).toISOString(), profiles:{full_name:'Coulibaly Seydou',whatsapp:'+2250707000005'} },
-    { id:'d6', titre:'Samsung Galaxy S23', description:'Samsung S23 Ultra comme neuf, 512Go, Phantom Black. Avec chargeur d\'origine.', prix:480000, categorie:'electronique', ville:'Marcory', created_at: new Date(Date.now()-21600000).toISOString(), profiles:{full_name:'Traoré Aminata',whatsapp:'+2250707000006'}, urgent:true },
-    { id:'d7', titre:'Poisson fumé en gros', description:'Poisson fumé de qualité, livraison possible. Prix dégressif selon quantité.', prix:8000, categorie:'alimentation', ville:'Port-Bouët', created_at: new Date(Date.now()-25200000).toISOString(), profiles:{full_name:'Koffi Adjoa',whatsapp:'+2250707000007'}, promo:true },
-    { id:'d8', titre:'Offre d\'emploi Comptable', description:'Entreprise cherche comptable expérimenté. BAC+3 minimum, 3 ans d\'expérience.', prix:null, categorie:'emploi', ville:'Plateau', created_at: new Date(Date.now()-28800000).toISOString(), profiles:{full_name:'SARL Djomo',whatsapp:'+2250707000008'} },
-  ];
 }
 
 // ===== RENDER ADS =====
@@ -1019,24 +1004,37 @@ document.getElementById('pubForm').addEventListener('submit', async e => {
 
 // ===== BOTTOM NAV =====
 function navGo(page, el) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
   if (page==='home') {
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    el.classList.add('active');
     window.scrollTo({top:0,behavior:'smooth'});
     return;
   }
-  const msgs = {
-    gagner:'💰 Section Gagner bientôt disponible !',
-    historique:'🕐 Votre historique bientôt disponible !',
-    profil:'👤 Page profil bientôt disponible !'
+  const pages = {
+    gagner:     'gagner.html',
+    historique: 'historique.html',
+    profil:     'profil.html'
   };
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  el.classList.add('active');
-  showToast(msgs[page]||'Bientôt disponible','info');
+  if (pages[page]) window.location.href = pages[page];
 }
 
 function scrollToAds() {
   document.getElementById('adsAnchor').scrollIntoView({behavior:'smooth'});
+}
+
+// ===== SHARE =====
+function shareApp() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'AfriMarket',
+      text: 'Découvrez AfriMarket — La marketplace africaine de petites annonces !',
+      url: window.location.origin
+    }).catch(()=>{});
+  } else {
+    navigator.clipboard?.writeText(window.location.origin)
+      .then(()=>showToast('Lien copié ! 📋','success'))
+      .catch(()=>showToast('Partagez : '+window.location.origin,'info'));
+  }
 }
 
 // ===== START =====
