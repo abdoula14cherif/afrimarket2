@@ -492,6 +492,22 @@
     .btn-pub.loading .spin-sm { display:block; }
     .btn-pub.loading .pub-lbl { display:none; }
 
+    /* IMAGE UPLOAD */
+    .img-upload-zone {
+      border:2px dashed var(--border); border-radius:14px;
+      padding:1.2rem; text-align:center; cursor:pointer;
+      transition:border-color .2s, background .2s; position:relative;
+    }
+    .img-upload-zone:hover { border-color:var(--blue2); background:#FAFBFF; }
+    .img-upload-zone.has-img { border-style:solid; border-color:var(--turq); padding:.4rem; }
+    .img-upload-zone input[type=file] {
+      position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+    }
+    .upload-ico { font-size:1.6rem; }
+    .upload-txt { font-size:.75rem; color:var(--gray); font-weight:500; margin-top:.3rem; }
+    .img-preview { width:100%; height:150px; object-fit:cover; border-radius:10px; display:none; }
+    .img-preview.show { display:block; }
+
     /* SECTION TABS */
     .ad-tabs {
       display:flex; gap:.5rem; padding:0 1.2rem .8rem;
@@ -680,6 +696,17 @@
     <div class="pub-title">📝 Publier une annonce</div>
     <form id="pubForm" novalidate>
       <div class="pub-field">
+        <label>Photo de l'annonce</label>
+        <div class="img-upload-zone" id="uploadZone">
+          <input type="file" id="p_img" accept="image/*" onchange="previewImage(event)"/>
+          <div id="uploadPlaceholder">
+            <div class="upload-ico">📷</div>
+            <div class="upload-txt">Appuyez pour ajouter une photo</div>
+          </div>
+          <img class="img-preview" id="imgPreview" alt="Aperçu"/>
+        </div>
+      </div>
+      <div class="pub-field">
         <label>Titre *</label>
         <input type="text" id="p_title" placeholder="Ex : iPhone 14 Pro Max 256Go"/>
       </div>
@@ -857,10 +884,13 @@ function renderAds() {
     const emoji = EMOJI_MAP[ad.categorie] || '📦';
     const badge = ad.urgent ? '<div class="ad-badge">Urgent</div>' : ad.promo ? '<div class="ad-badge" style="background:var(--turq)">Promo</div>' : '';
     const isLiked = liked.has(ad.id);
+    const imgContent = ad.image_url
+      ? `<img src="${ad.image_url}" alt="${ad.titre||''}" style="width:100%;aspect-ratio:4/3;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.5rem;\'>${emoji}</div>'">`
+      : `<div style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">${emoji}</div>`;
     return `
       <div class="ad-card" style="animation-delay:${i*0.05}s" onclick="openDetail('${ad.id}')">
-        <div class="ad-img">
-          ${emoji}
+        <div class="ad-img" style="padding:0;background:none;">
+          ${imgContent}
           ${badge}
           <button class="ad-fav ${isLiked?'liked':''}" id="fav_${ad.id}"
             onclick="event.stopPropagation();toggleFav('${ad.id}')" aria-label="Favori"></button>
@@ -871,7 +901,7 @@ function renderAds() {
           <div class="ad-location">📍 ${ad.ville||'—'}</div>
           <div class="ad-footer">
             <span class="ad-time">${timeAgo(ad.created_at)}</span>
-            <button class="btn-wa" onclick="event.stopPropagation();contactWA('${(ad.profiles?.whatsapp||'').replace(/[^0-9+]/g,'')}')" title="WhatsApp">💬</button>
+            <button class="btn-wa" onclick="event.stopPropagation();contactWA('${(ad.profiles?.whatsapp||ad.whatsapp||'').replace(/[^0-9+]/g,'')}')" title="WhatsApp">💬</button>
           </div>
         </div>
       </div>
@@ -910,11 +940,19 @@ function contactWA(num) {
 
 // ===== DETAIL MODAL =====
 function openDetail(id) {
-  const ad = allAds.find(a=>a.id===id || a.id===id);
+  const ad = allAds.find(a=>a.id===id);
   if (!ad) return;
   const emoji = EMOJI_MAP[ad.categorie] || '📦';
-  document.getElementById('mImg').textContent = emoji;
-  document.getElementById('mImg').style.background = 'linear-gradient(135deg,#E8EEFF,#F0F4FF)';
+  const mImg = document.getElementById('mImg');
+  if (ad.image_url) {
+    mImg.innerHTML = `<img src="${ad.image_url}" alt="${ad.titre||''}" style="width:100%;height:200px;object-fit:cover;border-radius:16px;" onerror="this.parentElement.innerHTML='${emoji}';this.parentElement.style.fontSize='4rem';">`;
+    mImg.style.background = 'none';
+    mImg.style.fontSize = 'unset';
+  } else {
+    mImg.textContent = emoji;
+    mImg.style.background = 'linear-gradient(135deg,#E8EEFF,#F0F4FF)';
+    mImg.style.fontSize = '4rem';
+  }
   document.getElementById('mTitle').textContent = ad.titre||'Sans titre';
   document.getElementById('mPrice').textContent = fmtPrice(ad.prix);
   document.getElementById('mDesc').textContent = ad.description||'Aucune description.';
@@ -949,6 +987,23 @@ function closePub(e) {
     document.getElementById('pubOverlay').classList.remove('open');
 }
 
+// ===== IMAGE PREVIEW =====
+function previewImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById('imgPreview');
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const zone = document.getElementById('uploadZone');
+  const reader = new FileReader();
+  reader.onload = ev => {
+    preview.src = ev.target.result;
+    preview.classList.add('show');
+    placeholder.style.display = 'none';
+    zone.classList.add('has-img');
+  };
+  reader.readAsDataURL(file);
+}
+
 document.getElementById('pubForm').addEventListener('submit', async e => {
   e.preventDefault();
   const title = document.getElementById('p_title').value.trim();
@@ -967,6 +1022,21 @@ document.getElementById('pubForm').addEventListener('submit', async e => {
   btn.disabled=true; btn.classList.add('loading');
 
   try {
+    // 1. Upload image si présente
+    let image_url = null;
+    const imgFile = document.getElementById('p_img').files[0];
+    if (imgFile) {
+      const ext = imgFile.name.split('.').pop();
+      const fileName = `${currentUser.id}/${Date.now()}.${ext}`;
+      const { data: storageData, error: storageErr } = await sb.storage
+        .from('annonces')
+        .upload(fileName, imgFile, { upsert: true });
+      if (storageErr) throw storageErr;
+      const { data: urlData } = sb.storage.from('annonces').getPublicUrl(fileName);
+      image_url = urlData.publicUrl;
+    }
+
+    // 2. Insérer l'annonce
     const payload = {
       titre: title,
       description: desc,
@@ -974,6 +1044,7 @@ document.getElementById('pubForm').addEventListener('submit', async e => {
       categorie: cat,
       ville,
       whatsapp: wa,
+      image_url,
       user_id: currentUser.id,
       created_at: new Date().toISOString()
     };
@@ -988,6 +1059,11 @@ document.getElementById('pubForm').addEventListener('submit', async e => {
 
     document.getElementById('pubOverlay').classList.remove('open');
     document.getElementById('pubForm').reset();
+    // reset image preview
+    document.getElementById('imgPreview').classList.remove('show');
+    document.getElementById('imgPreview').src = '';
+    document.getElementById('uploadPlaceholder').style.display = '';
+    document.getElementById('uploadZone').classList.remove('has-img');
     showToast('Annonce publiée avec succès ! 🎉','success');
 
   } catch(err) {
