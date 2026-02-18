@@ -455,17 +455,28 @@
                 <span class="inp-ico">🌍</span>
                 <select id="r_pays">
                   <option value="">Choisir votre pays…</option>
-                  <option>🇨🇮 Côte d'Ivoire</option><option>🇸🇳 Sénégal</option>
-                  <option>🇲🇱 Mali</option><option>🇧🇫 Burkina Faso</option>
-                  <option>🇬🇳 Guinée</option><option>🇨🇲 Cameroun</option>
-                  <option>🇧🇯 Bénin</option><option>🇹🇬 Togo</option>
-                  <option>🇳🇪 Niger</option><option>🇨🇩 RD Congo</option>
-                  <option>🇨🇬 Congo</option><option>🇬🇦 Gabon</option>
-                  <option>🇲🇬 Madagascar</option><option>🇲🇦 Maroc</option>
-                  <option>🇩🇿 Algérie</option><option>🇹🇳 Tunisie</option>
-                  <option>🇬🇭 Ghana</option><option>🇳🇬 Nigeria</option>
-                  <option>🇰🇪 Kenya</option><option>🇪🇹 Éthiopie</option>
-                  <option>🇿🇦 Afrique du Sud</option><option>🌐 Autre</option>
+                  <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+                  <option value="Sénégal">🇸🇳 Sénégal</option>
+                  <option value="Mali">🇲🇱 Mali</option>
+                  <option value="Burkina Faso">🇧🇫 Burkina Faso</option>
+                  <option value="Guinée">🇬🇳 Guinée</option>
+                  <option value="Cameroun">🇨🇲 Cameroun</option>
+                  <option value="Bénin">🇧🇯 Bénin</option>
+                  <option value="Togo">🇹🇬 Togo</option>
+                  <option value="Niger">🇳🇪 Niger</option>
+                  <option value="RD Congo">🇨🇩 RD Congo</option>
+                  <option value="Congo">🇨🇬 Congo</option>
+                  <option value="Gabon">🇬🇦 Gabon</option>
+                  <option value="Madagascar">🇲🇬 Madagascar</option>
+                  <option value="Maroc">🇲🇦 Maroc</option>
+                  <option value="Algérie">🇩🇿 Algérie</option>
+                  <option value="Tunisie">🇹🇳 Tunisie</option>
+                  <option value="Ghana">🇬🇭 Ghana</option>
+                  <option value="Nigeria">🇳🇬 Nigeria</option>
+                  <option value="Kenya">🇰🇪 Kenya</option>
+                  <option value="Éthiopie">🇪🇹 Éthiopie</option>
+                  <option value="Afrique du Sud">🇿🇦 Afrique du Sud</option>
+                  <option value="Autre">🌐 Autre</option>
                 </select>
               </div>
               <span class="f-err" id="e_pays">Choisissez un pays</span>
@@ -691,25 +702,54 @@ document.getElementById('regForm').addEventListener('submit', async e => {
       email,
       password: pwd,
       options: {
-        data: { full_name: name, whatsapp: wa, pays, ville }
+        data: { 
+          full_name: name, 
+          whatsapp: wa, 
+          pays: pays, 
+          ville: ville 
+        }
       }
     });
+    
     if (authErr) throw authErr;
 
     const uid = auth?.user?.id;
 
-    // 2. Insérer dans la table profiles
+    // 2. Vérifier si la table utilisateurs existe, sinon utiliser profiles
+    // Essayer d'insérer dans utilisateurs d'abord
     if (uid) {
-      const { error: dbErr } = await sb.from('profiles').upsert({
-        id: uid,
-        full_name: name,
-        whatsapp: wa,
-        email,
-        pays,
-        ville,
-        created_at: new Date().toISOString()
-      });
-      if (dbErr) console.warn('DB warning:', dbErr.message);
+      try {
+        // Tentative d'insertion dans la table utilisateurs
+        const { error: dbErr } = await sb.from('utilisateurs').insert({
+          id: uid,
+          nom_complet: name,
+          whatsapp: wa,
+          email: email,
+          password: pwd,
+          pays: pays,
+          ville: ville,
+          created_at: new Date().toISOString()
+        });
+        
+        if (dbErr) {
+          // Si la table utilisateurs n'existe pas, essayer profiles
+          console.warn('Erreur table utilisateurs, tentative sur profiles:', dbErr.message);
+          const { error: profileErr } = await sb.from('profiles').insert({
+            id: uid,
+            full_name: name,
+            whatsapp: wa,
+            email: email,
+            pays: pays,
+            ville: ville,
+            created_at: new Date().toISOString()
+          });
+          
+          if (profileErr) throw profileErr;
+        }
+      } catch (dbError) {
+        console.warn('Erreur insertion DB:', dbError.message);
+        // On continue même si l'insertion échoue, l'utilisateur est déjà créé dans Auth
+      }
     }
 
     // 3. Succès
@@ -778,7 +818,7 @@ async function handleForgot(e) {
   a.textContent = '⏳ Envoi…'; a.style.pointerEvents='none';
   try {
     const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset.html'
+      redirectTo: window.location.origin + '/reset-password.html'
     });
     if (error) throw error;
     toast('Email de réinitialisation envoyé ! Vérifiez votre boîte.', 'success');
@@ -799,6 +839,44 @@ async function handleForgot(e) {
     }
   } catch(err) { /* silencieux */ }
 })();
+
+// ===== CRÉATION DE LA TABLE SI ELLE N'EXISTE PAS =====
+// Cette fonction est optionnelle - elle tente de créer la table si elle n'existe pas
+async function ensureTableExists() {
+  try {
+    // Vérifier si la table utilisateurs existe en faisant une requête simple
+    const { error } = await sb.from('utilisateurs').select('count', { count: 'exact', head: true });
+    
+    if (error && error.message.includes('relation') && error.message.includes('does not exist')) {
+      console.log('La table utilisateurs n\'existe pas. Veuillez la créer dans Supabase SQL Editor avec:');
+      console.log(`
+        CREATE TABLE utilisateurs (
+          id UUID PRIMARY KEY,
+          nom_complet TEXT NOT NULL,
+          whatsapp TEXT NOT NULL,
+          email TEXT UNIQUE NOT NULL,
+          password TEXT NOT NULL,
+          pays TEXT NOT NULL,
+          ville TEXT NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+        
+        ALTER TABLE utilisateurs ENABLE ROW LEVEL SECURITY;
+        
+        CREATE POLICY "Allow insert for all" ON utilisateurs
+          FOR INSERT WITH CHECK (true);
+          
+        CREATE POLICY "Allow select for authenticated" ON utilisateurs
+          FOR SELECT USING (auth.role() = 'authenticated');
+      `);
+    }
+  } catch (err) {
+    // Ignorer les erreurs
+  }
+}
+
+// Appeler la fonction au chargement
+ensureTableExists();
 </script>
 </body>
 </html>
