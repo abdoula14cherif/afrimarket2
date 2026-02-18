@@ -832,14 +832,39 @@ async function init() {
 // ===== LOAD ADS =====
 async function loadAds() {
   try {
-    const { data, error } = await sb
+    // Étape 1 : charger les annonces
+    const { data: annonces, error } = await sb
       .from('annonces')
-      .select('*, profiles(full_name, whatsapp)')
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(50);
 
     if (error) throw error;
-    allAds = data || [];
+    if (!annonces || annonces.length === 0) {
+      allAds = [];
+      renderAds();
+      return;
+    }
+
+    // Étape 2 : récupérer les profils des vendeurs
+    const userIds = [...new Set(annonces.map(a => a.user_id).filter(Boolean))];
+    let profilesMap = {};
+    if (userIds.length > 0) {
+      const { data: profiles } = await sb
+        .from('profiles')
+        .select('id, full_name, whatsapp')
+        .in('id', userIds);
+      if (profiles) {
+        profiles.forEach(p => { profilesMap[p.id] = p; });
+      }
+    }
+
+    // Étape 3 : fusionner
+    allAds = annonces.map(a => ({
+      ...a,
+      profiles: profilesMap[a.user_id] || { full_name: 'Vendeur', whatsapp: a.whatsapp || '' }
+    }));
+
     renderAds();
   } catch(err) {
     console.error('Erreur chargement annonces:', err);
