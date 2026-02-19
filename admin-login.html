@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AfriMarket — Admin Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --bg:     #03060F;
+      --card:   #080D1E;
+      --blue:   #1B3FE4;
+      --blue2:  #2D55FF;
+      --turq:   #00C2B7;
+      --orange: #FF6B1A;
+      --red:    #E83030;
+      --border: rgba(255,255,255,.06);
+      --gray:   #4A5572;
+      --gray2:  #8892A8;
+      --white:  #FFFFFF;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);overflow:hidden}
+
+    /* GRID BG */
+    .grid-bg{
+      position:fixed;inset:0;z-index:0;
+      background:
+        linear-gradient(rgba(27,63,228,.04) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(27,63,228,.04) 1px,transparent 1px);
+      background-size:60px 60px;
+    }
+    .grid-bg::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(27,63,228,.12) 0%,transparent 70%);
+    }
+    /* ANIMATED GLOW ORBS */
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;animation:orbFloat 8s ease-in-out infinite alternate;}
+    .orb1{width:400px;height:400px;background:rgba(27,63,228,.15);top:-100px;left:-100px;}
+    .orb2{width:300px;height:300px;background:rgba(0,194,183,.12);bottom:-80px;right:-80px;animation-delay:-3s;}
+    .orb3{width:200px;height:200px;background:rgba(255,107,26,.08);top:50%;left:70%;animation-delay:-5s;}
+    @keyframes orbFloat{from{transform:translateY(0) scale(1)}to{transform:translateY(-30px) scale(1.08)}}
+
+    /* SCANLINE */
+    .scanline{
+      position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px);
+    }
+
+    /* CENTER */
+    .center{
+      position:relative;z-index:2;
+      height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:1.5rem;
+    }
+
+    /* CARD */
+    .card{
+      width:100%;max-width:440px;
+      background:rgba(8,13,30,.85);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:2.8rem 2.4rem;
+      backdrop-filter:blur(20px);
+      box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03) inset;
+      animation:slideUp .6s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+    /* TOP BADGE */
+    .top-badge{
+      display:flex;align-items:center;gap:.5rem;
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      border-radius:99px;padding:.35rem .9rem;
+      font-size:.65rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+      color:var(--gray2);margin-bottom:2rem;width:fit-content;
+    }
+    .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--turq);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+    /* LOGO */
+    .logo{
+      font-family:'Syne',sans-serif;font-size:2.6rem;font-weight:800;
+      letter-spacing:-2px;line-height:1;margin-bottom:.4rem;
+    }
+    .logo .la{color:var(--turq)} .logo .lm{color:var(--orange)}
+    .logo-sub{font-size:.78rem;color:var(--gray2);letter-spacing:.5px;margin-bottom:2.2rem;}
+
+    /* SEPARATOR */
+    .sep{
+      display:flex;align-items:center;gap:.8rem;margin-bottom:2rem;
+    }
+    .sep-line{flex:1;height:1px;background:var(--border);}
+    .sep-txt{font-size:.65rem;color:var(--gray);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+
+    /* FIELDS */
+    .field{margin-bottom:1rem;}
+    .field label{display:block;font-size:.67rem;font-weight:600;color:var(--gray2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:.4rem;}
+    .inp-wrap{position:relative;}
+    .inp-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none;z-index:1;}
+    .inp-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:.88rem;color:var(--gray);z-index:1;padding:4px;transition:color .2s;}
+    .inp-eye:hover{color:var(--gray2);}
+    .field input{
+      width:100%;padding:.78rem 2.8rem .78rem 2.5rem;
+      background:rgba(255,255,255,.03);
+      border:1.5px solid var(--border);border-radius:12px;
+      color:var(--white);font-family:'DM Sans',sans-serif;font-size:.9rem;
+      outline:none;transition:border-color .2s,box-shadow .2s,background .2s;
+    }
+    .field input::placeholder{color:rgba(255,255,255,.18);}
+    .field input:focus{border-color:rgba(45,85,255,.6);box-shadow:0 0 0 3px rgba(45,85,255,.12);background:rgba(255,255,255,.05);}
+    .field input.err{border-color:rgba(232,48,48,.5);}
+
+    /* ERROR BOX */
+    .err-box{
+      display:none;background:rgba(232,48,48,.08);border:1px solid rgba(232,48,48,.2);
+      border-radius:10px;padding:.65rem 1rem;
+      font-size:.78rem;color:#FF9A9A;margin-bottom:1rem;
+      animation:shake .35s ease;
+    }
+    .err-box.show{display:flex;align-items:center;gap:.5rem;}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+    /* BTN */
+    .btn-login{
+      width:100%;padding:.9rem;border:none;border-radius:13px;
+      background:linear-gradient(135deg,#1B3FE4 0%,#2D55FF 50%,#4F7AFF 100%);
+      color:white;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;
+      letter-spacing:.3px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:.5rem;
+      position:relative;overflow:hidden;
+      transition:transform .2s,box-shadow .2s;margin-top:.3rem;
+    }
+    .btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);border-radius:inherit;}
+    .btn-login:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 40px rgba(27,63,228,.45);}
+    .btn-login:active:not(:disabled){transform:translateY(0);}
+    .btn-login:disabled{opacity:.6;cursor:not-allowed;}
+    .spin{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.25);border-top-color:white;border-radius:50%;animation:sp .7s linear infinite;display:none;}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .btn-login.loading .spin{display:block;}
+    .btn-login.loading .btn-lbl{display:none;}
+
+    /* FOOTER */
+    .card-footer{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .footer-info{font-size:.7rem;color:var(--gray);}
+    .footer-ver{font-size:.65rem;color:var(--gray);background:rgba(255,255,255,.04);padding:.2rem .55rem;border-radius:99px;border:1px solid var(--border);}
+
+    /* BOTTOM TEXT */
+    .bottom-link{text-align:center;margin-top:1.3rem;font-size:.75rem;color:var(--gray);}
+    .bottom-link a{color:var(--blue2);text-decoration:none;cursor:pointer;}
+    .bottom-link a:hover{text-decoration:underline;}
+  </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="scanline"></div>
+
+<div class="center">
+  <div class="card">
+    <div class="top-badge"><div class="badge-dot"></div>Panneau d'administration</div>
+    <div class="logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+    <div class="logo-sub">Accès réservé aux administrateurs autorisés</div>
+
+    <div class="sep">
+      <div class="sep-line"></div>
+      <div class="sep-txt">🔐 Connexion sécurisée</div>
+      <div class="sep-line"></div>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="err-box" id="errBox"><span>⚠️</span><span id="errMsg">Identifiants incorrects</span></div>
+
+      <div class="field">
+        <label>Adresse email</label>
+        <div class="inp-wrap">
+          <span class="inp-ico">✉️</span>
+          <input type="email" id="f_email" placeholder="admin@afrimarket.com" autocomplete="email"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Mot de passe</label>
+        <div class="inp-wrap">
+          <span class="inp-ico">🔒</span>
+          <input type="password" id="f_pwd" placeholder="••••••••••" autocomplete="current-password"/>
+          <button type="button" class="inp-eye" onclick="togglePwd()">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="btnLogin">
+        <div class="spin"></div>
+        <span class="btn-lbl">Accéder au panneau admin →</span>
+      </button>
+    </form>
+
+    <div class="card-footer">
+      <div class="footer-info">AfriMarket Admin</div>
+      <div class="footer-ver">v2.0</div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-link">
+  <a onclick="window.location.href='index.html'">← Retour au site</a>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+// ⚠️ METTEZ VOTRE EMAIL ADMIN ICI
+const ADMIN_EMAIL = 'admin@afrimarket.com';
+
+// Vérif session existante
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(session && (session.user.email===ADMIN_EMAIL || session.user.user_metadata?.is_admin===true))
+    window.location.href='admin-dashboard.html';
+})();
+
+function togglePwd(){
+  const i=document.getElementById('f_pwd');
+  i.type=i.type==='password'?'text':'password';
+}
+
+function showErr(msg){
+  const b=document.getElementById('errBox');
+  document.getElementById('errMsg').textContent=msg;
+  b.classList.add('show');
+  document.getElementById('f_email').classList.add('err');
+  document.getElementById('f_pwd').classList.add('err');
+  setTimeout(()=>b.classList.remove('show'),5000);
+}
+
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const email=document.getElementById('f_email').value.trim();
+  const pwd=document.getElementById('f_pwd').value;
+  if(!email||!pwd){showErr('Remplissez tous les champs.');return;}
+
+  const btn=document.getElementById('btnLogin');
+  btn.disabled=true;btn.classList.add('loading');
+
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password:pwd});
+    if(error)throw error;
+
+    const isAdmin=data.user.email===ADMIN_EMAIL||data.user.user_metadata?.is_admin===true;
+    if(!isAdmin){
+      await sb.auth.signOut();
+      throw new Error('Accès refusé. Compte non autorisé.');
+    }
+
+    // Sauvegarder en sessionStorage
+    sessionStorage.setItem('adminOk','1');
+    window.location.href='admin-dashboard.html';
+
+  }catch(ex){
+    const m=ex.message;
+    if(m.includes('Invalid login'))showErr('Email ou mot de passe incorrect.');
+    else if(m.includes('Email not confirmed'))showErr('Confirmez d\'abord votre email.');
+    else showErr(m);
+  }finally{
+    btn.disabled=false;btn.classList.remove('loading');
+  }
+});
+</script>
+</body>
+</html>
