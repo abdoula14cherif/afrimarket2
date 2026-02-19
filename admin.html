@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AfriMarket — Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --blue:   #1B3FE4; --blue2:  #2D55FF;
+      --red:    #E83030; --orange: #FF6B1A;
+      --turq:   #00C2B7; --green:  #00C271;
+      --yellow: #F5C518; --purple: #8B5CF6;
+      --dark:   #080E2A; --dark2:  #0D1438;
+      --sidebar:#0A1130; --card:   #111827;
+      --border: rgba(255,255,255,.07);
+      --gray:   #6B7A99; --gray2: #A0AEC0;
+      --bg:     #070D25;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:white; min-height:100vh; overflow-x:hidden; }
+
+    /* ===== LOGIN GATE ===== */
+    #loginGate {
+      position:fixed; inset:0; z-index:10000;
+      background:var(--bg);
+      display:flex; align-items:center; justify-content:center;
+    }
+    #loginGate.hidden { display:none; }
+    .login-card {
+      background:linear-gradient(135deg,#0D1438,#111827);
+      border:1px solid var(--border); border-radius:24px;
+      padding:2.5rem 2rem; width:100%; max-width:400px;
+      box-shadow:0 30px 80px rgba(0,0,0,.5);
+      animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    .login-logo {
+      font-family:'Clash Display',sans-serif; font-size:2rem;
+      font-weight:700; letter-spacing:-1px; text-align:center; margin-bottom:.3rem;
+    }
+    .login-logo .la{color:var(--turq)} .login-logo .lm{color:var(--orange)}
+    .login-badge {
+      text-align:center; font-size:.65rem; letter-spacing:3px;
+      text-transform:uppercase; color:var(--gray); margin-bottom:2rem;
+    }
+    .lg-field { display:flex; flex-direction:column; gap:.3rem; margin-bottom:.9rem; }
+    .lg-field label { font-size:.68rem; font-weight:700; color:var(--gray2); letter-spacing:.7px; text-transform:uppercase; }
+    .lg-inp-w { position:relative; }
+    .lg-ico { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:.9rem; }
+    .lg-field input {
+      width:100%; padding:.72rem .9rem .72rem 2.3rem;
+      background:rgba(255,255,255,.04); border:1.5px solid var(--border);
+      border-radius:11px; color:white; font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.87rem; outline:none; transition:border-color .2s, box-shadow .2s;
+    }
+    .lg-field input:focus { border-color:var(--blue2); box-shadow:0 0 0 3px rgba(45,85,255,.15); }
+    .lg-field input::placeholder { color:rgba(255,255,255,.2); }
+    .btn-login {
+      width:100%; padding:.82rem; border:none; border-radius:12px;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white; font-family:'Clash Display',sans-serif;
+      font-size:.95rem; font-weight:700; cursor:pointer; margin-top:.5rem;
+      transition:transform .2s, box-shadow .2s;
+      display:flex; align-items:center; justify-content:center; gap:.5rem;
+    }
+    .btn-login:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(27,63,228,.4); }
+    .btn-login:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .spin-w{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .btn-login.loading .spin-w{display:block}
+    .btn-login.loading .lbl-btn{display:none}
+    .lg-err { background:rgba(232,48,48,.12); border:1px solid rgba(232,48,48,.25); border-radius:10px; padding:.6rem .9rem; font-size:.78rem; color:#FF8A8A; margin-top:.5rem; display:none; }
+    .lg-err.show { display:block; }
+
+    /* ===== SPLASH ===== */
+    #splash { position:fixed; inset:0; z-index:9999; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.5rem; transition:opacity .6s, visibility .6s; }
+    #splash.done { opacity:0; visibility:hidden; pointer-events:none; }
+    .sp-logo { font-family:'Clash Display',sans-serif; font-size:2.5rem; font-weight:700; letter-spacing:-1.5px; animation:popIn .6s both; }
+    .sp-logo .sa{color:var(--turq)} .sp-logo .sm{color:var(--orange)}
+    .sp-sub { color:rgba(255,255,255,.3); font-size:.7rem; letter-spacing:3px; text-transform:uppercase; }
+    .sp-bar-wrap { width:160px; height:2px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; }
+    .sp-bar { height:100%; background:linear-gradient(90deg,var(--turq),var(--blue2),var(--orange)); animation:spbar 2s ease-out forwards; }
+    @keyframes spbar{from{width:0}to{width:100%}}
+
+    /* ===== LAYOUT ===== */
+    #app { display:flex; min-height:100vh; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width:240px; background:var(--sidebar); flex-shrink:0;
+      display:flex; flex-direction:column;
+      border-right:1px solid var(--border);
+      position:fixed; top:0; left:0; bottom:0; z-index:100;
+      transition:transform .3s;
+    }
+    .sidebar-logo {
+      padding:1.4rem 1.2rem 1rem;
+      border-bottom:1px solid var(--border);
+    }
+    .s-logo { font-family:'Clash Display',sans-serif; font-size:1.3rem; font-weight:700; letter-spacing:-1px; }
+    .s-logo .la{color:var(--turq)} .s-logo .lm{color:var(--orange)}
+    .s-badge { font-size:.58rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray); margin-top:2px; }
+
+    .sidebar-nav { flex:1; padding:.8rem .7rem; overflow-y:auto; }
+    .nav-section { margin-bottom:1.2rem; }
+    .nav-section-title { font-size:.58rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--gray); padding:.3rem .6rem; margin-bottom:.3rem; }
+    .nav-item {
+      display:flex; align-items:center; gap:.7rem;
+      padding:.65rem .75rem; border-radius:10px; cursor:pointer;
+      border:none; background:none; color:var(--gray2); width:100%;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.83rem; font-weight:500;
+      transition:all .2s; position:relative;
+    }
+    .nav-item:hover { background:rgba(255,255,255,.05); color:white; }
+    .nav-item.active { background:rgba(45,85,255,.15); color:white; border:1px solid rgba(45,85,255,.2); }
+    .nav-item.active::before { content:''; position:absolute; left:0; top:20%; bottom:20%; width:3px; border-radius:0 3px 3px 0; background:var(--blue2); }
+    .nav-ico { font-size:1rem; width:20px; text-align:center; flex-shrink:0; }
+    .nav-badge { margin-left:auto; background:var(--red); color:white; font-size:.58rem; font-weight:700; padding:.1rem .4rem; border-radius:99px; }
+    .nav-badge.green { background:var(--green); }
+    .nav-badge.orange { background:var(--orange); }
+
+    .sidebar-footer { padding:1rem .7rem; border-top:1px solid var(--border); }
+    .admin-info { display:flex; align-items:center; gap:.7rem; padding:.5rem .75rem; }
+    .admin-ava { width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,var(--blue),var(--turq)); display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:700; font-family:'Clash Display',sans-serif; flex-shrink:0; }
+    .admin-name { font-size:.8rem; font-weight:600; color:white; }
+    .admin-role { font-size:.65rem; color:var(--turq); }
+    .btn-logout-s { width:100%; padding:.55rem; border-radius:9px; border:1px solid var(--border); background:rgba(232,48,48,.08); color:#FF8A8A; font-family:'Plus Jakarta Sans',sans-serif; font-size:.78rem; font-weight:600; cursor:pointer; margin-top:.5rem; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:.4rem; }
+    .btn-logout-s:hover { background:rgba(232,48,48,.18); }
+
+    /* ===== MAIN ===== */
+    .main { margin-left:240px; flex:1; display:flex; flex-direction:column; }
+
+    /* TOPBAR */
+    .topbar {
+      position:sticky; top:0; z-index:50;
+      background:rgba(7,13,37,.85); backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      padding:.9rem 1.6rem; display:flex; align-items:center; gap:1rem;
+    }
+    .topbar-title { font-family:'Clash Display',sans-serif; font-size:1.15rem; font-weight:700; flex:1; }
+    .topbar-search {
+      display:flex; align-items:center; gap:.5rem;
+      background:rgba(255,255,255,.04); border:1px solid var(--border);
+      border-radius:10px; padding:.45rem .9rem; width:260px;
+    }
+    .topbar-search input { background:none; border:none; outline:none; color:white; font-family:'Plus Jakarta Sans',sans-serif; font-size:.83rem; width:100%; }
+    .topbar-search input::placeholder { color:rgba(255,255,255,.2); }
+    .topbar-actions { display:flex; gap:.6rem; }
+    .icon-btn { width:36px; height:36px; border-radius:9px; background:rgba(255,255,255,.05); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; transition:background .2s; }
+    .icon-btn:hover { background:rgba(255,255,255,.1); }
+    .notif-dot { position:relative; }
+    .notif-dot::after { content:''; position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--red); border:1.5px solid var(--bg); }
+
+    /* ===== PAGES ===== */
+    .page { display:none; padding:1.4rem 1.6rem; animation:fadeUp .3s ease both; }
+    .page.active { display:block; }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ===== STAT CARDS ===== */
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.4rem; }
+    .stat-card {
+      background:linear-gradient(135deg,#0D1438,#111827);
+      border:1px solid var(--border); border-radius:16px;
+      padding:1.2rem 1.3rem; position:relative; overflow:hidden;
+      animation:fadeUp .4s ease both;
+    }
+    .stat-card:nth-child(1){animation-delay:.05s}
+    .stat-card:nth-child(2){animation-delay:.1s}
+    .stat-card:nth-child(3){animation-delay:.15s}
+    .stat-card:nth-child(4){animation-delay:.2s}
+    .stat-card::before { content:''; position:absolute; top:0; right:0; width:80px; height:80px; border-radius:0 0 0 80px; opacity:.12; }
+    .sc-blue::before { background:var(--blue2); }
+    .sc-turq::before { background:var(--turq); }
+    .sc-orange::before { background:var(--orange); }
+    .sc-red::before { background:var(--red); }
+    .stat-label { font-size:.68rem; color:var(--gray); letter-spacing:.7px; text-transform:uppercase; margin-bottom:.6rem; }
+    .stat-num { font-family:'Clash Display',sans-serif; font-size:2rem; font-weight:700; line-height:1; }
+    .stat-num.blue{color:var(--blue2)} .stat-num.turq{color:var(--turq)} .stat-num.orange{color:var(--orange)} .stat-num.red{color:var(--red)}
+    .stat-trend { font-size:.72rem; color:var(--gray); margin-top:.4rem; }
+    .stat-ico { position:absolute; bottom:.8rem; right:1rem; font-size:1.8rem; opacity:.4; }
+
+    /* ===== TABLES ===== */
+    .card-box {
+      background:linear-gradient(135deg,#0D1438,#111827);
+      border:1px solid var(--border); border-radius:16px;
+      overflow:hidden; margin-bottom:1.2rem;
+      animation:fadeUp .4s ease both;
+    }
+    .card-head {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 1.3rem; border-bottom:1px solid var(--border);
+    }
+    .card-head-title { font-family:'Clash Display',sans-serif; font-size:.95rem; font-weight:700; }
+    .card-head-actions { display:flex; gap:.5rem; }
+    .btn-sm {
+      padding:.35rem .8rem; border-radius:8px; border:1px solid var(--border);
+      background:rgba(255,255,255,.04); color:var(--gray2);
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.73rem; font-weight:600;
+      cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:.3rem;
+    }
+    .btn-sm:hover { background:rgba(255,255,255,.1); color:white; }
+    .btn-sm.primary { background:rgba(45,85,255,.2); border-color:rgba(45,85,255,.3); color:var(--blue2); }
+    .btn-sm.primary:hover { background:rgba(45,85,255,.35); color:white; }
+    .btn-sm.danger { background:rgba(232,48,48,.1); border-color:rgba(232,48,48,.2); color:#FF8A8A; }
+    .btn-sm.danger:hover { background:rgba(232,48,48,.25); }
+    .btn-sm.success { background:rgba(0,194,113,.1); border-color:rgba(0,194,113,.2); color:var(--green); }
+    .btn-sm.success:hover { background:rgba(0,194,113,.25); }
+    .btn-sm.orange { background:rgba(255,107,26,.1); border-color:rgba(255,107,26,.2); color:var(--orange); }
+
+    /* DATA TABLE */
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table th { padding:.75rem 1.1rem; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--gray); text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+    .data-table td { padding:.75rem 1.1rem; font-size:.83rem; color:var(--gray2); border-bottom:1px solid rgba(255,255,255,.04); vertical-align:middle; }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:rgba(255,255,255,.02); }
+
+    /* BADGES */
+    .badge { display:inline-flex; align-items:center; gap:.25rem; padding:.2rem .55rem; border-radius:99px; font-size:.65rem; font-weight:700; letter-spacing:.3px; text-transform:uppercase; }
+    .badge-active  { background:rgba(0,194,113,.12); color:var(--green); border:1px solid rgba(0,194,113,.2); }
+    .badge-blocked { background:rgba(232,48,48,.12); color:#FF8A8A; border:1px solid rgba(232,48,48,.2); }
+    .badge-pending { background:rgba(245,197,24,.12); color:var(--yellow); border:1px solid rgba(245,197,24,.2); }
+    .badge-featured{ background:rgba(139,92,246,.12); color:#C4B5FD; border:1px solid rgba(139,92,246,.2); }
+    .badge-new     { background:rgba(0,194,183,.12); color:var(--turq); border:1px solid rgba(0,194,183,.2); }
+
+    /* AVATAR CELL */
+    .user-cell { display:flex; align-items:center; gap:.7rem; }
+    .u-ava { width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg,var(--blue),var(--turq)); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; overflow:hidden; }
+    .u-ava img { width:100%; height:100%; object-fit:cover; }
+    .u-name { font-weight:600; color:white; font-size:.83rem; }
+    .u-email { font-size:.7rem; color:var(--gray); }
+
+    /* AD CELL */
+    .ad-cell { display:flex; align-items:center; gap:.7rem; }
+    .ad-thumb { width:38px; height:38px; border-radius:8px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; overflow:hidden; }
+    .ad-thumb img { width:100%; height:100%; object-fit:cover; }
+    .ad-title { font-weight:600; color:white; font-size:.83rem; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ad-cat { font-size:.7rem; color:var(--gray); }
+
+    /* ACTION BTNS */
+    .action-row { display:flex; gap:.4rem; flex-wrap:wrap; }
+
+    /* ===== MODALS ===== */
+    .modal-ov {
+      position:fixed; inset:0; z-index:500;
+      background:rgba(0,0,0,.7); backdrop-filter:blur(8px);
+      display:flex; align-items:center; justify-content:center; padding:1.5rem;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .modal-ov.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:linear-gradient(135deg,#0D1438,#111827);
+      border:1px solid var(--border); border-radius:20px;
+      padding:1.8rem; width:100%; max-width:520px;
+      max-height:90vh; overflow-y:auto;
+      transform:scale(.92); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      box-shadow:0 30px 80px rgba(0,0,0,.6);
+    }
+    .modal-ov.open .modal { transform:scale(1); }
+    .modal-title { font-family:'Clash Display',sans-serif; font-size:1.15rem; font-weight:700; margin-bottom:1.3rem; display:flex; align-items:center; gap:.6rem; }
+    .modal-close { margin-left:auto; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.85rem; transition:background .2s; }
+    .modal-close:hover { background:rgba(255,255,255,.12); }
+
+    /* MODAL FIELDS */
+    .mfield { display:flex; flex-direction:column; gap:.3rem; margin-bottom:.85rem; }
+    .mfield label { font-size:.67rem; font-weight:700; color:var(--gray2); letter-spacing:.7px; text-transform:uppercase; }
+    .mfield input, .mfield textarea, .mfield select {
+      width:100%; padding:.68rem .9rem;
+      background:rgba(255,255,255,.04); border:1.5px solid var(--border);
+      border-radius:10px; color:white; font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.85rem; outline:none; resize:none; -webkit-appearance:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .mfield input:focus, .mfield textarea:focus, .mfield select:focus { border-color:var(--blue2); box-shadow:0 0 0 3px rgba(45,85,255,.12); }
+    .mfield input::placeholder, .mfield textarea::placeholder { color:rgba(255,255,255,.2); }
+    .mfield select option { background:#111827; }
+    .mrow { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+
+    /* MODAL BTNS */
+    .modal-footer { display:flex; gap:.7rem; justify-content:flex-end; margin-top:1.2rem; }
+    .btn-modal-cancel { padding:.65rem 1.3rem; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,.04); color:var(--gray2); font-family:'Plus Jakarta Sans',sans-serif; font-size:.83rem; font-weight:600; cursor:pointer; transition:background .2s; }
+    .btn-modal-cancel:hover { background:rgba(255,255,255,.1); }
+    .btn-modal-ok { padding:.65rem 1.3rem; border-radius:10px; border:none; background:linear-gradient(135deg,var(--blue),var(--blue2)); color:white; font-family:'Clash Display',sans-serif; font-size:.85rem; font-weight:700; cursor:pointer; transition:transform .2s, box-shadow .2s; display:flex; align-items:center; gap:.4rem; }
+    .btn-modal-ok:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(27,63,228,.4); }
+    .btn-modal-ok:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .btn-modal-danger { background:linear-gradient(135deg,var(--red),#FF5252); }
+    .btn-modal-danger:hover { box-shadow:0 6px 20px rgba(232,48,48,.4); }
+
+    /* NOTIF TARGETS */
+    .notif-targets { display:flex; flex-wrap:wrap; gap:.4rem; min-height:40px; padding:.4rem; background:rgba(255,255,255,.03); border:1.5px solid var(--border); border-radius:10px; cursor:text; }
+    .notif-tag { display:flex; align-items:center; gap:.3rem; background:rgba(45,85,255,.18); border:1px solid rgba(45,85,255,.3); border-radius:99px; padding:.2rem .55rem; font-size:.72rem; color:white; }
+    .notif-tag .rm { cursor:pointer; color:rgba(255,255,255,.5); font-size:.7rem; transition:color .2s; }
+    .notif-tag .rm:hover { color:var(--red); }
+    .notif-search-res { background:#111827; border:1px solid var(--border); border-radius:10px; max-height:160px; overflow-y:auto; margin-top:.3rem; display:none; }
+    .notif-search-res.show { display:block; }
+    .notif-res-item { padding:.6rem .9rem; cursor:pointer; font-size:.82rem; color:var(--gray2); transition:background .15s; display:flex; align-items:center; gap:.6rem; }
+    .notif-res-item:hover { background:rgba(255,255,255,.05); color:white; }
+    .notif-type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-bottom:.8rem; }
+    .notif-type-btn { padding:.55rem; border-radius:9px; border:1.5px solid var(--border); background:rgba(255,255,255,.03); color:var(--gray2); font-family:'Plus Jakarta Sans',sans-serif; font-size:.73rem; font-weight:600; cursor:pointer; text-align:center; transition:all .2s; }
+    .notif-type-btn.sel { border-color:var(--blue2); background:rgba(45,85,255,.15); color:white; }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar { display:flex; gap:.5rem; padding:1rem 1.1rem; border-bottom:1px solid var(--border); flex-wrap:wrap; align-items:center; }
+    .filter-inp {
+      flex:1; min-width:180px; padding:.5rem .9rem;
+      background:rgba(255,255,255,.04); border:1px solid var(--border);
+      border-radius:9px; color:white; font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.82rem; outline:none;
+    }
+    .filter-inp::placeholder { color:rgba(255,255,255,.2); }
+    .filter-inp:focus { border-color:var(--blue2); }
+    .filter-sel {
+      padding:.5rem .9rem; background:rgba(255,255,255,.04); border:1px solid var(--border);
+      border-radius:9px; color:var(--gray2); font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.82rem; outline:none; -webkit-appearance:none; cursor:pointer;
+    }
+    .filter-sel option { background:#111827; }
+
+    /* ===== PAGINATION ===== */
+    .pagination { display:flex; align-items:center; justify-content:space-between; padding:.8rem 1.1rem; border-top:1px solid var(--border); }
+    .page-info { font-size:.75rem; color:var(--gray); }
+    .page-btns { display:flex; gap:.4rem; }
+    .page-btn { width:30px; height:30px; border-radius:7px; border:1px solid var(--border); background:rgba(255,255,255,.04); color:var(--gray2); font-size:.78rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+    .page-btn:hover { background:rgba(255,255,255,.1); color:white; }
+    .page-btn.active { background:rgba(45,85,255,.2); border-color:rgba(45,85,255,.3); color:var(--blue2); }
+
+    /* ===== DASHBOARD CHARTS PLACEHOLDERS ===== */
+    .charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:1rem; margin-bottom:1.2rem; }
+    .chart-card { background:linear-gradient(135deg,#0D1438,#111827); border:1px solid var(--border); border-radius:16px; padding:1.2rem; }
+    .chart-title { font-family:'Clash Display',sans-serif; font-size:.88rem; font-weight:700; margin-bottom:1rem; }
+    .mini-chart { display:flex; align-items:flex-end; gap:4px; height:80px; padding:4px 0; }
+    .bar { flex:1; border-radius:4px 4px 0 0; background:rgba(45,85,255,.3); transition:background .2s; position:relative; }
+    .bar:hover { background:rgba(45,85,255,.7); }
+    .bar::after { content:attr(data-v); position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:.6rem; color:var(--gray); white-space:nowrap; opacity:0; transition:opacity .2s; }
+    .bar:hover::after { opacity:1; }
+    .donut-wrap { display:flex; flex-direction:column; gap:.5rem; }
+    .donut-item { display:flex; align-items:center; gap:.7rem; }
+    .donut-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .donut-label { font-size:.75rem; color:var(--gray2); flex:1; }
+    .donut-val { font-size:.78rem; font-weight:700; color:white; }
+
+    /* RECENT ACTIVITY */
+    .activity-list { display:flex; flex-direction:column; }
+    .activity-item { display:flex; align-items:center; gap:.9rem; padding:.75rem 1.1rem; border-bottom:1px solid rgba(255,255,255,.04); }
+    .activity-item:last-child { border-bottom:none; }
+    .act-ico { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+    .act-msg { flex:1; font-size:.8rem; color:var(--gray2); }
+    .act-msg strong { color:white; }
+    .act-time { font-size:.68rem; color:var(--gray); }
+
+    /* ===== SETTINGS ===== */
+    .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .settings-section { background:linear-gradient(135deg,#0D1438,#111827); border:1px solid var(--border); border-radius:16px; padding:1.3rem; }
+    .settings-title { font-family:'Clash Display',sans-serif; font-size:.9rem; font-weight:700; margin-bottom:1.1rem; display:flex; align-items:center; gap:.5rem; }
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:.6rem 0; border-bottom:1px solid var(--border); }
+    .toggle-row:last-child { border-bottom:none; }
+    .toggle-info .tl { font-size:.82rem; color:white; font-weight:500; }
+    .toggle-info .ts { font-size:.7rem; color:var(--gray); margin-top:1px; }
+    .tog { width:40px; height:22px; border-radius:99px; background:var(--border); position:relative; cursor:pointer; transition:background .25s; border:none; flex-shrink:0; }
+    .tog.on { background:var(--turq); }
+    .tog::after { content:''; position:absolute; width:16px; height:16px; border-radius:50%; background:white; top:3px; left:3px; transition:transform .25s; box-shadow:0 1px 4px rgba(0,0,0,.3); }
+    .tog.on::after { transform:translateX(18px); }
+
+    /* ===== NOTIFICATIONS PAGE ===== */
+    .notif-history { display:flex; flex-direction:column; }
+    .notif-row { display:flex; align-items:flex-start; gap:.9rem; padding:.9rem 1.1rem; border-bottom:1px solid rgba(255,255,255,.04); }
+    .notif-row:last-child { border-bottom:none; }
+    .notif-row-ico { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+    .notif-row-body { flex:1; }
+    .notif-row-title { font-size:.83rem; font-weight:600; color:white; }
+    .notif-row-msg { font-size:.75rem; color:var(--gray); margin-top:2px; line-height:1.4; }
+    .notif-row-meta { display:flex; gap:.6rem; align-items:center; margin-top:.3rem; }
+    .notif-row-time { font-size:.68rem; color:var(--gray); }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position:fixed; bottom:1.5rem; right:1.5rem; max-width:340px;
+      background:#1A2040; border:1px solid var(--border); color:white;
+      padding:.9rem 1.2rem; border-radius:14px;
+      font-size:.83rem; font-weight:500;
+      box-shadow:0 10px 40px rgba(0,0,0,.4); z-index:9999;
+      display:flex; align-items:center; gap:.6rem;
+      transform:translateY(120%); opacity:0;
+      transition:all .45s cubic-bezier(.34,1.56,.64,1);
+      border-left:3px solid var(--turq);
+    }
+    #toast.show { transform:translateY(0); opacity:1; }
+
+    /* SKELETON */
+    .skel { background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:6px; }
+    @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+    /* EMPTY */
+    .empty-state { padding:3rem; text-align:center; color:var(--gray); }
+    .empty-state .ei { font-size:3rem; margin-bottom:.8rem; }
+    .empty-state .et { font-family:'Clash Display',sans-serif; font-size:1rem; color:white; margin-bottom:.3rem; }
+
+    /* RESPONSIVE */
+    @media(max-width:1100px) { .stats-grid{grid-template-columns:1fr 1fr} .charts-grid{grid-template-columns:1fr} .settings-grid{grid-template-columns:1fr} }
+    @media(max-width:768px) { .sidebar{transform:translateX(-100%)} .sidebar.open{transform:translateX(0)} .main{margin-left:0} .stats-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+
+<!-- ===== LOGIN GATE ===== -->
+<div id="loginGate">
+  <div class="login-card">
+    <div class="login-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+    <div class="login-badge">🔐 Panneau d'administration</div>
+    <form id="loginForm" novalidate>
+      <div class="lg-field">
+        <label>Email admin</label>
+        <div class="lg-inp-w">
+          <span class="lg-ico">✉️</span>
+          <input type="email" id="lg_email" placeholder="admin@afrimarket.com" autocomplete="email"/>
+        </div>
+      </div>
+      <div class="lg-field">
+        <label>Mot de passe</label>
+        <div class="lg-inp-w">
+          <span class="lg-ico">🔒</span>
+          <input type="password" id="lg_pwd" placeholder="••••••••" autocomplete="current-password"/>
+        </div>
+      </div>
+      <div class="lg-err" id="lgErr">Email ou mot de passe incorrect</div>
+      <button type="submit" class="btn-login" id="btnLogin">
+        <div class="spin-w"></div>
+        <span class="lbl-btn">Accéder au panneau admin →</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== SPLASH ===== -->
+<div id="splash" style="display:none">
+  <div class="sp-logo"><span class="sa">Afri</span><span class="sm">Market</span></div>
+  <div class="sp-sub">Admin Panel</div>
+  <div class="sp-bar-wrap"><div class="sp-bar"></div></div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="s-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+      <div class="s-badge">Admin Panel v1.0</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Vue générale</div>
+        <button class="nav-item active" onclick="showPage('dashboard')">
+          <span class="nav-ico">📊</span> Tableau de bord
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Gestion</div>
+        <button class="nav-item" onclick="showPage('users')">
+          <span class="nav-ico">👥</span> Utilisateurs
+          <span class="nav-badge" id="nbUsers">—</span>
+        </button>
+        <button class="nav-item" onclick="showPage('ads')">
+          <span class="nav-ico">📋</span> Annonces
+          <span class="nav-badge orange" id="nbAds">—</span>
+        </button>
+        <button class="nav-item" onclick="showPage('featured')">
+          <span class="nav-ico">⭐</span> À la une
+          <span class="nav-badge green" id="nbFeatured">—</span>
+        </button>
+        <button class="nav-item" onclick="showPage('blocked')">
+          <span class="nav-ico">🚫</span> Bloqués
+          <span class="nav-badge" id="nbBlocked">0</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Communication</div>
+        <button class="nav-item" onclick="showPage('notifications')">
+          <span class="nav-ico">🔔</span> Notifications
+        </button>
+        <button class="nav-item" onclick="showPage('notif-history')">
+          <span class="nav-ico">📨</span> Historique envois
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Configuration</div>
+        <button class="nav-item" onclick="showPage('settings')">
+          <span class="nav-ico">⚙️</span> Paramètres
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <div class="admin-ava" id="adminAva">A</div>
+        <div>
+          <div class="admin-name" id="adminName">Admin</div>
+          <div class="admin-role">Super Administrateur</div>
+        </div>
+      </div>
+      <button class="btn-logout-s" onclick="adminLogout()">🚪 Déconnexion</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Tableau de bord</div>
+      <div class="topbar-search">
+        <span>🔍</span>
+        <input type="text" placeholder="Rechercher…" id="globalSearch" oninput="globalSearchFn(this.value)"/>
+      </div>
+      <div class="topbar-actions">
+        <div class="icon-btn notif-dot" onclick="showPage('notifications')" title="Envoyer notification">🔔</div>
+        <div class="icon-btn" onclick="refreshAll()" title="Actualiser">🔄</div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card sc-blue">
+          <div class="stat-label">Utilisateurs total</div>
+          <div class="stat-num blue" id="ds-users">—</div>
+          <div class="stat-trend">Inscrits sur la plateforme</div>
+          <div class="stat-ico">👥</div>
+        </div>
+        <div class="stat-card sc-turq">
+          <div class="stat-label">Annonces actives</div>
+          <div class="stat-num turq" id="ds-ads">—</div>
+          <div class="stat-trend">Publiées et visibles</div>
+          <div class="stat-ico">📋</div>
+        </div>
+        <div class="stat-card sc-orange">
+          <div class="stat-label">Mises en avant</div>
+          <div class="stat-num orange" id="ds-feat">—</div>
+          <div class="stat-trend">Annonces sponsorisées</div>
+          <div class="stat-ico">⭐</div>
+        </div>
+        <div class="stat-card sc-red">
+          <div class="stat-label">Comptes bloqués</div>
+          <div class="stat-num red" id="ds-blocked">—</div>
+          <div class="stat-trend">Utilisateurs suspendus</div>
+          <div class="stat-ico">🚫</div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">📈 Annonces par catégorie</div>
+          <div class="mini-chart" id="catChart"></div>
+          <div style="display:flex;gap:.8rem;margin-top:.6rem;flex-wrap:wrap" id="catLegend"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">🌍 Répartition pays</div>
+          <div class="donut-wrap" id="paysChart"></div>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-head">
+          <div class="card-head-title">🕐 Activité récente</div>
+          <button class="btn-sm" onclick="loadActivity()">↻ Actualiser</button>
+        </div>
+        <div class="activity-list" id="activityList">
+          <div class="empty-state"><div class="ei">⏳</div><div class="et">Chargement…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: USERS ===== -->
+    <div class="page" id="page-users">
+      <div class="card-box">
+        <div class="card-head">
+          <div class="card-head-title">👥 Gestion des utilisateurs</div>
+          <div class="card-head-actions">
+            <button class="btn-sm primary" onclick="openAddUser()">➕ Ajouter</button>
+            <button class="btn-sm" onclick="loadUsers()">↻ Actualiser</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-inp" type="text" placeholder="🔍 Rechercher par nom ou email…" id="userSearch" oninput="filterUsers()"/>
+          <select class="filter-sel" id="userStatusFilter" onchange="filterUsers()">
+            <option value="">Tous les statuts</option>
+            <option value="active">Actifs</option>
+            <option value="blocked">Bloqués</option>
+          </select>
+          <select class="filter-sel" id="userPaysFilter" onchange="filterUsers()">
+            <option value="">Tous les pays</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>WhatsApp</th>
+                <th>Pays / Ville</th>
+                <th>Inscrit le</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable">
+              <tr><td colspan="6" class="empty-state"><div class="ei">⏳</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="page-info" id="userPageInfo">—</div>
+          <div class="page-btns" id="userPageBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: ADS ===== -->
+    <div class="page" id="page-ads">
+      <div class="card-box">
+        <div class="card-head">
+          <div class="card-head-title">📋 Gestion des annonces</div>
+          <div class="card-head-actions">
+            <button class="btn-sm primary" onclick="openAddAd()">➕ Ajouter</button>
+            <button class="btn-sm" onclick="loadAds()">↻ Actualiser</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-inp" type="text" placeholder="🔍 Rechercher par titre…" id="adSearch" oninput="filterAds()"/>
+          <select class="filter-sel" id="adCatFilter" onchange="filterAds()">
+            <option value="">Toutes catégories</option>
+            <option value="immobilier">🏠 Immobilier</option>
+            <option value="vehicules">🚗 Véhicules</option>
+            <option value="electronique">📱 Électronique</option>
+            <option value="mode">👗 Mode</option>
+            <option value="services">🛠️ Services</option>
+            <option value="emploi">💼 Emploi</option>
+            <option value="alimentation">🥘 Alimentaire</option>
+            <option value="autres">📦 Autres</option>
+          </select>
+          <select class="filter-sel" id="adStatusFilter" onchange="filterAds()">
+            <option value="">Tous statuts</option>
+            <option value="active">Actives</option>
+            <option value="inactive">Inactives</option>
+            <option value="featured">Mises en avant</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Annonce</th>
+                <th>Vendeur</th>
+                <th>Prix</th>
+                <th>Catégorie</th>
+                <th>Ville</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adsTable">
+              <tr><td colspan="8" class="empty-state"><div class="ei">⏳</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="page-info" id="adPageInfo">—</div>
+          <div class="page-btns" id="adPageBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: FEATURED ===== -->
+    <div class="page" id="page-featured">
+      <div class="card-box">
+        <div class="card-head">
+          <div class="card-head-title">⭐ Annonces mises en avant</div>
+          <button class="btn-sm" onclick="loadFeatured()">↻ Actualiser</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr><th>Annonce</th><th>Vendeur</th><th>Prix</th><th>Ville</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="featuredTable">
+              <tr><td colspan="5" class="empty-state"><div class="ei">⏳</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: BLOCKED ===== -->
+    <div class="page" id="page-blocked">
+      <div class="card-box">
+        <div class="card-head">
+          <div class="card-head-title">🚫 Utilisateurs bloqués</div>
+          <button class="btn-sm" onclick="loadBlocked()">↻ Actualiser</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr><th>Utilisateur</th><th>Email</th><th>Pays</th><th>Bloqué le</th><th>Raison</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="blockedTable">
+              <tr><td colspan="6" class="empty-state"><div class="ei">⏳</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: NOTIFICATIONS ===== -->
+    <div class="page" id="page-notifications">
+      <div style="max-width:680px">
+        <div class="card-box">
+          <div class="card-head">
+            <div class="card-head-title">🔔 Envoyer une notification</div>
+          </div>
+          <div style="padding:1.3rem">
+
+            <!-- TYPE -->
+            <div class="mfield">
+              <label>Type de notification</label>
+              <div class="notif-type-grid">
+                <button class="notif-type-btn sel" onclick="selNotifType(this,'info')">ℹ️ Information</button>
+                <button class="notif-type-btn" onclick="selNotifType(this,'success')">✅ Succès</button>
+                <button class="notif-type-btn" onclick="selNotifType(this,'warning')">⚠️ Avertissement</button>
+                <button class="notif-type-btn" onclick="selNotifType(this,'promo')">🎁 Promotion</button>
+                <button class="notif-type-btn" onclick="selNotifType(this,'alert')">🚨 Alerte</button>
+                <button class="notif-type-btn" onclick="selNotifType(this,'news')">📢 Annonce</button>
+              </div>
+            </div>
+
+            <!-- CIBLE -->
+            <div class="mfield">
+              <label>Destinataires</label>
+              <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
+                <button class="btn-sm" onclick="setTarget('all')">📢 Tous les utilisateurs</button>
+                <button class="btn-sm" onclick="setTarget('active')">✅ Utilisateurs actifs</button>
+                <button class="btn-sm orange" onclick="setTarget('custom')">👤 Personnalisé</button>
+              </div>
+              <div id="targetCustom" style="display:none">
+                <div class="notif-targets" id="notifTags" onclick="document.getElementById('notifUserSearch').focus()"></div>
+                <input type="text" class="filter-inp" id="notifUserSearch" placeholder="Rechercher un utilisateur…" oninput="searchNotifUser(this.value)" style="margin-top:.4rem;width:100%"/>
+                <div class="notif-search-res" id="notifSearchRes"></div>
+              </div>
+              <div id="targetDisplay" style="margin-top:.4rem;font-size:.78rem;color:var(--turq)">📢 Envoi à tous les utilisateurs</div>
+            </div>
+
+            <div class="mfield">
+              <label>Titre de la notification *</label>
+              <input type="text" id="notifTitle" placeholder="Ex : Nouveau message important !"/>
+            </div>
+            <div class="mfield">
+              <label>Message *</label>
+              <textarea id="notifMsg" rows="4" placeholder="Rédigez votre message…"></textarea>
+            </div>
+            <div class="mrow">
+              <div class="mfield">
+                <label>Lien (optionnel)</label>
+                <input type="url" id="notifLink" placeholder="https://…"/>
+              </div>
+              <div class="mfield">
+                <label>Icône emoji</label>
+                <input type="text" id="notifIco" placeholder="🎉" maxlength="4"/>
+              </div>
+            </div>
+
+            <button class="btn-modal-ok" id="btnSendNotif" onclick="sendNotification()" style="width:100%;justify-content:center">
+              <div class="spin-w"></div>
+              <span class="lbl-btn">🚀 Envoyer la notification</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: NOTIF HISTORY ===== -->
+    <div class="page" id="page-notif-history">
+      <div class="card-box">
+        <div class="card-head">
+          <div class="card-head-title">📨 Historique des notifications envoyées</div>
+          <button class="btn-sm" onclick="loadNotifHistory()">↻ Actualiser</button>
+        </div>
+        <div class="notif-history" id="notifHistoryList">
+          <div class="empty-state"><div class="ei">⏳</div><div class="et">Chargement…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: SETTINGS ===== -->
+    <div class="page" id="page-settings">
+      <div class="settings-grid">
+        <div class="settings-section">
+          <div class="settings-title">🌐 Paramètres généraux</div>
+          <div class="mfield"><label>Nom du site</label><input type="text" value="AfriMarket" id="s_name"/></div>
+          <div class="mfield"><label>Email de contact</label><input type="text" value="contact@afrimarket.com" id="s_email"/></div>
+          <div class="mfield"><label>Max annonces / utilisateur</label><input type="number" value="10" id="s_maxads"/></div>
+          <button class="btn-modal-ok" onclick="saveSettings()" style="margin-top:.3rem">💾 Enregistrer</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">🔧 Fonctionnalités</div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="tl">Inscriptions ouvertes</div><div class="ts">Permettre les nouveaux comptes</div></div>
+            <button class="tog on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="tl">Publication d'annonces</div><div class="ts">Activer la publication</div></div>
+            <button class="tog on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="tl">Mode maintenance</div><div class="ts">Site en maintenance</div></div>
+            <button class="tog" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="tl">Modération manuelle</div><div class="ts">Valider les annonces manuellement</div></div>
+            <button class="tog" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><div class="tl">Notifications email</div><div class="ts">Emails automatiques aux users</div></div>
+            <button class="tog on" onclick="this.classList.toggle('on')"></button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">🔐 Sécurité admin</div>
+          <div class="mfield"><label>Nouveau mot de passe admin</label><input type="password" placeholder="Nouveau mot de passe" id="s_pwd"/></div>
+          <div class="mfield"><label>Confirmer</label><input type="password" placeholder="Confirmer le mot de passe" id="s_pwd2"/></div>
+          <button class="btn-modal-ok" onclick="changeAdminPwd()">🔑 Changer le mot de passe</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">🗑️ Actions de maintenance</div>
+          <button class="btn-sm danger" style="width:100%;padding:.7rem;margin-bottom:.5rem;justify-content:center" onclick="confirmPurge()">🗑️ Supprimer annonces inactives (30j+)</button>
+          <button class="btn-sm danger" style="width:100%;padding:.7rem;margin-bottom:.5rem;justify-content:center" onclick="confirmPurgeBlocked()">🗑️ Supprimer comptes bloqués</button>
+          <button class="btn-sm" style="width:100%;padding:.7rem;margin-bottom:.5rem;justify-content:center" onclick="exportData()">📥 Exporter les données (CSV)</button>
+          <button class="btn-sm success" style="width:100%;padding:.7rem;justify-content:center" onclick="refreshStats()">📊 Recalculer les statistiques</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- USER MODAL -->
+<div class="modal-ov" id="userModal" onclick="closeModal('userModal',event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">
+      <span id="userModalTitle">👤 Utilisateur</span>
+      <div class="modal-close" onclick="closeModal('userModal')">✕</div>
+    </div>
+    <input type="hidden" id="um_id"/>
+    <div class="mrow">
+      <div class="mfield"><label>Nom complet *</label><input type="text" id="um_name" placeholder="Nom complet"/></div>
+      <div class="mfield"><label>Email *</label><input type="email" id="um_email" placeholder="email@…"/></div>
+    </div>
+    <div class="mrow">
+      <div class="mfield"><label>WhatsApp</label><input type="tel" id="um_wa" placeholder="+225 07…"/></div>
+      <div class="mfield"><label>Pays</label><input type="text" id="um_pays" placeholder="Côte d'Ivoire"/></div>
+    </div>
+    <div class="mfield"><label>Ville</label><input type="text" id="um_ville" placeholder="Abidjan"/></div>
+    <div class="mfield" id="um_pwd_field">
+      <label>Mot de passe (nouveau compte)</label>
+      <input type="password" id="um_pwd" placeholder="Minimum 6 caractères"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('userModal')">Annuler</button>
+      <button class="btn-modal-ok" id="btnSaveUser" onclick="saveUser()">
+        <div class="spin-w"></div><span class="lbl-btn">💾 Enregistrer</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- AD MODAL -->
+<div class="modal-ov" id="adModal" onclick="closeModal('adModal',event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">
+      <span id="adModalTitle">📋 Annonce</span>
+      <div class="modal-close" onclick="closeModal('adModal')">✕</div>
+    </div>
+    <input type="hidden" id="am_id"/>
+    <div class="mfield"><label>Titre *</label><input type="text" id="am_title" placeholder="Titre de l'annonce"/></div>
+    <div class="mfield"><label>Description</label><textarea id="am_desc" rows="3" placeholder="Description…"></textarea></div>
+    <div class="mrow">
+      <div class="mfield"><label>Prix (FCFA)</label><input type="number" id="am_price" placeholder="150000"/></div>
+      <div class="mfield"><label>Catégorie *</label>
+        <select id="am_cat">
+          <option value="">Choisir…</option>
+          <option value="immobilier">🏠 Immobilier</option>
+          <option value="vehicules">🚗 Véhicules</option>
+          <option value="electronique">📱 Électronique</option>
+          <option value="mode">👗 Mode</option>
+          <option value="services">🛠️ Services</option>
+          <option value="emploi">💼 Emploi</option>
+          <option value="alimentation">🥘 Alimentaire</option>
+          <option value="autres">📦 Autres</option>
+        </select>
+      </div>
+    </div>
+    <div class="mrow">
+      <div class="mfield"><label>Ville *</label><input type="text" id="am_ville" placeholder="Abidjan"/></div>
+      <div class="mfield"><label>WhatsApp vendeur</label><input type="tel" id="am_wa" placeholder="+225…"/></div>
+    </div>
+    <div class="mrow">
+      <div class="mfield">
+        <label>Statut</label>
+        <select id="am_actif">
+          <option value="true">✅ Active</option>
+          <option value="false">⏸️ Inactive</option>
+        </select>
+      </div>
+      <div class="mfield">
+        <label>Mise en avant</label>
+        <select id="am_feat">
+          <option value="false">Non</option>
+          <option value="true">⭐ Oui</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('adModal')">Annuler</button>
+      <button class="btn-modal-ok" id="btnSaveAd" onclick="saveAd()">
+        <div class="spin-w"></div><span class="lbl-btn">💾 Enregistrer</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-ov" id="confirmModal" onclick="closeModal('confirmModal',event)">
+  <div class="modal" style="max-width:380px;text-align:center" onclick="event.stopPropagation()">
+    <div style="font-size:3rem;margin-bottom:.8rem" id="confirmIco">⚠️</div>
+    <div class="modal-title" style="justify-content:center;margin-bottom:.5rem" id="confirmTitle">Confirmer ?</div>
+    <div style="font-size:.82rem;color:var(--gray);margin-bottom:1.5rem" id="confirmMsg">Cette action est irréversible.</div>
+    <div class="modal-footer" style="justify-content:center">
+      <button class="btn-modal-cancel" onclick="closeModal('confirmModal')">Annuler</button>
+      <button class="btn-modal-ok btn-modal-danger" id="btnConfirm">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCK REASON MODAL -->
+<div class="modal-ov" id="blockModal" onclick="closeModal('blockModal',event)">
+  <div class="modal" style="max-width:400px" onclick="event.stopPropagation()">
+    <div class="modal-title">🚫 Bloquer l'utilisateur <div class="modal-close" onclick="closeModal('blockModal')">✕</div></div>
+    <div class="mfield"><label>Raison du blocage</label>
+      <select id="blockReason">
+        <option value="spam">🚫 Spam / Fausses annonces</option>
+        <option value="fraude">💸 Tentative de fraude</option>
+        <option value="comportement">😡 Comportement inapproprié</option>
+        <option value="doublons">📋 Comptes en double</option>
+        <option value="autre">⚠️ Autre raison</option>
+      </select>
+    </div>
+    <div class="mfield"><label>Note interne (optionnel)</label><textarea id="blockNote" rows="2" placeholder="Note pour l'équipe admin…"></textarea></div>
+    <input type="hidden" id="blockUserId"/>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('blockModal')">Annuler</button>
+      <button class="btn-modal-ok btn-modal-danger" onclick="confirmBlock()">🚫 Bloquer</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><span id="tIco"></span>&nbsp;<span id="tMsg"></span></div>
+
+<script>
+// ===== SUPABASE =====
+const { createClient } = supabase;
+const sb = createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+// ===== ADMIN CONFIG =====
+// ⚠️ CHANGEZ CET EMAIL POUR VOTRE VRAI EMAIL ADMIN
+const ADMIN_EMAIL = 'admin@afrimarket.com';
+
+// ===== STATE =====
+let allUsers = [], allAds = [], allNotifs = [];
+let userPage = 1, adPage = 1;
+const PER_PAGE = 15;
+let notifTarget = 'all';
+let notifCustomUsers = [];
+let selectedNotifType = 'info';
+let currentUser = null;
+
+// ===== TOAST =====
+let tt;
+function showToast(msg, type='success') {
+  const icons = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  document.getElementById('tIco').textContent = icons[type]||'💬';
+  document.getElementById('tMsg').textContent = msg;
+  const el = document.getElementById('toast');
+  el.className = 'show';
+  el.style.borderLeftColor = type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt);
+  tt = setTimeout(()=>el.className='', 4000);
+}
+
+// ===== LOADING BTN =====
+function setBtnLoading(btnId, on) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = on;
+  btn.classList.toggle('loading', on);
+}
+
+// ===== LOGIN =====
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('lg_email').value.trim();
+  const pwd   = document.getElementById('lg_pwd').value;
+  const err   = document.getElementById('lgErr');
+  err.classList.remove('show');
+
+  setBtnLoading('btnLogin', true);
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+    if (error) throw error;
+
+    // Vérifier que c'est bien un admin
+    const user = data.user;
+    const isAdmin = user.user_metadata?.is_admin === true || user.email === ADMIN_EMAIL;
+    if (!isAdmin) {
+      await sb.auth.signOut();
+      throw new Error("Accès réservé aux administrateurs.");
+    }
+
+    currentUser = user;
+    document.getElementById('loginGate').classList.add('hidden');
+    showSplash();
+  } catch(ex) {
+    err.textContent = ex.message.includes('Invalid') ? 'Email ou mot de passe incorrect' : ex.message;
+    err.classList.add('show');
+  } finally {
+    setBtnLoading('btnLogin', false);
+  }
+});
+
+function showSplash() {
+  const sp = document.getElementById('splash');
+  sp.style.display = 'flex';
+  setTimeout(() => {
+    sp.classList.add('done');
+    setTimeout(() => {
+      sp.style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      initAdmin();
+    }, 700);
+  }, 2000);
+}
+
+// ===== CHECK SESSION =====
+async function checkSession() {
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session) {
+    const isAdmin = session.user.user_metadata?.is_admin === true || session.user.email === ADMIN_EMAIL;
+    if (isAdmin) {
+      currentUser = session.user;
+      document.getElementById('loginGate').classList.add('hidden');
+      document.getElementById('app').style.display = 'flex';
+      initAdmin();
+      return;
+    }
+  }
+}
+
+// ===== INIT ADMIN =====
+async function initAdmin() {
+  if (currentUser) {
+    const name = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Admin';
+    document.getElementById('adminName').textContent = name;
+    document.getElementById('adminAva').textContent = name[0].toUpperCase();
+  }
+  await refreshAll();
+}
+
+async function refreshAll() {
+  await Promise.all([loadStats(), loadUsers(), loadAds(), loadActivity(), loadNotifHistory()]);
+}
+
+// ===== LOGOUT =====
+async function adminLogout() {
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+// ===== PAGES =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${id}`).classList.add('active');
+
+  const navBtn = [...document.querySelectorAll('.nav-item')].find(b => b.getAttribute('onclick')?.includes(`'${id}'`));
+  if (navBtn) navBtn.classList.add('active');
+
+  const titles = {
+    'dashboard':'Tableau de bord','users':'Utilisateurs','ads':'Annonces',
+    'featured':'Mises en avant','blocked':'Comptes bloqués',
+    'notifications':'Envoyer une notification','notif-history':'Historique notifications',
+    'settings':'Paramètres'
+  };
+  document.getElementById('topbarTitle').textContent = titles[id] || id;
+
+  // Lazy load
+  if (id==='featured') loadFeatured();
+  if (id==='blocked') loadBlocked();
+  if (id==='notif-history') loadNotifHistory();
+}
+
+// ===== STATS =====
+async function loadStats() {
+  try {
+    const [{ count: uCount }, { count: aCount }, { count: fCount }, { count: bCount }] = await Promise.all([
+      sb.from('profiles').select('*',{count:'exact',head:true}),
+      sb.from('annonces').select('*',{count:'exact',head:true}).eq('actif',true),
+      sb.from('annonces').select('*',{count:'exact',head:true}).eq('featured',true),
+      sb.from('profiles').select('*',{count:'exact',head:true}).eq('blocked',true),
+    ]);
+    document.getElementById('ds-users').textContent = uCount||0;
+    document.getElementById('ds-ads').textContent   = aCount||0;
+    document.getElementById('ds-feat').textContent  = fCount||0;
+    document.getElementById('ds-blocked').textContent = bCount||0;
+    document.getElementById('nbUsers').textContent  = uCount||0;
+    document.getElementById('nbAds').textContent    = aCount||0;
+    document.getElementById('nbFeatured').textContent = fCount||0;
+    document.getElementById('nbBlocked').textContent  = bCount||0;
+  } catch(e) { console.error(e); }
+}
+
+// ===== USERS =====
+async function loadUsers() {
+  try {
+    const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    allUsers = data || [];
+
+    // Populate pays filter
+    const pays = [...new Set(allUsers.map(u=>u.pays).filter(Boolean))];
+    const sel = document.getElementById('userPaysFilter');
+    sel.innerHTML = '<option value="">Tous les pays</option>' + pays.map(p=>`<option value="${p}">${p}</option>`).join('');
+
+    filterUsers();
+  } catch(e) { console.error(e); renderUsersTable([]); }
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearch')?.value.toLowerCase() || '';
+  const status = document.getElementById('userStatusFilter')?.value || '';
+  const pays   = document.getElementById('userPaysFilter')?.value || '';
+
+  let filtered = allUsers.filter(u => {
+    const matchQ = !q || (u.full_name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+    const matchS = !status || (status==='blocked' ? u.blocked : !u.blocked);
+    const matchP = !pays || u.pays === pays;
+    return matchQ && matchS && matchP;
+  });
+  userPage = 1;
+  renderUsersTable(filtered);
+}
+
+function renderUsersTable(data) {
+  const start = (userPage-1)*PER_PAGE, end = start+PER_PAGE;
+  const page = data.slice(start, end);
+  const tbody = document.getElementById('usersTable');
+
+  if (!page.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="ei">👤</div><div class="et">Aucun utilisateur</div></div></td></tr>`;
+    document.getElementById('userPageInfo').textContent = '0 résultat';
+    document.getElementById('userPageBtns').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = page.map(u => {
+    const initials = (u.full_name||u.email||'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const statusBadge = u.blocked
+      ? '<span class="badge badge-blocked">🚫 Bloqué</span>'
+      : '<span class="badge badge-active">✅ Actif</span>';
+    const date = u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—';
+
+    return `<tr>
+      <td><div class="user-cell">
+        <div class="u-ava">${u.avatar_url?`<img src="${u.avatar_url}"/>`:'<span style="font-size:.65rem">'+initials+'</span>'}</div>
+        <div><div class="u-name">${u.full_name||'—'}</div><div class="u-email">${u.email||'—'}</div></div>
+      </div></td>
+      <td>${u.whatsapp||'—'}</td>
+      <td>${[u.pays,u.ville].filter(Boolean).join(' / ')||'—'}</td>
+      <td>${date}</td>
+      <td>${statusBadge}</td>
+      <td><div class="action-row">
+        <button class="btn-sm primary" onclick="openEditUser('${u.id}')">✏️ Modifier</button>
+        ${u.blocked
+          ? `<button class="btn-sm success" onclick="unblockUser('${u.id}')">✅ Débloquer</button>`
+          : `<button class="btn-sm orange" onclick="openBlockUser('${u.id}')">🚫 Bloquer</button>`}
+        <button class="btn-sm" onclick="notifyUser('${u.id}','${(u.full_name||u.email||'').replace(/'/g,"\\'")}')">🔔 Notifier</button>
+        <button class="btn-sm danger" onclick="deleteUser('${u.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('userPageInfo').textContent = `${data.length} utilisateur(s) — Page ${userPage}/${Math.ceil(data.length/PER_PAGE)}`;
+  renderPagination('user', data.length, userPage, (p) => { userPage=p; renderUsersTable(data); });
+}
+
+// ===== ADS =====
+async function loadAds() {
+  try {
+    const { data, error } = await sb.from('annonces').select('*, profiles(full_name,email,whatsapp)').order('created_at', { ascending: false });
+    if (error) throw error;
+    allAds = data || [];
+    filterAds();
+    buildCatChart();
+  } catch(e) { console.error(e); renderAdsTable([]); }
+}
+
+function filterAds() {
+  const q   = document.getElementById('adSearch')?.value.toLowerCase()||'';
+  const cat = document.getElementById('adCatFilter')?.value||'';
+  const st  = document.getElementById('adStatusFilter')?.value||'';
+
+  let filtered = allAds.filter(a => {
+    const matchQ  = !q  || (a.titre||'').toLowerCase().includes(q);
+    const matchC  = !cat|| a.categorie===cat;
+    const matchS  = !st || (st==='active'?a.actif!==false:st==='inactive'?a.actif===false:st==='featured'?a.featured===true:true);
+    return matchQ && matchC && matchS;
+  });
+  adPage = 1;
+  renderAdsTable(filtered);
+}
+
+function renderAdsTable(data) {
+  const start=(adPage-1)*PER_PAGE, end=start+PER_PAGE;
+  const page=data.slice(start,end);
+  const tbody=document.getElementById('adsTable');
+  const EMO={immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
+
+  if(!page.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="ei">📋</div><div class="et">Aucune annonce</div></div></td></tr>`;document.getElementById('adPageInfo').textContent='0 résultat';document.getElementById('adPageBtns').innerHTML='';return;}
+
+  tbody.innerHTML=page.map(a=>{
+    const emo=EMO[a.categorie]||'📦';
+    const isActive=a.actif!==false;
+    const isFeat=a.featured===true;
+    const date=a.created_at?new Date(a.created_at).toLocaleDateString('fr-FR'):'—';
+    const price=a.prix?Number(a.prix).toLocaleString('fr-FR')+' FCFA':'—';
+    const sellerName=a.profiles?.full_name||'—';
+
+    return `<tr>
+      <td><div class="ad-cell">
+        <div class="ad-thumb">${a.image_url?`<img src="${a.image_url}"/>`:'<span>'+emo+'</span>'}</div>
+        <div><div class="ad-title">${a.titre||'—'}</div><div class="ad-cat">${a.categorie||'—'}</div></div>
+      </div></td>
+      <td>${sellerName}</td>
+      <td style="white-space:nowrap">${price}</td>
+      <td>${emo} ${a.categorie||'—'}</td>
+      <td>${a.ville||'—'}</td>
+      <td>${date}</td>
+      <td>
+        ${isFeat?'<span class="badge badge-featured">⭐ Une</span>':isActive?'<span class="badge badge-active">● Actif</span>':'<span class="badge badge-blocked">● Inactif</span>'}
+      </td>
+      <td><div class="action-row">
+        <button class="btn-sm primary" onclick="openEditAd('${a.id}')">✏️</button>
+        <button class="btn-sm ${isFeat?'orange':'success'}" onclick="toggleFeatured('${a.id}',${isFeat})">${isFeat?'★ Retirer':'⭐ Une'}</button>
+        <button class="btn-sm ${isActive?'orange':'success'}" onclick="toggleAdActive('${a.id}',${isActive})">${isActive?'⏸️':'▶️'}</button>
+        <button class="btn-sm danger" onclick="deleteAd('${a.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('adPageInfo').textContent=`${data.length} annonce(s) — Page ${adPage}/${Math.ceil(data.length/PER_PAGE)}`;
+  renderPagination('ad',data.length,adPage,(p)=>{adPage=p;renderAdsTable(data);});
+}
+
+// ===== FEATURED =====
+async function loadFeatured() {
+  const { data } = await sb.from('annonces').select('*, profiles(full_name)').eq('featured',true).order('created_at',{ascending:false});
+  const EMO={immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
+  const tbody=document.getElementById('featuredTable');
+  if(!data?.length){tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="ei">⭐</div><div class="et">Aucune annonce en avant</div></div></td></tr>`;return;}
+  tbody.innerHTML=data.map(a=>`<tr>
+    <td><div class="ad-cell"><div class="ad-thumb">${a.image_url?`<img src="${a.image_url}"/>`:(EMO[a.categorie]||'📦')}</div><div><div class="ad-title">${a.titre||'—'}</div></div></div></td>
+    <td>${a.profiles?.full_name||'—'}</td>
+    <td>${a.prix?Number(a.prix).toLocaleString('fr-FR')+' FCFA':'—'}</td>
+    <td>${a.ville||'—'}</td>
+    <td><button class="btn-sm danger" onclick="toggleFeatured('${a.id}',true)">★ Retirer</button></td>
+  </tr>`).join('');
+}
+
+// ===== BLOCKED =====
+async function loadBlocked() {
+  const { data } = await sb.from('profiles').select('*').eq('blocked',true).order('updated_at',{ascending:false});
+  const tbody=document.getElementById('blockedTable');
+  if(!data?.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="ei">🚫</div><div class="et">Aucun compte bloqué</div></div></td></tr>`;return;}
+  tbody.innerHTML=data.map(u=>{
+    const date=u.updated_at?new Date(u.updated_at).toLocaleDateString('fr-FR'):'—';
+    return `<tr>
+      <td><div class="user-cell"><div class="u-ava" style="font-size:.55rem">${(u.full_name||u.email||'U')[0].toUpperCase()}</div><div><div class="u-name">${u.full_name||'—'}</div></div></div></td>
+      <td>${u.email||'—'}</td>
+      <td>${u.pays||'—'}</td>
+      <td>${date}</td>
+      <td><span class="badge badge-blocked">${u.block_reason||'—'}</span></td>
+      <td><button class="btn-sm success" onclick="unblockUser('${u.id}')">✅ Débloquer</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== ACTIVITY =====
+async function loadActivity() {
+  try {
+    const [{ data: recentAds }, { data: recentUsers }] = await Promise.all([
+      sb.from('annonces').select('id,titre,created_at,categorie').order('created_at',{ascending:false}).limit(5),
+      sb.from('profiles').select('id,full_name,email,created_at').order('created_at',{ascending:false}).limit(5)
+    ]);
+    const items = [
+      ...(recentAds||[]).map(a=>({type:'ad',msg:`Nouvelle annonce : <strong>${a.titre||'Sans titre'}</strong>`,time:a.created_at,ico:'📋',bg:'rgba(45,85,255,.12)'})),
+      ...(recentUsers||[]).map(u=>({type:'user',msg:`Nouvel utilisateur : <strong>${u.full_name||u.email}</strong>`,time:u.created_at,ico:'👤',bg:'rgba(0,194,183,.12)'}))
+    ].sort((a,b)=>new Date(b.time)-new Date(a.time)).slice(0,8);
+
+    const list=document.getElementById('activityList');
+    if(!items.length){list.innerHTML=`<div class="empty-state"><div class="ei">😴</div><div class="et">Aucune activité récente</div></div>`;return;}
+    list.innerHTML=items.map(i=>`
+      <div class="activity-item">
+        <div class="act-ico" style="background:${i.bg}">${i.ico}</div>
+        <div class="act-msg">${i.msg}</div>
+        <div class="act-time">${timeAgo(i.time)}</div>
+      </div>`).join('');
+  } catch(e){console.error(e);}
+}
+
+// ===== CAT CHART =====
+function buildCatChart() {
+  const cats={};
+  allAds.forEach(a=>{if(a.categorie)cats[a.categorie]=(cats[a.categorie]||0)+1;});
+  const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const max=Math.max(...sorted.map(e=>e[1]),1);
+  const colors=['var(--blue2)','var(--turq)','var(--orange)','var(--red)','var(--purple)','var(--yellow)'];
+  const EMO={immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
+  document.getElementById('catChart').innerHTML=sorted.map(([cat,n],i)=>`
+    <div class="bar" style="height:${Math.round((n/max)*100)}%;background:${colors[i]};opacity:.7" data-v="${n} ${EMO[cat]||cat}"></div>`).join('');
+  document.getElementById('catLegend').innerHTML=sorted.map(([cat,n],i)=>`
+    <span style="display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--gray2)">
+      <span style="width:8px;height:8px;border-radius:50%;background:${colors[i]};display:inline-block"></span>
+      ${EMO[cat]||cat} (${n})
+    </span>`).join('');
+
+  // Pays chart
+  const pays={};
+  allUsers.forEach(u=>{if(u.pays)pays[u.pays]=(pays[u.pays]||0)+1;});
+  const paysSorted=Object.entries(pays).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('paysChart').innerHTML=paysSorted.map(([p,n],i)=>`
+    <div class="donut-item">
+      <div class="donut-dot" style="background:${colors[i]}"></div>
+      <div class="donut-label">${p}</div>
+      <div class="donut-val">${n}</div>
+    </div>`).join('');
+}
+
+// ===== PAGINATION =====
+function renderPagination(prefix, total, cur, cb) {
+  const pages=Math.ceil(total/PER_PAGE);
+  const btns=document.getElementById(`${prefix}PageBtns`);
+  if(!btns)return;
+  if(pages<=1){btns.innerHTML='';return;}
+  let html='';
+  if(cur>1) html+=`<button class="page-btn" onclick="(${cb})(${cur-1})">‹</button>`;
+  for(let i=Math.max(1,cur-2);i<=Math.min(pages,cur+2);i++)
+    html+=`<button class="page-btn${i===cur?' active':''}" onclick="(${cb})(${i})">${i}</button>`;
+  if(cur<pages) html+=`<button class="page-btn" onclick="(${cb})(${cur+1})">›</button>`;
+  btns.innerHTML=html;
+}
+
+// ===== USER CRUD =====
+function openAddUser() {
+  document.getElementById('userModalTitle').textContent='➕ Ajouter un utilisateur';
+  document.getElementById('um_id').value='';
+  ['um_name','um_email','um_wa','um_pays','um_ville','um_pwd'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('um_pwd_field').style.display='';
+  document.getElementById('userModal').classList.add('open');
+}
+
+function openEditUser(id) {
+  const u=allUsers.find(x=>x.id===id);
+  if(!u)return;
+  document.getElementById('userModalTitle').textContent='✏️ Modifier l\'utilisateur';
+  document.getElementById('um_id').value=u.id;
+  document.getElementById('um_name').value=u.full_name||'';
+  document.getElementById('um_email').value=u.email||'';
+  document.getElementById('um_wa').value=u.whatsapp||'';
+  document.getElementById('um_pays').value=u.pays||'';
+  document.getElementById('um_ville').value=u.ville||'';
+  document.getElementById('um_pwd_field').style.display='none';
+  document.getElementById('userModal').classList.add('open');
+}
+
+async function saveUser() {
+  const id    = document.getElementById('um_id').value;
+  const name  = document.getElementById('um_name').value.trim();
+  const email = document.getElementById('um_email').value.trim();
+  const wa    = document.getElementById('um_wa').value.trim();
+  const pays  = document.getElementById('um_pays').value.trim();
+  const ville = document.getElementById('um_ville').value.trim();
+  const pwd   = document.getElementById('um_pwd').value;
+
+  if(!name||!email){showToast('Nom et email obligatoires','warning');return;}
+  setBtnLoading('btnSaveUser',true);
+  try {
+    if(!id) {
+      // Créer nouveau user
+      if(!pwd||pwd.length<6){showToast('Mot de passe min. 6 caractères','warning');setBtnLoading('btnSaveUser',false);return;}
+      const {data:auth,error:authErr}=await sb.auth.signUp({email,password:pwd,options:{data:{full_name:name,whatsapp:wa,pays,ville}}});
+      if(authErr)throw authErr;
+      if(auth.user) await sb.from('profiles').upsert({id:auth.user.id,full_name:name,email,whatsapp:wa,pays,ville});
+    } else {
+      await sb.from('profiles').update({full_name:name,whatsapp:wa,pays,ville}).eq('id',id);
+    }
+    closeModal('userModal');
+    await loadUsers();
+    await loadStats();
+    showToast(id?'Utilisateur mis à jour ✅':'Utilisateur créé ✅','success');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+  finally{setBtnLoading('btnSaveUser',false);}
+}
+
+async function deleteUser(id) {
+  showConfirm('🗑️','Supprimer cet utilisateur ?','Toutes ses annonces seront aussi supprimées. Action irréversible.',async()=>{
+    try {
+      await sb.from('annonces').delete().eq('user_id',id);
+      await sb.from('profiles').delete().eq('id',id);
+      await loadUsers(); await loadAds(); await loadStats();
+      showToast('Utilisateur supprimé','success');
+    } catch(e){showToast('Erreur: '+e.message,'error');}
+  });
+}
+
+// ===== BLOCK =====
+function openBlockUser(id) {
+  document.getElementById('blockUserId').value=id;
+  document.getElementById('blockNote').value='';
+  document.getElementById('blockModal').classList.add('open');
+}
+async function confirmBlock() {
+  const id=document.getElementById('blockUserId').value;
+  const reason=document.getElementById('blockReason').value;
+  const note=document.getElementById('blockNote').value;
+  try {
+    await sb.from('profiles').update({blocked:true,block_reason:reason,block_note:note,updated_at:new Date().toISOString()}).eq('id',id);
+    closeModal('blockModal');
+    await loadUsers(); await loadStats(); await loadBlocked();
+    showToast('Utilisateur bloqué 🚫','warning');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+}
+async function unblockUser(id) {
+  try {
+    await sb.from('profiles').update({blocked:false,block_reason:null,block_note:null}).eq('id',id);
+    await loadUsers(); await loadStats(); await loadBlocked();
+    showToast('Utilisateur débloqué ✅','success');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+}
+
+// ===== AD CRUD =====
+function openAddAd() {
+  document.getElementById('adModalTitle').textContent='➕ Ajouter une annonce';
+  document.getElementById('am_id').value='';
+  ['am_title','am_desc','am_price','am_ville','am_wa'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('am_cat').value='';
+  document.getElementById('am_actif').value='true';
+  document.getElementById('am_feat').value='false';
+  document.getElementById('adModal').classList.add('open');
+}
+function openEditAd(id) {
+  const a=allAds.find(x=>x.id===id);
+  if(!a)return;
+  document.getElementById('adModalTitle').textContent='✏️ Modifier l\'annonce';
+  document.getElementById('am_id').value=a.id;
+  document.getElementById('am_title').value=a.titre||'';
+  document.getElementById('am_desc').value=a.description||'';
+  document.getElementById('am_price').value=a.prix||'';
+  document.getElementById('am_cat').value=a.categorie||'';
+  document.getElementById('am_ville').value=a.ville||'';
+  document.getElementById('am_wa').value=a.whatsapp||'';
+  document.getElementById('am_actif').value=a.actif===false?'false':'true';
+  document.getElementById('am_feat').value=a.featured?'true':'false';
+  document.getElementById('adModal').classList.add('open');
+}
+async function saveAd() {
+  const id=document.getElementById('am_id').value;
+  const title=document.getElementById('am_title').value.trim();
+  const cat=document.getElementById('am_cat').value;
+  const ville=document.getElementById('am_ville').value.trim();
+  if(!title||!cat||!ville){showToast('Titre, catégorie et ville requis','warning');return;}
+  setBtnLoading('btnSaveAd',true);
+  try {
+    const payload={
+      titre:title,description:document.getElementById('am_desc').value.trim(),
+      prix:document.getElementById('am_price').value?parseInt(document.getElementById('am_price').value):null,
+      categorie:cat,ville,whatsapp:document.getElementById('am_wa').value.trim(),
+      actif:document.getElementById('am_actif').value==='true',
+      featured:document.getElementById('am_feat').value==='true'
+    };
+    if(id){await sb.from('annonces').update(payload).eq('id',id);}
+    else{await sb.from('annonces').insert({...payload,user_id:currentUser.id,created_at:new Date().toISOString()});}
+    closeModal('adModal');
+    await loadAds(); await loadStats();
+    showToast(id?'Annonce mise à jour ✅':'Annonce créée ✅','success');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+  finally{setBtnLoading('btnSaveAd',false);}
+}
+async function deleteAd(id) {
+  showConfirm('🗑️','Supprimer cette annonce ?','Cette action est irréversible.',async()=>{
+    try {
+      await sb.from('annonces').delete().eq('id',id);
+      await loadAds(); await loadStats();
+      showToast('Annonce supprimée','success');
+    } catch(e){showToast('Erreur: '+e.message,'error');}
+  });
+}
+async function toggleFeatured(id, isFeat) {
+  try {
+    await sb.from('annonces').update({featured:!isFeat}).eq('id',id);
+    await loadAds(); await loadStats(); await loadFeatured();
+    showToast(isFeat?'Retirée de la une':'Annonce mise en avant ⭐','success');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+}
+async function toggleAdActive(id, isActive) {
+  try {
+    await sb.from('annonces').update({actif:!isActive}).eq('id',id);
+    await loadAds();
+    showToast(isActive?'Annonce désactivée':'Annonce activée ✅','info');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+}
+
+// ===== NOTIFICATIONS =====
+function selNotifType(btn, type) {
+  document.querySelectorAll('.notif-type-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  selectedNotifType = type;
+}
+
+function setTarget(t) {
+  notifTarget=t;
+  notifCustomUsers=[];
+  document.getElementById('targetCustom').style.display=t==='custom'?'':'none';
+  const msgs={'all':'📢 Envoi à tous les utilisateurs','active':'✅ Envoi aux utilisateurs actifs','custom':'👤 Destinataires personnalisés'};
+  document.getElementById('targetDisplay').textContent=msgs[t]||'';
+  if(t!=='custom') document.getElementById('notifTags').innerHTML='';
+}
+
+async function searchNotifUser(q) {
+  if(!q){document.getElementById('notifSearchRes').classList.remove('show');return;}
+  const filtered=allUsers.filter(u=>(u.full_name||'').toLowerCase().includes(q.toLowerCase())||(u.email||'').toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  const res=document.getElementById('notifSearchRes');
+  if(!filtered.length){res.innerHTML='<div class="notif-res-item" style="color:var(--gray)">Aucun résultat</div>';res.classList.add('show');return;}
+  res.innerHTML=filtered.map(u=>`
+    <div class="notif-res-item" onclick="addNotifUser('${u.id}','${(u.full_name||u.email||'').replace(/'/g,"\\'")}')">
+      <div class="u-ava" style="width:26px;height:26px;font-size:.55rem">${(u.full_name||u.email||'U')[0].toUpperCase()}</div>
+      ${u.full_name||'—'} <span style="color:var(--gray);font-size:.7rem">${u.email||''}</span>
+    </div>`).join('');
+  res.classList.add('show');
+}
+
+function addNotifUser(id, name) {
+  if(notifCustomUsers.find(u=>u.id===id))return;
+  notifCustomUsers.push({id,name});
+  renderNotifTags();
+  document.getElementById('notifUserSearch').value='';
+  document.getElementById('notifSearchRes').classList.remove('show');
+}
+
+function removeNotifUser(id) {
+  notifCustomUsers=notifCustomUsers.filter(u=>u.id!==id);
+  renderNotifTags();
+}
+
+function renderNotifTags() {
+  document.getElementById('notifTags').innerHTML=notifCustomUsers.map(u=>`
+    <div class="notif-tag">${u.name}<span class="rm" onclick="removeNotifUser('${u.id}')">✕</span></div>`).join('');
+  const count=notifCustomUsers.length;
+  document.getElementById('targetDisplay').textContent=count?`👤 ${count} destinataire(s) sélectionné(s)`:'👤 Destinataires personnalisés';
+}
+
+function notifyUser(id, name) {
+  showPage('notifications');
+  setTarget('custom');
+  addNotifUser(id, name);
+}
+
+async function sendNotification() {
+  const title=document.getElementById('notifTitle').value.trim();
+  const msg=document.getElementById('notifMsg').value.trim();
+  const link=document.getElementById('notifLink').value.trim();
+  const ico=document.getElementById('notifIco').value.trim()||'🔔';
+
+  if(!title||!msg){showToast('Titre et message obligatoires','warning');return;}
+
+  setBtnLoading('btnSendNotif',true);
+  try {
+    let userIds=[];
+    if(notifTarget==='all') userIds=allUsers.map(u=>u.id);
+    else if(notifTarget==='active') userIds=allUsers.filter(u=>!u.blocked).map(u=>u.id);
+    else if(notifTarget==='custom') userIds=notifCustomUsers.map(u=>u.id);
+
+    if(!userIds.length){showToast('Aucun destinataire sélectionné','warning');setBtnLoading('btnSendNotif',false);return;}
+
+    // Insérer les notifications
+    const notifs=userIds.map(uid=>({
+      user_id:uid,
+      title,
+      message:msg,
+      link:link||null,
+      icon:ico,
+      type:selectedNotifType,
+      read:false,
+      created_at:new Date().toISOString(),
+      sent_by:currentUser.id
+    }));
+
+    const {error}=await sb.from('notifications').insert(notifs);
+    if(error)throw error;
+
+    // Reset form
+    document.getElementById('notifTitle').value='';
+    document.getElementById('notifMsg').value='';
+    document.getElementById('notifLink').value='';
+    document.getElementById('notifIco').value='';
+    notifCustomUsers=[];
+    renderNotifTags();
+    setTarget('all');
+
+    await loadNotifHistory();
+    showToast(`✅ Notification envoyée à ${userIds.length} utilisateur(s) !`,'success');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+  finally{setBtnLoading('btnSendNotif',false);}
+}
+
+async function loadNotifHistory() {
+  try {
+    const {data}=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(30);
+    const list=document.getElementById('notifHistoryList');
+    allNotifs=data||[];
+    if(!allNotifs.length){list.innerHTML=`<div class="empty-state"><div class="ei">📨</div><div class="et">Aucune notification envoyée</div></div>`;return;}
+
+    const typeColors={info:'var(--blue2)',success:'var(--green)',warning:'var(--orange)',alert:'var(--red)',promo:'var(--purple)',news:'var(--turq)'};
+    const typeBg={info:'rgba(45,85,255,.12)',success:'rgba(0,194,113,.12)',warning:'rgba(255,107,26,.12)',alert:'rgba(232,48,48,.12)',promo:'rgba(139,92,246,.12)',news:'rgba(0,194,183,.12)'};
+
+    // Grouper par batch (même titre + même heure à la seconde près)
+    const groups={};
+    allNotifs.forEach(n=>{
+      const key=n.title+(n.created_at||'').slice(0,16);
+      if(!groups[key]){groups[key]={...n,count:0};}
+      groups[key].count++;
+    });
+    const grouped=Object.values(groups).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+    list.innerHTML=grouped.map(n=>`
+      <div class="notif-row">
+        <div class="notif-row-ico" style="background:${typeBg[n.type]||typeBg.info}">${n.icon||'🔔'}</div>
+        <div class="notif-row-body">
+          <div class="notif-row-title">${n.title}</div>
+          <div class="notif-row-msg">${n.message}</div>
+          <div class="notif-row-meta">
+            <span class="badge" style="background:${typeBg[n.type]};color:${typeColors[n.type]};border:1px solid ${typeColors[n.type]}33">${n.type}</span>
+            <span class="notif-row-time">📤 ${n.count} destinataire(s) · ${timeAgo(n.created_at)}</span>
+            ${n.link?`<a href="${n.link}" target="_blank" style="font-size:.68rem;color:var(--blue2)">🔗 Lien</a>`:''}
+          </div>
+        </div>
+      </div>`).join('');
+  } catch(e){console.error(e);}
+}
+
+// ===== SETTINGS =====
+async function saveSettings() {
+  showToast('Paramètres enregistrés ✅','success');
+}
+async function changeAdminPwd() {
+  const p1=document.getElementById('s_pwd').value;
+  const p2=document.getElementById('s_pwd2').value;
+  if(!p1||p1!==p2){showToast('Les mots de passe ne correspondent pas','warning');return;}
+  if(p1.length<6){showToast('Minimum 6 caractères','warning');return;}
+  try {
+    const {error}=await sb.auth.updateUser({password:p1});
+    if(error)throw error;
+    document.getElementById('s_pwd').value='';
+    document.getElementById('s_pwd2').value='';
+    showToast('Mot de passe admin mis à jour ✅','success');
+  } catch(e){showToast('Erreur: '+e.message,'error');}
+}
+function confirmPurge() {
+  showConfirm('🗑️','Purger les annonces inactives ?','Toutes les annonces inactives depuis +30 jours seront supprimées.',async()=>{
+    const cutoff=new Date(Date.now()-30*86400000).toISOString();
+    try {
+      await sb.from('annonces').delete().eq('actif',false).lt('updated_at',cutoff);
+      await loadAds(); await loadStats();
+      showToast('Annonces inactives supprimées','success');
+    } catch(e){showToast('Erreur: '+e.message,'error');}
+  });
+}
+function confirmPurgeBlocked() {
+  showConfirm('🗑️','Supprimer les comptes bloqués ?','Tous les comptes bloqués et leurs annonces seront supprimés.',async()=>{
+    try {
+      const blocked=allUsers.filter(u=>u.blocked);
+      for(const u of blocked){
+        await sb.from('annonces').delete().eq('user_id',u.id);
+        await sb.from('profiles').delete().eq('id',u.id);
+      }
+      await loadUsers(); await loadAds(); await loadStats(); await loadBlocked();
+      showToast(`${blocked.length} comptes supprimés`,'success');
+    } catch(e){showToast('Erreur: '+e.message,'error');}
+  });
+}
+function exportData() {
+  const rows=[['Nom','Email','WhatsApp','Pays','Ville','Statut','Inscrit le'],...allUsers.map(u=>[u.full_name||'',u.email||'',u.whatsapp||'',u.pays||'',u.ville||'',u.blocked?'Bloqué':'Actif',u.created_at?new Date(u.created_at).toLocaleDateString('fr-FR'):''])];
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='afrimarket_users_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  showToast('Export CSV téléchargé 📥','success');
+}
+async function refreshStats() { await refreshAll(); showToast('Statistiques actualisées ✅','success'); }
+
+// ===== GLOBAL SEARCH =====
+function globalSearchFn(q) {
+  if(!q){return;}
+  const lq=q.toLowerCase();
+  // Redirect to users or ads based on results
+  const userMatch=allUsers.some(u=>(u.full_name||'').toLowerCase().includes(lq)||(u.email||'').toLowerCase().includes(lq));
+  const adMatch=allAds.some(a=>(a.titre||'').toLowerCase().includes(lq));
+  if(userMatch&&!adMatch){showPage('users');document.getElementById('userSearch').value=q;filterUsers();}
+  else if(adMatch){showPage('ads');document.getElementById('adSearch').value=q;filterAds();}
+}
+
+// ===== CONFIRM =====
+function showConfirm(ico,title,msg,cb) {
+  document.getElementById('confirmIco').textContent=ico;
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('btnConfirm').onclick=()=>{closeModal('confirmModal');cb();};
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+// ===== MODALS =====
+function closeModal(id,e) {
+  if(e&&e.target!==document.getElementById(id))return;
+  document.getElementById(id).classList.remove('open');
+}
+
+// ===== UTILS =====
+function timeAgo(d){
+  if(!d)return'';
+  const s=Math.floor((Date.now()-new Date(d))/1000);
+  if(s<60)return'À l\'instant';
+  if(s<3600)return`Il y a ${Math.floor(s/60)} min`;
+  if(s<86400)return`Il y a ${Math.floor(s/3600)} h`;
+  return`Il y a ${Math.floor(s/86400)} j`;
+}
+
+// ===== KEYBOARD SHORTCUT =====
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open'));}
+});
+
+// ===== INIT =====
+checkSession();
+</script>
+</body>
+</html>
