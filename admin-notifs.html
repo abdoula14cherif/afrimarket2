@@ -680,6 +680,22 @@ function applyTemplate(key){
 }
 
 // === SEND ===
+// On vérifie d'abord quelles colonnes existent dans la table
+let tableColumns=null;
+async function getTableColumns(){
+  if(tableColumns!==null)return tableColumns;
+  try{
+    // On tente un select pour voir les colonnes disponibles
+    const {data}=await sb.from('notifications').select('*').limit(1);
+    if(data&&data.length>0){tableColumns=Object.keys(data[0]);}
+    else{
+      // Table vide : on fait un insert test minimal pour détecter les colonnes
+      tableColumns=['user_id','title','message','icon','type','read','created_at'];
+    }
+  }catch(e){tableColumns=['user_id','title','message','icon','type','read','created_at'];}
+  return tableColumns;
+}
+
 async function sendNotif(){
   const title=document.getElementById('nTitle').value.trim();
   const msg=document.getElementById('nMsg').value.trim();
@@ -697,21 +713,54 @@ async function sendNotif(){
   const btn=document.getElementById('btnSend');
   btn.disabled=true;btn.classList.add('loading');
 
-  try{
-    const rows=targetIds.map(uid=>({
-      user_id:uid,title,message:msg,link:link||null,
-      icon:ico,type:notifType,read:false,
-      created_at:new Date().toISOString(),sent_by:currentUser.id,
-      batch_id:Date.now().toString()
-    }));
+  // Générer un identifiant de lot côté client (timestamp + aléatoire)
+  const batchId=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const now=new Date().toISOString();
 
-    // Insérer par lots de 100
-    for(let i=0;i<rows.length;i+=100){
-      const {error}=await sb.from('notifications').insert(rows.slice(i,i+100));
-      if(error)throw error;
+  try{
+    // Construction de la ligne de base SANS batch_id (on l'ajoute si la colonne existe)
+    const makeRow=(uid)=>{
+      const row={
+        user_id:uid,
+        title,
+        message:msg,
+        icon:ico,
+        type:notifType,
+        read:false,
+        created_at:now
+      };
+      // Champs optionnels : on les ajoute seulement s'ils ont une valeur
+      if(link)row.link=link;
+      if(currentUser?.id)row.sent_by=currentUser.id;
+      return row;
+    };
+
+    // Premier essai AVEC batch_id
+    const rowsWithBatch=targetIds.map(uid=>({...makeRow(uid),batch_id:batchId}));
+    let insertError=null;
+
+    for(let i=0;i<rowsWithBatch.length;i+=100){
+      const {error}=await sb.from('notifications').insert(rowsWithBatch.slice(i,i+100));
+      if(error){insertError=error;break;}
     }
 
-    // Reset
+    // Si erreur liée à batch_id → réessayer SANS batch_id
+    if(insertError){
+      const errMsg=(insertError.message||'').toLowerCase();
+      const isBatchErr=errMsg.includes('batch_id')||errMsg.includes('schema cache')||errMsg.includes('column');
+      if(isBatchErr){
+        console.warn('batch_id non disponible, envoi sans batch_id...');
+        const rowsNoBatch=targetIds.map(uid=>makeRow(uid));
+        insertError=null;
+        for(let i=0;i<rowsNoBatch.length;i+=100){
+          const {error}=await sb.from('notifications').insert(rowsNoBatch.slice(i,i+100));
+          if(error){insertError=error;break;}
+        }
+      }
+      if(insertError)throw insertError;
+    }
+
+    // Reset formulaire
     document.getElementById('nTitle').value='';
     document.getElementById('nMsg').value='';
     document.getElementById('nLink').value='';
@@ -774,8 +823,9 @@ async function loadHistory(){
 
 async function deleteBatch(batchId,title){
   try{
-    if(batchId){await sb.from('notifications').delete().eq('batch_id',batchId);}
-    else{await sb.from('notifications').delete().eq('title',title);}
+    // Supprimer par titre (compatible même sans batch_id)
+    const {error}=await sb.from('notifications').delete().eq('title',title);
+    if(error)throw error;
     await loadHistory();toast('Notifications supprimées');
   }catch(e){toast('Erreur: '+e.message,'error');}
 }
@@ -786,7 +836,7 @@ function confirmClearHistory(){
   document.getElementById('cfMsg').textContent='Toutes les notifications envoyées seront supprimées définitivement.';
   document.getElementById('cfOkBtn').onclick=async()=>{
     document.getElementById('ovCf').classList.remove('open');
-    try{await sb.from('notifications').delete().neq('id','00000000-0000-0000-0000-000000000000');await loadHistory();toast('Historique vidé');}
+    try{await sb.from('notifications').delete().gte('created_at','2000-01-01');await loadHistory();toast('Historique vidé');}
     catch(e){toast('Erreur: '+e.message,'error');}
   };
   document.getElementById('ovCf').classList.add('open');
@@ -881,7 +931,7 @@ function purge(type,title,msg){
         const {data:blocked}=await sb.from('profiles').select('id').eq('blocked',true);
         for(const u of blocked||[]){await sb.from('annonces').delete().eq('user_id',u.id);await sb.from('profiles').delete().eq('id',u.id);}
       }else if(type==='notifs_old')await sb.from('notifications').delete().lt('created_at',cutoff);
-      else if(type==='notifs_all')await sb.from('notifications').delete().neq('id','00000000-0000-0000-0000-000000000000');
+      else if(type==='notifs_all'){const {error:de}=await sb.from('notifications').delete().gte('created_at','2000-01-01');if(de)throw de;}
       await loadDbStats();
       toast('Opération effectuée ✅');
     }catch(e){toast('Erreur: '+e.message,'error');}
