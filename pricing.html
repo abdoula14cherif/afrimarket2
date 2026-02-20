@@ -386,7 +386,8 @@
               <div class="op-info">
                 <div class="op-name">Orange Money</div>
                 <div class="op-country">Cameroun 🇨🇲</div>
-                <div class="op-num" id="orangeNum">+237 6XX XXX XXX</div>
+                <div class="op-num">+237 658 033 690</div>
+                <div style="font-size:.6rem;color:var(--gray)">Alirou Moun</div>
               </div>
             </div>
             <div class="operator-card" id="op-mtn" onclick="selectOperator('mtn')">
@@ -394,7 +395,8 @@
               <div class="op-info">
                 <div class="op-name">MTN MoMo</div>
                 <div class="op-country">Cameroun 🇨🇲</div>
-                <div class="op-num" id="mtnNum">+237 6XX XXX XXX</div>
+                <div class="op-num">+237 651 461 777</div>
+                <div style="font-size:.6rem;color:var(--gray)">Jean Jacques Rousseau</div>
               </div>
             </div>
           </div>
@@ -404,7 +406,7 @@
         <div class="amount-banner" id="amountBanner">
           <div class="ab-label">Montant à envoyer</div>
           <div class="ab-amount" id="abAmount">1 000 FCFA</div>
-          <div class="ab-num">au numéro : <strong id="abNum">+237 6XX XXX XXX</strong></div>
+          <div class="ab-num">au numéro : <strong id="abNum">+237 658 033 690</strong></div>
           <button class="ab-copy" onclick="copyNum()">📋 Copier le numéro</button>
         </div>
 
@@ -581,8 +583,12 @@ const PLANS={
 
 // ⚙️ CONFIGURE ICI TES NUMÉROS DE RÉCEPTION
 const PAYMENT_NUMBERS={
-  orange:'+237 6XX XXX XXX',  // ← Remplace par ton vrai numéro Orange Money CM
-  mtn:   '+237 6XX XXX XXX'   // ← Remplace par ton vrai numéro MTN Money CM
+  orange:'+237 658 033 690',
+  mtn:   '+237 651 461 777'
+};
+const PAYMENT_NAMES={
+  orange:'Alirou Moun',
+  mtn:   'Jean Jacques Rousseau'
 };
 
 // ===== INIT =====
@@ -671,7 +677,17 @@ function selectOperator(op){
   document.getElementById('op-orange').classList.toggle('sel',op==='orange');
   document.getElementById('op-mtn').classList.toggle('sel',op==='mtn');
   const num=PAYMENT_NUMBERS[op];
+  const nom=PAYMENT_NAMES[op];
   document.getElementById('abNum').textContent=num;
+  // Afficher le nom du bénéficiaire
+  let nomEl=document.getElementById('abBenef');
+  if(!nomEl){
+    nomEl=document.createElement('div');
+    nomEl.id='abBenef';
+    nomEl.style.cssText='font-size:.72rem;color:rgba(255,255,255,.55);margin-top:.15rem;';
+    document.getElementById('abNum').parentNode.appendChild(nomEl);
+  }
+  nomEl.textContent='Nom : '+nom;
 }
 
 function copyNum(){
