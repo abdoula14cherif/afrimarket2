@@ -709,6 +709,11 @@ async function init() {
 
   // Load profile
   const{data:prof}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  // Normaliser is_premium : null/undefined → false, '1'/1 → true
+  if(prof){
+    prof.is_premium = (prof.is_premium===true || prof.is_premium==='true' || prof.is_premium===1);
+    prof.plan = prof.plan || 'free';
+  }
   userProfile=prof;
 
   const meta=currentUser.user_metadata;
@@ -969,9 +974,16 @@ async function markAllRead(){
 }
 
 // ===== PUBLISH MODAL =====
-function openPublish(){
+async function openPublish(){
   if(!currentUser){showToast('Connectez-vous pour publier','warning');return;}
-  const isPrem=userProfile?.is_premium;
+  // Toujours relire le vrai statut depuis Supabase avant d'ouvrir
+  const{data:freshP}=await sb.from('profiles').select('is_premium,plan,plan_expires').eq('id',currentUser.id).single();
+  if(freshP){
+    userProfile.is_premium=(freshP.is_premium===true||freshP.is_premium==='true'||freshP.is_premium===1);
+    userProfile.plan=freshP.plan||'free';
+    userProfile.plan_expires=freshP.plan_expires;
+  }
+  const isPrem=userProfile?.is_premium===true;
   const warn=document.getElementById('limitWarn');
   const limitBar=document.getElementById('pubLimitBar');
   const btnPub=document.getElementById('btnPub');
@@ -1124,7 +1136,8 @@ function startPremiumWatcher() {
         .single();
       if (!f) return;
       const wasP = userProfile?.is_premium === true;
-      const nowP = f.is_premium === true;
+      // Normaliser is_premium reçu de Supabase
+      const nowP = (f.is_premium===true || f.is_premium==='true' || f.is_premium===1);
       if (nowP !== wasP) {
         userProfile.is_premium   = f.is_premium;
         userProfile.plan         = f.plan || 'free';
