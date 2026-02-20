@@ -581,8 +581,8 @@ const PLANS={
 
 // ⚙️ CONFIGURE ICI TES NUMÉROS DE RÉCEPTION
 const PAYMENT_NUMBERS={
-  orange:'+237 658 03 36 90 alirou moun',  // ← Remplace par ton vrai numéro Orange Money CM
-  mtn:   '+237 651 46 17 77 jean jacque'   // ← Remplace par ton vrai numéro MTN Money CM
+  orange:'+237 6XX XXX XXX',  // ← Remplace par ton vrai numéro Orange Money CM
+  mtn:   '+237 6XX XXX XXX'   // ← Remplace par ton vrai numéro MTN Money CM
 };
 
 // ===== INIT =====
@@ -788,12 +788,14 @@ async function activatePremium(pid){
     else expiresAt.setMonth(expiresAt.getMonth()+1);
 
     // Mettre à jour le profil
-    await sb.from('profiles').update({
+    // On écrit les deux variantes (Plan/plan) pour couvrir ta config Supabase
+    const{error:updateErr}=await sb.from('profiles').update({
       is_premium:   true,
-      plan:         selectedPlan,
-      plan_expires: expiresAt.toISOString(),
-      updated_at:   new Date().toISOString()
+      Plan:         selectedPlan,   // colonne avec majuscule dans ta base
+      plan:         selectedPlan,   // colonne minuscule (au cas où)
+      plan_expires: expiresAt.toISOString()
     }).eq('id',currentUser.id);
+    if(updateErr) throw updateErr;
 
     // Marquer la demande comme traitée
     await sb.from('payment_requests').update({
