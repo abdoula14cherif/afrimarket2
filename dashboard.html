@@ -729,11 +729,13 @@ async function init() {
   if (!session) { window.location.href = 'index.html'; return; }
   currentUser = session.user;
 
-  // Profil Supabase
+  // Profil Supabase — lire TOUTES les colonnes
   const { data: prof } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  // Normaliser Plan (majuscule Supabase) → plan (utilisé dans le code)
+  // Normaliser : ta base a "Plan" (majuscule) → on uniformise en "plan"
   if (prof) {
-    prof.plan = prof.Plan || prof.plan || 'free';
+    if (prof.Plan !== undefined) prof.plan = prof.Plan;
+    if (!prof.plan) prof.plan = 'free';
+    if (prof.is_premium === null || prof.is_premium === undefined) prof.is_premium = false;
   }
   userProfile = prof;
 
@@ -774,94 +776,77 @@ async function init() {
   startPremiumWatcher();
 }
 
-// ===== REALTIME : écoute les changements de profil =====
-// Dès que is_premium, plan ou plan_expires change dans Supabase → mise à jour immédiate
-let realtimeChannel = null;
+// ===== WATCHER PREMIUM — polling simple toutes les 8s =====
 let pollingTimer    = null;
+let realtimeChannel = null;
 
 function startPremiumWatcher() {
   if (!currentUser) return;
 
-  // ── 1. REALTIME SUPABASE ──────────────────────────────
-  realtimeChannel = sb
-    .channel('profile-premium-' + currentUser.id)
-    .on(
-      'postgres_changes',
-      {
-        event:  'UPDATE',
-        schema: 'public',
-        table:  'profiles',
-        filter: `id=eq.${currentUser.id}`
-      },
-      async (payload) => {
-        const updated = payload.new;
-        const wasPremi = userProfile?.is_premium;
-        const nowPremi = updated?.is_premium;
-
-        // Mettre à jour le profil en mémoire
-        userProfile = { ...userProfile, ...updated };
-
-        // Si le compte vient d'être upgradé → toast + animation
-        if (!wasPremi && nowPremi) {
-          const planName = updated.plan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
-          showToast(`🎉 Compte ${planName} activé ! Toutes les fonctionnalités sont débloquées.`, 'success');
-          // Confetti rapide
-          spawnMiniConfetti();
-        }
-
-        // Rafraîchir l'interface
-        renderPlanStatus();
-        updatePublishModal();
-      }
-    )
-    .subscribe();
-
-  // ── 2. POLLING DE SECOURS (toutes les 20s) ────────────
-  // Au cas où le Realtime est bloqué (réseau, firewall, etc.)
+  // POLLING toutes les 8 secondes — compare is_premium directement
   pollingTimer = setInterval(async () => {
     try {
-      const { data: fresh } = await sb
+      const { data: fresh, error } = await sb
         .from('profiles')
         .select('is_premium, Plan, plan_expires')
         .eq('id', currentUser.id)
         .single();
 
-      if (!fresh) return;
+      if (error || !fresh) return;
 
-      // Normaliser les noms de colonnes (Supabase sensible à la casse)
-      const freshPremium = fresh.is_premium;
-      const freshPlan    = fresh.Plan || fresh.plan || 'free';
-      const freshExpires = fresh.plan_expires;
-      const wasPremium   = userProfile?.is_premium;
+      // Normaliser Plan → plan
+      const newPremium = fresh.is_premium === true;
+      const oldPremium = userProfile?.is_premium === true;
 
-      // Détecter un changement de statut premium
-      if (freshPremium !== wasPremium) {
-        userProfile = {
-          ...userProfile,
-          is_premium:   freshPremium,
-          plan:         freshPlan,
-          Plan:         freshPlan,
-          plan_expires: freshExpires
-        };
+      if (newPremium !== oldPremium) {
+        // Mettre à jour le profil en mémoire
+        userProfile.is_premium   = newPremium;
+        userProfile.plan         = fresh.Plan || fresh.plan || 'free';
+        userProfile.Plan         = fresh.Plan || fresh.plan || 'free';
+        userProfile.plan_expires = fresh.plan_expires;
 
-        if (!wasPremium && freshPremium) {
-          const planName = freshPlan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
-          showToast(`🎉 Compte ${planName} activé ! Toutes les fonctionnalités sont débloquées.`, 'success');
+        if (newPremium && !oldPremium) {
+          const nom = (userProfile.plan === 'elite') ? 'Elite 🚀' : 'Premium 👑';
+          showToast('🎉 Compte ' + nom + ' activé ! Toutes vos fonctionnalités sont débloquées.', 'success');
           spawnMiniConfetti();
         }
-
         renderPlanStatus();
         updatePublishModal();
       }
-    } catch(e) { /* Silencieux */ }
-  }, 10000);
+    } catch(e) {}
+  }, 8000);
+
+  // REALTIME en bonus (si disponible)
+  try {
+    realtimeChannel = sb
+      .channel('premium-watch-' + currentUser.id)
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + currentUser.id },
+        (payload) => {
+          const updated   = payload.new || {};
+          const newPrem   = updated.is_premium === true;
+          const oldPrem   = userProfile?.is_premium === true;
+          userProfile.is_premium   = newPrem;
+          userProfile.plan         = updated.Plan || updated.plan || userProfile.plan || 'free';
+          userProfile.Plan         = userProfile.plan;
+          userProfile.plan_expires = updated.plan_expires || userProfile.plan_expires;
+          if (newPrem && !oldPrem) {
+            const nom = (userProfile.plan === 'elite') ? 'Elite 🚀' : 'Premium 👑';
+            showToast('🎉 Compte ' + nom + ' activé !', 'success');
+            spawnMiniConfetti();
+          }
+          renderPlanStatus();
+          updatePublishModal();
+        }
+      )
+      .subscribe();
+  } catch(e) {}
 }
 
-// Stopper les watchers si la page est fermée
 window.addEventListener('beforeunload', () => {
-  if (realtimeChannel) sb.removeChannel(realtimeChannel);
-  if (pollingTimer) clearInterval(pollingTimer);
-});
+  if (pollingTimer)    clearInterval(pollingTimer);
+  if (realtimeChannel) try { sb.removeChannel(realtimeChannel); } catch(e) {}
+}););
 
 // ── Mini confetti lors de l'activation ──
 function spawnMiniConfetti() {
@@ -890,47 +875,39 @@ function spawnMiniConfetti() {
 
 // ── Mettre à jour le modal publish selon le nouveau statut ──
 function updatePublishModal() {
-  if (!currentUser) return;
-  const isPrem  = userProfile?.is_premium;
-  const limWarn = document.getElementById('limWarn');
-  const limBar  = document.getElementById('limBar');
-  const btnPub  = document.getElementById('btnPub');
-  const pubLbl  = btnPub?.querySelector('.pub-lbl');
-  if (!btnPub) return;
+  const isPrem = userProfile?.is_premium === true;
+  const qbtn   = document.getElementById('qbtnPrem');
+  const limBar = document.getElementById('limBar');
+  const limWarn= document.getElementById('limWarn');
+  const btnPub = document.getElementById('btnPub');
+  const pubLbl = btnPub ? btnPub.querySelector('.pub-lbl') : null;
 
   if (isPrem) {
-    // Premium → lever toutes les restrictions
-    if (limBar)  limBar.style.display  = 'none';
+    if (qbtn)    qbtn.style.display = 'none';
+    if (limBar)  limBar.style.display = 'none';
     if (limWarn) limWarn.classList.remove('show');
-    btnPub.disabled = false;
-    if (pubLbl) pubLbl.textContent = '🚀 Publier l\'annonce';
-    // Cacher bouton "Passer Premium"
-    const qbtn = document.getElementById('qbtnPrem');
-    if (qbtn) qbtn.style.display = 'none';
+    if (btnPub)  btnPub.disabled = false;
+    if (pubLbl)  pubLbl.textContent = '🚀 Publier l'annonce';
   } else {
-    // Gratuit → réappliquer les limites
-    if (limBar) {
-      limBar.style.display = '';
-      const pct = Math.min(myAdsCount / FREE_LIMIT * 100, 100);
-      const limCount = document.getElementById('limCount');
-      const limFill  = document.getElementById('limFill');
-      if (limCount) limCount.textContent = `${myAdsCount} / ${FREE_LIMIT}`;
-      if (limFill) {
-        limFill.style.width = pct + '%';
-        limFill.className = 'lb-fill' + (pct >= 100 ? ' full' : '');
-      }
-    }
+    if (qbtn)    qbtn.style.display = 'flex';
+    if (limBar)  limBar.style.display = '';
+    const pct = Math.min((myAdsCount / FREE_LIMIT) * 100, 100);
+    const lc  = document.getElementById('limCount');
+    const lf  = document.getElementById('limFill');
+    if (lc) lc.textContent = myAdsCount + ' / ' + FREE_LIMIT;
+    if (lf) { lf.style.width = pct + '%'; lf.className = 'lb-fill' + (pct >= 100 ? ' full' : ''); }
     if (myAdsCount >= FREE_LIMIT) {
       if (limWarn) limWarn.classList.add('show');
-      btnPub.disabled = true;
-      if (pubLbl) pubLbl.textContent = '🔒 Passez Premium pour continuer';
+      if (btnPub)  btnPub.disabled = true;
+      if (pubLbl)  pubLbl.textContent = '🔒 Passez Premium pour continuer';
     }
   }
 }
 
+
 // ===== PLAN STATUS =====
 function renderPlanStatus() {
-  const isPrem    = userProfile?.is_premium;
+  const isPrem    = userProfile?.is_premium === true;
   const plan      = userProfile?.Plan || userProfile?.plan || 'free';
   const expires   = userProfile?.plan_expires ? new Date(userProfile.plan_expires) : null;
   const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
@@ -1198,7 +1175,7 @@ async function markAllRead() {
 // ===== PUBLISH MODAL =====
 function openPublish() {
   if (!currentUser) { showToast('Connectez-vous pour publier', 'warning'); return; }
-  const isPrem   = userProfile?.is_premium;
+  const isPrem   = userProfile?.is_premium === true;
   const limWarn  = document.getElementById('limWarn');
   const limBar   = document.getElementById('limBar');
   const btnPub   = document.getElementById('btnPub');
@@ -1255,7 +1232,7 @@ function previewImage(e) {
 document.getElementById('pubForm').addEventListener('submit', async e => {
   e.preventDefault();
 
-  const isPrem     = userProfile?.is_premium;
+  const isPrem     = userProfile?.is_premium === true;
   const daysSince  = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
 
   // Double vérification limite
