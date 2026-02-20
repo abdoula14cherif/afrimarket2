@@ -731,6 +731,11 @@ async function init() {
 
   // Profil Supabase
   const { data: prof } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  // Normaliser les colonnes avec majuscule (Plan → plan)
+  if (prof) {
+    prof.plan       = prof.Plan       || prof.plan       || 'free';
+    prof.is_premium = prof.is_premium || false;
+  }
   userProfile = prof;
 
   const meta   = currentUser.user_metadata;
@@ -815,30 +820,42 @@ function startPremiumWatcher() {
   // ── 2. POLLING DE SECOURS (toutes les 20s) ────────────
   // Au cas où le Realtime est bloqué (réseau, firewall, etc.)
   pollingTimer = setInterval(async () => {
-    const { data: fresh } = await sb
-      .from('profiles')
-      .select('is_premium, plan, plan_expires, updated_at')
-      .eq('id', currentUser.id)
-      .single();
+    try {
+      const { data: fresh } = await sb
+        .from('profiles')
+        .select('is_premium, Plan, plan_expires')
+        .eq('id', currentUser.id)
+        .single();
 
-    if (!fresh) return;
+      if (!fresh) return;
 
-    // Comparer updated_at pour détecter un changement
-    const changed = fresh.updated_at !== userProfile?.updated_at;
-    if (changed) {
-      const wasPremi = userProfile?.is_premium;
-      userProfile = { ...userProfile, ...fresh };
+      // Normaliser les noms de colonnes (Supabase sensible à la casse)
+      const freshPremium = fresh.is_premium;
+      const freshPlan    = fresh.Plan || fresh.plan || 'free';
+      const freshExpires = fresh.plan_expires;
+      const wasPremium   = userProfile?.is_premium;
 
-      if (!wasPremi && fresh.is_premium) {
-        const planName = fresh.plan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
-        showToast(`🎉 Compte ${planName} activé ! Toutes les fonctionnalités sont débloquées.`, 'success');
-        spawnMiniConfetti();
+      // Détecter un changement de statut premium
+      if (freshPremium !== wasPremium) {
+        userProfile = {
+          ...userProfile,
+          is_premium:   freshPremium,
+          plan:         freshPlan,
+          Plan:         freshPlan,
+          plan_expires: freshExpires
+        };
+
+        if (!wasPremium && freshPremium) {
+          const planName = freshPlan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
+          showToast(`🎉 Compte ${planName} activé ! Toutes les fonctionnalités sont débloquées.`, 'success');
+          spawnMiniConfetti();
+        }
+
+        renderPlanStatus();
+        updatePublishModal();
       }
-
-      renderPlanStatus();
-      updatePublishModal();
-    }
-  }, 20000);
+    } catch(e) { /* Silencieux */ }
+  }, 10000);
 }
 
 // Stopper les watchers si la page est fermée
@@ -915,7 +932,8 @@ function updatePublishModal() {
 // ===== PLAN STATUS =====
 function renderPlanStatus() {
   const isPrem    = userProfile?.is_premium;
-  const plan      = userProfile?.plan || 'free';
+  // Supabase peut retourner 'Plan' (majuscule) ou 'plan' selon la config
+  const plan      = userProfile?.Plan || userProfile?.plan || 'free';
   const expires   = userProfile?.plan_expires ? new Date(userProfile.plan_expires) : null;
   const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
   const trialLeft = Math.max(0, FREE_DAYS - daysSince);
