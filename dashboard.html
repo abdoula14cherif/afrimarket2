@@ -731,10 +731,9 @@ async function init() {
 
   // Profil Supabase
   const { data: prof } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  // Normaliser les colonnes avec majuscule (Plan → plan)
+  // Normaliser Plan (majuscule Supabase) → plan (utilisé dans le code)
   if (prof) {
-    prof.plan       = prof.Plan       || prof.plan       || 'free';
-    prof.is_premium = prof.is_premium || false;
+    prof.plan = prof.Plan || prof.plan || 'free';
   }
   userProfile = prof;
 
@@ -932,7 +931,6 @@ function updatePublishModal() {
 // ===== PLAN STATUS =====
 function renderPlanStatus() {
   const isPrem    = userProfile?.is_premium;
-  // Supabase peut retourner 'Plan' (majuscule) ou 'plan' selon la config
   const plan      = userProfile?.Plan || userProfile?.plan || 'free';
   const expires   = userProfile?.plan_expires ? new Date(userProfile.plan_expires) : null;
   const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
