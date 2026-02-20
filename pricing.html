@@ -788,10 +788,9 @@ async function activatePremium(pid){
     else expiresAt.setMonth(expiresAt.getMonth()+1);
 
     // Mettre à jour le profil
-    // On écrit les deux variantes (Plan/plan) pour couvrir ta config Supabase
     const{error:updateErr}=await sb.from('profiles').update({
       is_premium:   true,
-      Plan:         selectedPlan,
+      plan:         selectedPlan,
       plan_expires: expiresAt.toISOString()
     }).eq('id',currentUser.id);
     if(updateErr) throw updateErr;
