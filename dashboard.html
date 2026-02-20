@@ -846,7 +846,7 @@ function startPremiumWatcher() {
 window.addEventListener('beforeunload', () => {
   if (pollingTimer)    clearInterval(pollingTimer);
   if (realtimeChannel) try { sb.removeChannel(realtimeChannel); } catch(e) {}
-}););
+});
 
 // ── Mini confetti lors de l'activation ──
 function spawnMiniConfetti() {
