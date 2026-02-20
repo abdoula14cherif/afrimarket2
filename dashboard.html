@@ -750,6 +750,14 @@ async function init() {
     avaBtn.textContent = prenom[0]?.toUpperCase() || '?';
   }
 
+  // Vérifier si l'utilisateur vient de payer → afficher toast de bienvenue
+  const justUpgraded = sessionStorage.getItem('showWelcomePremium');
+  if (justUpgraded) {
+    sessionStorage.removeItem('showWelcomePremium');
+    const planName = userProfile?.plan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
+    setTimeout(() => showToast(`Bienvenue en ${planName} ! Toutes vos fonctionnalités sont débloquées 🎉`, 'success'), 800);
+  }
+
   // Pré-remplir formulaire
   if (prof?.whatsapp || meta?.whatsapp) document.getElementById('p_wa').value   = prof?.whatsapp || meta?.whatsapp || '';
   if (prof?.ville    || meta?.ville)    document.getElementById('p_ville').value = prof?.ville    || meta?.ville    || '';
