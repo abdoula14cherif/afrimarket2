@@ -731,9 +731,9 @@ async function init() {
 
   // Profil Supabase — lire TOUTES les colonnes
   const { data: prof } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  // Normaliser : ta base a "Plan" (majuscule) → on uniformise en "plan"
+  // plan est en minuscule dans Supabase
   if (prof) {
-    if (prof.Plan !== undefined) prof.plan = prof.Plan;
+    // plan est maintenant en minuscule dans Supabase
     if (!prof.plan) prof.plan = 'free';
     if (prof.is_premium === null || prof.is_premium === undefined) prof.is_premium = false;
   }
@@ -788,21 +788,21 @@ function startPremiumWatcher() {
     try {
       const { data: fresh, error } = await sb
         .from('profiles')
-        .select('is_premium, Plan, plan_expires')
+        .select('is_premium, plan, plan_expires')
         .eq('id', currentUser.id)
         .single();
 
       if (error || !fresh) return;
 
-      // Normaliser Plan → plan
+      // plan en minuscule
       const newPremium = fresh.is_premium === true;
       const oldPremium = userProfile?.is_premium === true;
 
       if (newPremium !== oldPremium) {
         // Mettre à jour le profil en mémoire
         userProfile.is_premium   = newPremium;
-        userProfile.plan         = fresh.Plan || fresh.plan || 'free';
-        userProfile.Plan         = fresh.Plan || fresh.plan || 'free';
+        userProfile.plan         = fresh.plan || 'free';
+        
         userProfile.plan_expires = fresh.plan_expires;
 
         if (newPremium && !oldPremium) {
@@ -827,8 +827,8 @@ function startPremiumWatcher() {
           const newPrem   = updated.is_premium === true;
           const oldPrem   = userProfile?.is_premium === true;
           userProfile.is_premium   = newPrem;
-          userProfile.plan         = updated.Plan || updated.plan || userProfile.plan || 'free';
-          userProfile.Plan         = userProfile.plan;
+          userProfile.plan         = updated.plan || userProfile.plan || 'free';
+          
           userProfile.plan_expires = updated.plan_expires || userProfile.plan_expires;
           if (newPrem && !oldPrem) {
             const nom = (userProfile.plan === 'elite') ? 'Elite 🚀' : 'Premium 👑';
@@ -908,7 +908,7 @@ function updatePublishModal() {
 // ===== PLAN STATUS =====
 function renderPlanStatus() {
   const isPrem    = userProfile?.is_premium === true;
-  const plan      = userProfile?.Plan || userProfile?.plan || 'free';
+  const plan      = userProfile?.plan || 'free';
   const expires   = userProfile?.plan_expires ? new Date(userProfile.plan_expires) : null;
   const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
   const trialLeft = Math.max(0, FREE_DAYS - daysSince);
