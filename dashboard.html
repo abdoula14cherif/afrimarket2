@@ -20,6 +20,7 @@
       --gray:   #8892A8;
       --border: #E4E9F8;
       --gold:   #F5B731;
+      --green:  #00C271;
       --nav-h:  72px;
     }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -65,22 +66,23 @@
     }
     .notif-dot.show { display:block; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .notif-badge {
+    .notif-count-badge {
       position:absolute; top:2px; right:2px;
       min-width:16px; height:16px; border-radius:99px;
-      background: var(--red); border:2px solid var(--dark);
-      font-size:.5rem; font-weight:800; color:white;
+      background:var(--red); border:2px solid var(--dark);
+      font-size:.52rem; font-weight:800; color:white;
       display:none; align-items:center; justify-content:center;
       padding:0 3px; line-height:1;
     }
-    .notif-badge.show { display:flex; }
+    .notif-count-badge.show { display:flex; }
     .avatar-btn {
       width:38px; height:38px; border-radius:50%;
       background: linear-gradient(135deg, var(--turq), var(--blue2));
       display:flex; align-items:center; justify-content:center;
       font-size:.9rem; font-weight:700; color:white; cursor:pointer;
       border: 2px solid rgba(255,255,255,.2);
-      font-family:'Clash Display',sans-serif; overflow:hidden;
+      font-family:'Clash Display',sans-serif;
+      overflow:hidden;
     }
     .avatar-btn img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
@@ -132,26 +134,24 @@
     .welcome-emoji { font-size:2.2rem; position:relative; z-index:1; animation: wave 2s ease-in-out infinite; }
     @keyframes wave { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(15deg)} 75%{transform:rotate(-5deg)} }
 
-    /* ── PLAN STATUS (ajouté dans la welcome card) ── */
-    .plan-row {
-      position:relative; z-index:1;
-      display:flex; align-items:center; gap:.5rem;
-      margin-bottom:.75rem; flex-wrap:wrap;
-    }
-    .plan-pill {
+    /* PLAN BADGE IN WELCOME */
+    .plan-badge {
       display:inline-flex; align-items:center; gap:.3rem;
-      padding:.18rem .65rem; border-radius:99px;
-      font-size:.63rem; font-weight:700; letter-spacing:.3px;
+      padding:.22rem .7rem; border-radius:99px;
+      font-size:.65rem; font-weight:700; letter-spacing:.3px;
+      position:relative; z-index:1; margin-top:.5rem; margin-bottom:.7rem;
     }
-    .pp-free    { background:rgba(255,255,255,.15); color:white; border:1px solid rgba(255,255,255,.25); }
-    .pp-premium { background:rgba(245,183,49,.22); color:var(--gold); border:1px solid rgba(245,183,49,.4); }
-    .pp-elite   { background:rgba(0,194,183,.18); color:var(--turq); border:1px solid rgba(0,194,183,.4); }
-    .trial-wrap { position:relative; z-index:1; margin-bottom:.8rem; }
-    .trial-top  { display:flex; justify-content:space-between; margin-bottom:.28rem; }
-    .trial-lbl  { font-size:.62rem; color:rgba(255,255,255,.5); }
-    .trial-days { font-size:.62rem; font-weight:700; color:var(--gold); }
-    .trial-track{ height:4px; background:rgba(255,255,255,.15); border-radius:99px; overflow:hidden; }
-    .trial-fill { height:100%; background:linear-gradient(90deg,var(--gold),#FFD580); border-radius:99px; transition:width .6s; }
+    .plan-badge.free { background:rgba(255,255,255,.15); color:white; border:1px solid rgba(255,255,255,.25); }
+    .plan-badge.premium { background:rgba(245,183,49,.25); color:var(--gold); border:1px solid rgba(245,183,49,.4); }
+    .plan-badge.elite { background:rgba(0,194,183,.2); color:var(--turq); border:1px solid rgba(0,194,183,.4); }
+
+    /* TRIAL MINI BAR */
+    .trial-mini { position:relative; z-index:1; margin-bottom:.75rem; }
+    .trial-mini-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:.3rem; }
+    .trial-mini-lbl { font-size:.65rem; color:rgba(255,255,255,.55); }
+    .trial-mini-days { font-size:.65rem; font-weight:700; color:var(--gold); }
+    .trial-mini-track { height:4px; background:rgba(255,255,255,.15); border-radius:99px; overflow:hidden; }
+    .trial-mini-fill { height:100%; background:linear-gradient(90deg,var(--gold),#FFD580); border-radius:99px; transition:width .6s; }
 
     /* QUICK ACTION BUTTONS */
     .quick-btns { display:flex; gap:.6rem; flex-wrap:wrap; position:relative; z-index:1; }
@@ -203,12 +203,11 @@
     .ads-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .ad-card {
       background: white; border-radius:20px; overflow:hidden;
-      box-shadow: 0 2px 16px rgba(27,63,228,.07); cursor:pointer;
-      transition: transform .25s, box-shadow .25s;
+      box-shadow: 0 2px 16px rgba(27,63,228,.07);
+      cursor:pointer; transition: transform .25s, box-shadow .25s;
       animation: cardIn .4s ease both; border: 1px solid var(--border);
     }
     .ad-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(27,63,228,.15); }
-    .ad-card.is-feat { border-color:rgba(200,144,26,.35); box-shadow:0 4px 20px rgba(200,144,26,.15); }
     @keyframes cardIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
     .ad-img {
@@ -223,7 +222,7 @@
       font-size:.6rem; font-weight:700; padding:2px 8px; border-radius:99px;
       letter-spacing:.5px; text-transform:uppercase;
     }
-    .ad-badge.feat-badge { background:linear-gradient(135deg,#C8901A,var(--gold)); }
+    .ad-badge.feat { background:linear-gradient(135deg,#C8901A,var(--gold)); }
     .ad-fav {
       position:absolute; top:7px; right:7px;
       width:28px; height:28px; border-radius:50%;
@@ -242,7 +241,7 @@
       background:linear-gradient(90deg,var(--blue),var(--turq));
       -webkit-background-clip:text; -webkit-text-fill-color:transparent;
     }
-    .ad-location { display:flex; align-items:center; gap:.3rem; font-size:.68rem; color:var(--gray); margin-top:.3rem; flex-wrap:wrap; }
+    .ad-location { display:flex; align-items:center; gap:.3rem; font-size:.68rem; color:var(--gray); margin-top:.3rem; }
     .ad-footer { display:flex; align-items:center; justify-content:space-between; margin-top:.6rem; padding-top:.5rem; border-top:1px solid var(--border); }
     .ad-time { font-size:.62rem; color:#B8C1D8; }
     .btn-wa {
@@ -252,16 +251,6 @@
       font-size:.75rem; border:none; cursor:pointer; transition:transform .2s;
     }
     .btn-wa:hover { transform:scale(1.15); }
-    .verif-tag {
-      font-size:.55rem; background:rgba(245,183,49,.15); color:#C8901A;
-      border:1px solid rgba(200,144,26,.25); border-radius:99px;
-      padding:1px 5px; font-weight:700;
-    }
-
-    /* FEATURED / LARGE CARD */
-    .ad-card.featured { grid-column:1/-1; display:flex; }
-    .ad-card.featured .ad-img { width:130px; aspect-ratio:auto; height:auto; flex-shrink:0; border-radius:0; }
-    .ad-card.featured .ad-body { flex:1; }
 
     /* ===== LOADING SKELETON ===== */
     .skeleton { background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:10px; }
@@ -273,35 +262,27 @@
     .skel-line.short { width:60%; }
 
     /* EMPTY STATE */
-    .empty-state {
-      grid-column:1/-1; display:flex; flex-direction:column; align-items:center;
-      justify-content:center; padding:3rem 1rem; text-align:center; gap:.7rem;
-    }
+    .empty-state { grid-column:1/-1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3rem 1rem; text-align:center; gap:.7rem; }
     .empty-ico { font-size:3.5rem; }
     .empty-state h3 { font-family:'Clash Display',sans-serif; font-size:1.1rem; color:var(--dark); }
     .empty-state p { color:var(--gray); font-size:.82rem; }
 
     /* ===== BOTTOM NAV ===== */
     .bottom-nav {
-      position:fixed; bottom:0; left:0; right:0; z-index:200; height:var(--nav-h);
-      background:white; border-top:1px solid var(--border); display:flex; align-items:stretch;
-      box-shadow: 0 -8px 32px rgba(27,63,228,.1); border-radius:24px 24px 0 0;
+      position:fixed; bottom:0; left:0; right:0; z-index:200;
+      height:var(--nav-h); background:white;
+      border-top:1px solid var(--border);
+      display:flex; align-items:stretch;
+      box-shadow: 0 -8px 32px rgba(27,63,228,.1);
+      border-radius:24px 24px 0 0;
     }
-    .nav-item {
-      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:4px; cursor:pointer; border:none; background:none; transition: all .25s;
-      position:relative; padding-bottom:4px;
-    }
+    .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; border:none; background:none; transition: all .25s; position:relative; padding-bottom:4px; }
     .nav-item:hover { background:rgba(27,63,228,.03); }
     .nav-ico { font-size:1.35rem; transition:transform .25s; line-height:1; }
     .nav-lbl { font-size:.62rem; font-weight:600; color:var(--gray); letter-spacing:.3px; transition:color .25s; }
     .nav-item.active .nav-lbl { color:var(--blue2); }
     .nav-item.active .nav-ico { transform:scale(1.1); }
-    .nav-item.active::before {
-      content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
-      width:32px; height:3px; border-radius:0 0 6px 6px;
-      background:linear-gradient(90deg,var(--blue),var(--turq));
-    }
+    .nav-item.active::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:32px; height:3px; border-radius:0 0 6px 6px; background:linear-gradient(90deg,var(--blue),var(--turq)); }
     .nav-item.nav-plus { margin-top:-18px; }
     .nav-plus-btn {
       width:54px; height:54px; border-radius:18px;
@@ -313,35 +294,40 @@
     .nav-plus-btn:hover { transform:scale(1.1) rotate(5deg); box-shadow:0 12px 32px rgba(27,63,228,.5); }
     .nav-item.nav-plus .nav-lbl { margin-top:2px; }
 
-    /* ── NOTIF PANEL ── */
-    .np-overlay {
+    /* ===== NOTIF PANEL ===== */
+    .notif-panel-overlay {
       position:fixed; inset:0; z-index:490;
       background:rgba(8,14,42,.6); backdrop-filter:blur(6px);
       display:flex; align-items:flex-end;
       opacity:0; pointer-events:none; transition:opacity .3s;
     }
-    .np-overlay.open { opacity:1; pointer-events:all; }
-    .np-panel {
+    .notif-panel-overlay.open { opacity:1; pointer-events:all; }
+    .notif-panel {
       background:white; border-radius:28px 28px 0 0;
       width:100%; max-height:80vh; overflow-y:auto;
       padding:1.5rem 1.4rem 2rem;
-      transform:translateY(100%); transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+      transform:translateY(100%);
+      transition:transform .4s cubic-bezier(.34,1.56,.64,1);
     }
-    .np-overlay.open .np-panel { transform:translateY(0); }
+    .notif-panel-overlay.open .notif-panel { transform:translateY(0); }
     .np-handle { width:40px; height:4px; border-radius:99px; background:var(--border); margin:0 auto 1.2rem; }
     .np-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
     .np-title { font-family:'Clash Display',sans-serif; font-size:1.1rem; font-weight:700; color:var(--dark); }
     .np-mark { font-size:.75rem; color:var(--blue2); font-weight:600; cursor:pointer; }
     .np-item {
       display:flex; align-items:flex-start; gap:.85rem;
-      padding:.9rem 0; border-bottom:1px solid var(--border); cursor:pointer;
+      padding:.9rem 0; border-bottom:1px solid var(--border);
+      cursor:pointer; transition:opacity .2s;
     }
     .np-item:last-child { border-bottom:none; }
-    .np-item.read { opacity:.55; }
+    .np-item.read { opacity:.6; }
     .np-ico { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-    .ni-info{background:rgba(27,63,228,.09)}.ni-success{background:rgba(0,194,113,.09)}
-    .ni-warning{background:rgba(255,107,26,.09)}.ni-alert{background:rgba(232,48,48,.09)}
-    .ni-promo{background:rgba(245,183,49,.12)}.ni-news{background:rgba(0,194,183,.09)}
+    .np-ico.info    { background:rgba(27,63,228,.09); }
+    .np-ico.success { background:rgba(0,194,113,.09); }
+    .np-ico.warning { background:rgba(255,107,26,.09); }
+    .np-ico.alert   { background:rgba(232,48,48,.09); }
+    .np-ico.promo   { background:rgba(245,183,49,.12); }
+    .np-ico.news    { background:rgba(0,194,183,.09); }
     .np-body { flex:1; }
     .np-ntitle { font-size:.84rem; font-weight:700; color:var(--dark); display:flex; align-items:center; gap:.4rem; }
     .np-dot { width:7px; height:7px; border-radius:50%; background:var(--orange); flex-shrink:0; }
@@ -351,7 +337,7 @@
     .np-empty .ei { font-size:2.5rem; margin-bottom:.5rem; }
     .np-empty p { font-size:.8rem; color:var(--gray); }
 
-    /* TOAST */
+    /* ===== TOAST ===== */
     #toast {
       position:fixed; bottom:calc(var(--nav-h) + 12px); right:1rem;
       max-width:300px; background:var(--dark); color:white;
@@ -364,7 +350,7 @@
     }
     #toast.show { transform:translateY(0); opacity:1; }
 
-    /* MODAL DETAIL ANNONCE */
+    /* ===== MODAL DETAIL ===== */
     .modal-overlay {
       position:fixed; inset:0; z-index:500;
       background:rgba(8,14,42,.6); backdrop-filter:blur(6px);
@@ -376,7 +362,8 @@
       background:white; border-radius:28px 28px 0 0;
       width:100%; max-height:90vh; overflow-y:auto;
       padding:1.5rem 1.4rem 2rem;
-      transform:translateY(100%); transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+      transform:translateY(100%);
+      transition:transform .4s cubic-bezier(.34,1.56,.64,1);
     }
     .modal-overlay.open .modal { transform:translateY(0); }
     .modal-handle { width:40px; height:4px; border-radius:99px; background:var(--border); margin:0 auto 1.2rem; }
@@ -392,14 +379,14 @@
     .modal-seller { display:flex; align-items:center; gap:.8rem; background:var(--bg); border-radius:16px; padding:1rem; margin-bottom:1.2rem; }
     .seller-ava { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--turq),var(--blue2)); display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700; color:white; font-family:'Clash Display',sans-serif; flex-shrink:0; }
     .seller-info h4 { font-size:.88rem; font-weight:700; color:var(--dark); }
-    .seller-info p  { font-size:.74rem; color:var(--gray); }
+    .seller-info p { font-size:.74rem; color:var(--gray); }
     .modal-actions { display:flex; gap:.8rem; }
     .btn-modal { flex:1; padding:.8rem; border-radius:14px; border:none; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; font-size:.88rem; font-weight:700; transition:transform .2s, box-shadow .2s; }
     .btn-modal:hover { transform:translateY(-2px); }
     .btn-modal.primary { background:linear-gradient(135deg,var(--blue),var(--blue2)); color:white; box-shadow:0 6px 20px rgba(27,63,228,.35); }
     .btn-modal.wa { background:linear-gradient(135deg,#25D366,#128C7E); color:white; box-shadow:0 6px 20px rgba(37,211,102,.35); }
 
-    /* PUBLISH MODAL */
+    /* ===== PUBLISH MODAL ===== */
     .pub-overlay {
       position:fixed; inset:0; z-index:600;
       background:rgba(8,14,42,.65); backdrop-filter:blur(8px);
@@ -411,7 +398,8 @@
       background:white; border-radius:28px 28px 0 0;
       width:100%; max-height:92vh; overflow-y:auto;
       padding:1.5rem 1.4rem 2.5rem;
-      transform:translateY(100%); transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+      transform:translateY(100%);
+      transition:transform .4s cubic-bezier(.34,1.56,.64,1);
     }
     .pub-overlay.open .pub-modal { transform:translateY(0); }
     .pub-title { font-family:'Clash Display',sans-serif; font-size:1.3rem; font-weight:700; color:var(--dark); margin-bottom:1.2rem; }
@@ -422,16 +410,13 @@
       font-family:'Plus Jakarta Sans',sans-serif; font-size:.87rem; color:var(--dark);
       background:#FAFBFF; outline:none; transition:border-color .2s, box-shadow .2s; resize:none;
     }
-    .pub-field input:focus, .pub-field textarea:focus, .pub-field select:focus {
-      border-color:var(--blue2); box-shadow:0 0 0 3px rgba(45,85,255,.1); background:white;
-    }
+    .pub-field input:focus, .pub-field textarea:focus, .pub-field select:focus { border-color:var(--blue2); box-shadow:0 0 0 3px rgba(45,85,255,.1); background:white; }
     .pub-row { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
     .btn-pub {
       width:100%; padding:.85rem; border:none; border-radius:14px;
       background:linear-gradient(135deg,var(--blue),var(--blue2));
-      color:white; font-family:'Clash Display',sans-serif;
-      font-size:1rem; font-weight:700; cursor:pointer; margin-top:.5rem;
-      transition:transform .2s, box-shadow .2s;
+      color:white; font-family:'Clash Display',sans-serif; font-size:1rem; font-weight:700;
+      cursor:pointer; margin-top:.5rem; transition:transform .2s, box-shadow .2s;
       display:flex; align-items:center; justify-content:center; gap:.5rem;
     }
     .btn-pub:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(27,63,228,.4); }
@@ -441,22 +426,24 @@
     .btn-pub.loading .spin-sm { display:block; }
     .btn-pub.loading .pub-lbl { display:none; }
 
-    /* ── LIMIT BANNER (dans le modal publication) ── */
-    .lim-warn {
-      background:linear-gradient(135deg,rgba(200,144,26,.1),rgba(245,183,49,.08));
-      border:1.5px solid rgba(200,144,26,.3); border-radius:14px;
-      padding:.8rem 1rem; margin-bottom:.9rem;
-      display:none; align-items:center; gap:.7rem;
+    /* LIMIT WARNING BANNER */
+    .limit-warn {
+      background:linear-gradient(135deg,rgba(200,144,26,.12),rgba(245,183,49,.1));
+      border:1.5px solid rgba(200,144,26,.3);
+      border-radius:14px; padding:.8rem 1rem;
+      margin-bottom:.9rem; display:none;
     }
-    .lim-warn.show { display:flex; }
+    .limit-warn.show { display:flex; align-items:center; gap:.7rem; }
     .lw-ico { font-size:1.3rem; flex-shrink:0; }
-    .lw-txt { font-size:.77rem; color:#7A5500; font-weight:600; line-height:1.4; }
-    .lw-txt a { color:var(--blue2); text-decoration:underline; cursor:pointer; }
-    .lim-bar { margin-bottom:.9rem; }
-    .lb-row { display:flex; justify-content:space-between; font-size:.68rem; font-weight:700; color:var(--dark); margin-bottom:.3rem; }
-    .lb-track { height:5px; background:var(--bg); border-radius:99px; overflow:hidden; }
-    .lb-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--turq),var(--blue2)); transition:width .5s; }
-    .lb-fill.full { background:linear-gradient(90deg,var(--orange),var(--red)); }
+    .lw-text { font-size:.78rem; color:#7A5500; line-height:1.4; font-weight:600; }
+    .lw-text a { color:var(--blue2); text-decoration:underline; cursor:pointer; }
+
+    /* LIMIT TRACK IN PUB */
+    .pub-limit-bar { margin-bottom:.9rem; }
+    .plb-row { display:flex; justify-content:space-between; font-size:.68rem; font-weight:700; color:var(--dark); margin-bottom:.3rem; }
+    .plb-track { height:5px; background:var(--bg); border-radius:99px; overflow:hidden; }
+    .plb-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--turq),var(--blue2)); transition:width .5s; }
+    .plb-fill.full { background:linear-gradient(90deg,var(--orange),var(--red)); }
 
     /* IMAGE UPLOAD */
     .img-upload-zone { border:2px dashed var(--border); border-radius:14px; padding:1.2rem; text-align:center; cursor:pointer; transition:border-color .2s, background .2s; position:relative; }
@@ -484,10 +471,10 @@
 <div class="header">
   <div class="header-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
   <div class="header-right">
-    <div class="btn-notif" id="notifBtn" onclick="openNotifPanel()">
+    <div class="btn-notif" onclick="openNotifPanel()" id="notifBtn">
       🔔
       <div class="notif-dot" id="notifDot"></div>
-      <div class="notif-badge" id="notifBadge"></div>
+      <div class="notif-count-badge" id="notifBadge">0</div>
     </div>
     <div class="avatar-btn" id="avatarBtn" onclick="window.location.href='profil.html'">?</div>
   </div>
@@ -514,15 +501,14 @@
       <div class="welcome-emoji">🛍️</div>
     </div>
 
-    <!-- ── PLAN STATUS (injecté via JS) ── -->
-    <div id="planStatusWrap"></div>
+    <!-- PLAN BADGE + TRIAL (injectés dynamiquement) -->
+    <div id="planBadgeWrap"></div>
 
     <!-- QUICK BUTTONS -->
     <div class="quick-btns">
       <button class="qbtn qbtn-white" onclick="openPublish()">✏️ Publier</button>
-      <button class="qbtn qbtn-turq"  onclick="scrollToAds()">🔥 Tendances</button>
-      <button class="qbtn qbtn-orange" onclick="window.location.href='gagner.html'">⭐ Gagner</button>
-      <button class="qbtn qbtn-gold" id="qbtnPrem" onclick="window.location.href='pricing.html'" style="display:none">👑 Premium</button>
+      <button class="qbtn qbtn-turq" onclick="scrollToAds()">🔥 Tendances</button>
+      <button class="qbtn qbtn-orange" id="qbtnPremium" onclick="window.location.href='pricing.html'" style="display:none">👑 Premium</button>
       <button class="qbtn qbtn-red" onclick="shareApp()">📤 Partager</button>
     </div>
   </div>
@@ -553,7 +539,6 @@
   <button class="ad-tab active" onclick="setAdTab('recent',this)">Récentes</button>
   <button class="ad-tab" onclick="setAdTab('feat',this)">⭐ En avant</button>
   <button class="ad-tab" onclick="setAdTab('urgent',this)">Urgentes</button>
-  <button class="ad-tab" onclick="setAdTab('promo',this)">Promos</button>
 </div>
 <div class="ads-section">
   <div class="ads-grid" id="adsGrid">
@@ -585,14 +570,16 @@
 </nav>
 
 <!-- ===== NOTIF PANEL ===== -->
-<div class="np-overlay" id="npOverlay" onclick="if(event.target===this)closeNotifPanel()">
-  <div class="np-panel">
+<div class="notif-panel-overlay" id="notifOverlay" onclick="if(event.target===this)closeNotifPanel()">
+  <div class="notif-panel">
     <div class="np-handle"></div>
     <div class="np-head">
       <div class="np-title">🔔 Notifications</div>
       <span class="np-mark" onclick="markAllRead()">Tout marquer lu</span>
     </div>
-    <div id="npList"><div class="np-empty"><div class="ei">⏳</div><p>Chargement…</p></div></div>
+    <div id="notifPanelList">
+      <div class="np-empty"><div class="ei">⏳</div><p>Chargement…</p></div>
+    </div>
   </div>
 </div>
 
@@ -619,14 +606,16 @@
     <div class="modal-handle"></div>
     <div class="pub-title">📝 Publier une annonce</div>
 
-    <!-- LIMITE (free seulement) -->
-    <div class="lim-warn" id="limWarn">
+    <!-- LIMITE FREE -->
+    <div class="limit-warn" id="limitWarn">
       <div class="lw-ico">⚠️</div>
-      <div class="lw-txt">Limite de <strong>3 annonces gratuites</strong> atteinte. <a onclick="window.location.href='pricing.html'">Passez Premium →</a></div>
+      <div class="lw-text">Vous avez atteint la limite de <strong>3 annonces gratuites</strong>. <a onclick="window.location.href='pricing.html'">Passez Premium</a> pour publier sans limite.</div>
     </div>
-    <div class="lim-bar" id="limBar" style="display:none">
-      <div class="lb-row"><span>Annonces publiées</span><span id="limCount">0 / 3</span></div>
-      <div class="lb-track"><div class="lb-fill" id="limFill" style="width:0%"></div></div>
+
+    <!-- BARRE PROGRESSION (free) -->
+    <div class="pub-limit-bar" id="pubLimitBar" style="display:none">
+      <div class="plb-row"><span id="plbLabel">Annonces publiées</span><span id="plbCount">0 / 3</span></div>
+      <div class="plb-track"><div class="plb-fill" id="plbFill" style="width:0%"></div></div>
     </div>
 
     <form id="pubForm" novalidate>
@@ -661,7 +650,8 @@
         <div class="pub-field"><label>WhatsApp *</label><input type="tel" id="p_wa" placeholder="+225 07…"/></div>
       </div>
       <button type="submit" class="btn-pub" id="btnPub">
-        <div class="spin-sm"></div><span class="pub-lbl">🚀 Publier l'annonce</span>
+        <div class="spin-sm"></div>
+        <span class="pub-lbl">🚀 Publier l'annonce</span>
       </button>
     </form>
   </div>
@@ -684,674 +674,497 @@ let currentCat = 'all';
 let currentTab = 'recent';
 let currentUser = null;
 let userProfile = null;
-let myAdsCount  = 0;
-let allNotifs   = [];
+let myAdsCount = 0;
+let allNotifs = [];
 
 const FREE_LIMIT = 3;
 const FREE_DAYS  = 7;
-
-const EMOJI_MAP = {
-  immobilier:'🏠', vehicules:'🚗', electronique:'📱',
-  mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦'
-};
+const EMOJI_MAP = { immobilier:'🏠', vehicules:'🚗', electronique:'📱', mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦' };
 const liked = new Set();
 
 // ===== TOAST =====
 let tt;
 function showToast(msg, type='success') {
-  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
-  document.getElementById('tIco').textContent = icons[type] || '💬';
+  const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  document.getElementById('tIco').textContent = icons[type]||'💬';
   document.getElementById('tMsg').textContent = msg;
-  const el = document.getElementById('toast');
-  el.className = 'show';
-  el.style.borderLeftColor = type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
-  clearTimeout(tt);
-  tt = setTimeout(() => el.className = '', 3800);
+  const el=document.getElementById('toast');
+  el.className='show';
+  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt); tt=setTimeout(()=>el.className='',3800);
 }
 
-function fmtPrice(n) {
-  if (!n && n !== 0) return 'Prix à débattre';
-  return Number(n).toLocaleString('fr-FR') + ' FCFA';
-}
-
+function fmtPrice(n) { if(!n&&n!==0)return 'Prix à débattre'; return Number(n).toLocaleString('fr-FR')+' FCFA'; }
 function timeAgo(d) {
-  if (!d) return '';
-  const s = Math.floor((Date.now() - new Date(d)) / 1000);
-  if (s < 60)    return 'À l\'instant';
-  if (s < 3600)  return `Il y a ${Math.floor(s/60)} min`;
-  if (s < 86400) return `Il y a ${Math.floor(s/3600)} h`;
-  return `Il y a ${Math.floor(s/86400)} j`;
+  if(!d)return''; const s=Math.floor((Date.now()-new Date(d))/1000);
+  if(s<60)return'À l\'instant'; if(s<3600)return`Il y a ${Math.floor(s/60)} min`;
+  if(s<86400)return`Il y a ${Math.floor(s/3600)} h`; return`Il y a ${Math.floor(s/86400)} j`;
 }
 
 // ===== INIT =====
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = 'index.html'; return; }
-  currentUser = session.user;
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='index.html';return;}
+  currentUser=session.user;
 
-  // Profil Supabase — lire TOUTES les colonnes
-  const { data: prof } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  // plan est en minuscule dans Supabase
-  if (prof) {
-    // plan est maintenant en minuscule dans Supabase
-    if (!prof.plan) prof.plan = 'free';
-    if (prof.is_premium === null || prof.is_premium === undefined) prof.is_premium = false;
-  }
-  userProfile = prof;
+  // Load profile
+  const{data:prof}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  userProfile=prof;
 
-  const meta   = currentUser.user_metadata;
-  const name   = prof?.full_name || meta?.full_name || currentUser.email?.split('@')[0] || 'Utilisateur';
-  const prenom = name.split(' ')[0];
+  const meta=currentUser.user_metadata;
+  const name=prof?.full_name||meta?.full_name||currentUser.email?.split('@')[0]||'Utilisateur';
+  const prenom=name.split(' ')[0];
 
-  // Greeting horaire
-  const h = new Date().getHours();
-  document.getElementById('welcomeGreeting').textContent = h < 12 ? 'Bonjour ☀️' : h < 18 ? 'Bon après-midi 🌤️' : 'Bonsoir 🌙';
-  document.getElementById('welcomeName').textContent = prenom + ' 👋';
+  // Header greeting
+  const h=new Date().getHours();
+  const greet=h<12?'Bonjour ☀️':h<18?'Bon après-midi 🌤️':'Bonsoir 🌙';
+  document.getElementById('welcomeGreeting').textContent=greet;
+  document.getElementById('welcomeName').textContent=prenom+' 👋';
 
   // Avatar
-  const avaBtn = document.getElementById('avatarBtn');
-  if (prof?.avatar_url) {
-    avaBtn.innerHTML = `<img src="${prof.avatar_url}"/>`;
-  } else {
-    avaBtn.textContent = prenom[0]?.toUpperCase() || '?';
-  }
+  const init2=prenom[0]?.toUpperCase()||'?';
+  const avaBtn=document.getElementById('avatarBtn');
+  if(prof?.avatar_url){avaBtn.innerHTML=`<img src="${prof.avatar_url}"/>`;}
+  else{avaBtn.textContent=init2;}
 
-  // Vérifier si l'utilisateur vient de payer → afficher toast de bienvenue
-  const justUpgraded = sessionStorage.getItem('showWelcomePremium');
-  if (justUpgraded) {
+  // Pre-fill publish form
+  if(prof?.whatsapp||meta?.whatsapp) document.getElementById('p_wa').value=prof?.whatsapp||meta?.whatsapp||'';
+  if(prof?.ville||meta?.ville) document.getElementById('p_ville').value=prof?.ville||meta?.ville||'';
+
+  // Retour depuis pricing après paiement
+  if (sessionStorage.getItem('showWelcomePremium')) {
     sessionStorage.removeItem('showWelcomePremium');
-    const planName = userProfile?.plan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
-    setTimeout(() => showToast(`Bienvenue en ${planName} ! Toutes vos fonctionnalités sont débloquées 🎉`, 'success'), 800);
+    // Recharger le profil frais depuis Supabase
+    const{data:freshProf}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+    if(freshProf){ userProfile=freshProf; }
+    setTimeout(()=>{
+      const nom=userProfile?.plan==='elite'?'Elite 🚀':'Premium 👑';
+      showToast('🎉 Bienvenue en '+nom+' ! Toutes vos fonctionnalités sont débloquées.','success');
+    },600);
   }
 
-  // Pré-remplir formulaire
-  if (prof?.whatsapp || meta?.whatsapp) document.getElementById('p_wa').value   = prof?.whatsapp || meta?.whatsapp || '';
-  if (prof?.ville    || meta?.ville)    document.getElementById('p_ville').value = prof?.ville    || meta?.ville    || '';
+  // Render plan
+  renderPlanUI();
 
-  // Rendu plan + chargements
-  renderPlanStatus();
+  // Load data in parallel
   await Promise.all([loadAds(), loadNotifs(), countMyAds()]);
 
-  // 🔴 LIVE — écouter les changements de statut Premium en temps réel
+  // Watcher premium — mise à jour auto si paiement confirmé
   startPremiumWatcher();
 }
 
-// ===== WATCHER PREMIUM — polling simple toutes les 8s =====
-let pollingTimer    = null;
-let realtimeChannel = null;
+// ===== PLAN UI =====
+function renderPlanUI(){
+  const isPrem=userProfile?.is_premium;
+  const plan=userProfile?.plan||'free';
+  const expires=userProfile?.plan_expires?new Date(userProfile.plan_expires):null;
+  const daysSince=Math.floor((Date.now()-new Date(currentUser.created_at))/86400000);
+  const trialLeft=Math.max(0,FREE_DAYS-daysSince);
+  const wrap=document.getElementById('planBadgeWrap');
+  const qbtnPrem=document.getElementById('qbtnPremium');
 
-function startPremiumWatcher() {
-  if (!currentUser) return;
-
-  // POLLING toutes les 8 secondes — compare is_premium directement
-  pollingTimer = setInterval(async () => {
-    try {
-      const { data: fresh, error } = await sb
-        .from('profiles')
-        .select('is_premium, plan, plan_expires')
-        .eq('id', currentUser.id)
-        .single();
-
-      if (error || !fresh) return;
-
-      // plan en minuscule
-      const newPremium = fresh.is_premium === true;
-      const oldPremium = userProfile?.is_premium === true;
-
-      if (newPremium !== oldPremium) {
-        // Mettre à jour le profil en mémoire
-        userProfile.is_premium   = newPremium;
-        userProfile.plan         = fresh.plan || 'free';
-        
-        userProfile.plan_expires = fresh.plan_expires;
-
-        if (newPremium && !oldPremium) {
-          const nom = (userProfile.plan === 'elite') ? 'Elite 🚀' : 'Premium 👑';
-          showToast('🎉 Compte ' + nom + ' activé ! Toutes vos fonctionnalités sont débloquées.', 'success');
-          spawnMiniConfetti();
-        }
-        renderPlanStatus();
-        updatePublishModal();
-      }
-    } catch(e) {}
-  }, 8000);
-
-  // REALTIME en bonus (si disponible)
-  try {
-    realtimeChannel = sb
-      .channel('premium-watch-' + currentUser.id)
-      .on('postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + currentUser.id },
-        (payload) => {
-          const updated   = payload.new || {};
-          const newPrem   = updated.is_premium === true;
-          const oldPrem   = userProfile?.is_premium === true;
-          userProfile.is_premium   = newPrem;
-          userProfile.plan         = updated.plan || userProfile.plan || 'free';
-          
-          userProfile.plan_expires = updated.plan_expires || userProfile.plan_expires;
-          if (newPrem && !oldPrem) {
-            const nom = (userProfile.plan === 'elite') ? 'Elite 🚀' : 'Premium 👑';
-            showToast('🎉 Compte ' + nom + ' activé !', 'success');
-            spawnMiniConfetti();
-          }
-          renderPlanStatus();
-          updatePublishModal();
-        }
-      )
-      .subscribe();
-  } catch(e) {}
-}
-
-window.addEventListener('beforeunload', () => {
-  if (pollingTimer)    clearInterval(pollingTimer);
-  if (realtimeChannel) try { sb.removeChannel(realtimeChannel); } catch(e) {}
-});
-
-// ── Mini confetti lors de l'activation ──
-function spawnMiniConfetti() {
-  const colors = ['#1B3FE4','#00C2B7','#FF6B1A','#F5B731','#E83030','#00C271'];
-  for (let i = 0; i < 40; i++) {
-    const el = document.createElement('div');
-    el.style.cssText = `
-      position:fixed;z-index:9999;pointer-events:none;
-      top:-10px;left:${Math.random()*100}vw;
-      width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;
-      border-radius:${Math.random()>.5?'50%':'2px'};
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      animation:confettoFall ${Math.random()*3+2}s linear ${Math.random()*1.5}s forwards;
-    `;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 5000);
-  }
-  // Injecter l'animation si pas déjà là
-  if (!document.getElementById('confettoStyle')) {
-    const s = document.createElement('style');
-    s.id = 'confettoStyle';
-    s.textContent = `@keyframes confettoFall{from{transform:translateY(-10px) rotate(0deg);opacity:1}to{transform:translateY(110vh) rotate(720deg);opacity:0}}`;
-    document.head.appendChild(s);
-  }
-}
-
-// ── Mettre à jour le modal publish selon le nouveau statut ──
-function updatePublishModal() {
-  const isPrem = userProfile?.is_premium === true;
-  const qbtn   = document.getElementById('qbtnPrem');
-  const limBar = document.getElementById('limBar');
-  const limWarn= document.getElementById('limWarn');
-  const btnPub = document.getElementById('btnPub');
-  const pubLbl = btnPub ? btnPub.querySelector('.pub-lbl') : null;
-
-  if (isPrem) {
-    if (qbtn)    qbtn.style.display = 'none';
-    if (limBar)  limBar.style.display = 'none';
-    if (limWarn) limWarn.classList.remove('show');
-    if (btnPub)  btnPub.disabled = false;
-    if (pubLbl)  pubLbl.textContent = '🚀 Publier l'annonce';
+  if(isPrem && plan==='elite'){
+    wrap.innerHTML=`<div class="plan-badge elite">🚀 Compte Elite — Actif</div>`;
+    document.getElementById('welcomeSub').textContent='Profitez de toute la puissance Elite ! Visibilité maximale.';
+  } else if(isPrem){
+    const expStr=expires?expires.toLocaleDateString('fr-FR'):'—';
+    wrap.innerHTML=`<div class="plan-badge premium">👑 Premium actif · jusqu'au ${expStr}</div>`;
+    document.getElementById('welcomeSub').textContent='Votre compte Premium est actif. Vendez sans limites !';
   } else {
-    if (qbtn)    qbtn.style.display = 'flex';
-    if (limBar)  limBar.style.display = '';
-    const pct = Math.min((myAdsCount / FREE_LIMIT) * 100, 100);
-    const lc  = document.getElementById('limCount');
-    const lf  = document.getElementById('limFill');
-    if (lc) lc.textContent = myAdsCount + ' / ' + FREE_LIMIT;
-    if (lf) { lf.style.width = pct + '%'; lf.className = 'lb-fill' + (pct >= 100 ? ' full' : ''); }
-    if (myAdsCount >= FREE_LIMIT) {
-      if (limWarn) limWarn.classList.add('show');
-      if (btnPub)  btnPub.disabled = true;
-      if (pubLbl)  pubLbl.textContent = '🔒 Passez Premium pour continuer';
-    }
-  }
-}
-
-
-// ===== PLAN STATUS =====
-function renderPlanStatus() {
-  const isPrem    = userProfile?.is_premium === true;
-  const plan      = userProfile?.plan || 'free';
-  const expires   = userProfile?.plan_expires ? new Date(userProfile.plan_expires) : null;
-  const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
-  const trialLeft = Math.max(0, FREE_DAYS - daysSince);
-  const wrap      = document.getElementById('planStatusWrap');
-  const qPrem     = document.getElementById('qbtnPrem');
-
-  if (isPrem && plan === 'elite') {
-    wrap.innerHTML = `<div class="plan-row"><div class="plan-pill pp-elite">🚀 Compte Elite — Actif</div></div>`;
-    document.getElementById('welcomeSub').textContent = 'Profitez de la puissance Elite ! Visibilité maximale.';
-
-  } else if (isPrem) {
-    const expStr = expires ? expires.toLocaleDateString('fr-FR') : '—';
-    wrap.innerHTML = `<div class="plan-row"><div class="plan-pill pp-premium">👑 Premium actif · jusqu'au ${expStr}</div></div>`;
-    document.getElementById('welcomeSub').textContent = 'Votre compte Premium est actif. Vendez sans limites !';
-
-  } else {
-    // Compte gratuit — afficher barre d'essai
-    const pct   = Math.max(0, (trialLeft / FREE_DAYS) * 100);
-    const label = trialLeft > 0 ? `${trialLeft}j d'essai restant${trialLeft > 1 ? 's' : ''}` : '⚠️ Essai expiré';
-    wrap.innerHTML = `
-      <div class="plan-row"><div class="plan-pill pp-free">🆓 Compte gratuit</div></div>
-      <div class="trial-wrap">
-        <div class="trial-top">
-          <span class="trial-lbl">Essai gratuit</span>
-          <span class="trial-days">${label}</span>
+    // FREE — show trial bar
+    const pct=Math.max(0,(trialLeft/FREE_DAYS)*100);
+    const label=trialLeft>0?`${trialLeft} jour${trialLeft>1?'s':''} d'essai restant${trialLeft>1?'s':''}`:'⚠️ Essai expiré';
+    wrap.innerHTML=`
+      <div class="plan-badge free">🆓 Compte gratuit</div>
+      <div class="trial-mini">
+        <div class="trial-mini-row">
+          <span class="trial-mini-lbl">Essai gratuit</span>
+          <span class="trial-mini-days">${label}</span>
         </div>
-        <div class="trial-track"><div class="trial-fill" style="width:${pct}%"></div></div>
+        <div class="trial-mini-track">
+          <div class="trial-mini-fill" style="width:${pct}%"></div>
+        </div>
       </div>`;
-    qPrem.style.display = 'flex';
-    if (trialLeft === 0) document.getElementById('welcomeSub').textContent = 'Votre essai a expiré. Passez Premium pour continuer !';
+    qbtnPrem.style.display='flex'; // Afficher bouton Premium
+    if(trialLeft===0) document.getElementById('welcomeSub').textContent='Votre essai a expiré. Passez Premium pour continuer !';
+    else document.getElementById('welcomeSub').textContent='Que cherchez-vous aujourd\'hui ?';
   }
 }
 
-// ===== COUNT MY ADS =====
-async function countMyAds() {
-  if (!currentUser) return;
-  const { count } = await sb.from('annonces').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
-  myAdsCount = count || 0;
+// ===== COUNT MY ADS (pour la limite) =====
+async function countMyAds(){
+  if(!currentUser)return;
+  const{count}=await sb.from('annonces').select('*',{count:'exact',head:true}).eq('user_id',currentUser.id);
+  myAdsCount=count||0;
 }
 
 // ===== LOAD ADS =====
 async function loadAds() {
   try {
-    const { data: annonces, error } = await sb
-      .from('annonces')
-      .select('*')
-      .order('featured', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(80);
+    const{data:annonces,error}=await sb.from('annonces').select('*').eq('actif',true).order('created_at',{ascending:false}).limit(80);
+    if(error)throw error;
+    if(!annonces||!annonces.length){allAds=[];renderAds();return;}
 
-    if (error) throw error;
-    if (!annonces || !annonces.length) { allAds = []; renderAds(); return; }
-
-    const userIds = [...new Set(annonces.map(a => a.user_id).filter(Boolean))];
-    let profilesMap = {};
-    if (userIds.length) {
-      const { data: profiles } = await sb.from('profiles').select('id, full_name, whatsapp, is_premium').in('id', userIds);
-      if (profiles) profiles.forEach(p => { profilesMap[p.id] = p; });
+    const userIds=[...new Set(annonces.map(a=>a.user_id).filter(Boolean))];
+    let profilesMap={};
+    if(userIds.length){
+      const{data:profiles}=await sb.from('profiles').select('id,full_name,whatsapp,is_premium').in('id',userIds);
+      if(profiles)profiles.forEach(p=>{profilesMap[p.id]=p;});
     }
-
-    allAds = annonces.map(a => ({
-      ...a,
-      profiles: profilesMap[a.user_id] || { full_name: 'Vendeur', whatsapp: a.whatsapp || '' }
-    }));
-
+    allAds=annonces.map(a=>({...a,profiles:profilesMap[a.user_id]||{full_name:'Vendeur',whatsapp:a.whatsapp||''}}));
     renderAds();
-  } catch(err) {
-    console.error('Erreur chargement annonces:', err);
-    allAds = [];
-    renderAds();
-    showToast('Erreur de chargement des annonces', 'error');
+  }catch(err){
+    console.error(err);allAds=[];renderAds();
+    showToast('Erreur de chargement','error');
   }
 }
 
 // ===== RENDER ADS =====
 function renderAds() {
-  let ads = [...allAds];
+  let ads=[...allAds];
 
-  if (currentCat !== 'all') ads = ads.filter(a => a.categorie === currentCat);
-  if (currentTab === 'feat')   ads = ads.filter(a => a.featured === true);
-  if (currentTab === 'urgent') ads = ads.filter(a => a.urgent);
-  if (currentTab === 'promo')  ads = ads.filter(a => a.promo);
+  // Sort: featured first
+  ads.sort((a,b)=>(b.featured===true?1:0)-(a.featured===true?1:0)||new Date(b.created_at)-new Date(a.created_at));
 
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  if (q) ads = ads.filter(a =>
-    (a.titre||'').toLowerCase().includes(q) ||
-    (a.description||'').toLowerCase().includes(q) ||
-    (a.ville||'').toLowerCase().includes(q)
-  );
+  if(currentCat!=='all')ads=ads.filter(a=>a.categorie===currentCat);
+  if(currentTab==='feat')ads=ads.filter(a=>a.featured===true);
+  if(currentTab==='urgent')ads=ads.filter(a=>a.urgent);
 
-  document.getElementById('adsCount').textContent = ads.length + ' annonce' + (ads.length > 1 ? 's' : '');
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  if(q)ads=ads.filter(a=>(a.titre||'').toLowerCase().includes(q)||(a.description||'').toLowerCase().includes(q)||(a.ville||'').toLowerCase().includes(q));
 
-  const grid = document.getElementById('adsGrid');
-  if (!ads.length) {
-    grid.innerHTML = `<div class="empty-state">
-      <div class="empty-ico">🔍</div>
-      <h3>Aucune annonce trouvée</h3>
-      <p>Soyez le premier à publier dans cette catégorie !</p>
-    </div>`;
+  document.getElementById('adsCount').textContent=ads.length+' annonce'+(ads.length>1?'s':'');
+
+  const grid=document.getElementById('adsGrid');
+  if(!ads.length){
+    grid.innerHTML=`<div class="empty-state"><div class="empty-ico">🔍</div><h3>Aucune annonce trouvée</h3><p>Soyez le premier à publier dans cette catégorie !</p></div>`;
     return;
   }
 
-  grid.innerHTML = ads.map((ad, i) => {
-    const emoji   = EMOJI_MAP[ad.categorie] || '📦';
-    const isFeat  = ad.featured === true;
-    const badge   = isFeat
-      ? `<div class="ad-badge feat-badge">⭐ En avant</div>`
-      : ad.urgent ? `<div class="ad-badge">Urgent</div>`
-      : ad.promo  ? `<div class="ad-badge" style="background:var(--turq)">Promo</div>`
-      : '';
-    const isLiked = liked.has(ad.id);
-    const verif   = ad.profiles?.is_premium
-      ? `<span class="verif-tag">✓ Vérifié</span>` : '';
-    const imgContent = ad.image_url
-      ? `<img src="${ad.image_url}" alt="${ad.titre||''}" style="width:100%;aspect-ratio:4/3;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.5rem;\\'>${emoji}</div>'">`
-      : `<div style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">${emoji}</div>`;
-    return `
-      <div class="ad-card${isFeat?' is-feat':''}" style="animation-delay:${i*0.05}s" onclick="openDetail('${ad.id}')">
-        <div class="ad-img" style="padding:0;background:none;">
-          ${imgContent}
-          ${badge}
-          <button class="ad-fav ${isLiked?'liked':''}" id="fav_${ad.id}"
-            onclick="event.stopPropagation();toggleFav('${ad.id}')" aria-label="Favori"></button>
+  grid.innerHTML=ads.map((ad,i)=>{
+    const emoji=EMOJI_MAP[ad.categorie]||'📦';
+    const isFeat=ad.featured===true;
+    const badge=isFeat
+      ?`<div class="ad-badge feat">⭐ En avant</div>`
+      :ad.urgent?`<div class="ad-badge">Urgent</div>`
+      :ad.promo?`<div class="ad-badge" style="background:var(--turq)">Promo</div>`:'';
+    const isLiked=liked.has(ad.id);
+    const imgContent=ad.image_url
+      ?`<img src="${ad.image_url}" alt="${ad.titre||''}" style="width:100%;aspect-ratio:4/3;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.5rem;\\'>${emoji}</div>'">`
+      :`<div style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">${emoji}</div>`;
+    // Seller premium badge
+    const sellerPrem=ad.profiles?.is_premium?'<span style="font-size:.58rem;background:rgba(245,183,49,.15);color:#C8901A;border:1px solid rgba(200,144,26,.25);border-radius:99px;padding:1px 5px;font-weight:700;margin-left:.3rem">✓ Vérifié</span>':'';
+    return`<div class="ad-card" style="animation-delay:${i*0.05}s;${isFeat?'border-color:rgba(200,144,26,.3);box-shadow:0 4px 20px rgba(200,144,26,.15);':''}" onclick="openDetail('${ad.id}')">
+      <div class="ad-img" style="padding:0;background:none;">
+        ${imgContent}${badge}
+        <button class="ad-fav ${isLiked?'liked':''}" id="fav_${ad.id}" onclick="event.stopPropagation();toggleFav('${ad.id}')" aria-label="Favori"></button>
+      </div>
+      <div class="ad-body">
+        <div class="ad-title">${ad.titre||'Sans titre'}</div>
+        <div class="ad-price">${fmtPrice(ad.prix)}</div>
+        <div class="ad-location">📍 ${ad.ville||'—'}${sellerPrem}</div>
+        <div class="ad-footer">
+          <span class="ad-time">${timeAgo(ad.created_at)}</span>
+          <button class="btn-wa" onclick="event.stopPropagation();contactWA('${(ad.profiles?.whatsapp||ad.whatsapp||'').replace(/[^0-9+]/g,'')}')" title="WhatsApp">💬</button>
         </div>
-        <div class="ad-body">
-          <div class="ad-title">${ad.titre||'Sans titre'}</div>
-          <div class="ad-price">${fmtPrice(ad.prix)}</div>
-          <div class="ad-location">📍 ${ad.ville||'—'} ${verif}</div>
-          <div class="ad-footer">
-            <span class="ad-time">${timeAgo(ad.created_at)}</span>
-            <button class="btn-wa" onclick="event.stopPropagation();contactWA('${(ad.profiles?.whatsapp||ad.whatsapp||'').replace(/[^0-9+]/g,'')}')" title="WhatsApp">💬</button>
-          </div>
-        </div>
-      </div>`;
+      </div>
+    </div>`;
   }).join('');
 }
 
-// ===== FILTERS =====
-function filterCat(cat, el) {
-  currentCat = cat;
-  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderAds();
-}
-function filterAds() { renderAds(); }
-function setAdTab(tab, el) {
-  currentTab = tab;
-  document.querySelectorAll('.ad-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderAds();
-}
+// ===== FILTER =====
+function filterCat(cat,el){currentCat=cat;document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderAds();}
+function filterAds(){renderAds();}
+function setAdTab(tab,el){currentTab=tab;document.querySelectorAll('.ad-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderAds();}
 
 // ===== FAV =====
-function toggleFav(id) {
-  if (liked.has(id)) { liked.delete(id); showToast('Retiré des favoris', 'info'); }
-  else               { liked.add(id);    showToast('Ajouté aux favoris ❤️', 'success'); }
-  const btn = document.getElementById('fav_' + id);
-  if (btn) btn.classList.toggle('liked', liked.has(id));
+function toggleFav(id){
+  if(liked.has(id)){liked.delete(id);showToast('Retiré des favoris','info');}
+  else{liked.add(id);showToast('Ajouté aux favoris ❤️','success');}
+  const btn=document.getElementById('fav_'+id);
+  if(btn)btn.classList.toggle('liked',liked.has(id));
 }
 
 // ===== WHATSAPP =====
-function contactWA(num) {
-  if (!num) { showToast('Numéro non disponible', 'warning'); return; }
-  window.open(`https://wa.me/${num.replace(/\+/, '')}?text=Bonjour, je suis intéressé par votre annonce sur AfriMarket 🛒`, '_blank');
+function contactWA(num){
+  if(!num){showToast('Numéro non disponible','warning');return;}
+  window.open(`https://wa.me/${num.replace(/\+/,'')}?text=Bonjour, je suis intéressé par votre annonce sur AfriMarket 🛒`,'_blank');
 }
 
 // ===== DETAIL MODAL =====
-function openDetail(id) {
-  const ad = allAds.find(a => a.id === id);
-  if (!ad) return;
-  const emoji = EMOJI_MAP[ad.categorie] || '📦';
-  const mImg  = document.getElementById('mImg');
-  if (ad.image_url) {
-    mImg.innerHTML = `<img src="${ad.image_url}" alt="${ad.titre||''}" style="width:100%;height:200px;object-fit:cover;border-radius:16px;" onerror="this.parentElement.innerHTML='${emoji}';this.parentElement.style.fontSize='4rem';">`;
-    mImg.style.background = 'none'; mImg.style.fontSize = 'unset';
-  } else {
-    mImg.textContent = emoji;
-    mImg.style.background = 'linear-gradient(135deg,#E8EEFF,#F0F4FF)';
-    mImg.style.fontSize = '4rem';
-  }
-  document.getElementById('mTitle').textContent = ad.titre || 'Sans titre';
-  document.getElementById('mPrice').textContent = fmtPrice(ad.prix);
-  document.getElementById('mDesc').textContent  = ad.description || 'Aucune description.';
-  const seller = ad.profiles || {};
-  const sNom   = seller.full_name || 'Vendeur inconnu';
-  const verif  = seller.is_premium ? '👑 Premium · Vendeur vérifié ✅' : 'Vendeur vérifié ✅';
-  document.getElementById('mInfo').innerHTML = `
+function openDetail(id){
+  const ad=allAds.find(a=>a.id===id);if(!ad)return;
+  const emoji=EMOJI_MAP[ad.categorie]||'📦';
+  const mImg=document.getElementById('mImg');
+  if(ad.image_url){mImg.innerHTML=`<img src="${ad.image_url}" alt="${ad.titre||''}" style="width:100%;height:200px;object-fit:cover;border-radius:16px;" onerror="this.parentElement.innerHTML='${emoji}';this.parentElement.style.fontSize='4rem';">`;mImg.style.background='none';mImg.style.fontSize='unset';}
+  else{mImg.textContent=emoji;mImg.style.background='linear-gradient(135deg,#E8EEFF,#F0F4FF)';mImg.style.fontSize='4rem';}
+  document.getElementById('mTitle').textContent=ad.titre||'Sans titre';
+  document.getElementById('mPrice').textContent=fmtPrice(ad.prix);
+  document.getElementById('mDesc').textContent=ad.description||'Aucune description.';
+  const seller=ad.profiles||{};
+  const sNom=seller.full_name||'Vendeur inconnu';
+  const verified=seller.is_premium?'👑 Premium · Vendeur vérifié ✅':'Vendeur';
+  document.getElementById('mInfo').innerHTML=`
     <span class="modal-tag">📍 ${ad.ville||'—'}</span>
     <span class="modal-tag">🏷️ ${ad.categorie||'—'}</span>
     <span class="modal-tag">🕐 ${timeAgo(ad.created_at)}</span>
-    ${ad.featured ? '<span class="modal-tag" style="background:rgba(200,144,26,.1);color:#C8901A">⭐ En avant</span>' : ''}
-    ${ad.urgent   ? '<span class="modal-tag" style="background:#FFF3E0;color:var(--orange)">🔥 Urgent</span>'    : ''}`;
-  document.getElementById('mSeller').innerHTML = `
-    <div class="seller-ava">${sNom[0]?.toUpperCase()||'?'}</div>
-    <div class="seller-info"><h4>${sNom}</h4><p>${verif}</p></div>`;
-  const wa = (seller.whatsapp || '').replace(/[^0-9+]/g, '');
-  document.getElementById('mWaBtn').onclick = () => contactWA(wa);
+    ${ad.featured?'<span class="modal-tag" style="background:rgba(200,144,26,.1);color:#C8901A">⭐ En avant</span>':''}
+    ${ad.urgent?'<span class="modal-tag" style="background:#FFF3E0;color:var(--orange)">🔥 Urgent</span>':''}`;
+  document.getElementById('mSeller').innerHTML=`<div class="seller-ava">${sNom[0]?.toUpperCase()||'?'}</div><div class="seller-info"><h4>${sNom}</h4><p>${verified}</p></div>`;
+  const wa=(seller.whatsapp||'').replace(/[^0-9+]/g,'');
+  document.getElementById('mWaBtn').onclick=()=>contactWA(wa);
   document.getElementById('detailOverlay').classList.add('open');
 }
-function closeDetail(e) {
-  if (e.target === document.getElementById('detailOverlay'))
-    document.getElementById('detailOverlay').classList.remove('open');
-}
+function closeDetail(e){if(e.target===document.getElementById('detailOverlay'))document.getElementById('detailOverlay').classList.remove('open');}
 
 // ===== NOTIFICATIONS =====
-async function loadNotifs() {
-  if (!currentUser) return;
-  const { data } = await sb.from('notifications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(30);
-  allNotifs = data || [];
-  updateNotifBadge();
-  renderNpList();
+async function loadNotifs(){
+  if(!currentUser)return;
+  const{data}=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(30);
+  allNotifs=data||[];
+  const unread=allNotifs.filter(n=>!n.read).length;
+  const dot=document.getElementById('notifDot');
+  const badge=document.getElementById('notifBadge');
+  if(unread>0){dot.classList.add('show');badge.classList.add('show');badge.textContent=unread>9?'9+':unread;}
+  else{dot.classList.remove('show');badge.classList.remove('show');}
+  renderNotifPanel();
 }
 
-function updateNotifBadge() {
-  const unread = allNotifs.filter(n => !n.read).length;
-  const dot    = document.getElementById('notifDot');
-  const badge  = document.getElementById('notifBadge');
-  if (unread > 0) {
-    dot.classList.add('show');
-    badge.classList.add('show');
-    badge.textContent = unread > 9 ? '9+' : unread;
-  } else {
-    dot.classList.remove('show');
-    badge.classList.remove('show');
-  }
-}
-
-function renderNpList() {
-  const el = document.getElementById('npList');
-  if (!allNotifs.length) {
-    el.innerHTML = `<div class="np-empty"><div class="ei">🔔</div><p>Aucune notification pour l'instant</p></div>`;
-    return;
-  }
-  const typeCls = { info:'ni-info', success:'ni-success', warning:'ni-warning', alert:'ni-alert', promo:'ni-promo', news:'ni-news' };
-  el.innerHTML = allNotifs.map(n => `
-    <div class="np-item${n.read ? ' read' : ''}" onclick="markRead('${n.id}')">
-      <div class="np-ico ${typeCls[n.type] || 'ni-info'}">${n.icon || '🔔'}</div>
+function renderNotifPanel(){
+  const el=document.getElementById('notifPanelList');
+  if(!allNotifs.length){el.innerHTML=`<div class="np-empty"><div class="ei">🔔</div><p>Aucune notification pour l'instant</p></div>`;return;}
+  const typeBg={info:'info',success:'success',warning:'warning',alert:'alert',promo:'promo',news:'news'};
+  el.innerHTML=allNotifs.map(n=>`
+    <div class="np-item${n.read?' read':''}" onclick="markRead('${n.id}')">
+      <div class="np-ico ${typeBg[n.type]||'info'}">${n.icon||'🔔'}</div>
       <div class="np-body">
-        <div class="np-ntitle">${n.title || ''}${!n.read ? '<div class="np-dot"></div>' : ''}</div>
-        <div class="np-msg">${n.message || ''}</div>
-        ${n.link ? `<a href="${n.link}" target="_blank" style="font-size:.7rem;color:var(--blue2);font-weight:600">🔗 Voir</a>` : ''}
+        <div class="np-ntitle">${n.title||''}${!n.read?'<div class="np-dot"></div>':''}</div>
+        <div class="np-msg">${n.message||''}</div>
+        ${n.link?`<a href="${n.link}" target="_blank" style="font-size:.7rem;color:var(--blue2);font-weight:600">🔗 Voir</a>`:''}
         <div class="np-time">${timeAgo(n.created_at)}</div>
       </div>
     </div>`).join('');
 }
 
-function openNotifPanel()  { document.getElementById('npOverlay').classList.add('open'); }
-function closeNotifPanel() { document.getElementById('npOverlay').classList.remove('open'); }
+function openNotifPanel(){document.getElementById('notifOverlay').classList.add('open');}
+function closeNotifPanel(){document.getElementById('notifOverlay').classList.remove('open');}
 
-async function markRead(id) {
-  allNotifs = allNotifs.map(n => n.id === id ? { ...n, read: true } : n);
-  updateNotifBadge();
-  renderNpList();
-  await sb.from('notifications').update({ read: true }).eq('id', id);
+async function markRead(id){
+  allNotifs=allNotifs.map(n=>n.id===id?{...n,read:true}:n);
+  renderNotifPanel();
+  const unread=allNotifs.filter(n=>!n.read).length;
+  const dot=document.getElementById('notifDot');const badge=document.getElementById('notifBadge');
+  if(unread>0){dot.classList.add('show');badge.classList.add('show');badge.textContent=unread>9?'9+':unread;}
+  else{dot.classList.remove('show');badge.classList.remove('show');}
+  await sb.from('notifications').update({read:true}).eq('id',id);
 }
-async function markAllRead() {
-  allNotifs = allNotifs.map(n => ({ ...n, read: true }));
-  updateNotifBadge();
-  renderNpList();
-  await sb.from('notifications').update({ read: true }).eq('user_id', currentUser.id);
+
+async function markAllRead(){
+  allNotifs=allNotifs.map(n=>({...n,read:true}));
+  renderNotifPanel();
+  document.getElementById('notifDot').classList.remove('show');
+  document.getElementById('notifBadge').classList.remove('show');
+  await sb.from('notifications').update({read:true}).eq('user_id',currentUser.id);
   showToast('Tout marqué comme lu ✅');
 }
 
 // ===== PUBLISH MODAL =====
-function openPublish() {
-  if (!currentUser) { showToast('Connectez-vous pour publier', 'warning'); return; }
-  const isPrem   = userProfile?.is_premium === true;
-  const limWarn  = document.getElementById('limWarn');
-  const limBar   = document.getElementById('limBar');
-  const btnPub   = document.getElementById('btnPub');
-  const pubLbl   = btnPub.querySelector('.pub-lbl');
+function openPublish(){
+  if(!currentUser){showToast('Connectez-vous pour publier','warning');return;}
+  const isPrem=userProfile?.is_premium;
+  const warn=document.getElementById('limitWarn');
+  const limitBar=document.getElementById('pubLimitBar');
+  const btnPub=document.getElementById('btnPub');
+  const pubForm=document.getElementById('pubForm');
 
-  if (!isPrem) {
-    limBar.style.display = '';
-    const pct = Math.min(myAdsCount / FREE_LIMIT * 100, 100);
-    document.getElementById('limCount').textContent = `${myAdsCount} / ${FREE_LIMIT}`;
-    const fill = document.getElementById('limFill');
-    fill.style.width = pct + '%';
-    fill.className   = 'lb-fill' + (pct >= 100 ? ' full' : '');
+  if(!isPrem){
+    limitBar.style.display='';
+    const pct=Math.min(myAdsCount/FREE_LIMIT*100,100);
+    document.getElementById('plbCount').textContent=myAdsCount+' / '+FREE_LIMIT;
+    document.getElementById('plbFill').style.width=pct+'%';
+    document.getElementById('plbFill').className='plb-fill'+(pct>=100?' full':'');
 
-    if (myAdsCount >= FREE_LIMIT) {
-      limWarn.classList.add('show');
-      btnPub.disabled  = true;
-      pubLbl.textContent = '🔒 Passez Premium pour continuer';
+    if(myAdsCount>=FREE_LIMIT){
+      warn.classList.add('show');
+      btnPub.disabled=true;
+      btnPub.style.background='linear-gradient(135deg,#999,#777)';
+      btnPub.querySelector('.pub-lbl').textContent='🔒 Limite atteinte — Passer Premium';
     } else {
-      limWarn.classList.remove('show');
-      btnPub.disabled  = false;
-      pubLbl.textContent = '🚀 Publier l\'annonce';
+      warn.classList.remove('show');
+      btnPub.disabled=false;
+      btnPub.style.background='';
+      btnPub.querySelector('.pub-lbl').textContent='🚀 Publier l\'annonce';
     }
   } else {
-    limBar.style.display = 'none';
-    limWarn.classList.remove('show');
-    btnPub.disabled  = false;
-    pubLbl.textContent = '🚀 Publier l\'annonce';
+    limitBar.style.display='none';
+    warn.classList.remove('show');
+    btnPub.disabled=false;
+    btnPub.style.background='';
+    btnPub.querySelector('.pub-lbl').textContent='🚀 Publier l\'annonce';
   }
   document.getElementById('pubOverlay').classList.add('open');
 }
-function closePub(e) {
-  if (e.target === document.getElementById('pubOverlay'))
-    document.getElementById('pubOverlay').classList.remove('open');
-}
+
+function closePub(e){if(e.target===document.getElementById('pubOverlay'))document.getElementById('pubOverlay').classList.remove('open');}
 
 // ===== IMAGE PREVIEW =====
-function previewImage(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const preview     = document.getElementById('imgPreview');
-  const placeholder = document.getElementById('uploadPlaceholder');
-  const zone        = document.getElementById('uploadZone');
-  const reader      = new FileReader();
-  reader.onload = ev => {
-    preview.src = ev.target.result;
-    preview.classList.add('show');
-    placeholder.style.display = 'none';
-    zone.classList.add('has-img');
-  };
+function previewImage(e){
+  const file=e.target.files[0];if(!file)return;
+  const preview=document.getElementById('imgPreview');
+  const placeholder=document.getElementById('uploadPlaceholder');
+  const zone=document.getElementById('uploadZone');
+  const reader=new FileReader();
+  reader.onload=ev=>{preview.src=ev.target.result;preview.classList.add('show');placeholder.style.display='none';zone.classList.add('has-img');};
   reader.readAsDataURL(file);
 }
 
 // ===== PUBLISH SUBMIT =====
-document.getElementById('pubForm').addEventListener('submit', async e => {
+document.getElementById('pubForm').addEventListener('submit', async e=>{
   e.preventDefault();
-
-  const isPrem     = userProfile?.is_premium === true;
-  const daysSince  = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
-
-  // Double vérification limite
-  if (!isPrem && myAdsCount >= FREE_LIMIT) {
-    showToast('Limite atteinte ! Passez Premium 👑', 'warning');
-    setTimeout(() => window.location.href = 'pricing.html', 1500);
-    return;
-  }
-  if (!isPrem && daysSince >= FREE_DAYS && myAdsCount >= FREE_LIMIT) {
-    showToast('Votre essai a expiré. Passez Premium !', 'warning');
-    setTimeout(() => window.location.href = 'pricing.html', 1500);
+  const isPrem=userProfile?.is_premium;
+  if(!isPrem&&myAdsCount>=FREE_LIMIT){
+    showToast('Limite atteinte ! Passez Premium 👑','warning');
+    window.location.href='pricing.html';
     return;
   }
 
-  const title = document.getElementById('p_title').value.trim();
-  const desc  = document.getElementById('p_desc').value.trim();
-  const price = document.getElementById('p_price').value;
-  const cat   = document.getElementById('p_cat').value;
-  const ville = document.getElementById('p_ville').value.trim();
-  const wa    = document.getElementById('p_wa').value.trim();
+  const title=document.getElementById('p_title').value.trim();
+  const desc=document.getElementById('p_desc').value.trim();
+  const price=document.getElementById('p_price').value;
+  const cat=document.getElementById('p_cat').value;
+  const ville=document.getElementById('p_ville').value.trim();
+  const wa=document.getElementById('p_wa').value.trim();
+  if(!title||!desc||!cat||!ville||!wa){showToast('Remplissez tous les champs obligatoires','warning');return;}
 
-  if (!title || !desc || !cat || !ville || !wa) {
-    showToast('Remplissez tous les champs obligatoires', 'warning');
+  // Vérification expiration trial
+  const daysSince=Math.floor((Date.now()-new Date(currentUser.created_at))/86400000);
+  if(!isPrem&&daysSince>=FREE_DAYS&&myAdsCount>=FREE_LIMIT){
+    showToast('Votre essai a expiré. Passez Premium !','warning');
+    setTimeout(()=>window.location.href='pricing.html',1500);
     return;
   }
 
-  const btn = document.getElementById('btnPub');
-  btn.disabled = true; btn.classList.add('loading');
+  const btn=document.getElementById('btnPub');
+  btn.disabled=true;btn.classList.add('loading');
 
-  try {
-    // Upload image
-    let image_url = null;
-    const imgFile = document.getElementById('p_img').files[0];
-    if (imgFile) {
-      const ext      = imgFile.name.split('.').pop();
-      const fileName = `${currentUser.id}/${Date.now()}.${ext}`;
-      const { error: storageErr } = await sb.storage.from('annonces').upload(fileName, imgFile, { upsert: true });
-      if (storageErr) throw storageErr;
-      const { data: urlData } = sb.storage.from('annonces').getPublicUrl(fileName);
-      image_url = urlData.publicUrl;
+  try{
+    let image_url=null;
+    const imgFile=document.getElementById('p_img').files[0];
+    if(imgFile){
+      const ext=imgFile.name.split('.').pop();
+      const fileName=`${currentUser.id}/${Date.now()}.${ext}`;
+      const{error:storageErr}=await sb.storage.from('annonces').upload(fileName,imgFile,{upsert:true});
+      if(storageErr)throw storageErr;
+      const{data:urlData}=sb.storage.from('annonces').getPublicUrl(fileName);
+      image_url=urlData.publicUrl;
     }
 
-    // Insérer annonce
-    const payload = {
-      titre: title, description: desc,
-      prix: price ? parseInt(price) : null,
-      categorie: cat, ville, whatsapp: wa,
-      image_url, user_id: currentUser.id,
-      created_at: new Date().toISOString(),
-      actif: true, featured: false
-    };
-    const { data, error } = await sb.from('annonces').insert([payload]).select().single();
-    if (error) throw error;
+    const payload={titre:title,description:desc,prix:price?parseInt(price):null,categorie:cat,ville,whatsapp:wa,image_url,user_id:currentUser.id,created_at:new Date().toISOString(),actif:true,featured:false};
+    const{data,error}=await sb.from('annonces').insert([payload]).select().single();
+    if(error)throw error;
 
-    // Mise à jour locale
-    const newAd = {
-      ...data,
-      profiles: {
-        full_name:  userProfile?.full_name || currentUser.user_metadata?.full_name || 'Moi',
-        whatsapp:   wa,
-        is_premium: userProfile?.is_premium || false
-      }
-    };
+    const newAd={...data,profiles:{full_name:userProfile?.full_name||currentUser.user_metadata?.full_name||'Moi',whatsapp:wa,is_premium:userProfile?.is_premium||false}};
     allAds.unshift(newAd);
     myAdsCount++;
     renderAds();
 
-    // Reset form
     document.getElementById('pubOverlay').classList.remove('open');
     document.getElementById('pubForm').reset();
     document.getElementById('imgPreview').classList.remove('show');
-    document.getElementById('imgPreview').src = '';
-    document.getElementById('uploadPlaceholder').style.display = '';
+    document.getElementById('imgPreview').src='';
+    document.getElementById('uploadPlaceholder').style.display='';
     document.getElementById('uploadZone').classList.remove('has-img');
+    showToast('Annonce publiée avec succès ! 🎉');
 
-    showToast('Annonce publiée avec succès ! 🎉', 'success');
-
-    // Alerte si quasi-limite atteinte
-    if (!isPrem && myAdsCount >= FREE_LIMIT) {
-      setTimeout(() => showToast('Limite de 3 annonces atteinte ! Passez Premium 👑', 'warning'), 1500);
+    // Notif si proche limite (free)
+    if(!isPrem&&myAdsCount>=FREE_LIMIT-1){
+      setTimeout(()=>showToast(`⚠️ Plus qu'une annonce gratuite disponible ! Passez Premium.`,'warning'),1500);
     }
 
-  } catch(err) {
+  }catch(err){
     console.error(err);
-    if (err.message?.includes('does not exist') || err.code === '42P01') {
-      showToast('Créez la table "annonces" dans Supabase', 'error');
-    } else {
-      showToast('Erreur : ' + err.message, 'error');
-    }
-  } finally {
-    btn.disabled = false; btn.classList.remove('loading');
-  }
+    if(err.message?.includes('does not exist')||err.code==='42P01')showToast('Créez la table "annonces" dans Supabase','error');
+    else showToast('Erreur : '+err.message,'error');
+  }finally{btn.disabled=false;btn.classList.remove('loading');}
 });
 
 // ===== BOTTOM NAV =====
-function navGo(page, el) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+function navGo(page,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   el.classList.add('active');
-  if (page === 'home')          { window.scrollTo({ top:0, behavior:'smooth' }); return; }
-  if (page === 'notifications') { openNotifPanel(); return; }
-  const pages = { gagner:'gagner.html', historique:'historique.html', profil:'profil.html' };
-  if (pages[page]) window.location.href = pages[page];
+  if(page==='home'){window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(page==='notifications'){openNotifPanel();return;}
+  const pages={gagner:'gagner.html',historique:'historique.html',profil:'profil.html'};
+  if(pages[page])window.location.href=pages[page];
 }
 
-function scrollToAds() {
-  document.getElementById('adsAnchor').scrollIntoView({ behavior:'smooth' });
-}
+function scrollToAds(){document.getElementById('adsAnchor').scrollIntoView({behavior:'smooth'});}
 
-function shareApp() {
-  if (navigator.share) {
-    navigator.share({ title:'AfriMarket', text:'Découvrez AfriMarket — La marketplace africaine de petites annonces !', url:window.location.origin }).catch(()=>{});
-  } else {
-    navigator.clipboard?.writeText(window.location.origin)
-      .then(() => showToast('Lien copié ! 📋', 'success'))
-      .catch(() => showToast('Partagez : ' + window.location.origin, 'info'));
-  }
+function shareApp(){
+  if(navigator.share){navigator.share({title:'AfriMarket',text:'Découvrez AfriMarket — La marketplace africaine de petites annonces !',url:window.location.origin}).catch(()=>{});}
+  else{navigator.clipboard?.writeText(window.location.origin).then(()=>showToast('Lien copié ! 📋','success')).catch(()=>showToast('Partagez : '+window.location.origin,'info'));}
 }
 
 // ===== START =====
+
+// ===== PREMIUM WATCHER =====
+// Polling toutes les 8s — détecte si is_premium a changé (après paiement)
+let _pollingTimer = null;
+let _rtChannel    = null;
+
+function startPremiumWatcher() {
+  if (!currentUser) return;
+
+  _pollingTimer = setInterval(async () => {
+    try {
+      const { data: f } = await sb
+        .from('profiles')
+        .select('is_premium, plan, plan_expires')
+        .eq('id', currentUser.id)
+        .single();
+      if (!f) return;
+      const wasP = userProfile?.is_premium === true;
+      const nowP = f.is_premium === true;
+      if (nowP !== wasP) {
+        userProfile.is_premium   = f.is_premium;
+        userProfile.plan         = f.plan || 'free';
+        userProfile.plan_expires = f.plan_expires;
+        renderPlanUI();
+        // Mise à jour bouton publier
+        const qbtn = document.getElementById('qbtnPrem');
+        if (qbtn) qbtn.style.display = nowP ? 'none' : 'flex';
+        if (nowP && !wasP) {
+          const nom = f.plan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
+          showToast('🎉 Compte ' + nom + ' activé ! Publiez sans limites.', 'success');
+          // Confetti
+          const colors = ['#1B3FE4','#00C2B7','#FF6B1A','#F5B731','#00C271'];
+          for (let i = 0; i < 40; i++) {
+            const el = document.createElement('div');
+            el.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;top:-10px;'
+              + 'left:' + (Math.random()*100) + 'vw;'
+              + 'width:' + (Math.random()*8+4) + 'px;height:' + (Math.random()*8+4) + 'px;'
+              + 'border-radius:' + (Math.random()>.5?'50%':'2px') + ';'
+              + 'background:' + colors[Math.floor(Math.random()*colors.length)] + ';'
+              + 'animation:cFall ' + (Math.random()*3+2) + 's linear ' + (Math.random()*1) + 's forwards';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 5000);
+          }
+          if (!document.getElementById('cFallStyle')) {
+            const s = document.createElement('style');
+            s.id = 'cFallStyle';
+            s.textContent = '@keyframes cFall{from{opacity:1;transform:translateY(0) rotate(0)}to{opacity:0;transform:translateY(110vh) rotate(720deg)}}';
+            document.head.appendChild(s);
+          }
+        }
+      }
+    } catch(e) {}
+  }, 8000);
+}
+
+window.addEventListener('beforeunload', () => {
+  if (_pollingTimer) clearInterval(_pollingTimer);
+});
+
 init();
 </script>
 </body>
