@@ -342,8 +342,8 @@
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
 
-    <!-- FORM -->
-    <div id="checkoutForm">
+    <!-- ── ÉTAPE 1 : CHOISIR MODE ── -->
+    <div id="stepMode">
       <div class="modal-top">
         <div class="modal-title">🛒 Finaliser l'abonnement</div>
         <button class="modal-x" onclick="document.getElementById('checkoutModal').classList.remove('open')">✕</button>
@@ -358,47 +358,210 @@
         </div>
       </div>
 
-      <!-- PAIEMENT -->
-      <div class="m-field">
-        <label>Mode de paiement</label>
-        <div class="pay-grid">
-          <div class="pay-opt sel" onclick="selPay(this,'orange')"><div class="po-ico">🟠</div><div><div class="po-name">Orange Money</div><div class="po-sub">CI · SN · CM</div></div></div>
-          <div class="pay-opt" onclick="selPay(this,'wave')"><div class="po-ico">🔵</div><div><div class="po-name">Wave</div><div class="po-sub">CI · SN · ML</div></div></div>
-          <div class="pay-opt" onclick="selPay(this,'mtn')"><div class="po-ico">💛</div><div><div class="po-name">MTN Money</div><div class="po-sub">CM · GH · NG</div></div></div>
-          <div class="pay-opt" onclick="selPay(this,'card')"><div class="po-ico">💳</div><div><div class="po-name">Carte bancaire</div><div class="po-sub">Visa / Mastercard</div></div></div>
+      <!-- TABS MODE -->
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tabManual" onclick="switchMode('manual')">📱 Paiement Manuel</button>
+        <button class="mode-tab" id="tabAuto" onclick="switchMode('auto')">⚡ Paiement Auto</button>
+      </div>
+
+      <!-- ── MODE MANUEL ── -->
+      <div id="modeManual">
+        <div class="manual-info-box">
+          <div class="mib-title">📋 Comment ça marche ?</div>
+          <div class="mib-steps">
+            <div class="mib-step"><span class="mib-num">1</span><span>Choisissez votre opérateur ci-dessous</span></div>
+            <div class="mib-step"><span class="mib-num">2</span><span>Envoyez le montant exact au numéro indiqué</span></div>
+            <div class="mib-step"><span class="mib-num">3</span><span>Notez votre référence de transaction</span></div>
+            <div class="mib-step"><span class="mib-num">4</span><span>Remplissez le formulaire ci-dessous et validez</span></div>
+            <div class="mib-step"><span class="mib-num">5</span><span>Votre compte est activé dans les <strong>2 minutes</strong> ⚡</span></div>
+          </div>
+        </div>
+
+        <!-- OPÉRATEUR -->
+        <div class="m-field">
+          <label>Choisir l'opérateur</label>
+          <div class="operator-grid">
+            <div class="operator-card sel" id="op-orange" onclick="selectOperator('orange')">
+              <div class="op-ico">🟠</div>
+              <div class="op-info">
+                <div class="op-name">Orange Money</div>
+                <div class="op-country">Cameroun 🇨🇲</div>
+                <div class="op-num" id="orangeNum">+237 6XX XXX XXX</div>
+              </div>
+            </div>
+            <div class="operator-card" id="op-mtn" onclick="selectOperator('mtn')">
+              <div class="op-ico">💛</div>
+              <div class="op-info">
+                <div class="op-name">MTN MoMo</div>
+                <div class="op-country">Cameroun 🇨🇲</div>
+                <div class="op-num" id="mtnNum">+237 6XX XXX XXX</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MONTANT À ENVOYER -->
+        <div class="amount-banner" id="amountBanner">
+          <div class="ab-label">Montant à envoyer</div>
+          <div class="ab-amount" id="abAmount">1 000 FCFA</div>
+          <div class="ab-num">au numéro : <strong id="abNum">+237 6XX XXX XXX</strong></div>
+          <button class="ab-copy" onclick="copyNum()">📋 Copier le numéro</button>
+        </div>
+
+        <!-- FORMULAIRE CONFIRMATION -->
+        <div class="m-field">
+          <label>Votre nom complet *</label>
+          <input type="text" id="manualName" placeholder="Ex : Jean Dupont"/>
+        </div>
+        <div class="m-field">
+          <label>Référence de transaction *</label>
+          <input type="text" id="manualRef" placeholder="Ex : TXN123456789 ou CM00123"/>
+          <div style="font-size:.68rem;color:var(--gray);margin-top:.3rem;">📌 Visible dans votre SMS de confirmation de paiement</div>
+        </div>
+        <div class="m-field">
+          <label>Numéro utilisé pour payer *</label>
+          <input type="tel" id="manualPhone" placeholder="+237 6XX XXX XXX"/>
+        </div>
+
+        <button class="btn-pay" id="btnManualPay" onclick="submitManualPayment()">
+          <div class="spin"></div><span class="lbl">✅ J'ai payé — Soumettre</span>
+        </button>
+        <div class="modal-secure">⏱️ Vérification sous 2 minutes · Activation automatique</div>
+      </div>
+
+      <!-- ── MODE AUTO ── -->
+      <div id="modeAuto" style="display:none">
+        <div class="auto-placeholder">
+          <div class="ap-ico">⚡</div>
+          <div class="ap-title">Paiement automatique</div>
+          <div class="ap-desc">L'intégration CinetPay / FedaPay / PayDunya est en cours de déploiement. Elle sera disponible très prochainement pour un paiement instantané et sécurisé.</div>
+          <div class="ap-methods">
+            <div class="apm">🟠 Orange Money</div>
+            <div class="apm">💛 MTN MoMo</div>
+            <div class="apm">🔵 Wave</div>
+            <div class="apm">💳 Carte bancaire</div>
+          </div>
+          <button class="btn-notify" onclick="notifyAuto()">🔔 Me prévenir dès que disponible</button>
+        </div>
+        <div style="margin-top:1rem;text-align:center">
+          <span style="font-size:.8rem;color:var(--gray);">En attendant, utilisez le </span>
+          <span style="font-size:.8rem;color:var(--blue2);font-weight:700;cursor:pointer" onclick="switchMode('manual')">Paiement Manuel →</span>
         </div>
       </div>
-
-      <div class="m-field" id="phoneField">
-        <label id="phoneLabel">Numéro Orange Money</label>
-        <input type="tel" id="payPhone" placeholder="+225 07 00 00 00 00"/>
-      </div>
-      <div class="m-field" id="nameField" style="display:none">
-        <label>Nom sur la carte</label>
-        <input type="text" id="payName" placeholder="Jean Dupont"/>
-      </div>
-
-      <button class="btn-pay" id="btnPay" onclick="processPay()">
-        <div class="spin"></div><span class="lbl">🔒 Confirmer et payer</span>
-      </button>
-      <div class="modal-secure">🔒 Paiement 100% sécurisé · Vos données sont protégées</div>
     </div>
 
-    <!-- SUCCESS -->
-    <div class="success-state" id="successState">
-      <div class="success-ico">🎉</div>
-      <div class="success-title">Félicitations !</div>
-      <div class="success-plan" id="successPlanBadge">👑 Premium activé</div>
-      <div class="success-msg" id="successMsg">Votre compte est maintenant Premium. Profitez de toutes vos fonctionnalités !</div>
-      <button class="btn-dash" onclick="goToDashboard()">
-        🏠 Retourner au Dashboard →
-      </button>
+    <!-- ── ÉTAPE 2 : EN ATTENTE DE VÉRIFICATION ── -->
+    <div id="stepPending" style="display:none">
+      <div style="text-align:center;padding:.5rem 0 1rem">
+        <div class="pending-ring" id="pendingRing">
+          <div class="pending-spinner"></div>
+          <div class="pending-ico">⏳</div>
+        </div>
+        <div class="pending-title">Vérification en cours…</div>
+        <div class="pending-sub">Votre paiement est en cours de vérification. Cela prend généralement <strong>moins de 2 minutes</strong>.</div>
+
+        <!-- COUNTDOWN 2 MIN -->
+        <div class="countdown-box">
+          <div class="cb-label">Activation dans</div>
+          <div class="cb-timer" id="cbTimer">02:00</div>
+          <div class="cb-track"><div class="cb-fill" id="cbFill" style="width:100%"></div></div>
+        </div>
+
+        <!-- RECAP SOUMISSION -->
+        <div class="pending-recap" id="pendingRecap"></div>
+
+        <div class="pending-note">
+          💡 Vous pouvez fermer cette fenêtre. Vous recevrez une notification dès que votre compte sera activé.
+        </div>
+
+        <button class="btn-close-pending" onclick="closePendingAndWait()">
+          Fermer et attendre la notification
+        </button>
+      </div>
+    </div>
+
+    <!-- ── ÉTAPE 3 : SUCCÈS ── -->
+    <div id="stepSuccess" style="display:none">
+      <div style="text-align:center;padding:.5rem 0">
+        <div class="success-ico-big">🎉</div>
+        <div class="success-title-big">Compte activé !</div>
+        <div class="success-plan-badge" id="sPlanBadge">👑 Premium activé</div>
+        <div class="success-details" id="sDetails">Votre compte Premium est actif. Profitez de toutes vos fonctionnalités !</div>
+        <button class="btn-pay" style="margin-top:1.5rem" onclick="goToDashboard()">
+          <span class="lbl">🏠 Aller au Dashboard →</span>
+        </button>
+      </div>
     </div>
 
   </div>
 </div>
 
 <div id="toast"><span id="tIco"></span>&nbsp;<span id="tMsg"></span></div>
+
+<style>
+/* ── STYLES SUPPLÉMENTAIRES MODAL ── */
+.mode-tabs{display:flex;gap:.5rem;margin-bottom:1.3rem;}
+.mode-tab{flex:1;padding:.65rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--gray);}
+.mode-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+
+.manual-info-box{background:linear-gradient(135deg,rgba(0,194,113,.06),rgba(0,194,183,.05));border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.1rem;}
+.mib-title{font-size:.72rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
+.mib-steps{display:flex;flex-direction:column;gap:.4rem;}
+.mib-step{display:flex;align-items:flex-start;gap:.6rem;font-size:.8rem;color:var(--dark);line-height:1.4;}
+.mib-num{width:20px;height:20px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;}
+
+.operator-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.operator-card{border:1.5px solid var(--border);border-radius:13px;padding:.8rem;cursor:pointer;transition:all .2s;background:var(--bg);display:flex;align-items:center;gap:.7rem;}
+.operator-card:hover{border-color:var(--blue2);}
+.operator-card.sel{border-color:var(--blue2);background:rgba(45,85,255,.05);box-shadow:0 0 0 3px rgba(45,85,255,.08);}
+.op-ico{font-size:1.7rem;flex-shrink:0;}
+.op-name{font-size:.82rem;font-weight:700;color:var(--dark);}
+.op-country{font-size:.65rem;color:var(--gray);}
+.op-num{font-size:.7rem;color:var(--blue2);font-weight:700;margin-top:.15rem;}
+
+.amount-banner{background:linear-gradient(135deg,var(--dark),#0D1E6B);color:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem;text-align:center;}
+.ab-label{font-size:.65rem;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.2rem;}
+.ab-amount{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--gold);margin-bottom:.2rem;}
+.ab-num{font-size:.8rem;color:rgba(255,255,255,.7);margin-bottom:.7rem;}
+.ab-copy{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;border-radius:99px;padding:.35rem 1rem;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.ab-copy:hover{background:rgba(255,255,255,.22);}
+
+/* AUTO PLACEHOLDER */
+.auto-placeholder{background:var(--bg);border:2px dashed var(--border);border-radius:16px;padding:1.8rem 1.4rem;text-align:center;}
+.ap-ico{font-size:2.5rem;margin-bottom:.5rem;}
+.ap-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem;}
+.ap-desc{font-size:.8rem;color:var(--gray);line-height:1.55;margin-bottom:1rem;}
+.ap-methods{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem;}
+.apm{background:white;border:1px solid var(--border);border-radius:99px;padding:.28rem .8rem;font-size:.72rem;font-weight:600;}
+.btn-notify{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;padding:.55rem 1.4rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* PENDING */
+.pending-ring{width:80px;height:80px;border-radius:50%;background:rgba(245,183,49,.1);border:3px solid rgba(245,183,49,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;position:relative;}
+.pending-spinner{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--gold);animation:spin .9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pending-ico{font-size:2rem;}
+.pending-title{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.4rem;}
+.pending-sub{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:1.2rem;}
+.countdown-box{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:1rem;}
+.cb-label{font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;}
+.cb-timer{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;color:var(--blue2);margin-bottom:.6rem;}
+.cb-track{height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+.cb-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--turq));border-radius:99px;transition:width 1s linear;}
+.pending-recap{background:rgba(27,63,228,.05);border:1px solid rgba(27,63,228,.12);border-radius:12px;padding:.8rem 1rem;margin-bottom:.8rem;font-size:.78rem;text-align:left;}
+.pr-row{display:flex;justify-content:space-between;padding:.2rem 0;}
+.pr-lbl{color:var(--gray);}
+.pr-val{font-weight:700;color:var(--dark);}
+.pending-note{font-size:.73rem;color:var(--gray);line-height:1.5;margin-bottom:1rem;background:rgba(255,183,49,.08);border:1px solid rgba(245,183,49,.2);border-radius:10px;padding:.7rem .9rem;}
+.btn-close-pending{width:100%;padding:.8rem;border:1.5px solid var(--border);border-radius:13px;background:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;color:var(--gray);transition:all .2s;}
+.btn-close-pending:hover{border-color:var(--dark);color:var(--dark);}
+
+/* SUCCESS BIG */
+.success-ico-big{font-size:4rem;animation:popBig .6s cubic-bezier(.34,1.56,.64,1) both;display:block;margin-bottom:.6rem;}
+@keyframes popBig{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+.success-title-big{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;margin-bottom:.5rem;}
+.success-plan-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,194,113,.1);border:1.5px solid rgba(0,194,113,.25);border-radius:99px;padding:.35rem 1rem;font-size:.82rem;font-weight:700;color:var(--green);margin-bottom:.8rem;}
+.success-details{font-size:.84rem;color:var(--gray);line-height:1.6;}
+</style>
 
 <script>
 const{createClient}=supabase;
@@ -408,12 +571,18 @@ const sb=createClient(
 );
 
 let currentUser=null,userProfile=null;
-let selectedPlan='premium',selectedPay='orange',isAnnual=false;
-let paidPlan=null; // stocké après paiement pour redirection
+let selectedPlan='premium',selectedOperator='orange',isAnnual=false;
+let paymentId=null,countdownTimer=null;
 
 const PLANS={
   premium:{name:'Premium',ico:'👑',monthly:1000,annual:9600},
   elite:  {name:'Elite',  ico:'🚀',monthly:2500,annual:24000}
+};
+
+// ⚙️ CONFIGURE ICI TES NUMÉROS DE RÉCEPTION
+const PAYMENT_NUMBERS={
+  orange:'+237 6XX XXX XXX',  // ← Remplace par ton vrai numéro Orange Money CM
+  mtn:   '+237 6XX XXX XXX'   // ← Remplace par ton vrai numéro MTN Money CM
 };
 
 // ===== INIT =====
@@ -423,19 +592,17 @@ const PLANS={
     currentUser=session.user;
     const{data:prof}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
     userProfile=prof;
-
-    // Si déjà Premium → afficher statut
-    if(prof?.is_premium){
-      showToast('Vous avez déjà un compte '+prof.plan+' actif ✅','info');
-    }
-
-    // Countdown essai
+    if(prof?.is_premium){showToast('Vous avez déjà un compte '+prof.plan+' actif ✅','info');}
     const daysSince=Math.floor((Date.now()-new Date(currentUser.created_at))/86400000);
     const trialLeft=Math.max(0,7-daysSince);
     if(trialLeft>0&&!prof?.is_premium){
       document.getElementById('tcDays').textContent=trialLeft;
       document.getElementById('trialCountdown').classList.add('show');
     }
+
+    // Si paiement en attente → reprendre le suivi
+    const pendingId=localStorage.getItem('pending_payment_id');
+    if(pendingId){checkExistingPending(pendingId);}
   }
 })();
 
@@ -445,7 +612,6 @@ function toggleBilling(){
   document.getElementById('billingToggle').classList.toggle('on',isAnnual);
   document.getElementById('lbl-m').classList.toggle('on',!isAnnual);
   document.getElementById('lbl-a').classList.toggle('on',isAnnual);
-
   const pp=PLANS.premium,pe=PLANS.elite;
   const pm=isAnnual?Math.round(pp.annual/12):pp.monthly;
   const em=isAnnual?Math.round(pe.annual/12):pe.monthly;
@@ -458,7 +624,7 @@ function toggleBilling(){
   document.getElementById('annual-elite').style.display=isAnnual?'block':'none';
 }
 
-// ===== CHECKOUT =====
+// ===== CHECKOUT OPEN =====
 function openCheckout(plan){
   if(!currentUser){
     showToast('Connectez-vous pour continuer','warning');
@@ -471,8 +637,11 @@ function openCheckout(plan){
   document.getElementById('mo-ico').textContent=p.ico;
   document.getElementById('mo-name').textContent=p.name;
   document.getElementById('mo-price').textContent=price.toLocaleString('fr-FR')+' FCFA'+(isAnnual?'/an':'/mois');
-  document.getElementById('checkoutForm').style.display='';
-  document.getElementById('successState').style.display='none';
+  document.getElementById('abAmount').textContent=price.toLocaleString('fr-FR')+' FCFA';
+  // Reset steps
+  showStep('stepMode');
+  switchMode('manual');
+  selectOperator('orange');
   document.getElementById('checkoutModal').classList.add('open');
 }
 
@@ -481,72 +650,77 @@ function closeModal(e){
     document.getElementById('checkoutModal').classList.remove('open');
 }
 
-// ===== PAY METHOD =====
-function selPay(el,method){
-  document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('sel'));
-  el.classList.add('sel');
-  selectedPay=method;
-  const isCard=method==='card';
-  document.getElementById('phoneField').style.display=isCard?'none':'';
-  document.getElementById('nameField').style.display=isCard?'':'none';
-  const labels={orange:'Numéro Orange Money',wave:'Numéro Wave',mtn:'Numéro MTN Money'};
-  document.getElementById('phoneLabel').textContent=labels[method]||'Numéro de téléphone';
+// ===== STEP NAVIGATION =====
+function showStep(id){
+  ['stepMode','stepPending','stepSuccess'].forEach(s=>{
+    document.getElementById(s).style.display=s===id?'':'none';
+  });
 }
 
-// ===== PROCESS PAYMENT =====
-async function processPay(){
+// ===== MODE TABS =====
+function switchMode(mode){
+  document.getElementById('tabManual').classList.toggle('active',mode==='manual');
+  document.getElementById('tabAuto').classList.toggle('active',mode==='auto');
+  document.getElementById('modeManual').style.display=mode==='manual'?'':'none';
+  document.getElementById('modeAuto').style.display=mode==='auto'?'':'none';
+}
+
+// ===== OPERATOR SELECT =====
+function selectOperator(op){
+  selectedOperator=op;
+  document.getElementById('op-orange').classList.toggle('sel',op==='orange');
+  document.getElementById('op-mtn').classList.toggle('sel',op==='mtn');
+  const num=PAYMENT_NUMBERS[op];
+  document.getElementById('abNum').textContent=num;
+}
+
+function copyNum(){
+  const num=PAYMENT_NUMBERS[selectedOperator];
+  navigator.clipboard?.writeText(num.replace(/\s/g,''))
+    .then(()=>showToast('Numéro copié ! '+num,'success'))
+    .catch(()=>showToast(num,'info'));
+}
+
+// ===== SOUMETTRE PAIEMENT MANUEL =====
+async function submitManualPayment(){
   if(!currentUser){showToast('Connectez-vous d\'abord','warning');return;}
+  const name=document.getElementById('manualName').value.trim();
+  const ref=document.getElementById('manualRef').value.trim();
+  const phone=document.getElementById('manualPhone').value.trim();
+  if(!name){showToast('Entrez votre nom complet','warning');return;}
+  if(!ref){showToast('Entrez la référence de la transaction','warning');return;}
+  if(!phone){showToast('Entrez le numéro utilisé pour payer','warning');return;}
 
-  const phone=document.getElementById('payPhone').value.trim();
-  const name=document.getElementById('payName').value.trim();
-  if(selectedPay!=='card'&&!phone){showToast('Entrez votre numéro de paiement','warning');return;}
-  if(selectedPay==='card'&&!name){showToast('Entrez le nom sur la carte','warning');return;}
-
-  const btn=document.getElementById('btnPay');
+  const btn=document.getElementById('btnManualPay');
   btn.disabled=true;btn.classList.add('loading');
 
   try{
-    // Simulation traitement paiement (2.5s)
-    // En production → intégrer CinetPay / FedaPay / PayDunya ici
-    showToast('Traitement du paiement…','info');
-    await new Promise(r=>setTimeout(r,2500));
+    const price=isAnnual?PLANS[selectedPlan].annual:PLANS[selectedPlan].monthly;
 
-    // Calcul date expiration
-    const expiresAt=new Date();
-    if(isAnnual) expiresAt.setFullYear(expiresAt.getFullYear()+1);
-    else expiresAt.setMonth(expiresAt.getMonth()+1);
+    // Insérer dans payment_requests
+    const{data:pay,error}=await sb.from('payment_requests').insert({
+      user_id:        currentUser.id,
+      plan:           selectedPlan,
+      amount:         price,
+      billing:        isAnnual?'annual':'monthly',
+      operator:       selectedOperator,
+      sender_name:    name,
+      sender_phone:   phone,
+      transaction_ref:ref,
+      status:         'pending',
+      created_at:     new Date().toISOString()
+    }).select().single();
 
-    // ✅ MISE À JOUR SUPABASE — Déblocage immédiat Premium
-    const{error:updateErr}=await sb.from('profiles').update({
-      is_premium:   true,
-      plan:         selectedPlan,
-      plan_expires: expiresAt.toISOString(),
-      updated_at:   new Date().toISOString()
-    }).eq('id',currentUser.id);
+    if(error) throw error;
 
-    if(updateErr) throw updateErr;
+    paymentId=pay.id;
+    localStorage.setItem('pending_payment_id',pay.id);
 
-    // ✅ NOTIFICATION DE CONFIRMATION
-    await sb.from('notifications').insert({
-      user_id:    currentUser.id,
-      title:      `🎉 Bienvenue en ${PLANS[selectedPlan].name} !`,
-      message:    `Votre abonnement ${PLANS[selectedPlan].name} est activé jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}. Publiez sans limites dès maintenant !`,
-      icon:       PLANS[selectedPlan].ico,
-      type:       'success',
-      read:       false,
-      created_at: new Date().toISOString()
-    });
+    // Afficher étape en attente
+    showPendingStep(name,ref,phone,price);
 
-    // Stocker dans sessionStorage pour payment-success.html
-    sessionStorage.setItem('justUpgraded', JSON.stringify({
-      name:    PLANS[selectedPlan].name,
-      ico:     PLANS[selectedPlan].ico,
-      plan:    selectedPlan,
-      expires: expiresAt.toLocaleDateString('fr-FR')
-    }));
-
-    // Rediriger vers la page de succès
-    window.location.href = 'payment-success.html';
+    // Démarrer countdown 2min + polling Supabase
+    startVerificationCountdown(pay.id);
 
   }catch(e){
     showToast('Erreur : '+e.message,'error');
@@ -555,19 +729,164 @@ async function processPay(){
   }
 }
 
-// ===== GO TO DASHBOARD (après paiement) =====
-function goToDashboard(){
-  // Passer les infos via sessionStorage pour que le dashboard affiche le bon statut
-  if(paidPlan){
-    sessionStorage.setItem('justUpgraded',JSON.stringify(paidPlan));
+// ===== AFFICHER ÉTAPE PENDING =====
+function showPendingStep(name,ref,phone,price){
+  document.getElementById('pendingRecap').innerHTML=`
+    <div class="pr-row"><span class="pr-lbl">Nom</span><span class="pr-val">${name}</span></div>
+    <div class="pr-row"><span class="pr-lbl">Référence</span><span class="pr-val">${ref}</span></div>
+    <div class="pr-row"><span class="pr-lbl">Numéro</span><span class="pr-val">${phone}</span></div>
+    <div class="pr-row"><span class="pr-lbl">Montant</span><span class="pr-val">${price.toLocaleString('fr-FR')} FCFA</span></div>
+    <div class="pr-row"><span class="pr-lbl">Plan</span><span class="pr-val">${PLANS[selectedPlan].ico} ${PLANS[selectedPlan].name}</span></div>`;
+  showStep('stepPending');
+}
+
+// ===== COUNTDOWN + POLLING =====
+function startVerificationCountdown(pid){
+  const TOTAL=120; // 2 minutes
+  let elapsed=0;
+  const fill=document.getElementById('cbFill');
+  const timer=document.getElementById('cbTimer');
+
+  countdownTimer=setInterval(async()=>{
+    elapsed++;
+    const rem=Math.max(0,TOTAL-elapsed);
+    const m=String(Math.floor(rem/60)).padStart(2,'0');
+    const s=String(rem%60).padStart(2,'0');
+    timer.textContent=m+':'+s;
+    fill.style.width=((rem/TOTAL)*100)+'%';
+
+    // Polling Supabase toutes les 10s pour vérifier si approuvé par admin
+    if(elapsed%10===0){
+      const{data:p}=await sb.from('payment_requests').select('status').eq('id',pid).single();
+      if(p?.status==='approved'){
+        clearInterval(countdownTimer);
+        await activatePremium(pid);
+        return;
+      }
+      if(p?.status==='rejected'){
+        clearInterval(countdownTimer);
+        localStorage.removeItem('pending_payment_id');
+        showToast('Paiement non confirmé. Vérifiez votre référence et réessayez.','error');
+        showStep('stepMode');
+        return;
+      }
+    }
+
+    // Après 2 minutes → activer automatiquement (confiance)
+    if(elapsed>=TOTAL){
+      clearInterval(countdownTimer);
+      await activatePremium(pid);
+    }
+  },1000);
+}
+
+// ===== ACTIVATION PREMIUM =====
+async function activatePremium(pid){
+  try{
+    const expiresAt=new Date();
+    if(isAnnual) expiresAt.setFullYear(expiresAt.getFullYear()+1);
+    else expiresAt.setMonth(expiresAt.getMonth()+1);
+
+    // Mettre à jour le profil
+    await sb.from('profiles').update({
+      is_premium:   true,
+      plan:         selectedPlan,
+      plan_expires: expiresAt.toISOString(),
+      updated_at:   new Date().toISOString()
+    }).eq('id',currentUser.id);
+
+    // Marquer la demande comme traitée
+    await sb.from('payment_requests').update({
+      status:      'approved',
+      approved_at: new Date().toISOString()
+    }).eq('id',pid);
+
+    // Envoyer notification
+    await sb.from('notifications').insert({
+      user_id:    currentUser.id,
+      title:      `🎉 Bienvenue en ${PLANS[selectedPlan].name} !`,
+      message:    `Votre abonnement ${PLANS[selectedPlan].name} est actif jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}. Publiez sans limites !`,
+      icon:       PLANS[selectedPlan].ico,
+      type:       'success',
+      read:       false,
+      created_at: new Date().toISOString()
+    });
+
+    localStorage.removeItem('pending_payment_id');
+
+    // Stocker pour payment-success.html
+    sessionStorage.setItem('justUpgraded',JSON.stringify({
+      name:    PLANS[selectedPlan].name,
+      ico:     PLANS[selectedPlan].ico,
+      plan:    selectedPlan,
+      expires: expiresAt.toLocaleDateString('fr-FR')
+    }));
+
+    // Afficher succès
+    document.getElementById('sPlanBadge').textContent=PLANS[selectedPlan].ico+' '+PLANS[selectedPlan].name+' activé ✅';
+    document.getElementById('sDetails').textContent=`Votre compte ${PLANS[selectedPlan].name} est actif jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}.`;
+    showStep('stepSuccess');
+
+  }catch(e){
+    showToast('Erreur activation : '+e.message,'error');
   }
+}
+
+// ===== VÉRIFIER PAIEMENT EN ATTENTE (si l'utilisateur revient) =====
+async function checkExistingPending(pid){
+  const{data:p}=await sb.from('payment_requests').select('*').eq('id',pid).single();
+  if(!p) return;
+  if(p.status==='approved'){
+    localStorage.removeItem('pending_payment_id');
+    sessionStorage.setItem('showWelcomePremium','1');
+    return;
+  }
+  if(p.status==='pending'){
+    selectedPlan=p.plan;
+    isAnnual=p.billing==='annual';
+    const price=p.amount;
+    const elapsed=Math.floor((Date.now()-new Date(p.created_at))/1000);
+    if(elapsed<120){
+      // Reprendre le suivi dans le modal
+      document.getElementById('checkoutModal').classList.add('open');
+      showPendingStep(p.sender_name,p.transaction_ref,p.sender_phone,price);
+      paymentId=pid;
+      startVerificationCountdown(pid);
+      showToast('Reprise du suivi de votre paiement en cours…','info');
+    } else {
+      // Délai dépassé → activer quand même
+      await activatePremium(pid);
+      sessionStorage.setItem('showWelcomePremium','1');
+    }
+  }
+}
+
+// ===== FERMER ET ATTENDRE =====
+function closePendingAndWait(){
+  document.getElementById('checkoutModal').classList.remove('open');
+  showToast('Vous recevrez une notification à l\'activation de votre compte 🔔','info');
+}
+
+// ===== NOTIFIER AUTO =====
+async function notifyAuto(){
+  if(!currentUser){showToast('Connectez-vous pour être notifié','warning');return;}
+  await sb.from('notifications').insert({
+    user_id:currentUser.id,
+    title:'🔔 Paiement auto — Bientôt disponible !',
+    message:'Nous vous préviendrons dès que le paiement automatique sera disponible.',
+    icon:'⚡',type:'info',read:false,created_at:new Date().toISOString()
+  });
+  showToast('Nous vous préviendrons dès que disponible ! 📩','success');
+}
+
+// ===== GO TO DASHBOARD =====
+function goToDashboard(){
+  sessionStorage.removeItem('justUpgraded');
+  sessionStorage.setItem('showWelcomePremium','1');
   window.location.href='dashboard.html';
 }
 
-// ===== FREE =====
-function stayFree(){
-  window.location.href='dashboard.html';
-}
+function stayFree(){ window.location.href='dashboard.html'; }
 
 // ===== FAQ =====
 function toggleFaq(el){
