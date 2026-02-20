@@ -791,8 +791,7 @@ async function activatePremium(pid){
     // On écrit les deux variantes (Plan/plan) pour couvrir ta config Supabase
     const{error:updateErr}=await sb.from('profiles').update({
       is_premium:   true,
-      Plan:         selectedPlan,   // colonne avec majuscule dans ta base
-      plan:         selectedPlan,   // colonne minuscule (au cas où)
+      Plan:         selectedPlan,
       plan_expires: expiresAt.toISOString()
     }).eq('id',currentUser.id);
     if(updateErr) throw updateErr;
