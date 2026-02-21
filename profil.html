@@ -4,6 +4,17 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AfriMarket — Mon Profil</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#080E2A"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
@@ -265,6 +276,12 @@
 </div>
 
 <!-- DANGER ZONE -->
+<!-- MES AVIS REÇUS -->
+<div class="sec"><div class="sec-ttl">⭐ Mes avis reçus</div></div>
+<div id="avisSection" style="margin:0 1.2rem .9rem;display:flex;flex-direction:column;gap:.6rem;">
+  <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem">⏳ Chargement…</div>
+</div>
+
 <!-- SUPPORT -->
 <div class="sec"><div class="sec-ttl">🎧 Service client</div></div>
 <div style="margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;flex-direction:column;gap:.7rem;">
@@ -279,13 +296,11 @@
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
   </a>
-  <a href="mailto:abdoula13cherif@gmail.com?subject=Support%20AfriMarket&body=Bonjour%2C%20j%27ai%20besoin%20d%27aide%20avec%20mon%20compte%20AfriMarket."
-     style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;"
-     onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
+  <a href="/cdn-cgi/l/email-protection#0a6b686e657f666b3b3969626f78636c4a6d676b63662469656735797f68606f697e37597f7a7a65787e2f383a4b6c7863476b78616f7e2c68656e733748656460657f782f38492f383a602f383d6b632f383a686f796563642f383a6e2f383d6b636e6f2f383a6b7c6f692f383a6765642f383a6965677a7e6f2f383a4b6c7863476b78616f7e24" style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
     <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
     <div>
       <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">abdoula13cherif@gmail.com</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;"><span class="__cf_email__" data-cfemail="711013151e041d10404212191403181731161c10181d5f121e1c">[email&#160;protected]</span></div>
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
   </a>
@@ -336,7 +351,72 @@
 
 <div id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+// ===== MES AVIS REÇUS =====
+async function loadMyAvis(uid){
+  try{
+    const{data:avisData}=await sb.from('avis')
+      .select('note,commentaire,created_at,profiles!reviewer_id(full_name)')
+      .eq('seller_id',uid)
+      .order('created_at',{ascending:false})
+      .limit(20);
+
+    const sec=document.getElementById('avisSection');
+    if(!avisData?.length){
+      sec.innerHTML=`<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
+        <div style="font-size:2rem;margin-bottom:.4rem">🌟</div>
+        <div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l'instant.<br>Les acheteurs pourront te noter après un échange.</div>
+      </div>`;
+      return;
+    }
+
+    // Calcul moyenne
+    const avg=(avisData.reduce((s,a)=>s+a.note,0)/avisData.length).toFixed(1);
+    const stars='⭐'.repeat(Math.round(avg))+'☆'.repeat(5-Math.round(avg));
+
+    sec.innerHTML=`
+      <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(27,63,228,.05)">
+        <div style="text-align:center;flex-shrink:0">
+          <div style="font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">${avg}</div>
+          <div style="font-size:1rem;margin:.2rem 0">${stars}</div>
+          <div style="font-size:.65rem;color:var(--gray)">${avisData.length} avis</div>
+        </div>
+        <div style="flex:1">
+          ${[5,4,3,2,1].map(n=>{
+            const cnt=avisData.filter(a=>a.note===n).length;
+            const pct=Math.round(cnt/avisData.length*100);
+            return `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem">
+              <span style="font-size:.62rem;color:var(--gray);width:12px">${n}</span>
+              <div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px"></div>
+              </div>
+              <span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">${cnt}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      ${avisData.slice(0,5).map(a=>{
+        const name=(a.profiles?.full_name||'Anonyme');
+        const init=name[0].toUpperCase();
+        const d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+        const stars2='⭐'.repeat(a.note)+'☆'.repeat(5-a.note);
+        return `<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;box-shadow:0 2px 8px rgba(27,63,228,.04)">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0">${init}</div>
+            <div>
+              <div style="font-size:.78rem;font-weight:700;color:var(--dark)">${name}</div>
+              <div style="font-size:.62rem;color:var(--gray)">${d}</div>
+            </div>
+            <div style="margin-left:auto;font-size:.85rem">${stars2}</div>
+          </div>
+          ${a.commentaire?`<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"${a.commentaire}"</div>`:''}
+        </div>`;
+      }).join('')}
+    `;
+  }catch(e){ console.warn('avis:',e); }
+}
+
+</script><script>
 const{createClient}=supabase;
 const sb=createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
@@ -350,6 +430,7 @@ let U=null, P={}, dirty=false;
   if(!session){location.href='index.html';return;}
   U=session.user;
   const{data:p}=await sb.from('profiles').select('*').eq('id',U.id).single();
+  loadMyAvis(U.id);
   P=p||{};
   fillForm();
   updateHero();
@@ -511,15 +592,4 @@ let tt;
 function showToast(msg,type='success'){
   const ic={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
   const el=document.getElementById('toast');
-  el.textContent=(ic[type]||'')+' '+msg;
-  el.className='show';
-  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
-  clearTimeout(tt);tt=setTimeout(()=>el.className='',4000);
-}
-
-window.addEventListener('beforeunload',e=>{
-  if(dirty){e.preventDefault();e.returnValue='';}
-});
-</script>
-</body>
-</html>
+  el.textContent=(ic[type]||'')
