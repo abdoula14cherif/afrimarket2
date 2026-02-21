@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AfriMarket — Gagner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root{
+      --blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;
+      --turq:#00C2B7;--white:#FFFFFF;--bg:#F2F5FF;--card:#FFFFFF;
+      --dark:#080E2A;--gray:#8892A8;--border:#E4E9F8;--gold:#F5B731;--green:#00C271;
+      --nav-h:72px;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h)+16px);overflow-x:hidden;}
+
+    /* ── HEADER ── */
+    .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
+    .h-back{display:flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;}
+    .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
+    .h-logo{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-1px;}
+    .h-logo .la{color:var(--turq);}.h-logo .lm{color:var(--orange);}
+    .h-balance{display:flex;align-items:center;gap:.4rem;background:rgba(245,183,49,.15);border:1px solid rgba(245,183,49,.3);border-radius:99px;padding:.3rem .8rem;}
+    .h-balance-ico{font-size:.9rem;}
+    .h-balance-amt{font-size:.8rem;font-weight:800;color:var(--gold);}
+
+    /* ── HERO BANNER ── */
+    .hero{background:linear-gradient(135deg,#0D1E6B 0%,#1B3FE4 50%,#00C2B7 100%);padding:1.8rem 1.3rem 2rem;position:relative;overflow:hidden;margin:.8rem 1.2rem;border-radius:22px;box-shadow:0 8px 32px rgba(27,63,228,.3);}
+    .hero::before{content:'';position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06);right:-60px;top:-70px;}
+    .hero::after{content:'';position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(0,194,183,.15);left:-40px;bottom:-50px;}
+    .hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;position:relative;z-index:1;}
+    .hero-tag{background:rgba(245,183,49,.2);border:1px solid rgba(245,183,49,.35);color:var(--gold);font-size:.65rem;font-weight:700;letter-spacing:.5px;padding:.25rem .7rem;border-radius:99px;text-transform:uppercase;}
+    .hero-emoji{font-size:2.5rem;animation:float 3s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    .hero h1{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;color:white;letter-spacing:-.8px;line-height:1.1;margin-bottom:.4rem;position:relative;z-index:1;}
+    .hero h1 em{font-style:normal;color:var(--gold);}
+    .hero-sub{font-size:.8rem;color:rgba(255,255,255,.6);line-height:1.5;position:relative;z-index:1;margin-bottom:1.3rem;}
+    .hero-stats{display:flex;gap:.7rem;position:relative;z-index:1;}
+    .hstat{background:rgba(255,255,255,.1);border-radius:12px;padding:.6rem .8rem;text-align:center;flex:1;}
+    .hstat-num{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:white;}
+    .hstat-lbl{font-size:.58rem;color:rgba(255,255,255,.5);margin-top:.1rem;letter-spacing:.3px;}
+
+    /* ── SECTION TITLE ── */
+    .sec{padding:1.3rem 1.2rem .6rem;}
+    .sec-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
+    .sec-sub{font-size:.75rem;color:var(--gray);margin-top:.15rem;}
+
+    /* ── SOLDE CARD ── */
+    .balance-card{margin:0 1.2rem;background:white;border-radius:20px;padding:1.3rem;border:1.5px solid var(--border);box-shadow:0 4px 20px rgba(27,63,228,.07);}
+    .bc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+    .bc-label{font-size:.72rem;color:var(--gray);font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+    .bc-badge{background:rgba(0,194,113,.1);border:1px solid rgba(0,194,113,.2);color:var(--green);font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:99px;}
+    .bc-amount{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;color:var(--dark);letter-spacing:-2px;margin-bottom:.2rem;}
+    .bc-amount span{font-size:1rem;color:var(--gray);letter-spacing:0;}
+    .bc-pending{font-size:.72rem;color:var(--orange);font-weight:600;margin-bottom:1rem;}
+    .bc-actions{display:flex;gap:.6rem;}
+    .bc-btn{flex:1;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .bc-btn-main{background:linear-gradient(135deg,var(--green),#00A860);color:white;box-shadow:0 4px 14px rgba(0,194,113,.3);}
+    .bc-btn-main:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,194,113,.4);}
+    .bc-btn-sec{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
+    .bc-btn-sec:hover{border-color:var(--blue2);}
+
+    /* ── REFERRAL CARD ── */
+    .ref-card{margin:0 1.2rem;background:white;border-radius:20px;border:1.5px solid var(--border);box-shadow:0 4px 20px rgba(27,63,228,.07);overflow:hidden;}
+    .ref-header{background:linear-gradient(135deg,rgba(245,183,49,.08),rgba(255,107,26,.05));padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.7rem;}
+    .ref-ico{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#C8901A);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+    .ref-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);}
+    .ref-desc{font-size:.72rem;color:var(--gray);margin-top:.1rem;}
+    .ref-body{padding:1.2rem;}
+    .ref-steps{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.2rem;}
+    .ref-step{display:flex;align-items:flex-start;gap:.8rem;}
+    .ref-step-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.05rem;}
+    .ref-step-txt{font-size:.8rem;color:var(--dark);line-height:1.4;}
+    .ref-step-txt strong{color:var(--blue2);}
+    .ref-reward{background:linear-gradient(135deg,rgba(0,194,113,.08),rgba(0,194,183,.05));border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.8rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+    .rr-left{font-size:.78rem;color:var(--dark);font-weight:600;}
+    .rr-left span{font-size:.68rem;color:var(--gray);display:block;margin-top:.1rem;}
+    .rr-amount{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--green);}
+    .ref-link-box{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:.8rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.8rem;}
+    .ref-link-txt{font-size:.75rem;color:var(--gray);font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .ref-link-val{font-size:.78rem;color:var(--blue2);font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .ref-copy-btn{background:var(--dark);color:white;border:none;border-radius:8px;padding:.4rem .8rem;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
+    .ref-copy-btn:hover{background:var(--blue2);}
+    .ref-share-row{display:flex;gap:.5rem;}
+    .ref-share-btn{flex:1;padding:.6rem;border-radius:10px;border:none;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
+    .rsb-wa{background:#25D366;color:white;}
+    .rsb-wa:hover{background:#1da851;}
+    .rsb-copy{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
+    .rsb-copy:hover{border-color:var(--blue2);}
+
+    /* ── MISSIONS ── */
+    .missions-grid{display:flex;flex-direction:column;gap:.7rem;padding:0 1.2rem;}
+    .mission{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;display:flex;align-items:center;gap:.9rem;box-shadow:0 2px 10px rgba(27,63,228,.05);transition:all .2s;cursor:pointer;}
+    .mission:hover{border-color:var(--blue2);box-shadow:0 4px 16px rgba(27,63,228,.1);}
+    .mission.done{background:rgba(0,194,113,.04);border-color:rgba(0,194,113,.25);}
+    .mission.done .m-ico{filter:grayscale(0);}
+    .m-ico{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+    .m-info{flex:1;}
+    .m-title{font-size:.85rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;}
+    .m-desc{font-size:.7rem;color:var(--gray);line-height:1.4;}
+    .m-progress{margin-top:.4rem;}
+    .m-prog-bar{height:4px;background:var(--bg);border-radius:99px;overflow:hidden;margin-top:.3rem;}
+    .m-prog-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
+    .m-prog-lbl{font-size:.6rem;color:var(--gray);margin-top:.2rem;}
+    .m-reward{text-align:right;flex-shrink:0;}
+    .m-pts{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);}
+    .m-pts-lbl{font-size:.58rem;color:var(--gray);}
+    .m-done-badge{background:rgba(0,194,113,.1);border:1px solid rgba(0,194,113,.25);color:var(--green);font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:99px;margin-top:.2rem;}
+
+    /* ── CLASSEMENT ── */
+    .leaderboard{margin:0 1.2rem;background:white;border-radius:20px;border:1.5px solid var(--border);box-shadow:0 4px 20px rgba(27,63,228,.07);overflow:hidden;}
+    .lb-head{background:linear-gradient(135deg,var(--dark),#0D1E6B);padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;}
+    .lb-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:white;}
+    .lb-period{font-size:.65rem;color:rgba(255,255,255,.4);font-weight:600;}
+    .lb-list{padding:.5rem 0;}
+    .lb-item{display:flex;align-items:center;gap:.8rem;padding:.75rem 1.2rem;border-bottom:1px solid var(--border);transition:background .2s;}
+    .lb-item:last-child{border-bottom:none;}
+    .lb-item.me{background:rgba(27,63,228,.04);}
+    .lb-item:hover{background:var(--bg);}
+    .lb-rank{width:26px;text-align:center;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--gray);flex-shrink:0;}
+    .lb-rank.gold{color:#FFD700;}
+    .lb-rank.silver{color:#C0C0C0;}
+    .lb-rank.bronze{color:#CD7F32;}
+    .lb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:white;font-family:'Clash Display',sans-serif;flex-shrink:0;}
+    .lb-name{flex:1;font-size:.82rem;font-weight:700;color:var(--dark);}
+    .lb-you{font-size:.6rem;color:var(--blue2);font-weight:700;}
+    .lb-refs{font-size:.72rem;color:var(--gray);}
+    .lb-earn{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--green);}
+
+    /* ── RETRAIT MODAL ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(8,14,42,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .modal-ov.open{opacity:1;pointer-events:all;}
+    .modal{background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .modal-ov.open .modal{transform:translateY(0);}
+    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.2rem;}
+    .modal-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:1.2rem;}
+    .m-field{margin-bottom:.9rem;}
+    .m-field label{font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.35rem;}
+    .m-field input,.m-field select{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:.7rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;color:var(--dark);outline:none;transition:border-color .2s;background:var(--bg);}
+    .m-field input:focus,.m-field select:focus{border-color:var(--blue2);}
+    .modal-min-note{font-size:.72rem;color:var(--gray);margin-bottom:1rem;background:rgba(245,183,49,.08);border:1px solid rgba(245,183,49,.2);border-radius:10px;padding:.6rem .8rem;}
+    .btn-submit{width:100%;padding:.85rem;border-radius:14px;border:none;background:linear-gradient(135deg,var(--green),#00A860);color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,194,113,.3);transition:all .2s;}
+    .btn-submit:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,194,113,.4);}
+    .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;}
+    .nav-item:hover{background:var(--bg);}
+    .nav-ico{font-size:1.25rem;line-height:1;}
+    .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
+    .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
+    .nav-item.active .nav-ico{filter:drop-shadow(0 0 4px rgba(45,85,255,.4));}
+    .nav-plus{position:relative;}
+    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
+
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:300;white-space:nowrap;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    /* ── SKELETON ── */
+    .skeleton{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a class="h-back" href="dashboard.html">← Accueil</a>
+  <div class="h-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+  <div class="h-balance">
+    <span class="h-balance-ico">💰</span>
+    <span class="h-balance-amt" id="headerBalance">0 F</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-tag">💸 Programme de gains</div>
+    <div class="hero-emoji">🤑</div>
+  </div>
+  <h1>Invite & <em>Gagne</em><br>de l'argent réel</h1>
+  <p class="hero-sub">Parraine tes amis, complète des missions et retire ton argent directement sur Orange Money ou MTN.</p>
+  <div class="hero-stats">
+    <div class="hstat">
+      <div class="hstat-num" id="totalRefs">0</div>
+      <div class="hstat-lbl">FILLEULS</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num" id="totalEarned">0F</div>
+      <div class="hstat-lbl">TOTAL GAGNÉ</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num">500F</div>
+      <div class="hstat-lbl">PAR FILLEUL</div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLDE -->
+<div class="sec"><div class="sec-title">💳 Mon Solde</div></div>
+<div class="balance-card">
+  <div class="bc-top">
+    <div class="bc-label">Solde disponible</div>
+    <div class="bc-badge" id="balBadge">⏳ Chargement…</div>
+  </div>
+  <div class="bc-amount"><span id="balAmount">0</span> <span>FCFA</span></div>
+  <div class="bc-pending" id="balPending"></div>
+  <div class="bc-actions">
+    <button class="bc-btn bc-btn-main" onclick="openRetrait()">💸 Retirer</button>
+    <button class="bc-btn bc-btn-sec" onclick="showHistorique()">📋 Historique</button>
+  </div>
+</div>
+
+<!-- PARRAINAGE -->
+<div class="sec">
+  <div class="sec-title">🤝 Parrainage</div>
+  <div class="sec-sub">Chaque ami inscrit via ton lien = 500 FCFA pour toi</div>
+</div>
+<div class="ref-card">
+  <div class="ref-header">
+    <div class="ref-ico">🎁</div>
+    <div>
+      <div class="ref-title">Ton lien de parrainage</div>
+      <div class="ref-desc">Partage ce lien et gagne à chaque inscription</div>
+    </div>
+  </div>
+  <div class="ref-body">
+    <div class="ref-steps">
+      <div class="ref-step">
+        <div class="ref-step-num">1</div>
+        <div class="ref-step-txt">Partage ton lien à tes amis</div>
+      </div>
+      <div class="ref-step">
+        <div class="ref-step-num">2</div>
+        <div class="ref-step-txt">Ton ami s'inscrit et publie <strong>1 annonce</strong></div>
+      </div>
+      <div class="ref-step">
+        <div class="ref-step-num">3</div>
+        <div class="ref-step-txt">Tu reçois automatiquement <strong>500 FCFA</strong> 🎉</div>
+      </div>
+      <div class="ref-step">
+        <div class="ref-step-num">4</div>
+        <div class="ref-step-txt">Si ton ami passe <strong>Premium</strong> → tu gagnes <strong>+200 FCFA bonus</strong></div>
+      </div>
+    </div>
+
+    <div class="ref-reward">
+      <div class="rr-left">
+        Par inscription validée
+        <span>+ 200 FCFA si filleul Premium</span>
+      </div>
+      <div class="rr-amount">+500 F</div>
+    </div>
+
+    <div class="ref-link-box">
+      <div>
+        <div class="ref-link-txt">Ton lien unique</div>
+        <div class="ref-link-val" id="refLink">Chargement…</div>
+      </div>
+      <button class="ref-copy-btn" onclick="copyRefLink()">📋 Copier</button>
+    </div>
+
+    <div class="ref-share-row">
+      <button class="ref-share-btn rsb-wa" onclick="shareWhatsApp()">💬 WhatsApp</button>
+      <button class="ref-share-btn rsb-copy" onclick="shareGeneral()">📤 Partager</button>
+    </div>
+  </div>
+</div>
+
+<!-- MISSIONS -->
+<div class="sec">
+  <div class="sec-title">🎯 Missions</div>
+  <div class="sec-sub">Complète des tâches et gagne des FCFA</div>
+</div>
+<div class="missions-grid" id="missionsGrid">
+
+  <div class="mission" id="m-profile">
+    <div class="m-ico" style="background:rgba(27,63,228,.1)">👤</div>
+    <div class="m-info">
+      <div class="m-title">Compléter ton profil</div>
+      <div class="m-desc">Ajoute photo, WhatsApp et ville</div>
+      <div class="m-progress">
+        <div class="m-prog-bar"><div class="m-prog-fill" id="mf-profile" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--turq))"></div></div>
+        <div class="m-prog-lbl" id="ml-profile">0 / 3 éléments</div>
+      </div>
+    </div>
+    <div class="m-reward">
+      <div class="m-pts">+200F</div>
+      <div class="m-pts-lbl">FCFA</div>
+    </div>
+  </div>
+
+  <div class="mission" id="m-annonce">
+    <div class="m-ico" style="background:rgba(255,107,26,.1)">📢</div>
+    <div class="m-info">
+      <div class="m-title">Publier 3 annonces</div>
+      <div class="m-desc">Mets tes produits en vente</div>
+      <div class="m-progress">
+        <div class="m-prog-bar"><div class="m-prog-fill" id="mf-annonce" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
+        <div class="m-prog-lbl" id="ml-annonce">0 / 3 annonces</div>
+      </div>
+    </div>
+    <div class="m-reward">
+      <div class="m-pts">+300F</div>
+      <div class="m-pts-lbl">FCFA</div>
+    </div>
+  </div>
+
+  <div class="mission" id="m-share">
+    <div class="m-ico" style="background:rgba(0,194,183,.1)">📤</div>
+    <div class="m-info">
+      <div class="m-title">Partager AfriMarket</div>
+      <div class="m-desc">Partage l'app sur WhatsApp ou Facebook</div>
+    </div>
+    <div class="m-reward">
+      <div class="m-pts">+100F</div>
+      <div class="m-pts-lbl">FCFA</div>
+      <div class="m-done-badge" id="share-badge" style="display:none">✅ Fait</div>
+    </div>
+  </div>
+
+  <div class="mission" id="m-ref1">
+    <div class="m-ico" style="background:rgba(245,183,49,.1)">🥇</div>
+    <div class="m-info">
+      <div class="m-title">1er filleul inscrit</div>
+      <div class="m-desc">Invite ton premier ami</div>
+    </div>
+    <div class="m-reward">
+      <div class="m-pts">+500F</div>
+      <div class="m-pts-lbl">FCFA</div>
+      <div class="m-done-badge" id="ref1-badge" style="display:none">✅ Fait</div>
+    </div>
+  </div>
+
+  <div class="mission" id="m-ref5">
+    <div class="m-ico" style="background:rgba(0,194,113,.1)">🏆</div>
+    <div class="m-info">
+      <div class="m-title">5 filleuls inscrits</div>
+      <div class="m-desc">Deviens un super ambassadeur !</div>
+      <div class="m-progress">
+        <div class="m-prog-bar"><div class="m-prog-fill" id="mf-ref5" style="width:0%;background:linear-gradient(90deg,var(--green),var(--turq))"></div></div>
+        <div class="m-prog-lbl" id="ml-ref5">0 / 5 filleuls</div>
+      </div>
+    </div>
+    <div class="m-reward">
+      <div class="m-pts">+2000F</div>
+      <div class="m-pts-lbl">FCFA BONUS</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CLASSEMENT -->
+<div class="sec">
+  <div class="sec-title">🏆 Classement du mois</div>
+  <div class="sec-sub">Les meilleurs parrains reçoivent un bonus mensuel</div>
+</div>
+<div class="leaderboard">
+  <div class="lb-head">
+    <div class="lb-title">🥇 Top Parrains</div>
+    <div class="lb-period" id="lbPeriod">Ce mois</div>
+  </div>
+  <div class="lb-list" id="lbList">
+    <div style="padding:1.5rem;text-align:center;color:var(--gray);font-size:.82rem;">Chargement…</div>
+  </div>
+</div>
+
+<div style="height:1.5rem"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'">
+    <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
+  </button>
+  <button class="nav-item" onclick="location.href='dashboard.html'">
+    <span class="nav-ico">🔔</span><span class="nav-lbl">Notifs</span>
+  </button>
+  <div class="nav-item nav-plus">
+    <button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button>
+    <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
+  </div>
+  <button class="nav-item active">
+    <span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--gold);font-weight:700">Gagner</span>
+  </button>
+  <button class="nav-item" onclick="location.href='profil.html'">
+    <span class="nav-ico">👤</span><span class="nav-lbl">Profil</span>
+  </button>
+</nav>
+
+<!-- RETRAIT MODAL -->
+<div class="modal-ov" id="retraitModal" onclick="if(event.target===this)closeRetrait()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💸 Demander un retrait</div>
+    <div class="m-field">
+      <label>Montant à retirer (FCFA)</label>
+      <input type="number" id="retMontant" placeholder="Min. 2 000 FCFA" min="2000"/>
+    </div>
+    <div class="m-field">
+      <label>Mode de retrait</label>
+      <select id="retMode">
+        <option value="orange">🟠 Orange Money</option>
+        <option value="mtn">💛 MTN MoMo</option>
+      </select>
+    </div>
+    <div class="m-field">
+      <label>Numéro Mobile Money</label>
+      <input type="tel" id="retPhone" placeholder="+237 6XX XXX XXX"/>
+    </div>
+    <div class="m-field">
+      <label>Nom du compte</label>
+      <input type="text" id="retNom" placeholder="Ton nom complet"/>
+    </div>
+    <div class="modal-min-note">⏱️ Les retraits sont traités sous <strong>24-48h</strong> par l'administration. Minimum : <strong>2 000 FCFA</strong>.</div>
+    <button class="btn-submit" id="btnRetrait" onclick="submitRetrait()">
+      ✅ Confirmer le retrait
+    </button>
+  </div>
+</div>
+
+<div id="toast"><span id="tIco"></span>&nbsp;<span id="tMsg"></span></div>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+const BASE_URL = 'https://afrimarket2.vercel.app'; // ← ton URL
+let currentUser=null, userProfile=null, referralData=null;
+
+// ===== INIT =====
+(async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='index.html';return;}
+  currentUser=session.user;
+
+  const{data:prof}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  userProfile=prof;
+
+  await Promise.all([
+    loadReferralData(),
+    loadMissions(),
+    loadLeaderboard()
+  ]);
+})();
+
+// ===== CHARGER DONNÉES PARRAINAGE =====
+async function loadReferralData(){
+  // Lien de parrainage unique basé sur l'ID utilisateur
+  const refCode = currentUser.id.substring(0,8);
+  const refUrl  = BASE_URL+'/index.html?ref='+refCode;
+  document.getElementById('refLink').textContent = refUrl;
+
+  // Compter les filleuls (users qui ont ce ref_code dans leur profil)
+  const{count:refCount}=await sb.from('profiles')
+    .select('*',{count:'exact',head:true})
+    .eq('referred_by', refCode);
+
+  // Lire solde depuis referral_earnings
+  const{data:earnings}=await sb.from('referral_earnings')
+    .select('amount, status')
+    .eq('user_id', currentUser.id);
+
+  const totalEarned = (earnings||[]).reduce((s,e)=>s+e.amount,0);
+  const pending     = (earnings||[]).filter(e=>e.status==='pending').reduce((s,e)=>s+e.amount,0);
+  const available   = (earnings||[]).filter(e=>e.status==='available').reduce((s,e)=>s+e.amount,0);
+
+  // Mettre à jour UI
+  const refs = refCount||0;
+  document.getElementById('totalRefs').textContent   = refs;
+  document.getElementById('totalEarned').textContent = totalEarned.toLocaleString('fr-FR')+'F';
+  document.getElementById('headerBalance').textContent= available.toLocaleString('fr-FR')+' F';
+  document.getElementById('balAmount').textContent    = available.toLocaleString('fr-FR');
+  document.getElementById('balBadge').textContent     = available>0?'✅ Disponible':'🔒 En attente';
+  document.getElementById('balBadge').style.background= available>0?'rgba(0,194,113,.1)':'rgba(255,107,26,.1)';
+  document.getElementById('balBadge').style.color     = available>0?'var(--green)':'var(--orange)';
+  document.getElementById('balBadge').style.border    = available>0?'1px solid rgba(0,194,113,.2)':'1px solid rgba(255,107,26,.2)';
+
+  if(pending>0){
+    document.getElementById('balPending').textContent='⏳ '+pending.toLocaleString('fr-FR')+' FCFA en cours de validation';
+  }
+
+  referralData={refs,totalEarned,available,pending,refCode,refUrl};
+
+  // Mettre à jour missions
+  updateMissionRef(refs);
+}
+
+// ===== CHARGER MISSIONS =====
+async function loadMissions(){
+  if(!userProfile) return;
+
+  // Mission profil — compter les champs remplis
+  let profScore=0;
+  if(userProfile.avatar_url)  profScore++;
+  if(userProfile.whatsapp)    profScore++;
+  if(userProfile.ville)       profScore++;
+  const profPct = (profScore/3)*100;
+  document.getElementById('mf-profile').style.width = profPct+'%';
+  document.getElementById('ml-profile').textContent = profScore+' / 3 éléments';
+  if(profScore>=3) completeMission('m-profile');
+
+  // Mission annonces — compter les annonces publiées
+  const{count:adCount}=await sb.from('annonces')
+    .select('*',{count:'exact',head:true})
+    .eq('user_id',currentUser.id);
+  const ads=Math.min(adCount||0,3);
+  const adPct=(ads/3)*100;
+  document.getElementById('mf-annonce').style.width=adPct+'%';
+  document.getElementById('ml-annonce').textContent=ads+' / 3 annonces';
+  if(ads>=3) completeMission('m-annonce');
+
+  // Mission partage — vérifier localStorage
+  if(localStorage.getItem('am_shared')){
+    document.getElementById('share-badge').style.display='block';
+    completeMission('m-share');
+  }
+
+  // Clic sur mission partage
+  document.getElementById('m-share').onclick=()=>{
+    if(!localStorage.getItem('am_shared')){
+      shareGeneral();
+      localStorage.setItem('am_shared','1');
+      document.getElementById('share-badge').style.display='block';
+      completeMission('m-share');
+      showToast('+100 FCFA crédité ! 🎉','success');
+    }
+  };
+}
+
+function updateMissionRef(refs){
+  // Mission 1er filleul
+  if(refs>=1){
+    document.getElementById('ref1-badge').style.display='block';
+    completeMission('m-ref1');
+  }
+  // Mission 5 filleuls
+  const r5=Math.min(refs,5);
+  document.getElementById('mf-ref5').style.width=(r5/5*100)+'%';
+  document.getElementById('ml-ref5').textContent=r5+' / 5 filleuls';
+  if(refs>=5) completeMission('m-ref5');
+}
+
+function completeMission(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.add('done');
+}
+
+// ===== CLASSEMENT =====
+async function loadLeaderboard(){
+  // Top 5 parrains ce mois
+  const now=new Date();
+  const month=now.toISOString().substring(0,7); // "2026-02"
+  document.getElementById('lbPeriod').textContent=now.toLocaleString('fr-FR',{month:'long',year:'numeric'});
+
+  const{data:top}=await sb.from('referral_earnings')
+    .select('user_id, profiles(full_name, avatar_url, is_premium)')
+    .eq('status','available')
+    .gte('created_at', month+'-01')
+    .order('amount',{ascending:false})
+    .limit(5);
+
+  // Agréger par user
+  const agg={};
+  (top||[]).forEach(e=>{
+    if(!agg[e.user_id]) agg[e.user_id]={name:e.profiles?.full_name||'Anonyme',total:0,avatar:e.profiles?.avatar_url,prem:e.profiles?.is_premium};
+    agg[e.user_id].total+=e.amount||0;
+  });
+  const sorted=Object.entries(agg).sort((a,b)=>b[1].total-a[1].total).slice(0,5);
+
+  const medals=['🥇','🥈','🥉'];
+  const rankCls=['gold','silver','bronze'];
+  const html = sorted.length===0
+    ? '<div style="padding:1.5rem;text-align:center;color:var(--gray);font-size:.82rem;">Sois le premier à parrainer ! 🚀</div>'
+    : sorted.map(([uid,d],i)=>{
+        const isMe=uid===currentUser?.id;
+        const init=(d.name||'?')[0].toUpperCase();
+        return `<div class="lb-item${isMe?' me':''}">
+          <div class="lb-rank ${rankCls[i]||''}">${medals[i]||i+1}</div>
+          <div class="lb-avatar">${init}</div>
+          <div class="lb-info" style="flex:1">
+            <div class="lb-name">${d.name}${isMe?' <span class="lb-you">(Toi)</span>':''}</div>
+          </div>
+          <div class="lb-earn">+${d.total.toLocaleString('fr-FR')}F</div>
+        </div>`;
+      }).join('');
+
+  document.getElementById('lbList').innerHTML=html;
+}
+
+// ===== LIEN DE PARRAINAGE =====
+function copyRefLink(){
+  const url=referralData?.refUrl||document.getElementById('refLink').textContent;
+  navigator.clipboard?.writeText(url)
+    .then(()=>showToast('Lien copié ! Partage-le maintenant 🔗','success'))
+    .catch(()=>showToast(url,'info'));
+}
+
+function shareWhatsApp(){
+  const url=referralData?.refUrl||'';
+  const msg=encodeURIComponent(`🚀 Rejoins-moi sur AfriMarket — La marketplace N°1 au Cameroun !\nAchète et vends facilement. Inscription 100% gratuite 👇\n\n${url}`);
+  window.open('https://wa.me/?text='+msg,'_blank');
+}
+
+function shareGeneral(){
+  const url=referralData?.refUrl||'';
+  if(navigator.share){
+    navigator.share({
+      title:'AfriMarket — Marketplace Cameroun',
+      text:'Rejoins AfriMarket et vends tes produits facilement !',
+      url
+    });
+  } else {
+    copyRefLink();
+  }
+}
+
+function showHistorique(){
+  showToast('Historique des transactions bientôt disponible 📋','info');
+}
+
+// ===== RETRAIT =====
+function openRetrait(){
+  const avail=referralData?.available||0;
+  if(avail<2000){
+    showToast('Minimum 2 000 FCFA pour retirer (solde: '+avail+' F)','warning');
+    return;
+  }
+  document.getElementById('retraitModal').classList.add('open');
+}
+
+function closeRetrait(){
+  document.getElementById('retraitModal').classList.remove('open');
+}
+
+async function submitRetrait(){
+  const montant=parseInt(document.getElementById('retMontant').value)||0;
+  const mode   =document.getElementById('retMode').value;
+  const phone  =document.getElementById('retPhone').value.trim();
+  const nom    =document.getElementById('retNom').value.trim();
+  const avail  =referralData?.available||0;
+
+  if(montant<2000){showToast('Minimum 2 000 FCFA','warning');return;}
+  if(montant>avail){showToast('Solde insuffisant ('+avail+' F disponible)','warning');return;}
+  if(!phone){showToast('Entre ton numéro Mobile Money','warning');return;}
+  if(!nom){showToast('Entre ton nom','warning');return;}
+
+  const btn=document.getElementById('btnRetrait');
+  btn.disabled=true;btn.textContent='⏳ Envoi…';
+
+  try{
+    const{error}=await sb.from('withdrawal_requests').insert({
+      user_id:    currentUser.id,
+      amount:     montant,
+      operator:   mode,
+      phone:      phone,
+      name:       nom,
+      status:     'pending',
+      created_at: new Date().toISOString()
+    });
+    if(error) throw error;
+
+    // Notification
+    await sb.from('notifications').insert({
+      user_id:    currentUser.id,
+      title:      '💸 Demande de retrait envoyée',
+      message:    'Votre demande de retrait de '+montant.toLocaleString('fr-FR')+' FCFA via '+mode+' est en cours de traitement. Délai : 24-48h.',
+      icon:       '💸',
+      type:       'info',
+      read:       false,
+      created_at: new Date().toISOString()
+    });
+
+    closeRetrait();
+    showToast('Demande envoyée ! Traitement sous 24-48h 🎉','success');
+
+    // Reset form
+    document.getElementById('retMontant').value='';
+    document.getElementById('retPhone').value='';
+    document.getElementById('retNom').value='';
+
+  }catch(e){
+    showToast('Erreur : '+e.message,'error');
+  }finally{
+    btn.disabled=false;btn.textContent='✅ Confirmer le retrait';
+  }
+}
+
+// ===== TOAST =====
+let tt;
+function showToast(msg,type='success'){
+  const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  document.getElementById('tIco').textContent=icons[type]||'💬';
+  document.getElementById('tMsg').textContent=msg;
+  const el=document.getElementById('toast');
+  el.className='show';
+  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt);tt=setTimeout(()=>el.className='',4000);
+}
+</script>
+</body>
+</html>
