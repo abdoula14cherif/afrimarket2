@@ -562,8 +562,10 @@
     <button class="nav-plus-btn" onclick="openPublish()">➕</button>
     <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
   </button>
-  <button class="nav-item" onclick="navGo('historique',this)">
-    <span class="nav-ico">🕐</span><span class="nav-lbl">Historique</span>
+  <button class="nav-item" onclick="navGo('favoris',this)" id="navFavBtn">
+    <span class="nav-ico" id="navFavIco">❤️</span>
+    <span class="nav-lbl">Favoris</span>
+    <span id="favNavBadge" style="position:absolute;top:6px;right:8px;background:var(--red);color:white;font-size:.5rem;font-weight:800;padding:.12rem .35rem;border-radius:99px;display:none;">0</span>
   </button>
   <button class="nav-item" onclick="navGo('profil',this)">
     <span class="nav-ico">👤</span><span class="nav-lbl">Profil</span>
@@ -681,7 +683,7 @@ let allNotifs = [];
 const FREE_LIMIT = 3;
 const FREE_DAYS  = 7;
 const EMOJI_MAP = { immobilier:'🏠', vehicules:'🚗', electronique:'📱', mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦' };
-const liked = new Set();
+const liked = new Set(); // sera peuplé depuis Supabase
 
 // ===== TOAST =====
 let tt;
@@ -753,10 +755,11 @@ async function init() {
   renderPlanUI();
 
   // Load data in parallel
-  await Promise.all([loadAds(), loadNotifs(), countMyAds()]);
+  await Promise.all([loadAds(), loadNotifs(), countMyAds(), loadFavs()]);
 
   // Watcher premium — mise à jour auto si paiement confirmé
   startPremiumWatcher();
+  startRealtimeNotifs();
 }
 
 // ===== PLAN UI =====
@@ -883,12 +886,29 @@ function filterCat(cat,el){currentCat=cat;document.querySelectorAll('.cat-chip')
 function filterAds(){renderAds();}
 function setAdTab(tab,el){currentTab=tab;document.querySelectorAll('.ad-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderAds();}
 
-// ===== FAV =====
-function toggleFav(id){
-  if(liked.has(id)){liked.delete(id);showToast('Retiré des favoris','info');}
-  else{liked.add(id);showToast('Ajouté aux favoris ❤️','success');}
+// ===== FAV (Supabase persistant) =====
+async function loadFavs(){
+  if(!currentUser) return;
+  try{
+    const{data}=await sb.from('favoris').select('annonce_id').eq('user_id',currentUser.id);
+    (data||[]).forEach(f=>liked.add(f.annonce_id));
+  }catch(e){console.warn('favoris:',e);}
+}
+
+async function toggleFav(id){
+  if(!currentUser){showToast('Connecte-toi pour sauvegarder','warning');return;}
   const btn=document.getElementById('fav_'+id);
-  if(btn)btn.classList.toggle('liked',liked.has(id));
+  if(liked.has(id)){
+    liked.delete(id);
+    if(btn)btn.classList.remove('liked');
+    showToast('Retiré des favoris','info');
+    await sb.from('favoris').delete().eq('user_id',currentUser.id).eq('annonce_id',id);
+  } else {
+    liked.add(id);
+    if(btn)btn.classList.add('liked');
+    showToast('Ajouté aux favoris ❤️','success');
+    await sb.from('favoris').upsert({user_id:currentUser.id,annonce_id:id,created_at:new Date().toISOString()},{onConflict:'user_id,annonce_id'});
+  }
 }
 
 // ===== WHATSAPP =====
@@ -1116,7 +1136,7 @@ function navGo(page,el){
   el.classList.add('active');
   if(page==='home'){window.scrollTo({top:0,behavior:'smooth'});return;}
   if(page==='notifications'){openNotifPanel();return;}
-  const pages={gagner:'gagner.html',historique:'historique.html',profil:'profil.html'};
+  const pages={gagner:'gagner.html',historique:'historique.html',favoris:'favoris.html',profil:'profil.html'};
   if(pages[page])window.location.href=pages[page];
 }
 
@@ -1184,8 +1204,81 @@ function startPremiumWatcher() {
   }, 8000);
 }
 
+// ===== REALTIME NOTIFICATIONS =====
+let _realtimeChannel = null;
+
+function startRealtimeNotifs(){
+  if(!currentUser || _realtimeChannel) return;
+
+  _realtimeChannel = sb
+    .channel('notifs_'+currentUser.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'notifications',
+      filter:'user_id=eq.'+currentUser.id
+    }, payload => {
+      const n = payload.new;
+      if(!n) return;
+
+      // Ajouter en tête de liste
+      allNotifs.unshift(n);
+
+      // Mettre à jour le badge
+      updateNotifBadge();
+
+      // Afficher une bannière push en haut
+      showPushBanner(n);
+    })
+    .subscribe();
+}
+
+function showPushBanner(n){
+  // Créer la bannière si elle n'existe pas
+  let banner = document.getElementById('pushBanner');
+  if(!banner){
+    banner = document.createElement('div');
+    banner.id = 'pushBanner';
+    banner.style.cssText = `
+      position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-100px);
+      background:var(--dark);color:white;border-radius:16px;
+      padding:.8rem 1.1rem;display:flex;align-items:center;gap:.7rem;
+      box-shadow:0 8px 28px rgba(8,14,42,.35);z-index:500;
+      max-width:340px;width:90vw;cursor:pointer;
+      border-left:4px solid var(--turq);
+      transition:transform .45s cubic-bezier(.34,1.56,.64,1);
+    `;
+    banner.onclick = () => {
+      banner.style.transform = 'translateX(-50%) translateY(-100px)';
+      openNotifPanel();
+    };
+    document.body.appendChild(banner);
+  }
+
+  const typeColors = {success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
+  banner.style.borderLeftColor = typeColors[n.type] || 'var(--turq)';
+  banner.innerHTML = `
+    <span style="font-size:1.4rem">${n.icon||'🔔'}</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700">${n.title||''}</div>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.55);margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.message||''}</div>
+    </div>
+    <span style="font-size:.75rem;color:rgba(255,255,255,.3)">✕</span>
+  `;
+
+  // Animer l'entrée
+  setTimeout(()=>{ banner.style.transform = 'translateX(-50%) translateY(0)'; }, 50);
+
+  // Masquer après 5s
+  clearTimeout(banner._timer);
+  banner._timer = setTimeout(()=>{
+    banner.style.transform = 'translateX(-50%) translateY(-100px)';
+  }, 5000);
+}
+
 window.addEventListener('beforeunload', () => {
   if (_pollingTimer) clearInterval(_pollingTimer);
+  if (_realtimeChannel) sb.removeChannel(_realtimeChannel);
 });
 
 init();
