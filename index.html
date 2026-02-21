@@ -313,6 +313,14 @@ const sb = createClient(
   setTimeout(() => document.getElementById('splash').classList.add('done'), 5000);
 })();
 
+// ===== CAPTURE CODE PARRAINAGE =====
+const urlRef = new URLSearchParams(window.location.search).get('ref');
+if (urlRef) {
+  localStorage.setItem('am_ref_code', urlRef);
+  // Switcher auto sur l'onglet inscription
+  setTimeout(() => switchTab('register'), 300);
+}
+
 function switchTab(t) {
   const isR = t==='register';
   document.getElementById('tabR').classList.toggle('active',isR);
@@ -386,12 +394,25 @@ document.getElementById('regForm').addEventListener('submit', async e => {
   const btn=document.getElementById('btnR');
   setLoading(btn,true);
   try {
-    const{data:auth,error:authErr}=await sb.auth.signUp({email,password:pwd,options:{data:{full_name:name,whatsapp:wa,pays,ville}}});
+    // Récupérer le code parrain (depuis URL ou localStorage)
+    const refCode = urlRef || localStorage.getItem('am_ref_code') || null;
+    const{data:auth,error:authErr}=await sb.auth.signUp({
+      email,password:pwd,
+      options:{data:{full_name:name,whatsapp:wa,pays,ville,referred_by:refCode}}
+    });
     if(authErr)throw authErr;
     const uid=auth?.user?.id;
     if(uid){
-      try{await sb.from('profiles').upsert({id:uid,full_name:name,whatsapp:wa,email,pays,ville,created_at:new Date().toISOString()});}
-      catch(dbError){console.warn('Erreur DB:',dbError.message);}
+      try{
+        await sb.from('profiles').upsert({
+          id:uid,full_name:name,whatsapp:wa,email,pays,ville,
+          ref_code: uid.substring(0,8),
+          referred_by: refCode,
+          created_at:new Date().toISOString()
+        });
+        // Nettoyer le code parrain après usage
+        localStorage.removeItem('am_ref_code');
+      }catch(dbError){console.warn('Erreur DB:',dbError.message);}
     }
     document.getElementById('succEmail').textContent=email;
     document.getElementById('regWrap').style.display='none';
