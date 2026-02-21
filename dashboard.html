@@ -4,6 +4,17 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AfriMarket — Dashboard</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#080E2A"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
@@ -601,6 +612,9 @@
       <button class="btn-modal primary" id="mMsgBtn">💬 Message</button>
       <button class="btn-modal wa" id="mWaBtn">📞 WhatsApp</button>
     </div>
+    <div style="padding:.5rem 1rem 0;text-align:center">
+      <button onclick="openAvisModal()" style="background:none;border:none;font-size:.75rem;color:var(--gold);font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">⭐ Laisser un avis sur ce vendeur</button>
+    </div>
   </div>
 </div>
 
@@ -946,7 +960,22 @@ function openDetail(id){
     <span class="modal-tag">🕐 ${timeAgo(ad.created_at)}</span>
     ${ad.featured?'<span class="modal-tag" style="background:rgba(200,144,26,.1);color:#C8901A">⭐ En avant</span>':''}
     ${ad.urgent?'<span class="modal-tag" style="background:#FFF3E0;color:var(--orange)">🔥 Urgent</span>':''}`;
-  document.getElementById('mSeller').innerHTML=`<div class="seller-ava">${sNom[0]?.toUpperCase()||'?'}</div><div class="seller-info"><h4>${sNom}</h4><p>${verified}</p></div>`;
+  // Charger la note du vendeur
+  let starHtml = '';
+  try {
+    const{data:rating}=await sb.from('profiles').select('rating_avg,rating_count').eq('id',seller.id||ad.user_id).single();
+    if(rating?.rating_count > 0){
+      const avg = parseFloat(rating.rating_avg)||0;
+      const stars = '⭐'.repeat(Math.round(avg)) + '☆'.repeat(5-Math.round(avg));
+      starHtml = `<span style="font-size:.72rem;color:var(--gold)">${stars}</span> <span style="font-size:.68rem;color:var(--gray)">${avg.toFixed(1)} (${rating.rating_count} avis)</span>`;
+    } else {
+      starHtml = `<span style="font-size:.68rem;color:var(--gray)">Aucun avis encore</span>`;
+    }
+  } catch(e) {}
+  document.getElementById('mSeller').innerHTML=`<div class="seller-ava">${sNom[0]?.toUpperCase()||'?'}</div><div class="seller-info"><h4>${sNom}</h4><p>${verified}</p><div style="margin-top:.2rem">${starHtml}</div></div>`;
+  // Stocker user_id pour avis
+  document.getElementById('mSeller').dataset.sellerId = seller.id||ad.user_id||'';
+  document.getElementById('mSeller').dataset.adId = ad.id||'';
   const wa=(seller.whatsapp||'').replace(/[^0-9+]/g,'');
   document.getElementById('mWaBtn').onclick=()=>contactWA(wa);
   // Bouton Message — redirige vers messagerie sauf si c'est ma propre annonce
@@ -1314,6 +1343,118 @@ window.addEventListener('beforeunload', () => {
 });
 
 init();
+</script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(r => console.log('[SW] Registered:', r.scope))
+          .catch(e => console.warn('[SW] Error:', e));
+      });
+    }
+  </script>
+
+<!-- MODAL AVIS -->
+<div class="modal-overlay" id="avisOverlay" onclick="if(event.target===this)closeAvis()" style="z-index:300">
+  <div class="modal" id="avisModal" style="max-height:90vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="padding:0 1.2rem 1.5rem">
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:.3rem">⭐ Laisser un avis</div>
+      <div style="font-size:.78rem;color:var(--gray);margin-bottom:1.2rem" id="avisSellerName">—</div>
+
+      <!-- ÉTOILES INTERACTIVES -->
+      <div style="display:flex;gap:.4rem;justify-content:center;margin-bottom:1.2rem" id="starRow">
+        <span class="star-btn" data-v="1" onclick="selectStar(1)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="2" onclick="selectStar(2)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="3" onclick="selectStar(3)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="4" onclick="selectStar(4)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="5" onclick="selectStar(5)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+      </div>
+      <div style="text-align:center;font-size:.78rem;color:var(--gray);margin-bottom:1rem" id="avisNoteLabel">Sélectionne une note</div>
+
+      <!-- COMMENTAIRE -->
+      <textarea id="avisComment" placeholder="Parle de ton expérience avec ce vendeur (optionnel)…"
+        style="width:100%;border:1.5px solid var(--border);border-radius:12px;padding:.7rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;resize:none;min-height:90px;outline:none;background:var(--bg);color:var(--dark)"></textarea>
+
+      <!-- BOUTONS -->
+      <div style="display:flex;gap:.7rem;margin-top:.9rem">
+        <button onclick="closeAvis()" style="flex:1;padding:.75rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--dark)">Annuler</button>
+        <button id="avisSubmitBtn" onclick="submitAvis()" style="flex:1;padding:.75rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--gold),#E8A500);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--dark)" disabled>⭐ Envoyer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ===== AVIS / NOTATION =====
+let selectedNote = 0;
+const noteLabels = ['','😞 Très mauvais','😕 Mauvais','😐 Moyen','😊 Bien','🤩 Excellent !'];
+
+function openAvisModal(){
+  if(!currentUser){ showToast('Connecte-toi pour laisser un avis','warning'); return; }
+  const sellerEl = document.getElementById('mSeller');
+  const sellerId = sellerEl?.dataset.sellerId;
+  const adId     = sellerEl?.dataset.adId;
+  if(!sellerId || sellerId === currentUser?.id){ showToast('Tu ne peux pas te noter toi-même','info'); return; }
+
+  document.getElementById('avisOverlay').dataset.sellerId = sellerId;
+  document.getElementById('avisOverlay').dataset.adId     = adId;
+  const name = document.getElementById('mTitle')?.textContent || 'ce vendeur';
+  document.getElementById('avisSellerName').textContent = 'Pour l'annonce : ' + name;
+  selectedNote = 0;
+  renderStars(0);
+  document.getElementById('avisComment').value = '';
+  document.getElementById('avisSubmitBtn').disabled = true;
+  document.getElementById('avisOverlay').classList.add('open');
+}
+
+function selectStar(n){
+  selectedNote = n;
+  renderStars(n);
+  document.getElementById('avisNoteLabel').textContent = noteLabels[n] || '';
+  document.getElementById('avisSubmitBtn').disabled = false;
+}
+
+function renderStars(n){
+  document.querySelectorAll('.star-btn').forEach(s => {
+    const v = parseInt(s.dataset.v);
+    s.textContent = v <= n ? '⭐' : '☆';
+    s.style.transform = v <= n ? 'scale(1.15)' : 'scale(1)';
+  });
+}
+
+async function submitAvis(){
+  const overlay = document.getElementById('avisOverlay');
+  const sellerId = overlay.dataset.sellerId;
+  const adId     = overlay.dataset.adId;
+  const comment  = document.getElementById('avisComment').value.trim();
+  const btn      = document.getElementById('avisSubmitBtn');
+
+  if(!selectedNote){ showToast('Choisis une note','warning'); return; }
+  btn.disabled = true; btn.textContent = '⏳…';
+
+  try{
+    const{error} = await sb.from('avis').upsert({
+      reviewer_id: currentUser.id,
+      seller_id:   sellerId,
+      annonce_id:  adId || null,
+      note:        selectedNote,
+      commentaire: comment || null,
+      created_at:  new Date().toISOString()
+    },{onConflict:'reviewer_id,annonce_id'});
+
+    if(error) throw error;
+
+    showToast('⭐ Avis envoyé, merci !','success');
+    closeAvis();
+  }catch(e){
+    if(e.message?.includes('unique')) showToast('Tu as déjà noté cette annonce','info');
+    else showToast('Erreur : '+e.message,'error');
+  }finally{
+    btn.disabled = false; btn.textContent = '⭐ Envoyer';
+  }
+}
+
+function closeAvis(){ document.getElementById('avisOverlay').classList.remove('open'); }
 </script>
 </body>
 </html>
