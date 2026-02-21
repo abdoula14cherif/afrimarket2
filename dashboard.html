@@ -893,8 +893,17 @@ function toggleFav(id){
 
 // ===== WHATSAPP =====
 function contactWA(num){
-  if(!num){showToast('Numéro non disponible','warning');return;}
-  window.open(`https://wa.me/${num.replace(/\+/,'')}?text=Bonjour, je suis intéressé par votre annonce sur AfriMarket 🛒`,'_blank');
+  if(!num){showToast('Numéro WhatsApp non disponible','warning');return;}
+  // Nettoyer espaces, tirets, points
+  let n = num.replace(/[\s\-\.\(\)]/g,'');
+  // 00XX → +XX
+  if(n.startsWith('00')) n = n.slice(2);
+  else n = n.replace(/^\+/,'');
+  // Si pas d'indicatif pays (numéro local camerounais = 9 chiffres ex: 655123456)
+  const afriPrefixes=['237','225','221','223','226','228','229','241','242','235','224','33','1'];
+  const hasPrefix = afriPrefixes.some(p => n.startsWith(p));
+  if(!hasPrefix) n = '237' + n; // Cameroun par défaut
+  window.open('https://wa.me/'+n+'?text=Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9%20par%20votre%20annonce%20sur%20AfriMarket%20%F0%9F%9B%92','_blank');
 }
 
 // ===== DETAIL MODAL =====
