@@ -391,7 +391,7 @@ const sb=createClient(
 );
 
 // !! Remplace par ton email admin !!
-const ADMIN_EMAILS=['abdoula13cherif@gmail.com'];
+const ADMIN_EMAILS=['ton-email-admin@gmail.com'];
 
 let allPay=[],allWr=[],allUsers=[],allAds=[];
 let fPay='all',fWr='all',fUsers='all';
@@ -681,19 +681,64 @@ function openPayWr(id,amount,op,phone,name,userName){
 async function doPayWr(id,amount,op,phone){
   const note=document.getElementById('mPayWrNote').value.trim();
   const btn=document.getElementById('mPayWrBtn');
-  btn.disabled=true;
+  btn.disabled=true; btn.textContent='⏳ Traitement…';
+
   try{
-    const{data:wr}=await sb.from('withdrawal_requests').select('user_id').eq('id',id).single();
-    await sb.from('withdrawal_requests').update({status:'paid',paid_at:new Date().toISOString(),admin_note:note||null}).eq('id',id);
-    // Marquer les earnings comme retirés
-    const{data:earns}=await sb.from('referral_earnings').select('id').eq('user_id',wr.user_id).eq('status','available').order('created_at',{ascending:true}).limit(Math.ceil(amount/500));
-    if(earns?.length) await sb.from('referral_earnings').update({status:'withdrawn'}).in('id',earns.map(e=>e.id));
-    await notif(wr.user_id,'✅ Retrait effectué !',amount+' FCFA ont été envoyés sur votre '+op+' ('+phone+'). Merci !','✅','success');
-    toast('✅ Retrait validé et payé !','success');
+    // 1. Récupérer le retrait pour avoir le user_id
+    const{data:wr,error:wrErr}=await sb.from('withdrawal_requests')
+      .select('user_id,status').eq('id',id).single();
+    if(wrErr) throw new Error('Retrait introuvable : '+wrErr.message);
+    if(!wr) throw new Error('Retrait introuvable');
+
+    // 2. Mettre à jour le statut — sans paid_at si la colonne n'existe pas
+    const updatePayload={status:'paid',admin_note:note||'Payé par admin'};
+    // Essayer avec paid_at d'abord
+    let{error:upErr}=await sb.from('withdrawal_requests').update({...updatePayload,paid_at:new Date().toISOString()}).eq('id',id);
+    if(upErr){
+      // Retry sans paid_at si la colonne n'existe pas
+      const{error:upErr2}=await sb.from('withdrawal_requests').update(updatePayload).eq('id',id);
+      if(upErr2) throw new Error('Mise à jour échouée : '+upErr2.message);
+    }
+
+    // 3. Marquer les referral_earnings comme 'withdrawn'
+    const{data:earns,error:earnErr}=await sb.from('referral_earnings')
+      .select('id,amount')
+      .eq('user_id',wr.user_id)
+      .eq('status','available');
+    if(!earnErr && earns?.length){
+      const{error:earnUpErr}=await sb.from('referral_earnings')
+        .update({status:'withdrawn'})
+        .in('id',earns.map(e=>e.id));
+      if(earnUpErr) console.warn('Earnings non mis à jour:',earnUpErr.message);
+    }
+
+    // 4. Notifier l'utilisateur
+    await notif(
+      wr.user_id,
+      '✅ Retrait effectué !',
+      amount.toLocaleString('fr-FR')+' FCFA ont été envoyés sur '+
+      (op==='orange'?'Orange Money':'MTN MoMo')+' ('+phone+'). Vérifiez votre compte !',
+      '✅','success'
+    );
+
+    toast('✅ Retrait marqué payé !','success');
     closeOv('mPayWr');
+
+    // 5. Mettre à jour localement immédiatement (UX instantanée)
+    const idx=allWr.findIndex(w=>w.id===id);
+    if(idx>-1){ allWr[idx].status='paid'; allWr[idx].admin_note=note||'Payé par admin'; }
+    renderWr();
+
+    // 6. Recharger depuis Supabase pour confirmer
     await Promise.all([loadStats(),loadWr()]);
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;}
+
+  }catch(e){
+    console.error('doPayWr error:',e);
+    toast('❌ Erreur : '+e.message,'error');
+  }finally{
+    btn.disabled=false;
+    btn.textContent='✅ Marquer comme payé';
+  }
 }
 
 function openRejectWr(id,userName,amount){
