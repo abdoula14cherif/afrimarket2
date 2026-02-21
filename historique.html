@@ -420,15 +420,6 @@
     .btn-delete-confirm:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(232,48,48,.45); }
     .btn-delete-confirm:disabled { opacity:.6; cursor:not-allowed; transform:none; }
 
-    /* BOOST OPTIONS */
-    .boost-option {
-      border:1.5px solid var(--border); border-radius:13px;
-      padding:.8rem 1rem; cursor:pointer; transition:all .2s;
-      background:white;
-    }
-    .boost-option:hover { border-color:var(--orange); background:rgba(255,107,26,.03); }
-    .boost-option.active { border-color:var(--orange); background:rgba(255,107,26,.05); box-shadow:0 0 0 3px rgba(255,107,26,.1); }
-
     /* ===== TOAST ===== */
     #toast {
       position:fixed; bottom:calc(var(--nav-h) + 12px); right:1rem;
@@ -641,68 +632,6 @@
   </div>
 </div>
 
-<!-- ===== BOOST MODAL ===== -->
-<div class="modal-overlay" id="boostOverlay" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🚀 Booster l'annonce</div>
-    <input type="hidden" id="b_id"/>
-
-    <div style="background:linear-gradient(135deg,rgba(255,107,26,.06),rgba(245,183,49,.04));border:1.5px solid rgba(255,107,26,.15);border-radius:16px;padding:1rem 1.1rem;margin-bottom:1rem;">
-      <div style="font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;" id="boostAdTitle">Annonce</div>
-      <div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Ton annonce apparaîtra en <strong>1ère position</strong> sur le dashboard pendant la durée choisie.</div>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.1rem;">
-      <div class="boost-option active" data-dur="1" data-price="200" onclick="selectBoost(this)">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div style="font-weight:700;font-size:.88rem;color:var(--dark);">⚡ 1 jour</div>
-            <div style="font-size:.7rem;color:var(--gray);">Mise en avant 24h</div>
-          </div>
-          <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--orange);">200 F</div>
-        </div>
-      </div>
-      <div class="boost-option" data-dur="3" data-price="500" onclick="selectBoost(this)">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div style="font-weight:700;font-size:.88rem;color:var(--dark);">🔥 3 jours</div>
-            <div style="font-size:.7rem;color:var(--gray);">Le plus populaire</div>
-          </div>
-          <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--orange);">500 F</div>
-        </div>
-      </div>
-      <div class="boost-option" data-dur="7" data-price="1000" onclick="selectBoost(this)">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div style="font-weight:700;font-size:.88rem;color:var(--dark);">💎 7 jours</div>
-            <div style="font-size:.7rem;color:var(--gray);">Meilleur rapport qualité/prix</div>
-          </div>
-          <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--orange);">1 000 F</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="background:rgba(245,183,49,.07);border:1px solid rgba(245,183,49,.2);border-radius:12px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.73rem;color:var(--dark);line-height:1.6;">
-      💡 Envoie le paiement sur <strong>Orange Money 658 033 690</strong> ou <strong>MTN MoMo 651 461 777</strong>, puis indique la référence ci-dessous.
-    </div>
-
-    <div class="edit-field">
-      <label>Référence de paiement *</label>
-      <input type="text" id="b_ref" placeholder="Ex: TXN123456789"/>
-    </div>
-    <div class="edit-field">
-      <label>Ton numéro d'envoi</label>
-      <input type="tel" id="b_phone" placeholder="+237 6XX XXX XXX"/>
-    </div>
-
-    <button class="btn-save" id="btnBoostSubmit" onclick="submitBoost()">
-      <div class="spin-sm"></div>
-      <span class="save-lbl">🚀 Envoyer la demande de boost</span>
-    </button>
-  </div>
-</div>
-
 <!-- TOAST -->
 <div id="toast"><span id="tIco"></span><span id="tMsg"></span></div>
 
@@ -865,8 +794,8 @@ function renderList(ads) {
           <button class="action-btn del"    onclick="confirmDelete('${ad.id}')">🗑️ Sup.</button>
         </div>
         <div class="ad-boost-bar">
-          <button class="boost-btn" onclick="openBoost('${ad.id}','${(ad.titre||'').replace(/'/g,"\\'")}')">
-            🚀 Booster cette annonce — Apparaître en 1ère position
+          <button class="boost-btn" onclick="location.href='pricing.html'">
+            🚀 Booster cette annonce — Passer Premium
           </button>
         </div>
       </div>
@@ -1070,64 +999,6 @@ async function renewAd(id) {
     showToast('Annonce remise en tête de liste 🔁', 'success');
   } catch(err) {
     showToast('Erreur : ' + err.message, 'error');
-  }
-}
-
-// ===== BOOST =====
-let selectedBoostDur = 1, selectedBoostPrice = 200;
-
-function openBoost(id, title) {
-  document.getElementById('b_id').value = id;
-  document.getElementById('boostAdTitle').textContent = title || 'Annonce';
-  document.getElementById('b_ref').value = '';
-  document.getElementById('b_phone').value = '';
-  // reset selection
-  document.querySelectorAll('.boost-option').forEach((el,i) => el.classList.toggle('active', i===0));
-  selectedBoostDur = 1; selectedBoostPrice = 200;
-  document.getElementById('boostOverlay').classList.add('open');
-}
-
-function selectBoost(el) {
-  document.querySelectorAll('.boost-option').forEach(o => o.classList.remove('active'));
-  el.classList.add('active');
-  selectedBoostDur   = parseInt(el.dataset.dur);
-  selectedBoostPrice = parseInt(el.dataset.price);
-}
-
-async function submitBoost() {
-  const id    = document.getElementById('b_id').value;
-  const ref   = document.getElementById('b_ref').value.trim();
-  const phone = document.getElementById('b_phone').value.trim();
-  if (!ref) { showToast('Indique la référence de paiement', 'warning'); return; }
-
-  const btn = document.getElementById('btnBoostSubmit');
-  btn.disabled = true; btn.classList.add('loading');
-
-  try {
-    // Enregistrer la demande de boost (même table que payment_requests)
-    const boostEnd = new Date();
-    boostEnd.setDate(boostEnd.getDate() + selectedBoostDur);
-
-    const { error } = await sb.from('payment_requests').insert({
-      user_id:         currentUser.id,
-      plan:            'boost',
-      billing:         selectedBoostDur + 'j',
-      amount:          selectedBoostPrice,
-      operator:        phone.startsWith('+237 65') || phone.includes('65') ? 'mtn' : 'orange',
-      sender_phone:    phone,
-      transaction_ref: ref,
-      status:          'pending',
-      ad_id:           id,
-      created_at:      new Date().toISOString()
-    });
-    if (error) throw error;
-
-    document.getElementById('boostOverlay').classList.remove('open');
-    showToast('Demande de boost envoyée ! Validation sous 24h 🚀', 'success');
-  } catch(err) {
-    showToast('Erreur : ' + err.message, 'error');
-  } finally {
-    btn.disabled = false; btn.classList.remove('loading');
   }
 }
 
