@@ -391,7 +391,7 @@ const sb=createClient(
 );
 
 // !! Remplace par ton email admin !!
-const ADMIN_EMAILS=['abdoula13cherif@gmail.com'];
+const ADMIN_EMAILS=['ton-email-admin@gmail.com'];
 
 let allPay=[],allWr=[],allUsers=[],allAds=[];
 let fPay='all',fWr='all',fUsers='all';
@@ -459,10 +459,20 @@ function urgentItem(ico,color,txt,page){
 
 // ── PAIEMENTS ──
 async function loadPay(){
-  const{data}=await sb.from('payment_requests')
-    .select('*,profiles(full_name,email,whatsapp)')
+  const{data:pays}=await sb.from('payment_requests')
+    .select('*')
     .order('created_at',{ascending:false}).limit(200);
-  allPay=data||[];renderPay();
+  if(!pays||!pays.length){allPay=[];renderPay();return;}
+
+  const uids=[...new Set(pays.map(p=>p.user_id).filter(Boolean))];
+  const{data:profs}=await sb.from('profiles')
+    .select('id,full_name,email,whatsapp')
+    .in('id',uids);
+  const profMap={};
+  (profs||[]).forEach(p=>profMap[p.id]=p);
+
+  allPay=pays.map(p=>({...p,profiles:profMap[p.user_id]||{full_name:'—',email:''}}));
+  renderPay();
 }
 
 function renderPay(){
@@ -493,10 +503,23 @@ function filterPay(f,btn){fPay=f;document.querySelectorAll('#page-payments .fb')
 
 // ── RETRAITS ──
 async function loadWr(){
-  const{data}=await sb.from('withdrawal_requests')
-    .select('*,profiles(full_name,email)')
+  // Etape 1 : charger les retraits
+  const{data:wrs}=await sb.from('withdrawal_requests')
+    .select('*')
     .order('created_at',{ascending:false}).limit(200);
-  allWr=data||[];renderWr();
+  if(!wrs||!wrs.length){allWr=[];renderWr();return;}
+
+  // Etape 2 : charger les profils correspondants
+  const uids=[...new Set(wrs.map(w=>w.user_id).filter(Boolean))];
+  const{data:profs}=await sb.from('profiles')
+    .select('id,full_name,email,whatsapp')
+    .in('id',uids);
+  const profMap={};
+  (profs||[]).forEach(p=>profMap[p.id]=p);
+
+  // Etape 3 : fusionner
+  allWr=wrs.map(w=>({...w,profiles:profMap[w.user_id]||{full_name:'—',email:''}}));
+  renderWr();
 }
 
 function renderWr(){
