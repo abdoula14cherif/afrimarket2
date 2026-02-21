@@ -1,7 +1,7 @@
 {
-  "name": "AfriMarket",
+  "name": "AfriMarket — Petites Annonces Africaines",
   "short_name": "AfriMarket",
-  "description": "La marketplace africaine — Achète et vends gratuitement",
+  "description": "La marketplace africaine de petites annonces. Achetez, vendez facilement.",
   "start_url": "/dashboard.html",
   "scope": "/",
   "display": "standalone",
@@ -9,7 +9,8 @@
   "background_color": "#080E2A",
   "theme_color": "#080E2A",
   "lang": "fr",
-  "categories": ["shopping", "business"],
+  "dir": "ltr",
+  "categories": ["shopping", "lifestyle", "business"],
   "icons": [
     {
       "src": "/icons/icon-72.png",
@@ -62,29 +63,43 @@
   ],
   "screenshots": [
     {
-      "src": "/icons/screenshot-mobile.png",
+      "src": "/screenshots/screen1.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "AfriMarket — Accueil"
+      "label": "Accueil AfriMarket"
+    },
+    {
+      "src": "/screenshots/screen2.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Annonces récentes"
     }
   ],
   "shortcuts": [
     {
       "name": "Publier une annonce",
       "short_name": "Publier",
-      "description": "Publier une nouvelle annonce",
+      "description": "Créer une nouvelle annonce rapidement",
       "url": "/dashboard.html?action=publish",
-      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     },
     {
       "name": "Mes messages",
       "short_name": "Messages",
       "description": "Voir mes conversations",
       "url": "/messages.html",
-      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Mon profil",
+      "short_name": "Profil",
+      "description": "Gérer mon compte",
+      "url": "/profil.html",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
   ],
-  "related_applications": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "related_applications": []
 }
