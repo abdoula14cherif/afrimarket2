@@ -767,7 +767,9 @@ async function init() {
   const h=new Date().getHours();
   const greet=h<12?'Bonjour ☀️':h<18?'Bon après-midi 🌤️':'Bonsoir 🌙';
   document.getElementById('welcomeGreeting').textContent=greet;
-  document.getElementById('welcomeName').textContent=prenom+' 👋';
+  // Fallback immédiat avec l'email si le profil est null
+  const displayName = prof?.full_name || currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Toi';
+  document.getElementById('welcomeName').textContent=displayName.split(' ')[0]+' 👋';
 
   // Avatar
   const init2=prenom[0]?.toUpperCase()||'?';
@@ -790,6 +792,11 @@ async function init() {
       showToast('🎉 Bienvenue en '+nom+' ! Toutes vos fonctionnalités sont débloquées.','success');
     },600);
   }
+
+  // DEBUG temporaire — afficher ce qu'on a reçu
+  console.log('[DEBUG] currentUser.id:', currentUser?.id);
+  console.log('[DEBUG] prof:', JSON.stringify(prof));
+  console.log('[DEBUG] email:', currentUser?.email);
 
   // Render plan
   renderPlanUI();
