@@ -555,8 +555,9 @@
   <button class="nav-item active" onclick="navGo('home',this)">
     <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
   </button>
-  <button class="nav-item" onclick="navGo('historique',this)">
-    <span class="nav-ico">🕐</span><span class="nav-lbl">Historique</span>
+  <button class="nav-item" onclick="location.href='messages.html'" style="position:relative">
+    <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
+    <span id="msgNavBadge" style="position:absolute;top:5px;right:5px;background:var(--red);color:white;font-size:.5rem;font-weight:800;padding:.12rem .38rem;border-radius:99px;display:none">0</span>
   </button>
   <button class="nav-item nav-plus">
     <button class="nav-plus-btn" onclick="openPublish()">➕</button>
@@ -597,8 +598,8 @@
     <div class="modal-info" id="mInfo"></div>
     <div class="modal-seller" id="mSeller"></div>
     <div class="modal-actions">
-      <button class="btn-modal primary" onclick="showToast('Contacter par email bientôt 📧','info')">📨 Contacter</button>
-      <button class="btn-modal wa" id="mWaBtn">💬 WhatsApp</button>
+      <button class="btn-modal primary" id="mMsgBtn">💬 Message</button>
+      <button class="btn-modal wa" id="mWaBtn">📞 WhatsApp</button>
     </div>
   </div>
 </div>
@@ -755,7 +756,7 @@ async function init() {
   renderPlanUI();
 
   // Load data in parallel
-  await Promise.all([loadAds(), loadNotifs(), countMyAds(), loadFavs()]);
+  await Promise.all([loadAds(), loadNotifs(), countMyAds(), loadFavs(), loadUnreadMsgCount()]);
 
   // Watcher premium — mise à jour auto si paiement confirmé
   startPremiumWatcher();
@@ -948,6 +949,17 @@ function openDetail(id){
   document.getElementById('mSeller').innerHTML=`<div class="seller-ava">${sNom[0]?.toUpperCase()||'?'}</div><div class="seller-info"><h4>${sNom}</h4><p>${verified}</p></div>`;
   const wa=(seller.whatsapp||'').replace(/[^0-9+]/g,'');
   document.getElementById('mWaBtn').onclick=()=>contactWA(wa);
+  // Bouton Message — redirige vers messagerie sauf si c'est ma propre annonce
+  const msgBtn = document.getElementById('mMsgBtn');
+  if(ad.user_id && ad.user_id !== currentUser?.id){
+    msgBtn.style.display = '';
+    msgBtn.onclick = () => {
+      document.getElementById('detailOverlay').classList.remove('open');
+      location.href = 'messages.html?with='+ad.user_id+'&ad='+ad.id;
+    };
+  } else {
+    msgBtn.style.display = 'none'; // cacher sur ses propres annonces
+  }
   document.getElementById('detailOverlay').classList.add('open');
 }
 function closeDetail(e){if(e.target===document.getElementById('detailOverlay'))document.getElementById('detailOverlay').classList.remove('open');}
@@ -1148,6 +1160,26 @@ function shareApp(){
 }
 
 // ===== START =====
+
+// ===== UNREAD MESSAGES BADGE =====
+async function loadUnreadMsgCount(){
+  if(!currentUser) return;
+  try{
+    const{count}=await sb.from('messages')
+      .select('id',{count:'exact',head:true})
+      .eq('read',false)
+      .neq('sender_id',currentUser.id)
+      .in('conversation_id',
+        (await sb.from('conversations')
+          .select('id')
+          .or('participant_1.eq.'+currentUser.id+',participant_2.eq.'+currentUser.id)
+        ).data?.map(c=>c.id)||[]
+      );
+    const n=count||0;
+    const badge=document.getElementById('msgNavBadge');
+    if(badge){ badge.textContent=n; badge.style.display=n>0?'block':'none'; }
+  }catch(e){}
+}
 
 // ===== PREMIUM WATCHER =====
 // Polling toutes les 8s — détecte si is_premium a changé (après paiement)
