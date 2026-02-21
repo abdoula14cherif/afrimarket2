@@ -3,21 +3,13 @@
 // Cache-first pour les assets, Network-first pour les données
 // ============================================================
 
-const CACHE_NAME = 'afrimarket-v1';
-const CACHE_STATIC = 'afrimarket-static-v1';
+const CACHE_NAME = 'afrimarket-v2';
+const CACHE_STATIC = 'afrimarket-static-v2';
 
 // Fichiers à mettre en cache immédiatement
+// On ne cache QUE les assets statiques, jamais les pages HTML
+// pour éviter de servir une version périmée
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/dashboard.html',
-  '/profil.html',
-  '/historique.html',
-  '/gagner.html',
-  '/retrait.html',
-  '/favoris.html',
-  '/messages.html',
-  '/pricing.html',
   '/offline.html',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
