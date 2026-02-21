@@ -10,127 +10,148 @@
     :root{
       --blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;
       --turq:#00C2B7;--bg:#F0F4FF;--dark:#080E2A;--gray:#8892A8;
-      --border:#E4E9F8;--gold:#F5B731;--green:#00C271;--card:#fff;
+      --border:#E4E9F8;--gold:#F5B731;--green:#00C271;
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;}
 
-    /* ── SIDEBAR ── */
-    .sidebar{width:220px;background:var(--dark);min-height:100vh;display:flex;flex-direction:column;padding:0;flex-shrink:0;position:sticky;top:0;height:100vh;}
-    .sb-logo{padding:1.3rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);}
-    .sb-logo-txt{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-.5px;}
-    .sb-logo-txt .la{color:var(--turq);}.sb-logo-txt .lm{color:var(--orange);}
-    .sb-tag{font-size:.6rem;color:rgba(255,255,255,.3);letter-spacing:.5px;text-transform:uppercase;margin-top:.2rem;}
-    .sb-nav{flex:1;padding:.8rem 0;}
-    .sb-item{display:flex;align-items:center;gap:.7rem;padding:.7rem 1.2rem;cursor:pointer;border-radius:0;transition:all .2s;border-left:3px solid transparent;color:rgba(255,255,255,.5);font-size:.82rem;font-weight:600;}
+    /* SIDEBAR */
+    .sidebar{width:230px;background:var(--dark);min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .sb-logo{padding:1.3rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.07);}
+    .sb-brand{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-.5px;}
+    .sb-brand .la{color:var(--turq);}.sb-brand .lm{color:var(--orange);}
+    .sb-tag{font-size:.58rem;color:rgba(255,255,255,.28);letter-spacing:.5px;text-transform:uppercase;margin-top:.15rem;}
+    .sb-nav{flex:1;padding:.6rem 0;}
+    .sb-group{padding:.5rem 1.2rem .2rem;font-size:.58rem;color:rgba(255,255,255,.2);letter-spacing:.8px;text-transform:uppercase;font-weight:700;}
+    .sb-item{display:flex;align-items:center;gap:.7rem;padding:.65rem 1.2rem;cursor:pointer;transition:all .2s;border-left:3px solid transparent;color:rgba(255,255,255,.45);font-size:.82rem;font-weight:600;}
     .sb-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.8);}
-    .sb-item.active{background:rgba(27,63,228,.2);color:white;border-left-color:var(--blue2);}
-    .sb-item-ico{font-size:1rem;width:20px;text-align:center;}
-    .sb-badge{margin-left:auto;background:var(--red);color:white;font-size:.58rem;font-weight:800;padding:.15rem .45rem;border-radius:99px;min-width:18px;text-align:center;}
+    .sb-item.active{background:rgba(27,63,228,.25);color:white;border-left-color:var(--blue2);}
+    .sb-ico{font-size:.95rem;width:18px;text-align:center;flex-shrink:0;}
+    .sb-badge{margin-left:auto;font-size:.58rem;font-weight:800;padding:.15rem .45rem;border-radius:99px;min-width:18px;text-align:center;}
+    .sb-badge.red{background:var(--red);color:white;}
     .sb-badge.gold{background:var(--gold);color:var(--dark);}
-    .sb-footer{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.08);}
-    .sb-user{font-size:.72rem;color:rgba(255,255,255,.35);}
+    .sb-badge.green{background:var(--green);color:white;}
+    .sb-footer{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.07);}
+    .sb-user-info{font-size:.7rem;color:rgba(255,255,255,.3);}
 
-    /* ── MAIN ── */
+    /* MAIN */
     .main{flex:1;overflow-x:hidden;min-width:0;}
-    .topbar{background:white;border-bottom:1px solid var(--border);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(27,63,228,.06);}
-    .topbar-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);}
-    .topbar-right{display:flex;align-items:center;gap:.8rem;}
-    .refresh-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:.4rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;color:var(--dark);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
-    .refresh-btn:hover{border-color:var(--blue2);color:var(--blue2);}
-    .logout-btn{background:rgba(232,48,48,.08);border:1.5px solid rgba(232,48,48,.2);border-radius:10px;padding:.4rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;color:var(--red);font-family:'Plus Jakarta Sans',sans-serif;}
+    .topbar{background:white;border-bottom:1px solid var(--border);padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(27,63,228,.06);}
+    .topbar-title{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:var(--dark);}
+    .topbar-right{display:flex;gap:.6rem;}
+    .tbtn{border-radius:10px;padding:.4rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);}
+    .tbtn:hover{border-color:var(--blue2);color:var(--blue2);}
+    .tbtn.danger{background:rgba(232,48,48,.06);border-color:rgba(232,48,48,.2);color:var(--red);}
 
-    .content{padding:1.5rem;}
+    .content{padding:1.4rem;}
 
-    /* ── STATS GRID ── */
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;}
-    .stat-card{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
-    .stat-ico{font-size:1.4rem;margin-bottom:.5rem;}
-    .stat-num{font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;color:var(--dark);letter-spacing:-1px;}
-    .stat-lbl{font-size:.68rem;color:var(--gray);margin-top:.1rem;font-weight:600;letter-spacing:.2px;}
-    .stat-card.orange .stat-num{color:var(--orange);}
-    .stat-card.green  .stat-num{color:var(--green);}
-    .stat-card.blue   .stat-num{color:var(--blue2);}
-    .stat-card.gold   .stat-num{color:var(--gold);}
-    .stat-card.red    .stat-num{color:var(--red);}
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.9rem;margin-bottom:1.4rem;}
+    .sc{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.04);}
+    .sc-ico{font-size:1.3rem;margin-bottom:.4rem;}
+    .sc-num{font-family:'Clash Display',sans-serif;font-size:1.75rem;font-weight:700;color:var(--dark);letter-spacing:-1px;}
+    .sc-lbl{font-size:.65rem;color:var(--gray);margin-top:.08rem;font-weight:600;}
+    .sc.blue .sc-num{color:var(--blue2);}
+    .sc.gold .sc-num{color:var(--gold);}
+    .sc.green .sc-num{color:var(--green);}
+    .sc.orange .sc-num{color:var(--orange);}
+    .sc.red .sc-num{color:var(--red);}
 
-    /* ── SECTION ── */
-    .section{background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.05);margin-bottom:1.5rem;overflow:hidden;}
-    .section-head{padding:1rem 1.3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-    .section-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);}
-    .section-count{font-size:.72rem;color:var(--gray);font-weight:600;}
-    .filter-row{display:flex;gap:.5rem;padding:.8rem 1.3rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-    .filter-btn{padding:.35rem .8rem;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);font-size:.72rem;font-weight:700;cursor:pointer;color:var(--gray);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
-    .filter-btn.active{background:var(--blue2);border-color:var(--blue2);color:white;}
-    .filter-btn.orange.active{background:var(--orange);border-color:var(--orange);}
-    .filter-btn.green.active{background:var(--green);border-color:var(--green);}
-    .filter-btn.red.active{background:var(--red);border-color:var(--red);}
+    /* SECTION */
+    .sec{background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.04);margin-bottom:1.4rem;overflow:hidden;}
+    .sec-head{padding:.9rem 1.3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+    .sec-title{font-family:'Clash Display',sans-serif;font-size:.92rem;font-weight:700;color:var(--dark);}
+    .sec-count{font-size:.7rem;color:var(--gray);font-weight:600;}
+    .filter-row{display:flex;gap:.45rem;padding:.75rem 1.3rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+    .fb{padding:.32rem .75rem;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);font-size:.7rem;font-weight:700;cursor:pointer;color:var(--gray);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
+    .fb.active{background:var(--blue2);border-color:var(--blue2);color:white;}
+    .fb.or.active{background:var(--orange);border-color:var(--orange);}
+    .fb.gr.active{background:var(--green);border-color:var(--green);}
+    .fb.re.active{background:var(--red);border-color:var(--red);}
+    .fb.go.active{background:var(--gold);border-color:var(--gold);color:var(--dark);}
 
-    /* ── TABLE ── */
-    .tbl{width:100%;border-collapse:collapse;}
-    .tbl th{padding:.7rem 1rem;text-align:left;font-size:.68rem;font-weight:700;color:var(--gray);letter-spacing:.3px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
-    .tbl td{padding:.75rem 1rem;border-bottom:1px solid rgba(228,233,248,.5);font-size:.8rem;color:var(--dark);vertical-align:middle;}
-    .tbl tr:last-child td{border-bottom:none;}
-    .tbl tr:hover td{background:rgba(240,244,255,.6);}
-    .tbl-wrap{overflow-x:auto;}
+    /* TABLE */
+    .tw{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{padding:.65rem 1rem;text-align:left;font-size:.65rem;font-weight:700;color:var(--gray);letter-spacing:.3px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
+    td{padding:.7rem 1rem;border-bottom:1px solid rgba(228,233,248,.45);font-size:.79rem;color:var(--dark);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(240,244,255,.5);}
 
-    /* ── BADGES ── */
-    .badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.65rem;font-weight:700;padding:.22rem .6rem;border-radius:99px;white-space:nowrap;}
-    .badge-pending{background:rgba(255,107,26,.1);color:var(--orange);border:1px solid rgba(255,107,26,.2);}
-    .badge-approved,.badge-paid,.badge-available{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.2);}
-    .badge-rejected{background:rgba(232,48,48,.1);color:var(--red);border:1px solid rgba(232,48,48,.2);}
-    .badge-premium{background:rgba(245,183,49,.1);color:var(--gold);border:1px solid rgba(245,183,49,.2);}
-    .badge-free{background:var(--bg);color:var(--gray);border:1px solid var(--border);}
+    /* BADGES */
+    .b{display:inline-flex;align-items:center;gap:.2rem;font-size:.63rem;font-weight:700;padding:.2rem .55rem;border-radius:99px;white-space:nowrap;}
+    .b-pending{background:rgba(255,107,26,.1);color:var(--orange);border:1px solid rgba(255,107,26,.2);}
+    .b-approved,.b-paid{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.2);}
+    .b-rejected{background:rgba(232,48,48,.1);color:var(--red);border:1px solid rgba(232,48,48,.2);}
+    .b-premium{background:rgba(245,183,49,.12);color:#B8860B;border:1px solid rgba(245,183,49,.25);}
+    .b-free{background:var(--bg);color:var(--gray);border:1px solid var(--border);}
 
-    /* ── ACTION BTNS ── */
-    .act-row{display:flex;gap:.4rem;flex-wrap:wrap;}
-    .act-btn{padding:.32rem .75rem;border-radius:8px;border:none;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;white-space:nowrap;}
-    .act-btn:hover{transform:translateY(-1px);}
-    .act-approve{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.3);}
-    .act-approve:hover{background:var(--green);color:white;}
-    .act-reject{background:rgba(232,48,48,.08);color:var(--red);border:1px solid rgba(232,48,48,.2);}
-    .act-reject:hover{background:var(--red);color:white;}
-    .act-view{background:rgba(27,63,228,.06);color:var(--blue2);border:1px solid rgba(27,63,228,.15);}
-    .act-view:hover{background:var(--blue2);color:white;}
+    /* ACTION BUTTONS */
+    .arow{display:flex;gap:.35rem;flex-wrap:wrap;}
+    .ab{padding:.3rem .7rem;border-radius:8px;border:none;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;white-space:nowrap;}
+    .ab:hover{transform:translateY(-1px);}
+    .ab-approve{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.25);}
+    .ab-approve:hover{background:var(--green);color:white;}
+    .ab-reject{background:rgba(232,48,48,.08);color:var(--red);border:1px solid rgba(232,48,48,.2);}
+    .ab-reject:hover{background:var(--red);color:white;}
+    .ab-warn{background:rgba(255,107,26,.08);color:var(--orange);border:1px solid rgba(255,107,26,.2);}
+    .ab-warn:hover{background:var(--orange);color:white;}
+    .ab-blue{background:rgba(27,63,228,.07);color:var(--blue2);border:1px solid rgba(27,63,228,.15);}
+    .ab-blue:hover{background:var(--blue2);color:white;}
+    .ab-gold{background:rgba(245,183,49,.1);color:#B8860B;border:1px solid rgba(245,183,49,.2);}
+    .ab-gold:hover{background:var(--gold);color:var(--dark);}
+    .ab-dark{background:rgba(8,14,42,.08);color:var(--dark);border:1px solid rgba(8,14,42,.15);}
+    .ab-dark:hover{background:var(--dark);color:white;}
 
-    /* ── EMPTY ── */
-    .empty{padding:2.5rem;text-align:center;color:var(--gray);font-size:.85rem;}
-    .empty-ico{font-size:2rem;display:block;margin-bottom:.5rem;}
+    /* TOGGLE SWITCH */
+    .toggle-wrap{display:flex;align-items:center;gap:.5rem;}
+    .tgl{position:relative;width:36px;height:20px;cursor:pointer;}
+    .tgl input{opacity:0;width:0;height:0;}
+    .tgl-slider{position:absolute;inset:0;background:#ddd;border-radius:99px;transition:.3s;}
+    .tgl-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;}
+    .tgl input:checked + .tgl-slider{background:var(--green);}
+    .tgl input:checked + .tgl-slider::before{transform:translateX(16px);}
+    .tgl-lbl{font-size:.7rem;font-weight:700;}
 
-    /* ── MODAL ── */
-    .modal-ov{position:fixed;inset:0;background:rgba(8,14,42,.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:1rem;}
-    .modal-ov.open{opacity:1;pointer-events:all;}
-    .modal{background:white;border-radius:20px;width:100%;max-width:440px;padding:1.5rem;box-shadow:0 24px 60px rgba(8,14,42,.2);transform:scale(.95);transition:transform .3s;}
-    .modal-ov.open .modal{transform:scale(1);}
-    .modal-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:1.2rem;}
-    .modal-body{font-size:.82rem;color:var(--dark);line-height:1.6;margin-bottom:1.2rem;}
-    .modal-field{margin-bottom:.8rem;}
-    .modal-field label{font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;}
-    .modal-field input,.modal-field textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;color:var(--dark);outline:none;resize:vertical;}
-    .modal-field input:focus,.modal-field textarea:focus{border-color:var(--blue2);}
-    .modal-btns{display:flex;gap:.6rem;}
-    .modal-btn{flex:1;padding:.7rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
-    .modal-btn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
-    .modal-btn-ok{background:var(--green);color:white;box-shadow:0 4px 14px rgba(0,194,113,.25);}
-    .modal-btn-ok.danger{background:var(--red);box-shadow:0 4px 14px rgba(232,48,48,.25);}
-    .modal-btn-ok:disabled{opacity:.5;cursor:not-allowed;}
+    /* AVATAR */
+    .uav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:inline-flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:white;flex-shrink:0;margin-right:.45rem;}
+    .uname{display:flex;align-items:center;}
 
-    /* ── TOAST ── */
-    #toast{position:fixed;top:1.2rem;right:1.2rem;background:var(--dark);color:white;padding:.7rem 1.1rem;border-radius:12px;font-size:.8rem;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:300;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.2);max-width:320px;}
-    #toast.show{opacity:1;}
+    /* EMPTY */
+    .empty{padding:2.5rem;text-align:center;color:var(--gray);font-size:.83rem;}
+    .empty-ico{font-size:2rem;display:block;margin-bottom:.4rem;}
 
-    /* ── TABS (pages) ── */
+    /* PAGE */
     .page{display:none;}.page.active{display:block;}
 
-    /* ── USERS TABLE extras ── */
-    .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:white;font-family:'Clash Display',sans-serif;flex-shrink:0;margin-right:.5rem;}
-    .user-name-cell{display:flex;align-items:center;}
+    /* MODAL */
+    .ov{position:fixed;inset:0;background:rgba(8,14,42,.55);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .ov.open{opacity:1;pointer-events:all;}
+    .modal{background:white;border-radius:20px;width:100%;max-width:440px;padding:1.5rem;box-shadow:0 24px 60px rgba(8,14,42,.2);transform:scale(.95) translateY(10px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+    .ov.open .modal{transform:scale(1) translateY(0);}
+    .modal-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;}
+    .modal-info{background:var(--bg);border-radius:12px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--dark);line-height:1.6;border:1px solid var(--border);}
+    .modal-info strong{color:var(--blue2);}
+    .mf{margin-bottom:.8rem;}
+    .mf label{font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;}
+    .mf input,.mf select,.mf textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;color:var(--dark);outline:none;transition:border-color .2s;background:var(--bg);}
+    .mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--blue2);}
+    .mf textarea{resize:vertical;min-height:70px;}
+    .mbtns{display:flex;gap:.6rem;margin-top:1rem;}
+    .mbtn{flex:1;padding:.7rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
+    .mbtn-ok{background:var(--green);color:white;box-shadow:0 4px 14px rgba(0,194,113,.2);}
+    .mbtn-ok.danger{background:var(--red);box-shadow:0 4px 14px rgba(232,48,48,.2);}
+    .mbtn-ok.gold{background:var(--gold);color:var(--dark);}
+    .mbtn-ok:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* TOAST */
+    #toast{position:fixed;top:1.2rem;right:1.2rem;background:var(--dark);color:white;padding:.7rem 1.1rem;border-radius:12px;font-size:.8rem;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.2);max-width:300px;}
+    #toast.show{opacity:1;}
 
     @media(max-width:700px){
-      .sidebar{width:56px;}
-      .sb-item span:not(.sb-item-ico){display:none;}
-      .sb-logo-txt{display:none;}
-      .sb-tag{display:none;}
+      .sidebar{width:54px;}
+      .sb-brand,.sb-tag,.sb-group,.sb-item span:not(.sb-ico){display:none;}
     }
   </style>
 </head>
@@ -139,30 +160,33 @@
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sb-logo">
-    <div class="sb-logo-txt"><span class="la">Afri</span><span class="lm">Market</span></div>
+    <div class="sb-brand"><span class="la">Afri</span><span class="lm">Market</span></div>
     <div class="sb-tag">Administration</div>
   </div>
   <nav class="sb-nav">
+    <div class="sb-group">Principal</div>
     <div class="sb-item active" onclick="goPage('stats',this)">
-      <span class="sb-item-ico">📊</span><span>Tableau de bord</span>
+      <span class="sb-ico">📊</span><span>Tableau de bord</span>
     </div>
+
+    <div class="sb-group">Gestion</div>
     <div class="sb-item" onclick="goPage('payments',this)">
-      <span class="sb-item-ico">💳</span><span>Paiements Premium</span>
-      <span class="sb-badge" id="nav-payments-badge" style="display:none">0</span>
+      <span class="sb-ico">💳</span><span>Paiements</span>
+      <span class="sb-badge red" id="nb-pay" style="display:none">0</span>
     </div>
     <div class="sb-item" onclick="goPage('withdrawals',this)">
-      <span class="sb-item-ico">💸</span><span>Retraits</span>
-      <span class="sb-badge gold" id="nav-withdrawals-badge" style="display:none">0</span>
+      <span class="sb-ico">💸</span><span>Retraits</span>
+      <span class="sb-badge gold" id="nb-wr" style="display:none">0</span>
     </div>
     <div class="sb-item" onclick="goPage('users',this)">
-      <span class="sb-item-ico">👥</span><span>Utilisateurs</span>
+      <span class="sb-ico">👥</span><span>Utilisateurs</span>
     </div>
     <div class="sb-item" onclick="goPage('ads',this)">
-      <span class="sb-item-ico">📢</span><span>Annonces</span>
+      <span class="sb-ico">📢</span><span>Annonces</span>
     </div>
   </nav>
   <div class="sb-footer">
-    <div class="sb-user" id="adminEmail">Chargement…</div>
+    <div class="sb-user-info" id="adminEmail">—</div>
   </div>
 </aside>
 
@@ -171,221 +195,191 @@
   <div class="topbar">
     <div class="topbar-title" id="pageTitle">📊 Tableau de bord</div>
     <div class="topbar-right">
-      <button class="refresh-btn" onclick="loadAll()">🔄 Actualiser</button>
-      <button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+      <button class="tbtn" onclick="loadAll()">🔄 Actualiser</button>
+      <button class="tbtn danger" onclick="doLogout()">🚪 Déconnexion</button>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- ══ PAGE STATS ══ -->
+    <!-- ══ STATS ══ -->
     <div class="page active" id="page-stats">
       <div class="stats-grid">
-        <div class="stat-card blue"><div class="stat-ico">👥</div><div class="stat-num" id="s-users">—</div><div class="stat-lbl">Utilisateurs</div></div>
-        <div class="stat-card gold"><div class="stat-ico">👑</div><div class="stat-num" id="s-premium">—</div><div class="stat-lbl">Comptes Premium</div></div>
-        <div class="stat-card green"><div class="stat-ico">🆕</div><div class="stat-num" id="s-today">—</div><div class="stat-lbl">Inscrits aujourd'hui</div></div>
-        <div class="stat-card orange"><div class="stat-ico">⏳</div><div class="stat-num" id="s-ppending">—</div><div class="stat-lbl">Paiements en attente</div></div>
-        <div class="stat-card red"><div class="stat-ico">💸</div><div class="stat-num" id="s-wpending">—</div><div class="stat-lbl">Retraits en attente</div></div>
-        <div class="stat-card green"><div class="stat-ico">💰</div><div class="stat-num" id="s-revenue">—</div><div class="stat-lbl">Revenus FCFA</div></div>
-        <div class="stat-card blue"><div class="stat-ico">📢</div><div class="stat-num" id="s-ads">—</div><div class="stat-lbl">Annonces publiées</div></div>
-        <div class="stat-card gold"><div class="stat-ico">🤝</div><div class="stat-num" id="s-refs">—</div><div class="stat-lbl">Parrainages</div></div>
+        <div class="sc blue"><div class="sc-ico">👥</div><div class="sc-num" id="s-users">—</div><div class="sc-lbl">Utilisateurs</div></div>
+        <div class="sc gold"><div class="sc-ico">👑</div><div class="sc-num" id="s-prem">—</div><div class="sc-lbl">Comptes Premium</div></div>
+        <div class="sc green"><div class="sc-ico">🆕</div><div class="sc-num" id="s-today">—</div><div class="sc-lbl">Inscrits aujourd'hui</div></div>
+        <div class="sc orange"><div class="sc-ico">⏳</div><div class="sc-num" id="s-ppend">—</div><div class="sc-lbl">Paiements en attente</div></div>
+        <div class="sc red"><div class="sc-ico">💸</div><div class="sc-num" id="s-wpend">—</div><div class="sc-lbl">Retraits en attente</div></div>
+        <div class="sc green"><div class="sc-ico">💰</div><div class="sc-num" id="s-rev">—</div><div class="sc-lbl">Revenus FCFA</div></div>
+        <div class="sc blue"><div class="sc-ico">📢</div><div class="sc-num" id="s-ads">—</div><div class="sc-lbl">Annonces</div></div>
+        <div class="sc gold"><div class="sc-ico">🤝</div><div class="sc-num" id="s-refs">—</div><div class="sc-lbl">Parrainages</div></div>
       </div>
-
-      <!-- Raccourcis urgents -->
-      <div class="section" id="urgent-section" style="display:none">
-        <div class="section-head">
-          <div class="section-title">🚨 Actions urgentes</div>
-        </div>
+      <div class="sec" id="urgentSec" style="display:none">
+        <div class="sec-head"><div class="sec-title">🚨 Actions urgentes</div></div>
         <div id="urgentList" style="padding:1rem 1.3rem;display:flex;flex-direction:column;gap:.6rem;"></div>
       </div>
     </div>
 
-    <!-- ══ PAGE PAIEMENTS ══ -->
+    <!-- ══ PAIEMENTS ══ -->
     <div class="page" id="page-payments">
-      <div class="section">
-        <div class="section-head">
-          <div class="section-title">💳 Paiements Premium</div>
-          <div class="section-count" id="pay-count">0 entrées</div>
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">💳 Paiements Premium</div>
+          <div class="sec-count" id="pay-count">—</div>
         </div>
         <div class="filter-row">
-          <button class="filter-btn active" onclick="filterPayments('all',this)">Tous</button>
-          <button class="filter-btn orange" onclick="filterPayments('pending',this)">⏳ En attente</button>
-          <button class="filter-btn green" onclick="filterPayments('approved',this)">✅ Approuvés</button>
-          <button class="filter-btn red" onclick="filterPayments('rejected',this)">❌ Rejetés</button>
+          <button class="fb active" onclick="filterPay('all',this)">Tous</button>
+          <button class="fb or" onclick="filterPay('pending',this)">⏳ En attente</button>
+          <button class="fb gr" onclick="filterPay('approved',this)">✅ Approuvés</button>
+          <button class="fb re" onclick="filterPay('rejected',this)">❌ Rejetés</button>
         </div>
-        <div class="tbl-wrap">
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Plan</th>
-                <th>Montant</th>
-                <th>Opérateur</th>
-                <th>Référence</th>
-                <th>Téléphone</th>
-                <th>Date</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="payTable"><tr><td colspan="9" class="empty">Chargement…</td></tr></tbody>
-          </table>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Utilisateur</th><th>Plan</th><th>Montant</th>
+            <th>Opérateur</th><th>Référence</th><th>Téléphone</th>
+            <th>Date</th><th>Statut</th><th>Actions</th>
+          </tr></thead><tbody id="payTbl"></tbody></table>
         </div>
       </div>
     </div>
 
-    <!-- ══ PAGE RETRAITS ══ -->
+    <!-- ══ RETRAITS ══ -->
     <div class="page" id="page-withdrawals">
-      <div class="section">
-        <div class="section-head">
-          <div class="section-title">💸 Demandes de retrait</div>
-          <div class="section-count" id="wr-count">0 entrées</div>
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">💸 Demandes de retrait</div>
+          <div class="sec-count" id="wr-count">—</div>
         </div>
         <div class="filter-row">
-          <button class="filter-btn active" onclick="filterWithdrawals('all',this)">Tous</button>
-          <button class="filter-btn orange" onclick="filterWithdrawals('pending',this)">⏳ En attente</button>
-          <button class="filter-btn green" onclick="filterWithdrawals('paid',this)">✅ Payés</button>
-          <button class="filter-btn red" onclick="filterWithdrawals('rejected',this)">❌ Rejetés</button>
+          <button class="fb active" onclick="filterWr('all',this)">Tous</button>
+          <button class="fb or" onclick="filterWr('pending',this)">⏳ En attente</button>
+          <button class="fb gr" onclick="filterWr('paid',this)">✅ Payés</button>
+          <button class="fb re" onclick="filterWr('rejected',this)">❌ Rejetés</button>
         </div>
-        <div class="tbl-wrap">
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Montant</th>
-                <th>Opérateur</th>
-                <th>Numéro</th>
-                <th>Nom bénéficiaire</th>
-                <th>Date</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="wrTable"><tr><td colspan="8" class="empty">Chargement…</td></tr></tbody>
-          </table>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Utilisateur</th><th>Montant</th><th>Opérateur</th>
+            <th>Numéro</th><th>Bénéficiaire</th><th>Date</th><th>Statut</th><th>Actions</th>
+          </tr></thead><tbody id="wrTbl"></tbody></table>
         </div>
       </div>
     </div>
 
-    <!-- ══ PAGE USERS ══ -->
+    <!-- ══ UTILISATEURS ══ -->
     <div class="page" id="page-users">
-      <div class="section">
-        <div class="section-head">
-          <div class="section-title">👥 Utilisateurs</div>
-          <div class="section-count" id="users-count">0 utilisateurs</div>
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">👥 Utilisateurs</div>
+          <div class="sec-count" id="users-count">—</div>
         </div>
         <div class="filter-row">
-          <button class="filter-btn active" onclick="filterUsers('all',this)">Tous</button>
-          <button class="filter-btn gold" onclick="filterUsers('premium',this)">👑 Premium</button>
-          <button class="filter-btn blue" onclick="filterUsers('free',this)">🆓 Gratuit</button>
+          <button class="fb active" onclick="filterUsers('all',this)">Tous</button>
+          <button class="fb go" onclick="filterUsers('premium',this)">👑 Premium</button>
+          <button class="fb" onclick="filterUsers('free',this)">🆓 Gratuit</button>
         </div>
-        <div class="tbl-wrap">
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Email</th>
-                <th>WhatsApp</th>
-                <th>Ville</th>
-                <th>Plan</th>
-                <th>Expire le</th>
-                <th>Inscrit le</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="usersTable"><tr><td colspan="8" class="empty">Chargement…</td></tr></tbody>
-          </table>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Utilisateur</th><th>Email</th><th>WhatsApp</th>
+            <th>Ville</th><th>Plan</th><th>Expire</th><th>Premium</th><th>Actions</th>
+          </tr></thead><tbody id="usersTbl"></tbody></table>
         </div>
       </div>
     </div>
 
-    <!-- ══ PAGE ADS ══ -->
+    <!-- ══ ANNONCES ══ -->
     <div class="page" id="page-ads">
-      <div class="section">
-        <div class="section-head">
-          <div class="section-title">📢 Annonces publiées</div>
-          <div class="section-count" id="ads-count">0 annonces</div>
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">📢 Annonces publiées</div>
+          <div class="sec-count" id="ads-count">—</div>
         </div>
-        <div class="tbl-wrap">
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Titre</th>
-                <th>Vendeur</th>
-                <th>Catégorie</th>
-                <th>Prix</th>
-                <th>Ville</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adsTable"><tr><td colspan="7" class="empty">Chargement…</td></tr></tbody>
-          </table>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Titre</th><th>Vendeur</th><th>Catégorie</th>
+            <th>Prix</th><th>Ville</th><th>Date</th><th>Actions</th>
+          </tr></thead><tbody id="adsTbl"></tbody></table>
         </div>
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
-
-<!-- MODAL APPROBATION PAIEMENT -->
-<div class="modal-ov" id="approveModal">
-  <div class="modal">
-    <div class="modal-title">✅ Approuver ce paiement</div>
-    <div class="modal-body" id="approveBody">Confirmer l'activation Premium pour cet utilisateur ?</div>
-    <div class="modal-btns">
-      <button class="modal-btn modal-btn-cancel" onclick="closeModal('approveModal')">Annuler</button>
-      <button class="modal-btn modal-btn-ok" id="approveConfirm">✅ Approuver</button>
-    </div>
   </div>
 </div>
 
-<!-- MODAL REJET PAIEMENT -->
-<div class="modal-ov" id="rejectModal">
-  <div class="modal">
-    <div class="modal-title">❌ Rejeter ce paiement</div>
-    <div class="modal-body" id="rejectBody">Indiquez la raison du rejet :</div>
-    <div class="modal-field">
-      <label>Raison</label>
-      <textarea id="rejectReason" rows="3" placeholder="Ex: Référence de transaction incorrecte, montant insuffisant…"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="modal-btn modal-btn-cancel" onclick="closeModal('rejectModal')">Annuler</button>
-      <button class="modal-btn modal-btn-ok danger" id="rejectConfirm">❌ Rejeter</button>
-    </div>
+<!-- ══ MODAL APPROUVER PAIEMENT ══ -->
+<div class="ov" id="mApprove"><div class="modal">
+  <div class="modal-title">✅ Approuver le paiement</div>
+  <div class="modal-info" id="mApproveInfo">—</div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mApprove')">Annuler</button>
+    <button class="mbtn mbtn-ok" id="mApproveBtn">✅ Approuver & Activer Premium</button>
   </div>
-</div>
+</div></div>
 
-<!-- MODAL PAIEMENT RETRAIT -->
-<div class="modal-ov" id="payModal">
-  <div class="modal">
-    <div class="modal-title">💸 Confirmer le paiement du retrait</div>
-    <div class="modal-body" id="payBody">Confirmer que ce retrait a été payé ?</div>
-    <div class="modal-field">
-      <label>Note (optionnel)</label>
-      <input type="text" id="payNote" placeholder="Ex: Payé le 21/02/2026"/>
-    </div>
-    <div class="modal-btns">
-      <button class="modal-btn modal-btn-cancel" onclick="closeModal('payModal')">Annuler</button>
-      <button class="modal-btn modal-btn-ok" id="payConfirm">✅ Confirmer paiement</button>
-    </div>
+<!-- ══ MODAL REJETER PAIEMENT ══ -->
+<div class="ov" id="mRejectPay"><div class="modal">
+  <div class="modal-title">❌ Rejeter le paiement</div>
+  <div class="modal-info" id="mRejectPayInfo">—</div>
+  <div class="mf"><label>Raison du rejet *</label>
+    <textarea id="mRejectPayReason" placeholder="Ex: Référence incorrecte, montant insuffisant…"></textarea>
   </div>
-</div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectPay')">Annuler</button>
+    <button class="mbtn mbtn-ok danger" id="mRejectPayBtn">❌ Rejeter</button>
+  </div>
+</div></div>
 
-<!-- MODAL REJET RETRAIT -->
-<div class="modal-ov" id="rejectWrModal">
-  <div class="modal">
-    <div class="modal-title">❌ Rejeter la demande de retrait</div>
-    <div class="modal-field">
-      <label>Raison du rejet</label>
-      <textarea id="rejectWrReason" rows="3" placeholder="Ex: Numéro incorrect, solde insuffisant…"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="modal-btn modal-btn-cancel" onclick="closeModal('rejectWrModal')">Annuler</button>
-      <button class="modal-btn modal-btn-ok danger" id="rejectWrConfirm">❌ Rejeter</button>
-    </div>
+<!-- ══ MODAL VALIDER RETRAIT ══ -->
+<div class="ov" id="mPayWr"><div class="modal">
+  <div class="modal-title">💸 Confirmer le paiement</div>
+  <div class="modal-info" id="mPayWrInfo">—</div>
+  <div class="mf"><label>Note admin (optionnel)</label>
+    <input type="text" id="mPayWrNote" placeholder="Ex: Payé le 21/02 via Orange"/>
   </div>
-</div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mPayWr')">Annuler</button>
+    <button class="mbtn mbtn-ok" id="mPayWrBtn">✅ Marquer comme payé</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL REJETER RETRAIT ══ -->
+<div class="ov" id="mRejectWr"><div class="modal">
+  <div class="modal-title">❌ Rejeter la demande</div>
+  <div class="modal-info" id="mRejectWrInfo">—</div>
+  <div class="mf"><label>Raison du rejet *</label>
+    <textarea id="mRejectWrReason" placeholder="Ex: Numéro incorrect, solde insuffisant…"></textarea>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectWr')">Annuler</button>
+    <button class="mbtn mbtn-ok danger" id="mRejectWrBtn">❌ Rejeter</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL PREMIUM MANUEL ══ -->
+<div class="ov" id="mPremium"><div class="modal">
+  <div class="modal-title" id="mPremiumTitle">👑 Gérer le Premium</div>
+  <div class="modal-info" id="mPremiumInfo">—</div>
+  <div class="mf" id="mPremiumPlanWrap"><label>Plan</label>
+    <select id="mPremiumPlan">
+      <option value="premium">👑 Premium — 1 mois</option>
+      <option value="elite">⚡ Elite — 1 mois</option>
+      <option value="premium_annual">👑 Premium — 1 an</option>
+    </select>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mPremium')">Annuler</button>
+    <button class="mbtn mbtn-ok gold" id="mPremiumBtn">👑 Confirmer</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL SUPPRIMER USER ══ -->
+<div class="ov" id="mDelUser"><div class="modal">
+  <div class="modal-title">🗑️ Supprimer l'utilisateur</div>
+  <div class="modal-info" id="mDelUserInfo">—</div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mDelUser')">Annuler</button>
+    <button class="mbtn mbtn-ok danger" id="mDelUserBtn">🗑️ Supprimer</button>
+  </div>
+</div></div>
 
 <div id="toast"></div>
 
@@ -396,350 +390,421 @@ const sb=createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-// !! IMPORTANT : liste des emails admin autorisés !!
-const ADMIN_EMAILS = [
-  'abdoula13cherif@gmail.com',  // ← Remplace par ton vrai email
-];
+// !! Remplace par ton email admin !!
+const ADMIN_EMAILS=['ton-email-admin@gmail.com'];
 
-let allPayments=[], allWithdrawals=[], allUsers=[], allAds=[];
-let currentPayFilter='all', currentWrFilter='all', currentUserFilter='all';
+let allPay=[],allWr=[],allUsers=[],allAds=[];
+let fPay='all',fWr='all',fUsers='all';
 
-// ===== INIT =====
+// ── INIT ──
 (async()=>{
   const{data:{session}}=await sb.auth.getSession();
   if(!session){location.href='index.html';return;}
-  const email=session.user.email;
-  if(!ADMIN_EMAILS.includes(email)){
+  const em=session.user.email;
+  if(!ADMIN_EMAILS.includes(em)){
     alert('Accès refusé. Vous n\'êtes pas administrateur.');
-    await sb.auth.signOut();
-    location.href='index.html';
-    return;
+    await sb.auth.signOut();location.href='index.html';return;
   }
-  document.getElementById('adminEmail').textContent=email;
+  document.getElementById('adminEmail').textContent=em;
   await loadAll();
 })();
 
 async function loadAll(){
-  showToast('Chargement…','info');
-  await Promise.all([loadStats(),loadPayments(),loadWithdrawals(),loadUsers(),loadAds()]);
-  showToast('Données actualisées ✅','success');
+  toast('Chargement…','info');
+  await Promise.all([loadStats(),loadPay(),loadWr(),loadUsers(),loadAds()]);
+  toast('Données actualisées ✅','success');
 }
 
-// ===== STATS =====
+// ── STATS ──
 async function loadStats(){
-  const{data:users}=await sb.from('profiles').select('id,is_premium,created_at');
+  const{data:us}=await sb.from('profiles').select('id,is_premium,created_at');
   const today=new Date().toISOString().split('T')[0];
-  const total=users?.length||0;
-  const prem=(users||[]).filter(u=>u.is_premium).length;
-  const todayN=(users||[]).filter(u=>u.created_at?.startsWith(today)).length;
-  document.getElementById('s-users').textContent=total;
-  document.getElementById('s-premium').textContent=prem;
-  document.getElementById('s-today').textContent=todayN;
+  document.getElementById('s-users').textContent=(us||[]).length;
+  document.getElementById('s-prem').textContent=(us||[]).filter(u=>u.is_premium).length;
+  document.getElementById('s-today').textContent=(us||[]).filter(u=>u.created_at?.startsWith(today)).length;
 
   const{count:pp}=await sb.from('payment_requests').select('*',{count:'exact',head:true}).eq('status','pending');
   const{count:wp}=await sb.from('withdrawal_requests').select('*',{count:'exact',head:true}).eq('status','pending');
-  document.getElementById('s-ppending').textContent=pp||0;
-  document.getElementById('s-wpending').textContent=wp||0;
+  const ppN=pp||0,wpN=wp||0;
+  document.getElementById('s-ppend').textContent=ppN;
+  document.getElementById('s-wpend').textContent=wpN;
+  if(ppN>0){document.getElementById('nb-pay').textContent=ppN;document.getElementById('nb-pay').style.display='block';}
+  if(wpN>0){document.getElementById('nb-wr').textContent=wpN;document.getElementById('nb-wr').style.display='block';}
 
-  const ppN=pp||0, wpN=wp||0;
-  const nb=document.getElementById('nav-payments-badge');
-  const wb=document.getElementById('nav-withdrawals-badge');
-  if(ppN>0){nb.textContent=ppN;nb.style.display='block';}
-  if(wpN>0){wb.textContent=wpN;wb.style.display='block';}
-
-  const{data:pays}=await sb.from('payment_requests').select('amount').eq('status','approved');
-  const rev=(pays||[]).reduce((s,p)=>s+(p.amount||0),0);
-  document.getElementById('s-revenue').textContent=rev.toLocaleString('fr-FR')+' F';
+  const{data:rev}=await sb.from('payment_requests').select('amount').eq('status','approved');
+  document.getElementById('s-rev').textContent=((rev||[]).reduce((s,p)=>s+(p.amount||0),0)).toLocaleString('fr-FR')+' F';
 
   const{count:ads}=await sb.from('annonces').select('*',{count:'exact',head:true});
   document.getElementById('s-ads').textContent=ads||0;
-
   const{count:refs}=await sb.from('referral_earnings').select('*',{count:'exact',head:true});
   document.getElementById('s-refs').textContent=refs||0;
 
   // Actions urgentes
+  const ul=document.getElementById('urgentList');ul.innerHTML='';
   if(ppN>0||wpN>0){
-    document.getElementById('urgent-section').style.display='block';
-    const ul=document.getElementById('urgentList');
-    ul.innerHTML='';
-    if(ppN>0) ul.innerHTML+=`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,107,26,.05);border:1px solid rgba(255,107,26,.15);border-radius:12px;padding:.8rem 1rem;"><span style="font-size:.82rem;font-weight:600">⏳ <strong>${ppN}</strong> paiement(s) Premium en attente de validation</span><button class="act-btn act-view" onclick="goPage('payments',document.querySelector('.sb-item:nth-child(2)'))">Voir →</button></div>`;
-    if(wpN>0) ul.innerHTML+=`<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(245,183,49,.05);border:1px solid rgba(245,183,49,.15);border-radius:12px;padding:.8rem 1rem;"><span style="font-size:.82rem;font-weight:600">💸 <strong>${wpN}</strong> retrait(s) en attente de paiement</span><button class="act-btn act-approve" onclick="goPage('withdrawals',document.querySelector('.sb-item:nth-child(3)'))">Voir →</button></div>`;
+    document.getElementById('urgentSec').style.display='block';
+    if(ppN>0) ul.innerHTML+=urgentItem('⏳','orange',`<strong>${ppN}</strong> paiement(s) en attente`,'payments');
+    if(wpN>0) ul.innerHTML+=urgentItem('💸','gold',`<strong>${wpN}</strong> retrait(s) à valider`,'withdrawals');
   }
 }
 
-// ===== PAIEMENTS =====
-async function loadPayments(){
+function urgentItem(ico,color,txt,page){
+  const c={orange:'rgba(255,107,26,.05)',gold:'rgba(245,183,49,.05)'};
+  const b={orange:'rgba(255,107,26,.15)',gold:'rgba(245,183,49,.15)'};
+  return `<div style="display:flex;align-items:center;justify-content:space-between;background:${c[color]};border:1px solid ${b[color]};border-radius:12px;padding:.75rem 1rem;">
+    <span style="font-size:.81rem;font-weight:600">${ico} ${txt}</span>
+    <button class="ab ab-blue" onclick="goPage('${page}',document.querySelector('.sb-item[onclick*=${page}]'))">Voir →</button>
+  </div>`;
+}
+
+// ── PAIEMENTS ──
+async function loadPay(){
   const{data}=await sb.from('payment_requests')
-    .select('*, profiles(full_name,email,whatsapp)')
-    .order('created_at',{ascending:false})
-    .limit(200);
-  allPayments=data||[];
-  renderPayments();
+    .select('*,profiles(full_name,email,whatsapp)')
+    .order('created_at',{ascending:false}).limit(200);
+  allPay=data||[];renderPay();
 }
 
-function renderPayments(){
-  const list=currentPayFilter==='all'?allPayments:allPayments.filter(p=>p.status===currentPayFilter);
+function renderPay(){
+  const list=fPay==='all'?allPay:allPay.filter(p=>p.status===fPay);
   document.getElementById('pay-count').textContent=list.length+' entrées';
-  if(!list.length){
-    document.getElementById('payTable').innerHTML=`<tr><td colspan="9"><div class="empty"><span class="empty-ico">✅</span>Aucun paiement ${currentPayFilter==='all'?'':currentPayFilter}</div></td></tr>`;
-    return;
-  }
-  document.getElementById('payTable').innerHTML=list.map(p=>{
-    const d=new Date(p.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const badge=`<span class="badge badge-${p.status}">${p.status==='pending'?'⏳ En attente':p.status==='approved'?'✅ Approuvé':'❌ Rejeté'}</span>`;
+  if(!list.length){document.getElementById('payTbl').innerHTML=emptyRow(9,'💳','Aucun paiement');return;}
+  document.getElementById('payTbl').innerHTML=list.map(p=>{
+    const d=fmt(p.created_at);
+    const badge=`<span class="b b-${p.status}">${p.status==='pending'?'⏳ En attente':p.status==='approved'?'✅ Approuvé':'❌ Rejeté'}</span>`;
     const acts=p.status==='pending'
-      ?`<div class="act-row"><button class="act-btn act-approve" onclick="openApprove('${p.id}','${p.profiles?.full_name||''}','${p.plan}',${p.amount})">✅ Approuver</button><button class="act-btn act-reject" onclick="openReject('${p.id}')">❌ Rejeter</button></div>`
-      :`<span style="font-size:.7rem;color:var(--gray)">${p.status==='approved'?'Traité':'Rejeté'}</span>`;
+      ?`<div class="arow"><button class="ab ab-approve" onclick="openApprovePay('${p.id}','${esc(p.profiles?.full_name)}','${p.plan}',${p.amount})">✅ Approuver</button><button class="ab ab-reject" onclick="openRejectPay('${p.id}','${esc(p.profiles?.full_name)}')">❌ Rejeter</button></div>`
+      :`<span style="font-size:.68rem;color:var(--gray)">—</span>`;
     return `<tr>
-      <td><strong>${p.profiles?.full_name||'—'}</strong><br><span style="font-size:.68rem;color:var(--gray)">${p.profiles?.email||''}</span></td>
-      <td><span class="badge badge-premium">${p.plan} · ${p.billing}</span></td>
+      <td><div class="uname"><div class="uav">${(p.profiles?.full_name||'?')[0].toUpperCase()}</div><div><strong>${p.profiles?.full_name||'—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${p.profiles?.email||''}</span></div></div></td>
+      <td><span class="b b-premium">${p.plan||'?'} · ${p.billing||'?'}</span></td>
       <td><strong>${(p.amount||0).toLocaleString('fr-FR')} F</strong></td>
       <td>${p.operator==='orange'?'🟠 Orange':'💛 MTN'}</td>
-      <td style="font-size:.72rem;font-family:monospace">${p.transaction_ref||'—'}</td>
+      <td style="font-size:.7rem;font-family:monospace;max-width:110px;overflow:hidden;text-overflow:ellipsis">${p.transaction_ref||'—'}</td>
       <td>${p.sender_phone||'—'}</td>
-      <td style="font-size:.72rem">${d}</td>
+      <td style="font-size:.7rem">${d}</td>
       <td>${badge}</td>
       <td>${acts}</td>
     </tr>`;
   }).join('');
 }
 
-function filterPayments(f,btn){
-  currentPayFilter=f;
-  document.querySelectorAll('#page-payments .filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderPayments();
-}
+function filterPay(f,btn){fPay=f;document.querySelectorAll('#page-payments .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPay();}
 
-// ===== RETRAITS =====
-async function loadWithdrawals(){
+// ── RETRAITS ──
+async function loadWr(){
   const{data}=await sb.from('withdrawal_requests')
-    .select('*, profiles(full_name,email)')
-    .order('created_at',{ascending:false})
-    .limit(200);
-  allWithdrawals=data||[];
-  renderWithdrawals();
+    .select('*,profiles(full_name,email)')
+    .order('created_at',{ascending:false}).limit(200);
+  allWr=data||[];renderWr();
 }
 
-function renderWithdrawals(){
-  const list=currentWrFilter==='all'?allWithdrawals:allWithdrawals.filter(w=>w.status===currentWrFilter);
+function renderWr(){
+  const list=fWr==='all'?allWr:allWr.filter(w=>w.status===fWr);
   document.getElementById('wr-count').textContent=list.length+' entrées';
-  if(!list.length){
-    document.getElementById('wrTable').innerHTML=`<tr><td colspan="8"><div class="empty"><span class="empty-ico">✅</span>Aucun retrait ${currentWrFilter==='all'?'':currentWrFilter}</div></td></tr>`;
-    return;
-  }
-  document.getElementById('wrTable').innerHTML=list.map(w=>{
-    const d=new Date(w.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const badge=`<span class="badge badge-${w.status}">${w.status==='pending'?'⏳ En attente':w.status==='paid'?'✅ Payé':'❌ Rejeté'}</span>`;
+  if(!list.length){document.getElementById('wrTbl').innerHTML=emptyRow(8,'💸','Aucun retrait');return;}
+  document.getElementById('wrTbl').innerHTML=list.map(w=>{
+    const d=fmt(w.created_at);
+    const badge=`<span class="b b-${w.status==='paid'?'approved':w.status}">${w.status==='pending'?'⏳ En attente':w.status==='paid'?'✅ Payé':'❌ Rejeté'}</span>`;
     const acts=w.status==='pending'
-      ?`<div class="act-row"><button class="act-btn act-approve" onclick="openPayWr('${w.id}',${w.amount},'${w.operator}','${w.phone}','${w.name}')">✅ Marquer payé</button><button class="act-btn act-reject" onclick="openRejectWr('${w.id}')">❌ Rejeter</button></div>`
-      :`<span style="font-size:.7rem;color:var(--gray)">${w.status==='paid'?'Payé ✅':'Rejeté ❌'}</span>`;
+      ?`<div class="arow">
+          <button class="ab ab-approve" onclick="openPayWr('${w.id}',${w.amount},'${w.operator}','${esc(w.phone)}','${esc(w.name)}','${esc(w.profiles?.full_name)}')">✅ Valider paiement</button>
+          <button class="ab ab-reject" onclick="openRejectWr('${w.id}','${esc(w.profiles?.full_name)}',${w.amount})">❌ Rejeter</button>
+        </div>`
+      :`<span style="font-size:.68rem;color:var(--gray)">${w.status==='paid'?'Payé ✅':'Rejeté ❌'}${w.admin_note?'<br><em style="font-size:.62rem">'+w.admin_note+'</em>':''}</span>`;
     return `<tr>
-      <td><strong>${w.profiles?.full_name||'—'}</strong><br><span style="font-size:.68rem;color:var(--gray)">${w.profiles?.email||''}</span></td>
-      <td><strong>${(w.amount||0).toLocaleString('fr-FR')} F</strong></td>
+      <td><div class="uname"><div class="uav">${(w.profiles?.full_name||'?')[0].toUpperCase()}</div><div><strong>${w.profiles?.full_name||'—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${w.profiles?.email||''}</span></div></div></td>
+      <td><strong style="color:var(--green)">${(w.amount||0).toLocaleString('fr-FR')} F</strong></td>
       <td>${w.operator==='orange'?'🟠 Orange':'💛 MTN'}</td>
-      <td><strong>${w.phone}</strong></td>
-      <td>${w.name}</td>
-      <td style="font-size:.72rem">${d}</td>
+      <td><strong>${w.phone||'—'}</strong></td>
+      <td>${w.name||'—'}</td>
+      <td style="font-size:.7rem">${d}</td>
       <td>${badge}</td>
       <td>${acts}</td>
     </tr>`;
   }).join('');
 }
 
-function filterWithdrawals(f,btn){
-  currentWrFilter=f;
-  document.querySelectorAll('#page-withdrawals .filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderWithdrawals();
-}
+function filterWr(f,btn){fWr=f;document.querySelectorAll('#page-withdrawals .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderWr();}
 
-// ===== USERS =====
+// ── UTILISATEURS ──
 async function loadUsers(){
   const{data}=await sb.from('profiles')
-    .select('id,full_name,email,whatsapp,ville,is_premium,plan,plan_expires,created_at,referred_by')
-    .order('created_at',{ascending:false})
-    .limit(200);
+    .select('id,full_name,email,whatsapp,ville,is_premium,plan,plan_expires,created_at')
+    .order('created_at',{ascending:false}).limit(300);
   allUsers=data||[];
   document.getElementById('users-count').textContent=allUsers.length+' utilisateurs';
   renderUsers();
 }
 
 function renderUsers(){
-  const list=currentUserFilter==='all'?allUsers
-    :currentUserFilter==='premium'?allUsers.filter(u=>u.is_premium)
-    :allUsers.filter(u=>!u.is_premium);
-  if(!list.length){
-    document.getElementById('usersTable').innerHTML=`<tr><td colspan="8"><div class="empty"><span class="empty-ico">👥</span>Aucun utilisateur</div></td></tr>`;
-    return;
-  }
-  document.getElementById('usersTable').innerHTML=list.map(u=>{
+  const list=fUsers==='all'?allUsers:fUsers==='premium'?allUsers.filter(u=>u.is_premium):allUsers.filter(u=>!u.is_premium);
+  if(!list.length){document.getElementById('usersTbl').innerHTML=emptyRow(8,'👥','Aucun utilisateur');return;}
+  document.getElementById('usersTbl').innerHTML=list.map(u=>{
     const init=(u.full_name||'?')[0].toUpperCase();
     const exp=u.plan_expires?new Date(u.plan_expires).toLocaleDateString('fr-FR'):'—';
-    const badge=u.is_premium?`<span class="badge badge-premium">👑 ${u.plan||'premium'}</span>`:`<span class="badge badge-free">🆓 Gratuit</span>`;
-    const d=u.created_at?new Date(u.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'—';
+    const planBadge=u.is_premium?`<span class="b b-premium">👑 ${u.plan||'premium'}</span>`:`<span class="b b-free">🆓 Gratuit</span>`;
+    // Toggle switch pour premium
+    const toggleHtml=`<label class="tgl" title="${u.is_premium?'Désactiver Premium':'Activer Premium'}">
+      <input type="checkbox" ${u.is_premium?'checked':''} onchange="togglePremium('${u.id}','${esc(u.full_name)}',this.checked)"/>
+      <span class="tgl-slider"></span>
+    </label>`;
     return `<tr>
-      <td><div class="user-name-cell"><div class="user-avatar">${init}</div><strong>${u.full_name||'—'}</strong></div></td>
-      <td style="font-size:.75rem">${u.email||'—'}</td>
+      <td><div class="uname"><div class="uav">${init}</div><div><strong>${u.full_name||'—'}</strong></div></div></td>
+      <td style="font-size:.73rem">${u.email||'—'}</td>
       <td>${u.whatsapp||'—'}</td>
       <td>${u.ville||'—'}</td>
-      <td>${badge}</td>
-      <td style="font-size:.72rem">${exp}</td>
-      <td style="font-size:.72rem">${d}</td>
-      <td><button class="act-btn act-approve" onclick="grantPremium('${u.id}','${u.full_name||''}')">👑 Activer</button></td>
+      <td>${planBadge}</td>
+      <td style="font-size:.7rem">${exp}</td>
+      <td><div class="toggle-wrap">${toggleHtml}<span class="tgl-lbl" style="color:${u.is_premium?'var(--green)':'var(--gray)'}">${u.is_premium?'Actif':'Inactif'}</span></div></td>
+      <td>
+        <div class="arow">
+          <button class="ab ab-gold" onclick="openPremiumModal('${u.id}','${esc(u.full_name)}',${u.is_premium})">👑 Gérer</button>
+          <button class="ab ab-reject" onclick="openDelUser('${u.id}','${esc(u.full_name)}')">🗑️</button>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
 
-function filterUsers(f,btn){
-  currentUserFilter=f;
-  document.querySelectorAll('#page-users .filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderUsers();
-}
+function filterUsers(f,btn){fUsers=f;document.querySelectorAll('#page-users .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderUsers();}
 
-// ===== ADS =====
+// ── ANNONCES ──
 async function loadAds(){
   const{data}=await sb.from('annonces')
-    .select('id,titre,categorie,prix,ville,created_at,profiles(full_name)')
-    .order('created_at',{ascending:false})
-    .limit(200);
+    .select('id,titre,categorie,prix,ville,created_at,actif,profiles(full_name)')
+    .order('created_at',{ascending:false}).limit(200);
   allAds=data||[];
   document.getElementById('ads-count').textContent=allAds.length+' annonces';
-  if(!allAds.length){
-    document.getElementById('adsTable').innerHTML=`<tr><td colspan="7"><div class="empty"><span class="empty-ico">📢</span>Aucune annonce</div></td></tr>`;
-    return;
-  }
-  document.getElementById('adsTable').innerHTML=allAds.map(a=>{
-    const d=a.created_at?new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'—';
+  if(!allAds.length){document.getElementById('adsTbl').innerHTML=emptyRow(7,'📢','Aucune annonce');return;}
+  document.getElementById('adsTbl').innerHTML=allAds.map(a=>{
+    const d=fmt(a.created_at);
     return `<tr>
       <td><strong>${a.titre||'—'}</strong></td>
       <td>${a.profiles?.full_name||'—'}</td>
-      <td><span class="badge badge-free">${a.categorie||'—'}</span></td>
+      <td><span class="b b-free">${a.categorie||'—'}</span></td>
       <td>${a.prix?a.prix.toLocaleString('fr-FR')+' F':'—'}</td>
       <td>${a.ville||'—'}</td>
-      <td style="font-size:.72rem">${d}</td>
-      <td><button class="act-btn act-reject" onclick="deleteAd('${a.id}')">🗑️ Supprimer</button></td>
+      <td style="font-size:.7rem">${d}</td>
+      <td><button class="ab ab-reject" onclick="delAd('${a.id}')">🗑️ Supprimer</button></td>
     </tr>`;
   }).join('');
 }
 
-// ===== ACTIONS PAIEMENTS =====
-let pendingAction=null;
-
-function openApprove(id,name,plan,amount){
-  document.getElementById('approveBody').innerHTML=`Approuver le paiement de <strong>${name}</strong> pour le plan <strong>${plan}</strong> — <strong>${amount.toLocaleString('fr-FR')} FCFA</strong> ?<br><br>Le compte sera automatiquement mis à jour.`;
-  document.getElementById('approveConfirm').onclick=()=>doApprove(id);
-  document.getElementById('approveModal').classList.add('open');
+// ════════════════════════════════
+// ── ACTIONS PAIEMENTS ──
+// ════════════════════════════════
+function openApprovePay(id,name,plan,amount){
+  document.getElementById('mApproveInfo').innerHTML=`Utilisateur : <strong>${name}</strong><br>Plan : <strong>${plan}</strong><br>Montant : <strong>${amount.toLocaleString('fr-FR')} FCFA</strong><br><br>✅ Le compte sera activé en Premium immédiatement.`;
+  document.getElementById('mApproveBtn').onclick=()=>doApprovePay(id);
+  openOv('mApprove');
 }
 
-async function doApprove(id){
-  const btn=document.getElementById('approveConfirm');
+async function doApprovePay(id){
+  const btn=document.getElementById('mApproveBtn');
   btn.disabled=true;btn.textContent='⏳…';
   try{
-    await sb.rpc('activate_premium',{p_payment_request_id:id});
-    showToast('✅ Premium activé avec succès !','success');
-    closeModal('approveModal');
-    await Promise.all([loadStats(),loadPayments()]);
-  }catch(e){
-    // Fallback manuel si la fonction SQL n'existe pas encore
     const{data:pay}=await sb.from('payment_requests').select('*').eq('id',id).single();
-    if(pay){
-      const exp=new Date();
-      if(pay.billing==='annual') exp.setFullYear(exp.getFullYear()+1);
-      else exp.setMonth(exp.getMonth()+1);
-      await sb.from('profiles').update({is_premium:true,plan:pay.plan,plan_expires:exp.toISOString()}).eq('id',pay.user_id);
-      await sb.from('payment_requests').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',id);
-      await sb.from('notifications').insert({user_id:pay.user_id,title:'👑 Compte Premium activé !',message:'Votre abonnement '+pay.plan+' est actif. Profitez de toutes les fonctionnalités !',icon:'👑',type:'success',read:false,created_at:new Date().toISOString()});
-    }
-    showToast('✅ Activé (fallback) !','success');
-    closeModal('approveModal');
-    await Promise.all([loadStats(),loadPayments()]);
-  }finally{btn.disabled=false;btn.textContent='✅ Approuver';}
+    if(!pay) throw new Error('Paiement introuvable');
+    const exp=new Date();
+    if(pay.billing==='annual'||pay.billing==='1an') exp.setFullYear(exp.getFullYear()+1);
+    else exp.setMonth(exp.getMonth()+1);
+    await sb.from('profiles').update({is_premium:true,plan:pay.plan,plan_expires:exp.toISOString()}).eq('id',pay.user_id);
+    await sb.from('payment_requests').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',id);
+    await notif(pay.user_id,'👑 Compte Premium activé !','Votre paiement a été validé. Profitez de toutes les fonctionnalités Premium !','👑','success');
+    toast('✅ Premium activé !','success');
+    closeOv('mApprove');
+    await Promise.all([loadStats(),loadPay()]);
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='✅ Approuver & Activer Premium';}
 }
 
-function openReject(id){
-  document.getElementById('rejectReason').value='';
-  document.getElementById('rejectConfirm').onclick=()=>doReject(id);
-  document.getElementById('rejectModal').classList.add('open');
+function openRejectPay(id,name){
+  document.getElementById('mRejectPayInfo').innerHTML=`Rejeter le paiement de <strong>${name}</strong> ?`;
+  document.getElementById('mRejectPayReason').value='';
+  document.getElementById('mRejectPayBtn').onclick=()=>doRejectPay(id);
+  openOv('mRejectPay');
 }
 
-async function doReject(id){
-  const reason=document.getElementById('rejectReason').value.trim()||'Paiement non confirmé';
-  const btn=document.getElementById('rejectConfirm');
+async function doRejectPay(id){
+  const reason=document.getElementById('mRejectPayReason').value.trim()||'Paiement non confirmé';
+  const btn=document.getElementById('mRejectPayBtn');
   btn.disabled=true;
   try{
-    await sb.from('payment_requests').update({status:'rejected',rejected_at:new Date().toISOString(),rejection_reason:reason}).eq('id',id);
     const{data:pay}=await sb.from('payment_requests').select('user_id').eq('id',id).single();
-    if(pay) await sb.from('notifications').insert({user_id:pay.user_id,title:'❌ Paiement non confirmé',message:'Votre paiement n\'a pas pu être vérifié. Raison : '+reason+'. Contactez le support.',icon:'❌',type:'error',read:false,created_at:new Date().toISOString()});
-    showToast('Paiement rejeté','info');
-    closeModal('rejectModal');
-    await Promise.all([loadStats(),loadPayments()]);
-  }finally{btn.disabled=false;}
+    await sb.from('payment_requests').update({status:'rejected',rejected_at:new Date().toISOString(),rejection_reason:reason}).eq('id',id);
+    if(pay) await notif(pay.user_id,'❌ Paiement refusé','Votre paiement n\'a pas pu être vérifié. Raison : '+reason,'❌','error');
+    toast('Paiement rejeté','info');
+    closeOv('mRejectPay');
+    await Promise.all([loadStats(),loadPay()]);
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
 }
 
-// ===== ACTIONS RETRAITS =====
-function openPayWr(id,amount,op,phone,name){
-  document.getElementById('payBody').innerHTML=`Confirmer le paiement de <strong>${amount.toLocaleString('fr-FR')} FCFA</strong> via <strong>${op==='orange'?'Orange Money':'MTN MoMo'}</strong> au numéro <strong>${phone}</strong> (${name}) ?`;
-  document.getElementById('payNote').value='';
-  document.getElementById('payConfirm').onclick=()=>doPayWr(id);
-  document.getElementById('payModal').classList.add('open');
+// ════════════════════════════════
+// ── ACTIONS RETRAITS ──
+// ════════════════════════════════
+function openPayWr(id,amount,op,phone,name,userName){
+  document.getElementById('mPayWrInfo').innerHTML=
+    `Bénéficiaire : <strong>${userName||name}</strong><br>`+
+    `Montant : <strong style="color:var(--green)">${amount.toLocaleString('fr-FR')} FCFA</strong><br>`+
+    `Opérateur : <strong>${op==='orange'?'🟠 Orange Money':'💛 MTN MoMo'}</strong><br>`+
+    `Numéro : <strong>${phone}</strong>`;
+  document.getElementById('mPayWrNote').value='';
+  document.getElementById('mPayWrBtn').onclick=()=>doPayWr(id,amount,op,phone);
+  openOv('mPayWr');
 }
 
-async function doPayWr(id){
-  const note=document.getElementById('payNote').value.trim();
-  const btn=document.getElementById('payConfirm');
+async function doPayWr(id,amount,op,phone){
+  const note=document.getElementById('mPayWrNote').value.trim();
+  const btn=document.getElementById('mPayWrBtn');
   btn.disabled=true;
   try{
+    const{data:wr}=await sb.from('withdrawal_requests').select('user_id').eq('id',id).single();
     await sb.from('withdrawal_requests').update({status:'paid',paid_at:new Date().toISOString(),admin_note:note||null}).eq('id',id);
-    const{data:wr}=await sb.from('withdrawal_requests').select('user_id,amount,operator,phone').eq('id',id).single();
-    if(wr) await sb.from('notifications').insert({user_id:wr.user_id,title:'✅ Retrait effectué !',message:wr.amount+' FCFA envoyés sur '+wr.operator+' ('+wr.phone+'). Merci !',icon:'✅',type:'success',read:false,created_at:new Date().toISOString()});
-    showToast('✅ Retrait marqué comme payé !','success');
-    closeModal('payModal');
-    await Promise.all([loadStats(),loadWithdrawals()]);
-  }finally{btn.disabled=false;}
+    // Marquer les earnings comme retirés
+    const{data:earns}=await sb.from('referral_earnings').select('id').eq('user_id',wr.user_id).eq('status','available').order('created_at',{ascending:true}).limit(Math.ceil(amount/500));
+    if(earns?.length) await sb.from('referral_earnings').update({status:'withdrawn'}).in('id',earns.map(e=>e.id));
+    await notif(wr.user_id,'✅ Retrait effectué !',amount+' FCFA ont été envoyés sur votre '+op+' ('+phone+'). Merci !','✅','success');
+    toast('✅ Retrait validé et payé !','success');
+    closeOv('mPayWr');
+    await Promise.all([loadStats(),loadWr()]);
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
 }
 
-function openRejectWr(id){
-  document.getElementById('rejectWrReason').value='';
-  document.getElementById('rejectWrConfirm').onclick=()=>doRejectWr(id);
-  document.getElementById('rejectWrModal').classList.add('open');
+function openRejectWr(id,userName,amount){
+  document.getElementById('mRejectWrInfo').innerHTML=`Rejeter la demande de retrait de <strong>${userName}</strong> — <strong>${(amount||0).toLocaleString('fr-FR')} FCFA</strong> ?`;
+  document.getElementById('mRejectWrReason').value='';
+  document.getElementById('mRejectWrBtn').onclick=()=>doRejectWr(id);
+  openOv('mRejectWr');
 }
 
 async function doRejectWr(id){
-  const reason=document.getElementById('rejectWrReason').value.trim()||'Demande refusée';
-  const btn=document.getElementById('rejectWrConfirm');
+  const reason=document.getElementById('mRejectWrReason').value.trim()||'Demande non validée';
+  const btn=document.getElementById('mRejectWrBtn');
   btn.disabled=true;
   try{
-    await sb.from('withdrawal_requests').update({status:'rejected',admin_note:reason}).eq('id',id);
     const{data:wr}=await sb.from('withdrawal_requests').select('user_id,amount').eq('id',id).single();
-    if(wr) await sb.from('notifications').insert({user_id:wr.user_id,title:'❌ Retrait refusé',message:'Votre demande de '+wr.amount+' FCFA a été refusée. Raison : '+reason,icon:'❌',type:'error',read:false,created_at:new Date().toISOString()});
-    showToast('Retrait rejeté','info');
-    closeModal('rejectWrModal');
-    await Promise.all([loadStats(),loadWithdrawals()]);
-  }finally{btn.disabled=false;}
+    await sb.from('withdrawal_requests').update({status:'rejected',admin_note:reason}).eq('id',id);
+    if(wr) await notif(wr.user_id,'❌ Retrait refusé','Votre demande de '+wr.amount+' FCFA a été refusée. Raison : '+reason,'❌','error');
+    toast('Demande rejetée','info');
+    closeOv('mRejectWr');
+    await Promise.all([loadStats(),loadWr()]);
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
 }
 
-// ===== ACTIVER PREMIUM MANUELLEMENT ─────
-async function grantPremium(uid,name){
-  if(!confirm('Activer le compte Premium pour '+name+' ?')) return;
-  const exp=new Date();exp.setMonth(exp.getMonth()+1);
-  await sb.from('profiles').update({is_premium:true,plan:'premium',plan_expires:exp.toISOString()}).eq('id',uid);
-  await sb.from('notifications').insert({user_id:uid,title:'👑 Compte Premium activé !',message:'L\'administration a activé votre compte Premium gratuitement. Profitez-en !',icon:'👑',type:'success',read:false,created_at:new Date().toISOString()});
-  showToast('✅ Premium activé pour '+name,'success');
-  await loadUsers();
+// ════════════════════════════════
+// ── TOGGLE PREMIUM (switch) ──
+// ════════════════════════════════
+async function togglePremium(uid,name,activate){
+  try{
+    if(activate){
+      const exp=new Date();exp.setMonth(exp.getMonth()+1);
+      await sb.from('profiles').update({is_premium:true,plan:'premium',plan_expires:exp.toISOString()}).eq('id',uid);
+      await notif(uid,'👑 Compte Premium activé !','L\'administration a activé votre compte Premium. Profitez-en !','👑','success');
+      toast('✅ Premium activé pour '+name,'success');
+    } else {
+      await sb.from('profiles').update({is_premium:false,plan:null,plan_expires:null}).eq('id',uid);
+      await notif(uid,'🔒 Premium désactivé','Votre compte Premium a été désactivé par l\'administration.','🔒','info');
+      toast('Premium désactivé pour '+name,'info');
+    }
+    // Mettre à jour localement sans recharger
+    const idx=allUsers.findIndex(u=>u.id===uid);
+    if(idx>-1){allUsers[idx].is_premium=activate;allUsers[idx].plan=activate?'premium':null;}
+    renderUsers();
+    loadStats();
+  }catch(e){toast('Erreur : '+e.message,'error');}
 }
 
-// ===== SUPPRIMER ANNONCE =====
-async function deleteAd(id){
-  if(!confirm('Supprimer cette annonce définitivement ?')) return;
+// ── MODAL PREMIUM MANUEL ──
+function openPremiumModal(uid,name,isPremium){
+  document.getElementById('mPremiumTitle').textContent=isPremium?'🔒 Gérer le Premium de '+name:'👑 Activer Premium pour '+name;
+  document.getElementById('mPremiumInfo').innerHTML=isPremium
+    ?`<strong>${name}</strong> est actuellement <strong style="color:var(--green)">Premium actif</strong>.<br>Tu peux modifier le plan ou désactiver le compte.`
+    :`<strong>${name}</strong> est sur le plan <strong>Gratuit</strong>.<br>Sélectionne le plan à activer.`;
+  document.getElementById('mPremiumPlanWrap').style.display=isPremium?'none':'block';
+  document.getElementById('mPremiumBtn').textContent=isPremium?'🔒 Désactiver Premium':'👑 Activer Premium';
+  document.getElementById('mPremiumBtn').onclick=()=>doManualPremium(uid,name,isPremium);
+  openOv('mPremium');
+}
+
+async function doManualPremium(uid,name,wasPremium){
+  const btn=document.getElementById('mPremiumBtn');
+  btn.disabled=true;
+  try{
+    if(wasPremium){
+      await togglePremium(uid,name,false);
+    } else {
+      const plan=document.getElementById('mPremiumPlan').value;
+      const exp=new Date();
+      if(plan.includes('annual')) exp.setFullYear(exp.getFullYear()+1);
+      else exp.setMonth(exp.getMonth()+1);
+      await sb.from('profiles').update({is_premium:true,plan:plan.replace('_annual',''),plan_expires:exp.toISOString()}).eq('id',uid);
+      await notif(uid,'👑 Compte Premium activé !','L\'administration a activé votre compte Premium ('+plan+'). Profitez-en !','👑','success');
+      const idx=allUsers.findIndex(u=>u.id===uid);
+      if(idx>-1){allUsers[idx].is_premium=true;allUsers[idx].plan=plan;}
+      toast('✅ Premium activé pour '+name,'success');
+      renderUsers();loadStats();
+    }
+    closeOv('mPremium');
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
+}
+
+// ── SUPPRIMER USER ──
+function openDelUser(uid,name){
+  document.getElementById('mDelUserInfo').innerHTML=`Supprimer définitivement le compte de <strong>${name}</strong> ?<br><span style="color:var(--red);font-size:.78rem">⚠️ Toutes ses annonces et données seront supprimées.</span>`;
+  document.getElementById('mDelUserBtn').onclick=()=>doDelUser(uid,name);
+  openOv('mDelUser');
+}
+
+async function doDelUser(uid,name){
+  const btn=document.getElementById('mDelUserBtn');
+  btn.disabled=true;
+  try{
+    await sb.from('annonces').delete().eq('user_id',uid);
+    await sb.from('referral_earnings').delete().eq('user_id',uid);
+    await sb.from('withdrawal_requests').delete().eq('user_id',uid);
+    await sb.from('profiles').delete().eq('id',uid);
+    allUsers=allUsers.filter(u=>u.id!==uid);
+    renderUsers();loadStats();
+    toast('Utilisateur supprimé','info');
+    closeOv('mDelUser');
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
+}
+
+// ── SUPPRIMER ANNONCE ──
+async function delAd(id){
+  if(!confirm('Supprimer cette annonce ?')) return;
   await sb.from('annonces').delete().eq('id',id);
-  showToast('Annonce supprimée','info');
-  await loadAds();
+  allAds=allAds.filter(a=>a.id!==id);
+  document.getElementById('ads-count').textContent=allAds.length+' annonces';
+  document.getElementById('adsTbl').innerHTML=allAds.length?allAds.map(a=>`<tr><td>${a.titre||'—'}</td><td>${a.profiles?.full_name||'—'}</td><td>${a.categorie||'—'}</td><td>${a.prix?a.prix.toLocaleString('fr-FR')+' F':'—'}</td><td>${a.ville||'—'}</td><td>${fmt(a.created_at)}</td><td><button class="ab ab-reject" onclick="delAd('${a.id}')">🗑️</button></td></tr>`).join(''):emptyRow(7,'📢','Aucune annonce');
+  toast('Annonce supprimée','info');
 }
 
-// ===== NAVIGATION =====
-function goPage(name, btn){
+// ── NOTIFICATION ──
+async function notif(uid,title,msg,icon,type){
+  try{
+    await sb.from('notifications').insert({user_id:uid,title,message:msg,icon,type,read:false,created_at:new Date().toISOString()});
+  }catch(e){console.warn('notif error',e);}
+}
+
+// ── UTILS ──
+function fmt(d){
+  if(!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+function emptyRow(cols,ico,txt){return `<tr><td colspan="${cols}"><div class="empty"><span class="empty-ico">${ico}</span>${txt}</div></td></tr>`;}
+
+function openOv(id){document.getElementById(id).classList.add('open');}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+
+function goPage(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
@@ -748,16 +813,10 @@ function goPage(name, btn){
   document.getElementById('pageTitle').textContent=titles[name]||name;
 }
 
-function closeModal(id){document.getElementById(id).classList.remove('open');}
+async function doLogout(){await sb.auth.signOut();location.href='index.html';}
 
-async function logout(){
-  await sb.auth.signOut();
-  location.href='index.html';
-}
-
-// ===== TOAST =====
 let tt;
-function showToast(msg,type='success'){
+function toast(msg,type='success'){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className='show';
   el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
