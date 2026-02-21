@@ -555,17 +555,17 @@
   <button class="nav-item active" onclick="navGo('home',this)">
     <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
   </button>
-  <button class="nav-item" onclick="navGo('notifications',this)">
-    <span class="nav-ico">🔔</span><span class="nav-lbl">Notifs</span>
+  <button class="nav-item" onclick="navGo('historique',this)">
+    <span class="nav-ico">🕐</span><span class="nav-lbl">Historique</span>
   </button>
   <button class="nav-item nav-plus">
     <button class="nav-plus-btn" onclick="openPublish()">➕</button>
     <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
   </button>
-  <button class="nav-item" onclick="navGo('favoris',this)" id="navFavBtn">
-    <span class="nav-ico" id="navFavIco">❤️</span>
+  <button class="nav-item" onclick="navGo('favoris',this)" id="navFavBtn" style="position:relative">
+    <span class="nav-ico">❤️</span>
     <span class="nav-lbl">Favoris</span>
-    <span id="favNavBadge" style="position:absolute;top:6px;right:8px;background:var(--red);color:white;font-size:.5rem;font-weight:800;padding:.12rem .35rem;border-radius:99px;display:none;">0</span>
+    <span id="favNavBadge" style="position:absolute;top:6px;right:6px;background:var(--red);color:white;font-size:.5rem;font-weight:800;padding:.12rem .35rem;border-radius:99px;display:none;">0</span>
   </button>
   <button class="nav-item" onclick="navGo('profil',this)">
     <span class="nav-ico">👤</span><span class="nav-lbl">Profil</span>
