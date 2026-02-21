@@ -11,313 +11,238 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
   <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     :root {
-      --blue: #1B3FE4;
-      --blue2: #2D55FF;
-      --red: #E83030;
-      --orange: #FF6B1A;
-      --turq: #00C2B7;
-      --white: #FFFFFF;
-      --bg: #F2F5FF;
-      --card: #FFFFFF;
-      --dark: #080E2A;
-      --gray: #8892A8;
-      --border: #E4E9F8;
-      --gold: #F5B731;
-      --green: #00C271;
-      --nav-h: 72px;
+      --blue:   #1B3FE4; --blue2:  #2D55FF; --red:    #E83030;
+      --orange: #FF6B1A; --turq:   #00C2B7; --white:  #FFFFFF;
+      --bg:     #F2F5FF; --card:   #FFFFFF; --dark:   #080E2A;
+      --gray:   #8892A8; --border: #E4E9F8; --gold:   #F5B731;
+      --green:  #00C271; --nav-h:  72px;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg);
-      min-height: 100vh;
-      padding-bottom: calc(var(--nav-h) + 16px);
-    }
-    
-    /* HEADER */
-    .header {
-      position: sticky; top:0; z-index: 100;
-      background: linear-gradient(135deg, var(--dark) 0%, #0D1E6B 100%);
-      padding: 0 1.2rem;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 60px;
-    }
-    .header-logo {
-      font-family: 'Clash Display', sans-serif;
-      font-size: 1.45rem; font-weight: 700;
-    }
-    .header-logo .la { color: var(--turq); }
-    .header-logo .lm { color: var(--orange); }
-    
-    .header-right { display:flex; align-items:center; gap:.6rem; }
-    .btn-notif {
-      width:38px; height:38px; border-radius:50%;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.12);
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer; font-size:1.1rem; position:relative;
-    }
-    .notif-dot {
-      position:absolute; top:6px; right:6px;
-      width:8px; height:8px; border-radius:50%;
-      background: var(--orange); border:2px solid var(--dark);
-      display:none;
-    }
-    .notif-dot.show { display:block; }
-    .notif-count-badge {
-      position:absolute; top:2px; right:2px;
-      min-width:16px; height:16px; border-radius:99px;
-      background:var(--red); border:2px solid var(--dark);
-      font-size:.52rem; font-weight:800; color:white;
-      display:none; align-items:center; justify-content:center;
-    }
-    .notif-count-badge.show { display:flex; }
-    .avatar-btn {
-      width:38px; height:38px; border-radius:50%;
-      background: linear-gradient(135deg, var(--turq), var(--blue2));
-      display:flex; align-items:center; justify-content:center;
-      font-size:.9rem; font-weight:700; color:white; cursor:pointer;
-      border: 2px solid rgba(255,255,255,.2);
-    }
-    
-    /* SEARCH */
-    .search-wrap { padding: 1rem 1.2rem .5rem; }
-    .search-box {
-      display:flex; align-items:center; gap:.6rem;
-      background:white; border-radius:16px; padding:.65rem 1rem;
-      border: 1.5px solid var(--border);
-    }
-    .search-box input {
-      flex:1; border:none; outline:none; background:none;
-      font-size:.9rem; color:var(--dark);
-    }
-    .search-icon { font-size:1.1rem; color:var(--gray); }
-    .search-filter {
-      width:34px; height:34px; border-radius:10px;
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      display:flex; align-items:center; justify-content:center;
-      font-size:.85rem; cursor:pointer;
-    }
-    
-    /* WELCOME */
-    .welcome-section { padding: .8rem 1.2rem .4rem; }
-    .welcome-card {
-      background: linear-gradient(135deg, var(--blue) 0%, #1A2FA8 40%, var(--turq) 100%);
-      border-radius: 22px; padding: 1.3rem 1.4rem;
-      position:relative; overflow:hidden;
-    }
-    .welcome-top {
-      display:flex; align-items:flex-start; justify-content:space-between;
-      margin-bottom:1rem;
-    }
-    .welcome-greeting { color:rgba(255,255,255,.7); font-size:.78rem; }
-    .welcome-name { font-family:'Clash Display',sans-serif; font-size:1.3rem; font-weight:700; color:white; }
-    .welcome-emoji { font-size:2.2rem; }
-    
-    .plan-badge {
-      display:inline-flex; align-items:center; gap:.3rem;
-      padding:.22rem .7rem; border-radius:99px;
-      font-size:.65rem; font-weight:700;
-      margin-bottom:.7rem;
-    }
-    .plan-badge.free { background:rgba(255,255,255,.15); color:white; }
-    .plan-badge.premium { background:rgba(245,183,49,.25); color:var(--gold); }
-    
-    .trial-mini { margin-bottom:.75rem; }
-    .trial-mini-row {
-      display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:.3rem;
-    }
-    .trial-mini-lbl { font-size:.65rem; color:rgba(255,255,255,.55); }
-    .trial-mini-days { font-size:.65rem; font-weight:700; color:var(--gold); }
-    .trial-mini-track { height:4px; background:rgba(255,255,255,.15); border-radius:99px; }
-    .trial-mini-fill { height:100%; background:linear-gradient(90deg,var(--gold),#FFD580); border-radius:99px; }
-    
-    .quick-btns { display:flex; gap:.6rem; flex-wrap:wrap; }
-    .qbtn {
-      display:flex; align-items:center; gap:.4rem;
-      padding:.45rem .85rem; border-radius:99px; border:none; cursor:pointer;
-      font-size:.78rem; font-weight:600; white-space:nowrap;
-    }
-    .qbtn-white { background:white; color:var(--blue); }
-    .qbtn-turq { background:var(--turq); color:white; }
-    .qbtn-gold { background:linear-gradient(135deg,#C8901A,var(--gold)); color:white; }
-    .qbtn-red { background:rgba(255,255,255,.15); color:white; }
-    
-    /* CATEGORIES */
-    .section-head {
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 1.2rem 1.2rem .7rem;
-    }
-    .section-title { font-family:'Clash Display',sans-serif; font-size:1rem; font-weight:700; color:var(--dark); }
-    .see-all { font-size:.75rem; color:var(--blue2); font-weight:600; cursor:pointer; }
-    
-    .cats-scroll {
-      display:flex; gap:.7rem; overflow-x:auto;
-      padding: 0 1.2rem 1rem;
-      scrollbar-width:none;
-    }
-    .cat-chip {
-      display:flex; flex-direction:column; align-items:center;
-      gap:.3rem; flex-shrink:0; cursor:pointer;
-    }
-    .cat-ico {
-      width:52px; height:52px; border-radius:18px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:1.4rem; border: 2px solid transparent;
-    }
-    .cat-chip.active .cat-ico { border-color: var(--blue2); }
-    .cat-lbl { font-size:.65rem; color:var(--gray); }
-    .ci-1{background:linear-gradient(135deg,#FFF3E0,#FFE0B2)}
-    .ci-2{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}
-    .ci-3{background:linear-gradient(135deg,#E8F5E9,#C8E6C9)}
-    .ci-4{background:linear-gradient(135deg,#FCE4EC,#F8BBD0)}
-    .ci-5{background:linear-gradient(135deg,#F3E5F5,#E1BEE7)}
-    .ci-6{background:linear-gradient(135deg,#E0F7FA,#B2EBF2)}
-    .ci-7{background:linear-gradient(135deg,#FFF9C4,#FFF176)}
-    .ci-8{background:linear-gradient(135deg,#E8EAF6,#C5CAE9)}
-    
-    /* ADS */
-    .ads-section { padding: 0 1.2rem; }
-    .ads-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .ad-card {
-      background: white; border-radius:20px; overflow:hidden;
-      cursor:pointer; border: 1px solid var(--border);
-    }
-    .ad-img {
-      width:100%; aspect-ratio:4/3; object-fit:cover;
-      background: linear-gradient(135deg,#E8EEFF,#F0F4FF);
-      display:flex; align-items:center; justify-content:center;
-      position:relative;
-    }
-    .ad-badge {
-      position:absolute; top:8px; left:8px;
-      background:var(--orange); color:white;
-      font-size:.6rem; font-weight:700; padding:2px 8px; border-radius:99px;
-    }
-    .ad-fav {
-      position:absolute; top:7px; right:7px;
-      width:28px; height:28px; border-radius:50%;
-      background:rgba(255,255,255,.9);
-      display:flex; align-items:center; justify-content:center;
-      font-size:.85rem; cursor:pointer; border:none;
-    }
-    .ad-fav.liked::after { content:'❤️'; }
-    .ad-fav:not(.liked)::after { content:'🤍'; }
-    
-    .ad-body { padding:.75rem; }
-    .ad-title { font-size:.82rem; font-weight:700; color:var(--dark); }
-    .ad-price {
-      font-family:'Clash Display',sans-serif; font-size:1rem; font-weight:700;
-      color: var(--blue);
-    }
-    .ad-location { font-size:.68rem; color:var(--gray); margin-top:.3rem; }
-    .ad-footer {
-      display:flex; align-items:center; justify-content:space-between;
-      margin-top:.6rem; padding-top:.5rem; border-top:1px solid var(--border);
-    }
-    .btn-wa {
-      width:26px; height:26px; border-radius:99px;
-      background:linear-gradient(135deg,#25D366,#128C7E);
-      display:flex; align-items:center; justify-content:center;
-      font-size:.75rem; border:none; cursor:pointer;
-    }
-    
-    /* BOTTOM NAV */
-    .bottom-nav {
-      position:fixed; bottom:0; left:0; right:0; z-index:200;
-      height:var(--nav-h); background:white;
-      border-top:1px solid var(--border);
-      display:flex; align-items:center;
-      border-radius:24px 24px 0 0;
-    }
-    .nav-item {
-      flex:1; display:flex; flex-direction:column; align-items:center;
-      justify-content:center; cursor:pointer; background:none; border:none;
-    }
-    .nav-ico { font-size:1.3rem; }
-    .nav-lbl { font-size:.58rem; font-weight:600; color:var(--gray); }
-    .nav-item.active .nav-lbl { color:var(--blue2); }
-    .nav-plus-btn {
-      width:50px; height:50px; border-radius:16px;
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      display:flex; align-items:center; justify-content:center;
-      font-size:1.4rem; cursor:pointer;
-    }
-    
-    /* MODALS */
-    .modal-overlay, .notif-panel-overlay, .pub-overlay {
-      position:fixed; inset:0; z-index:500;
-      background:rgba(8,14,42,.6); backdrop-filter:blur(6px);
-      display:flex; align-items:flex-end;
-      opacity:0; pointer-events:none; transition:opacity .3s;
-    }
-    .modal-overlay.open, .notif-panel-overlay.open, .pub-overlay.open {
-      opacity:1; pointer-events:all;
-    }
-    .modal, .notif-panel, .pub-modal {
-      background:white; border-radius:28px 28px 0 0;
-      width:100%; max-height:80vh; overflow-y:auto;
-      padding:1.5rem 1.4rem 2rem;
-      transform:translateY(100%);
-      transition:transform .4s;
-    }
-    .open .modal, .open .notif-panel, .open .pub-modal {
-      transform:translateY(0);
-    }
-    
-    .btn-pub {
-      width:100%; padding:.85rem; border:none; border-radius:14px;
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      color:white; font-weight:700; cursor:pointer;
-    }
-    
-    #toast {
-      position:fixed; bottom:calc(var(--nav-h) + 12px); right:1rem;
-      background:var(--dark); color:white;
-      padding:.8rem 1.2rem; border-radius:14px;
-      z-index:9999; display:flex; align-items:center; gap:.6rem;
-      transform:translateY(20px); opacity:0;
-      transition:all .4s;
-    }
-    #toast.show { transform:translateY(0); opacity:1; }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h) + 16px);overflow-x:hidden;}
+    .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
+    .header-logo{font-family:'Clash Display',sans-serif;font-size:1.45rem;font-weight:700;letter-spacing:-1px;}
+    .header-logo .la{color:var(--turq);} .header-logo .lm{color:var(--orange);}
+    .header-right{display:flex;align-items:center;gap:.6rem;}
+    .btn-notif{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;position:relative;transition:background .2s;}
+    .btn-notif:hover{background:rgba(255,255,255,.15);}
+    .notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--dark);animation:blink 2s infinite;display:none;}
+    .notif-dot.show{display:block;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+    .notif-count-badge{position:absolute;top:2px;right:2px;min-width:16px;height:16px;border-radius:99px;background:var(--red);border:2px solid var(--dark);font-size:.52rem;font-weight:800;color:white;display:none;align-items:center;justify-content:center;padding:0 3px;line-height:1;}
+    .notif-count-badge.show{display:flex;}
+    .avatar-btn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:white;cursor:pointer;border:2px solid rgba(255,255,255,.2);font-family:'Clash Display',sans-serif;overflow:hidden;}
+    .avatar-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .search-wrap{padding:1rem 1.2rem .5rem;}
+    .search-box{display:flex;align-items:center;gap:.6rem;background:white;border-radius:16px;padding:.65rem 1rem;box-shadow:0 4px 20px rgba(27,63,228,.08);border:1.5px solid var(--border);transition:border-color .2s,box-shadow .2s;}
+    .search-box:focus-within{border-color:var(--blue2);box-shadow:0 4px 24px rgba(27,63,228,.15);}
+    .search-box input{flex:1;border:none;outline:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;color:var(--dark);}
+    .search-box input::placeholder{color:#B8C1D8;}
+    .search-icon{font-size:1.1rem;color:var(--gray);flex-shrink:0;}
+    .search-filter{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;flex-shrink:0;transition:transform .2s;}
+    .search-filter:hover{transform:scale(1.08);}
+    .welcome-section{padding:.8rem 1.2rem .4rem;}
+    .welcome-card{background:linear-gradient(135deg,var(--blue) 0%,#1A2FA8 40%,var(--turq) 100%);border-radius:22px;padding:1.3rem 1.4rem;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(27,63,228,.3);}
+    .welcome-card::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);right:-50px;top:-60px;}
+    .welcome-card::after{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(0,194,183,.15);right:30px;bottom:-40px;}
+    .welcome-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;}
+    .welcome-texts{position:relative;z-index:1;}
+    .welcome-greeting{color:rgba(255,255,255,.7);font-size:.78rem;font-weight:500;letter-spacing:.5px;}
+    .welcome-name{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:white;letter-spacing:-.5px;margin-top:2px;}
+    .welcome-sub{color:rgba(255,255,255,.6);font-size:.75rem;margin-top:2px;}
+    .welcome-emoji{font-size:2.2rem;position:relative;z-index:1;animation:wave 2s ease-in-out infinite;}
+    @keyframes wave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(15deg)}75%{transform:rotate(-5deg)}}
+    .plan-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .7rem;border-radius:99px;font-size:.65rem;font-weight:700;letter-spacing:.3px;position:relative;z-index:1;margin-top:.5rem;margin-bottom:.7rem;}
+    .plan-badge.free{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25);}
+    .plan-badge.premium{background:rgba(245,183,49,.25);color:var(--gold);border:1px solid rgba(245,183,49,.4);}
+    .plan-badge.elite{background:rgba(0,194,183,.2);color:var(--turq);border:1px solid rgba(0,194,183,.4);}
+    .trial-mini{position:relative;z-index:1;margin-bottom:.75rem;}
+    .trial-mini-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;}
+    .trial-mini-lbl{font-size:.65rem;color:rgba(255,255,255,.55);}
+    .trial-mini-days{font-size:.65rem;font-weight:700;color:var(--gold);}
+    .trial-mini-track{height:4px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;}
+    .trial-mini-fill{height:100%;background:linear-gradient(90deg,var(--gold),#FFD580);border-radius:99px;transition:width .6s;}
+    .quick-btns{display:flex;gap:.6rem;flex-wrap:wrap;position:relative;z-index:1;}
+    .qbtn{display:flex;align-items:center;gap:.4rem;padding:.45rem .85rem;border-radius:99px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:600;transition:transform .2s,box-shadow .2s;white-space:nowrap;}
+    .qbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.25);}
+    .qbtn:active{transform:translateY(0);}
+    .qbtn-white{background:white;color:var(--blue);} .qbtn-turq{background:var(--turq);color:white;}
+    .qbtn-orange{background:var(--orange);color:white;} .qbtn-gold{background:linear-gradient(135deg,#C8901A,var(--gold));color:white;}
+    .qbtn-red{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25);}
+    .section-head{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.2rem .7rem;}
+    .section-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
+    .see-all{font-size:.75rem;color:var(--blue2);font-weight:600;cursor:pointer;text-decoration:none;}
+    .cats-scroll{display:flex;gap:.7rem;overflow-x:auto;padding:0 1.2rem 1rem;scrollbar-width:none;}
+    .cats-scroll::-webkit-scrollbar{display:none;}
+    .cat-chip{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex-shrink:0;cursor:pointer;}
+    .cat-ico{width:52px;height:52px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;transition:transform .2s,box-shadow .2s;border:2px solid transparent;}
+    .cat-chip:hover .cat-ico{transform:scale(1.1);}
+    .cat-chip.active .cat-ico{border-color:var(--blue2);box-shadow:0 4px 16px rgba(27,63,228,.25);}
+    .cat-chip.active .cat-lbl{color:var(--blue2);font-weight:700;}
+    .cat-lbl{font-size:.65rem;color:var(--gray);font-weight:500;text-align:center;}
+    .ci-1{background:linear-gradient(135deg,#FFF3E0,#FFE0B2)} .ci-2{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}
+    .ci-3{background:linear-gradient(135deg,#E8F5E9,#C8E6C9)} .ci-4{background:linear-gradient(135deg,#FCE4EC,#F8BBD0)}
+    .ci-5{background:linear-gradient(135deg,#F3E5F5,#E1BEE7)} .ci-6{background:linear-gradient(135deg,#E0F7FA,#B2EBF2)}
+    .ci-7{background:linear-gradient(135deg,#FFF9C4,#FFF176)} .ci-8{background:linear-gradient(135deg,#E8EAF6,#C5CAE9)}
+    .ads-section{padding:0 1.2rem;}
+    .ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .ad-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(27,63,228,.07);cursor:pointer;transition:transform .25s,box-shadow .25s;animation:cardIn .4s ease both;border:1px solid var(--border);}
+    .ad-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(27,63,228,.15);}
+    @keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .ad-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:2.5rem;position:relative;}
+    .ad-badge{position:absolute;top:8px;left:8px;background:var(--orange);color:white;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.5px;text-transform:uppercase;}
+    .ad-badge.feat{background:linear-gradient(135deg,#C8901A,var(--gold));}
+    .ad-fav{position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;border:none;transition:transform .2s;}
+    .ad-fav:hover{transform:scale(1.2);}
+    .ad-fav.liked::after{content:'❤️';} .ad-fav:not(.liked)::after{content:'🤍';}
+    .ad-body{padding:.75rem;}
+    .ad-title{font-size:.82rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.25rem;}
+    .ad-price{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;background:linear-gradient(90deg,var(--blue),var(--turq));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .ad-location{display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--gray);margin-top:.3rem;}
+    .ad-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border);}
+    .ad-time{font-size:.62rem;color:#B8C1D8;}
+    .btn-wa{width:26px;height:26px;border-radius:99px;background:linear-gradient(135deg,#25D366,#128C7E);display:flex;align-items:center;justify-content:center;font-size:.75rem;border:none;cursor:pointer;transition:transform .2s;}
+    .btn-wa:hover{transform:scale(1.15);}
+    .skeleton{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:10px;}
+    @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+    .skel-card{background:white;border-radius:20px;overflow:hidden;border:1px solid var(--border);}
+    .skel-img{height:110px;} .skel-body{padding:.75rem;display:flex;flex-direction:column;gap:.5rem;}
+    .skel-line{height:10px;} .skel-line.short{width:60%;}
+    .empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1rem;text-align:center;gap:.7rem;}
+    .empty-ico{font-size:3.5rem;}
+    .empty-state h3{font-family:'Clash Display',sans-serif;font-size:1.1rem;color:var(--dark);}
+    .empty-state p{color:var(--gray);font-size:.82rem;}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;box-shadow:0 -8px 32px rgba(27,63,228,.1);border-radius:24px 24px 0 0;padding:0 4px;}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;transition:all .25s;position:relative;padding:6px 2px 8px;border-radius:12px;}
+    .nav-item:active{background:rgba(27,63,228,.06);}
+    .nav-ico{font-size:1.3rem;line-height:1;} .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
+    .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
+    .nav-item.active .nav-ico{transform:scale(1.12);}
+    .nav-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--blue),var(--turq));}
+    .nav-item.nav-plus{flex:1.2;margin-top:0;pointer-events:none;}
+    .nav-plus-btn{width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 6px 20px rgba(27,63,228,.4);cursor:pointer;transition:transform .2s,box-shadow .2s;pointer-events:all;}
+    .nav-plus-btn:active{transform:scale(0.93);}
+    .nav-item.nav-plus .nav-lbl{margin-top:2px;pointer-events:none;}
+    .notif-panel-overlay{position:fixed;inset:0;z-index:490;background:rgba(8,14,42,.6);backdrop-filter:blur(6px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .notif-panel-overlay.open{opacity:1;pointer-events:all;}
+    .notif-panel{background:white;border-radius:28px 28px 0 0;width:100%;max-height:80vh;overflow-y:auto;padding:1.5rem 1.4rem 2rem;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+    .notif-panel-overlay.open .notif-panel{transform:translateY(0);}
+    .np-handle{width:40px;height:4px;border-radius:99px;background:var(--border);margin:0 auto 1.2rem;}
+    .np-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+    .np-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);}
+    .np-mark{font-size:.75rem;color:var(--blue2);font-weight:600;cursor:pointer;}
+    .np-item{display:flex;align-items:flex-start;gap:.85rem;padding:.9rem 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .2s;}
+    .np-item:last-child{border-bottom:none;} .np-item.read{opacity:.6;}
+    .np-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .np-ico.info{background:rgba(27,63,228,.09);} .np-ico.success{background:rgba(0,194,113,.09);}
+    .np-ico.warning{background:rgba(255,107,26,.09);} .np-ico.alert{background:rgba(232,48,48,.09);}
+    .np-ico.promo{background:rgba(245,183,49,.12);} .np-ico.news{background:rgba(0,194,183,.09);}
+    .np-body{flex:1;}
+    .np-ntitle{font-size:.84rem;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:.4rem;}
+    .np-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+    .np-msg{font-size:.75rem;color:var(--gray);margin-top:2px;line-height:1.4;}
+    .np-time{font-size:.65rem;color:#B8C1D8;margin-top:.28rem;}
+    .np-empty{text-align:center;padding:2.5rem 1rem;}
+    .np-empty .ei{font-size:2.5rem;margin-bottom:.5rem;}
+    .np-empty p{font-size:.8rem;color:var(--gray);}
+    #toast{position:fixed;bottom:calc(var(--nav-h) + 12px);right:1rem;max-width:300px;background:var(--dark);color:white;padding:.8rem 1.2rem;border-radius:14px;font-size:.83rem;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;align-items:center;gap:.6rem;transform:translateY(20px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);border-left:3px solid var(--turq);}
+    #toast.show{transform:translateY(0);opacity:1;}
+    .modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(8,14,42,.6);backdrop-filter:blur(6px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:white;border-radius:28px 28px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:1.5rem 1.4rem 2rem;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+    .modal-overlay.open .modal{transform:translateY(0);}
+    .modal-handle{width:40px;height:4px;border-radius:99px;background:var(--border);margin:0 auto 1.2rem;}
+    .modal-title{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:var(--dark);margin-bottom:.4rem;}
+    .modal-price{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;background:linear-gradient(90deg,var(--blue),var(--turq));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.8rem;}
+    .modal-desc{color:var(--gray);font-size:.84rem;line-height:1.6;margin-bottom:1.2rem;}
+    .modal-info{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem;}
+    .modal-tag{background:var(--bg);padding:.3rem .8rem;border-radius:99px;font-size:.74rem;color:var(--dark);font-weight:500;}
+    .modal-seller{display:flex;align-items:center;gap:.8rem;background:var(--bg);border-radius:16px;padding:1rem;margin-bottom:1.2rem;}
+    .seller-ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:white;font-family:'Clash Display',sans-serif;flex-shrink:0;}
+    .seller-info h4{font-size:.88rem;font-weight:700;color:var(--dark);}
+    .seller-info p{font-size:.74rem;color:var(--gray);}
+    .modal-actions{display:flex;gap:.8rem;}
+    .btn-modal{flex:1;padding:.8rem;border-radius:14px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;transition:transform .2s,box-shadow .2s;}
+    .btn-modal:hover{transform:translateY(-2px);}
+    .btn-modal.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 6px 20px rgba(27,63,228,.35);}
+    .btn-modal.wa{background:linear-gradient(135deg,#25D366,#128C7E);color:white;box-shadow:0 6px 20px rgba(37,211,102,.35);}
+    .pub-overlay{position:fixed;inset:0;z-index:600;background:rgba(8,14,42,.65);backdrop-filter:blur(8px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .pub-overlay.open{opacity:1;pointer-events:all;}
+    .pub-modal{background:white;border-radius:28px 28px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:1.5rem 1.4rem 2.5rem;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+    .pub-overlay.open .pub-modal{transform:translateY(0);}
+    .pub-title{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:var(--dark);margin-bottom:1.2rem;}
+    .pub-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem;}
+    .pub-field label{font-size:.7rem;font-weight:700;color:var(--dark);letter-spacing:.7px;text-transform:uppercase;}
+    .pub-field input,.pub-field textarea,.pub-field select{width:100%;padding:.7rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.87rem;color:var(--dark);background:#FAFBFF;outline:none;transition:border-color .2s,box-shadow .2s;resize:none;}
+    .pub-field input:focus,.pub-field textarea:focus,.pub-field select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(45,85,255,.1);background:white;}
+    .pub-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+    .btn-pub{width:100%;padding:.85rem;border:none;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:.5rem;transition:transform .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .btn-pub:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(27,63,228,.4);}
+    .btn-pub:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .spin-sm{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .btn-pub.loading .spin-sm{display:block;} .btn-pub.loading .pub-lbl{display:none;}
+    .limit-warn{background:linear-gradient(135deg,rgba(200,144,26,.12),rgba(245,183,49,.1));border:1.5px solid rgba(200,144,26,.3);border-radius:14px;padding:.8rem 1rem;margin-bottom:.9rem;display:none;}
+    .limit-warn.show{display:flex;align-items:center;gap:.7rem;}
+    .lw-ico{font-size:1.3rem;flex-shrink:0;}
+    .lw-text{font-size:.78rem;color:#7A5500;line-height:1.4;font-weight:600;}
+    .lw-text a{color:var(--blue2);text-decoration:underline;cursor:pointer;}
+    .pub-limit-bar{margin-bottom:.9rem;}
+    .plb-row{display:flex;justify-content:space-between;font-size:.68rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;}
+    .plb-track{height:5px;background:var(--bg);border-radius:99px;overflow:hidden;}
+    .plb-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--turq),var(--blue2));transition:width .5s;}
+    .plb-fill.full{background:linear-gradient(90deg,var(--orange),var(--red));}
+    .img-upload-zone{border:2px dashed var(--border);border-radius:14px;padding:1.2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;}
+    .img-upload-zone:hover{border-color:var(--blue2);background:#FAFBFF;}
+    .img-upload-zone.has-img{border-style:solid;border-color:var(--turq);padding:.4rem;}
+    .img-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .upload-ico{font-size:1.6rem;} .upload-txt{font-size:.75rem;color:var(--gray);font-weight:500;margin-top:.3rem;}
+    .img-preview{width:100%;height:150px;object-fit:cover;border-radius:10px;display:none;}
+    .img-preview.show{display:block;}
+    .ad-tabs{display:flex;gap:.5rem;padding:0 1.2rem .8rem;}
+    .ad-tab{padding:.38rem .9rem;border-radius:99px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.76rem;font-weight:600;transition:all .2s;}
+    .ad-tab.active{background:var(--blue2);color:white;box-shadow:0 4px 12px rgba(45,85,255,.35);}
+    .ad-tab:not(.active){background:white;color:var(--gray);border:1px solid var(--border);}
+    @media(min-width:600px){.ads-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(min-width:900px){body{max-width:480px;margin:0 auto;}}
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
   <div class="header-right">
-    <div class="btn-notif" onclick="openNotifPanel()">
+    <div class="btn-notif" onclick="openNotifPanel()" id="notifBtn">
       🔔
       <div class="notif-dot" id="notifDot"></div>
       <div class="notif-count-badge" id="notifBadge">0</div>
     </div>
-    <div class="avatar-btn" onclick="goToPage('profil')">?</div>
+    <div class="avatar-btn" id="avatarBtn" onclick="window.location.href='profil.html'">?</div>
   </div>
 </div>
 
-<!-- SEARCH -->
 <div class="search-wrap">
   <div class="search-box">
     <span class="search-icon">🔍</span>
     <input type="text" id="searchInput" placeholder="Rechercher une annonce…" oninput="filterAds()"/>
-    <div class="search-filter" onclick="showToast('Filtres à venir', 'info')">⚙️</div>
+    <div class="search-filter" onclick="showToast('Filtres bientôt disponibles 🔧','info')">⚙️</div>
   </div>
 </div>
 
-<!-- WELCOME -->
 <div class="welcome-section">
   <div class="welcome-card">
     <div class="welcome-top">
       <div class="welcome-texts">
         <div class="welcome-greeting" id="welcomeGreeting">Bonjour 👋</div>
-        <div class="welcome-name" id="welcomeName">Chargement...</div>
+        <div class="welcome-name" id="welcomeName">Chargement…</div>
+        <div class="welcome-sub" id="welcomeSub">Que cherchez-vous aujourd'hui ?</div>
       </div>
       <div class="welcome-emoji">🛍️</div>
     </div>
@@ -325,18 +250,18 @@
     <div class="quick-btns">
       <button class="qbtn qbtn-white" onclick="openPublish()">✏️ Publier</button>
       <button class="qbtn qbtn-turq" onclick="scrollToAds()">🔥 Tendances</button>
-      <button class="qbtn qbtn-gold" onclick="goToPage('gagner')">💰 Gagner</button>
+      <button class="qbtn qbtn-gold" onclick="window.location.href='gagner.html'">💰 Gagner</button>
+      <button class="qbtn qbtn-orange" id="qbtnPremium" onclick="window.location.href='pricing.html'" style="display:none">👑 Premium</button>
       <button class="qbtn qbtn-red" onclick="shareApp()">📤 Partager</button>
     </div>
   </div>
 </div>
 
-<!-- CATEGORIES -->
 <div class="section-head">
   <div class="section-title">Catégories</div>
-  <a class="see-all" onclick="showToast('Toutes les catégories', 'info')">Voir tout →</a>
+  <a class="see-all" onclick="showToast('Toutes les catégories bientôt !','info')">Voir tout →</a>
 </div>
-<div class="cats-scroll">
+<div class="cats-scroll" id="catsScroll">
   <div class="cat-chip active" onclick="filterCat('all',this)"><div class="cat-ico ci-8">🌐</div><span class="cat-lbl">Tout</span></div>
   <div class="cat-chip" onclick="filterCat('immobilier',this)"><div class="cat-ico ci-1">🏠</div><span class="cat-lbl">Immobilier</span></div>
   <div class="cat-chip" onclick="filterCat('vehicules',this)"><div class="cat-ico ci-2">🚗</div><span class="cat-lbl">Véhicules</span></div>
@@ -347,36 +272,39 @@
   <div class="cat-chip" onclick="filterCat('alimentation',this)"><div class="cat-ico ci-7">🥘</div><span class="cat-lbl">Alimentaire</span></div>
 </div>
 
-<!-- ADS SECTION -->
 <div class="section-head" id="adsAnchor">
   <div class="section-title">Annonces récentes</div>
   <span class="see-all" id="adsCount"></span>
 </div>
-<div class="ad-tabs" style="display:flex; gap:.5rem; padding:0 1.2rem .8rem;">
-  <button class="ad-tab active" onclick="setAdTab('recent',this)" style="padding:.38rem .9rem; border-radius:99px; border:none; cursor:pointer; background:var(--blue2); color:white;">Récentes</button>
-  <button class="ad-tab" onclick="setAdTab('feat',this)" style="padding:.38rem .9rem; border-radius:99px; border:none; cursor:pointer; background:white; color:var(--gray);">⭐ En avant</button>
-  <button class="ad-tab" onclick="setAdTab('urgent',this)" style="padding:.38rem .9rem; border-radius:99px; border:none; cursor:pointer; background:white; color:var(--gray);">Urgentes</button>
+<div class="ad-tabs">
+  <button class="ad-tab active" onclick="setAdTab('recent',this)">Récentes</button>
+  <button class="ad-tab" onclick="setAdTab('feat',this)">⭐ En avant</button>
+  <button class="ad-tab" onclick="setAdTab('urgent',this)">Urgentes</button>
 </div>
 <div class="ads-section">
   <div class="ads-grid" id="adsGrid">
-    <div style="grid-column:1/-1; text-align:center; padding:2rem;">Chargement des annonces...</div>
+    <div class="skel-card"><div class="skel-img skeleton"></div><div class="skel-body"><div class="skel-line skeleton"></div><div class="skel-line short skeleton"></div></div></div>
+    <div class="skel-card"><div class="skel-img skeleton"></div><div class="skel-body"><div class="skel-line skeleton"></div><div class="skel-line short skeleton"></div></div></div>
+    <div class="skel-card"><div class="skel-img skeleton"></div><div class="skel-body"><div class="skel-line skeleton"></div><div class="skel-line short skeleton"></div></div></div>
+    <div class="skel-card"><div class="skel-img skeleton"></div><div class="skel-body"><div class="skel-line skeleton"></div><div class="skel-line short skeleton"></div></div></div>
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="navGo('home',this)">
     <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
   </button>
-  <button class="nav-item" onclick="navGo('messages',this)">
+  <button class="nav-item" onclick="navGo('messages',this)" style="position:relative">
     <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
+    <span id="msgNavBadge" style="position:absolute;top:5px;right:5px;background:var(--red);color:white;font-size:.5rem;font-weight:800;padding:.12rem .38rem;border-radius:99px;display:none">0</span>
   </button>
   <div class="nav-item nav-plus">
     <div class="nav-plus-btn" onclick="openPublish()">➕</div>
-    <span class="nav-lbl">Publier</span>
+    <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
   </div>
-  <button class="nav-item" onclick="navGo('favoris',this)">
+  <button class="nav-item" onclick="navGo('favoris',this)" style="position:relative">
     <span class="nav-ico">❤️</span><span class="nav-lbl">Favoris</span>
+    <span id="favNavBadge" style="position:absolute;top:6px;right:6px;background:var(--red);color:white;font-size:.5rem;font-weight:800;padding:.12rem .35rem;border-radius:99px;display:none;">0</span>
   </button>
   <button class="nav-item" onclick="navGo('profil',this)">
     <span class="nav-ico">👤</span><span class="nav-lbl">Profil</span>
@@ -384,32 +312,33 @@
 </nav>
 
 <!-- NOTIF PANEL -->
-<div class="notif-panel-overlay" id="notifOverlay" onclick="if(event.target===this) closeNotifPanel()">
+<div class="notif-panel-overlay" id="notifOverlay" onclick="if(event.target===this)closeNotifPanel()">
   <div class="notif-panel">
-    <div style="width:40px; height:4px; border-radius:99px; background:var(--border); margin:0 auto 1.2rem;"></div>
-    <div class="np-head" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-      <div style="font-family:'Clash Display',sans-serif; font-size:1.1rem;">🔔 Notifications</div>
-      <span style="font-size:.75rem; color:var(--blue2); cursor:pointer;" onclick="markAllRead()">Tout marquer lu</span>
+    <div class="np-handle"></div>
+    <div class="np-head">
+      <div class="np-title">🔔 Notifications</div>
+      <span class="np-mark" onclick="markAllRead()">Tout marquer lu</span>
     </div>
-    <div id="notifPanelList">
-      <div style="text-align:center; padding:2rem;">Aucune notification</div>
-    </div>
+    <div id="notifPanelList"><div class="np-empty"><div class="ei">⏳</div><p>Chargement…</p></div></div>
   </div>
 </div>
 
-<!-- DETAIL MODAL -->
+<!-- MODAL DETAIL -->
 <div class="modal-overlay" id="detailOverlay" onclick="closeDetail(event)">
   <div class="modal" id="detailModal">
-    <div style="width:40px; height:4px; border-radius:99px; background:var(--border); margin:0 auto 1.2rem;"></div>
-    <div class="ad-img" id="mImg" style="height:200px; border-radius:16px; margin-bottom:1rem; font-size:4rem;"></div>
-    <div class="modal-title" id="mTitle" style="font-family:'Clash Display',sans-serif; font-size:1.3rem;"></div>
-    <div class="modal-price" id="mPrice" style="font-size:1.6rem; color:var(--blue); margin-bottom:.8rem;"></div>
-    <div class="modal-desc" id="mDesc" style="color:var(--gray); margin-bottom:1.2rem;"></div>
-    <div class="modal-info" id="mInfo" style="display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1.2rem;"></div>
-    <div class="modal-seller" id="mSeller" style="display:flex; align-items:center; gap:.8rem; background:var(--bg); border-radius:16px; padding:1rem; margin-bottom:1.2rem;"></div>
-    <div class="modal-actions" style="display:flex; gap:.8rem;">
-      <button class="btn-modal primary" id="mMsgBtn" style="flex:1; padding:.8rem; border-radius:14px; border:none; background:linear-gradient(135deg,var(--blue),var(--blue2)); color:white; cursor:pointer;">💬 Message</button>
-      <button class="btn-modal wa" id="mWaBtn" style="flex:1; padding:.8rem; border-radius:14px; border:none; background:linear-gradient(135deg,#25D366,#128C7E); color:white; cursor:pointer;">📞 WhatsApp</button>
+    <div class="modal-handle"></div>
+    <div class="ad-img" id="mImg" style="height:200px;border-radius:16px;margin-bottom:1rem;font-size:4rem;display:flex;align-items:center;justify-content:center;"></div>
+    <div class="modal-title" id="mTitle"></div>
+    <div class="modal-price" id="mPrice"></div>
+    <div class="modal-desc" id="mDesc"></div>
+    <div class="modal-info" id="mInfo"></div>
+    <div class="modal-seller" id="mSeller"></div>
+    <div class="modal-actions">
+      <button class="btn-modal primary" id="mMsgBtn">💬 Message</button>
+      <button class="btn-modal wa" id="mWaBtn">📞 WhatsApp</button>
+    </div>
+    <div style="padding:.5rem 1rem 0;text-align:center">
+      <button onclick="openAvisModal()" style="background:none;border:none;font-size:.75rem;color:var(--gold);font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">⭐ Laisser un avis sur ce vendeur</button>
     </div>
   </div>
 </div>
@@ -417,147 +346,127 @@
 <!-- PUBLISH MODAL -->
 <div class="pub-overlay" id="pubOverlay" onclick="closePub(event)">
   <div class="pub-modal" onclick="event.stopPropagation()">
-    <div style="width:40px; height:4px; border-radius:99px; background:var(--border); margin:0 auto 1.2rem;"></div>
-    <div style="font-family:'Clash Display',sans-serif; font-size:1.3rem; margin-bottom:1.2rem;">📝 Publier une annonce</div>
-    
-    <div class="limit-warn" id="limitWarn" style="background:rgba(200,144,26,.12); border-radius:14px; padding:.8rem; margin-bottom:.9rem; display:none;">
-      <div style="display:flex; align-items:center; gap:.7rem;">
-        <span>⚠️</span>
-        <span>Limite de 3 annonces gratuites atteinte. <a onclick="goToPage('pricing')" style="color:var(--blue2); text-decoration:underline; cursor:pointer;">Passez Premium</a></span>
-      </div>
+    <div class="modal-handle"></div>
+    <div class="pub-title">📝 Publier une annonce</div>
+    <div class="limit-warn" id="limitWarn">
+      <div class="lw-ico">⚠️</div>
+      <div class="lw-text">Vous avez atteint la limite de <strong>3 annonces gratuites</strong>. <a onclick="window.location.href='pricing.html'">Passez Premium</a> pour publier sans limite.</div>
     </div>
-    
-    <form id="pubForm" onsubmit="return false;">
-      <div style="margin-bottom:.9rem;">
-        <label style="font-size:.7rem; font-weight:700;">Photo</label>
-        <input type="file" id="p_img" accept="image/*" style="width:100%; padding:.5rem; border:1.5px solid var(--border); border-radius:12px;">
-      </div>
-      <div style="margin-bottom:.9rem;">
-        <label style="font-size:.7rem; font-weight:700;">Titre *</label>
-        <input type="text" id="p_title" style="width:100%; padding:.7rem; border:1.5px solid var(--border); border-radius:12px;">
-      </div>
-      <div style="margin-bottom:.9rem;">
-        <label style="font-size:.7rem; font-weight:700;">Description *</label>
-        <textarea id="p_desc" rows="3" style="width:100%; padding:.7rem; border:1.5px solid var(--border); border-radius:12px;"></textarea>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.9rem; margin-bottom:.9rem;">
-        <div>
-          <label style="font-size:.7rem; font-weight:700;">Prix (FCFA) *</label>
-          <input type="number" id="p_price" style="width:100%; padding:.7rem; border:1.5px solid var(--border); border-radius:12px;">
+    <div class="pub-limit-bar" id="pubLimitBar" style="display:none">
+      <div class="plb-row"><span id="plbLabel">Annonces publiées</span><span id="plbCount">0 / 3</span></div>
+      <div class="plb-track"><div class="plb-fill" id="plbFill" style="width:0%"></div></div>
+    </div>
+    <form id="pubForm" novalidate>
+      <div class="pub-field">
+        <label>Photo de l'annonce</label>
+        <div class="img-upload-zone" id="uploadZone">
+          <input type="file" id="p_img" accept="image/*" onchange="previewImage(event)"/>
+          <div id="uploadPlaceholder"><div class="upload-ico">📷</div><div class="upload-txt">Appuyez pour ajouter une photo</div></div>
+          <img class="img-preview" id="imgPreview" alt="Aperçu"/>
         </div>
-        <div>
-          <label style="font-size:.7rem; font-weight:700;">Catégorie *</label>
-          <select id="p_cat" style="width:100%; padding:.7rem; border:1.5px solid var(--border); border-radius:12px;">
-            <option value="">Choisir...</option>
-            <option value="immobilier">Immobilier</option>
-            <option value="vehicules">Véhicules</option>
-            <option value="electronique">Électronique</option>
-            <option value="mode">Mode</option>
-            <option value="services">Services</option>
-            <option value="emploi">Emploi</option>
-            <option value="alimentation">Alimentaire</option>
+      </div>
+      <div class="pub-field"><label>Titre *</label><input type="text" id="p_title" placeholder="Ex : iPhone 14 Pro Max 256Go"/></div>
+      <div class="pub-field"><label>Description *</label><textarea id="p_desc" rows="3" placeholder="Décrivez votre article…"></textarea></div>
+      <div class="pub-row">
+        <div class="pub-field"><label>Prix (FCFA) *</label><input type="number" id="p_price" placeholder="150000"/></div>
+        <div class="pub-field"><label>Catégorie *</label>
+          <select id="p_cat">
+            <option value="">Choisir…</option>
+            <option value="immobilier">🏠 Immobilier</option>
+            <option value="vehicules">🚗 Véhicules</option>
+            <option value="electronique">📱 Électronique</option>
+            <option value="mode">👗 Mode</option>
+            <option value="services">🛠️ Services</option>
+            <option value="emploi">💼 Emploi</option>
+            <option value="alimentation">🥘 Alimentaire</option>
+            <option value="autres">📦 Autres</option>
           </select>
         </div>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.9rem; margin-bottom:.9rem;">
-        <div>
-          <label style="font-size:.7rem; font-weight:700;">Ville *</label>
-          <input type="text" id="p_ville" style="width:100%; padding:.7rem; border:1.5px solid var(--border); border-radius:12px;">
-        </div>
-        <div>
-          <label style="font-size:.7rem; font-weight:700;">WhatsApp *</label>
-          <input type="tel" id="p_wa" style="width:100%; padding:.7rem; border:1.5px solid var(--border); border-radius:12px;">
-        </div>
+      <div class="pub-row">
+        <div class="pub-field"><label>Ville *</label><input type="text" id="p_ville" placeholder="Abidjan"/></div>
+        <div class="pub-field"><label>WhatsApp *</label><input type="tel" id="p_wa" placeholder="+225 07…"/></div>
       </div>
-      <button type="button" class="btn-pub" onclick="submitPublish()" style="width:100%; padding:.85rem; border:none; border-radius:14px; background:linear-gradient(135deg,var(--blue),var(--blue2)); color:white; cursor:pointer;">🚀 Publier l'annonce</button>
+      <button type="submit" class="btn-pub" id="btnPub">
+        <div class="spin-sm"></div>
+        <span class="pub-lbl">🚀 Publier l'annonce</span>
+      </button>
     </form>
   </div>
 </div>
 
 <!-- TOAST -->
-<div id="toast"><span id="tMsg"></span></div>
+<div id="toast"><span id="tIco"></span><span id="tMsg"></span></div>
+
+<!-- MODAL AVIS -->
+<div class="modal-overlay" id="avisOverlay" onclick="if(event.target===this)closeAvis()" style="z-index:550">
+  <div class="modal" id="avisModal" style="max-height:90vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="padding:0 1.2rem 1.5rem">
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:.3rem">⭐ Laisser un avis</div>
+      <div style="font-size:.78rem;color:var(--gray);margin-bottom:1.2rem" id="avisSellerName">—</div>
+      <div style="display:flex;gap:.4rem;justify-content:center;margin-bottom:1.2rem" id="starRow">
+        <span class="star-btn" data-v="1" onclick="selectStar(1)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="2" onclick="selectStar(2)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="3" onclick="selectStar(3)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="4" onclick="selectStar(4)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+        <span class="star-btn" data-v="5" onclick="selectStar(5)" style="font-size:2.2rem;cursor:pointer;transition:transform .15s">☆</span>
+      </div>
+      <div style="text-align:center;font-size:.78rem;color:var(--gray);margin-bottom:1rem" id="avisNoteLabel">Sélectionne une note</div>
+      <textarea id="avisComment" placeholder="Parle de ton expérience avec ce vendeur (optionnel)…"
+        style="width:100%;border:1.5px solid var(--border);border-radius:12px;padding:.7rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;resize:none;min-height:90px;outline:none;background:var(--bg);color:var(--dark)"></textarea>
+      <div style="display:flex;gap:.7rem;margin-top:.9rem">
+        <button onclick="closeAvis()" style="flex:1;padding:.75rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--dark)">Annuler</button>
+        <button id="avisSubmitBtn" onclick="submitAvis()" style="flex:1;padding:.75rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--gold),#E8A500);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--dark)" disabled>⭐ Envoyer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-// ===== CONFIG SUPABASE =====
 const { createClient } = supabase;
 const sb = createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-// ===== VARIABLES GLOBALES =====
-let currentUser = null;
-let userProfile = null;
-let allAds = [];
-let currentCat = 'all';
-let currentTab = 'recent';
-let liked = new Set();
-let myAdsCount = 0;
-let allNotifs = [];
+let allAds = [], currentCat = 'all', currentTab = 'recent';
+let currentUser = null, userProfile = null, myAdsCount = 0, allNotifs = [];
+// FIX #1: variable globale pour l'annonce en cours (évite la perte du contexte entre modals)
+let currentDetailAd = null;
 
-// ===== FONCTIONS UTILITAIRES =====
-function showToast(msg, type = 'success') {
+const FREE_LIMIT = 3, FREE_DAYS = 7;
+const EMOJI_MAP = { immobilier:'🏠', vehicules:'🚗', electronique:'📱', mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦' };
+const liked = new Set();
+
+// ===== TOAST =====
+let tt;
+function showToast(msg, type='success') {
+  const icons = {success:'✅', error:'❌', warning:'⚠️', info:'ℹ️'};
+  document.getElementById('tIco').textContent = icons[type] || '💬';
   document.getElementById('tMsg').textContent = msg;
   const el = document.getElementById('toast');
   el.className = 'show';
-  setTimeout(() => el.className = '', 3000);
+  el.style.borderLeftColor = type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt); tt = setTimeout(() => el.className = '', 3800);
 }
 
-function goToPage(page) {
-  const pages = {
-    'home': '#',
-    'messages': 'messages.html',
-    'favoris': 'favoris.html',
-    'profil': 'profil.html',
-    'gagner': 'gagner.html',
-    'pricing': 'pricing.html'
-  };
-  if (pages[page]) window.location.href = pages[page];
+function fmtPrice(n) { if(!n && n!==0) return 'Prix à débattre'; return Number(n).toLocaleString('fr-FR') + ' FCFA'; }
+function timeAgo(d) {
+  if(!d) return '';
+  const s = Math.floor((Date.now() - new Date(d)) / 1000);
+  if(s < 60) return "À l'instant";
+  if(s < 3600) return `Il y a ${Math.floor(s/60)} min`;
+  if(s < 86400) return `Il y a ${Math.floor(s/3600)} h`;
+  return `Il y a ${Math.floor(s/86400)} j`;
 }
 
-function scrollToAds() {
-  document.getElementById('adsAnchor').scrollIntoView({ behavior: 'smooth' });
-}
-
-function shareApp() {
-  if (navigator.share) {
-    navigator.share({
-      title: 'AfriMarket',
-      text: 'Découvrez AfriMarket - La marketplace africaine',
-      url: window.location.origin
-    }).catch(() => {});
-  } else {
-    navigator.clipboard?.writeText(window.location.origin)
-      .then(() => showToast('Lien copié !'))
-      .catch(() => showToast('Partagez : ' + window.location.origin, 'info'));
-  }
-}
-
-// ===== NOTIFICATIONS =====
-function openNotifPanel() { 
-  document.getElementById('notifOverlay').classList.add('open'); 
-  loadNotifs();
-}
-
-function closeNotifPanel() { 
-  document.getElementById('notifOverlay').classList.remove('open'); 
-}
-
-async function loadNotifs() {
-  if (!currentUser) return;
-  const { data } = await sb.from('notifications')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false })
-    .limit(20);
-  
-  allNotifs = data || [];
+// FIX #2: fonction updateNotifBadge manquante dans l'original
+function updateNotifBadge() {
   const unread = allNotifs.filter(n => !n.read).length;
-  
-  const dot = document.getElementById('notifDot');
+  const dot   = document.getElementById('notifDot');
   const badge = document.getElementById('notifBadge');
-  
-  if (unread > 0) {
+  if(unread > 0) {
     dot.classList.add('show');
     badge.classList.add('show');
     badge.textContent = unread > 9 ? '9+' : unread;
@@ -565,390 +474,607 @@ async function loadNotifs() {
     dot.classList.remove('show');
     badge.classList.remove('show');
   }
-  
-  renderNotifPanel();
 }
 
-function renderNotifPanel() {
-  const el = document.getElementById('notifPanelList');
-  if (!allNotifs.length) {
-    el.innerHTML = '<div style="text-align:center; padding:2rem;">Aucune notification</div>';
-    return;
+// ===== INIT =====
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session) { window.location.href = 'index.html'; return; }
+  currentUser = session.user;
+
+  let prof = null;
+  for(let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const { data, error } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+      if(error) throw error;
+      prof = data; break;
+    } catch(e) {
+      console.warn('[init] profil attempt ' + (attempt+1) + ' failed:', e.message);
+      if(attempt < 2) await new Promise(r => setTimeout(r, 800 * (attempt+1)));
+    }
   }
-  
-  el.innerHTML = allNotifs.map(n => `
-    <div style="display:flex; align-items:flex-start; gap:.85rem; padding:.9rem 0; border-bottom:1px solid var(--border); cursor:pointer; ${n.read ? 'opacity:.6' : ''}" onclick="markRead('${n.id}')">
-      <div style="width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:rgba(27,63,228,.09);">${n.icon || '🔔'}</div>
-      <div style="flex:1;">
-        <div style="font-size:.84rem; font-weight:700; display:flex; align-items:center; gap:.4rem;">
-          ${n.title || ''}
-          ${!n.read ? '<div style="width:7px; height:7px; border-radius:50%; background:var(--orange);"></div>' : ''}
-        </div>
-        <div style="font-size:.75rem; color:var(--gray); margin-top:2px;">${n.message || ''}</div>
-        <div style="font-size:.65rem; color:#B8C1D8; margin-top:.28rem;">${timeAgo(n.created_at)}</div>
-      </div>
-    </div>
-  `).join('');
+
+  if(prof) {
+    prof.is_premium = (prof.is_premium === true || prof.is_premium === 'true' || prof.is_premium === 1);
+    prof.plan = prof.plan || 'free';
+  } else {
+    const meta2 = currentUser.user_metadata;
+    const newProf = {
+      id: currentUser.id,
+      full_name: meta2?.full_name || currentUser.email?.split('@')[0] || 'Utilisateur',
+      email: currentUser.email,
+      is_premium: false, plan: 'free',
+      created_at: new Date().toISOString()
+    };
+    const { data: created } = await sb.from('profiles').upsert(newProf, {onConflict:'id'}).select().single();
+    prof = created || newProf;
+  }
+  userProfile = prof;
+
+  const meta = currentUser.user_metadata;
+  const name = prof?.full_name || meta?.full_name || currentUser.email?.split('@')[0] || 'Utilisateur';
+  const prenom = name.split(' ')[0];
+  const h = new Date().getHours();
+  document.getElementById('welcomeGreeting').textContent = h<12 ? 'Bonjour ☀️' : h<18 ? 'Bon après-midi 🌤️' : 'Bonsoir 🌙';
+  document.getElementById('welcomeName').textContent = prenom + ' 👋';
+
+  const avaBtn = document.getElementById('avatarBtn');
+  if(prof?.avatar_url) avaBtn.innerHTML = `<img src="${prof.avatar_url}"/>`;
+  else avaBtn.textContent = prenom[0]?.toUpperCase() || '?';
+
+  if(prof?.whatsapp || meta?.whatsapp) document.getElementById('p_wa').value = prof?.whatsapp || meta?.whatsapp || '';
+  if(prof?.ville || meta?.ville) document.getElementById('p_ville').value = prof?.ville || meta?.ville || '';
+
+  if(sessionStorage.getItem('showWelcomePremium')) {
+    sessionStorage.removeItem('showWelcomePremium');
+    const { data: freshProf } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    if(freshProf) userProfile = freshProf;
+    setTimeout(() => {
+      const nom = userProfile?.plan === 'elite' ? 'Elite 🚀' : 'Premium 👑';
+      showToast('🎉 Bienvenue en ' + nom + ' ! Toutes vos fonctionnalités sont débloquées.', 'success');
+    }, 600);
+  }
+
+  renderPlanUI();
+  await Promise.all([loadAds(), loadNotifs(), countMyAds(), loadFavs(), loadUnreadMsgCount()]);
+  startPremiumWatcher();
+  startRealtimeNotifs();
 }
 
-async function markRead(id) {
-  allNotifs = allNotifs.map(n => n.id === id ? { ...n, read: true } : n);
-  renderNotifPanel();
-  await sb.from('notifications').update({ read: true }).eq('id', id);
-  loadNotifs();
+function renderPlanUI() {
+  const isPrem = userProfile?.is_premium;
+  const plan = userProfile?.plan || 'free';
+  const expires = userProfile?.plan_expires ? new Date(userProfile.plan_expires) : null;
+  const daysSince = Math.floor((Date.now() - new Date(currentUser.created_at)) / 86400000);
+  const trialLeft = Math.max(0, FREE_DAYS - daysSince);
+  const wrap = document.getElementById('planBadgeWrap');
+  const qbtnPrem = document.getElementById('qbtnPremium');
+
+  if(isPrem && plan === 'elite') {
+    wrap.innerHTML = `<div class="plan-badge elite">🚀 Compte Elite — Actif</div>`;
+    document.getElementById('welcomeSub').textContent = 'Profitez de toute la puissance Elite ! Visibilité maximale.';
+  } else if(isPrem) {
+    const expStr = expires ? expires.toLocaleDateString('fr-FR') : '—';
+    wrap.innerHTML = `<div class="plan-badge premium">👑 Premium actif · jusqu'au ${expStr}</div>`;
+    document.getElementById('welcomeSub').textContent = 'Votre compte Premium est actif. Vendez sans limites !';
+  } else {
+    const pct = Math.max(0, (trialLeft / FREE_DAYS) * 100);
+    const label = trialLeft > 0 ? `${trialLeft} jour${trialLeft>1?'s':''} d'essai restant${trialLeft>1?'s':''}` : '⚠️ Essai expiré';
+    wrap.innerHTML = `
+      <div class="plan-badge free">🆓 Compte gratuit</div>
+      <div class="trial-mini">
+        <div class="trial-mini-row"><span class="trial-mini-lbl">Essai gratuit</span><span class="trial-mini-days">${label}</span></div>
+        <div class="trial-mini-track"><div class="trial-mini-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    qbtnPrem.style.display = 'flex';
+    document.getElementById('welcomeSub').textContent = trialLeft === 0
+      ? 'Votre essai a expiré. Passez Premium pour continuer !'
+      : "Que cherchez-vous aujourd'hui ?";
+  }
 }
 
-async function markAllRead() {
-  allNotifs = allNotifs.map(n => ({ ...n, read: true }));
-  renderNotifPanel();
-  await sb.from('notifications').update({ read: true }).eq('user_id', currentUser.id);
-  loadNotifs();
-  showToast('Tout marqué comme lu');
+async function countMyAds() {
+  if(!currentUser) return;
+  const { count } = await sb.from('annonces').select('*', {count:'exact', head:true}).eq('user_id', currentUser.id);
+  myAdsCount = count || 0;
 }
 
-// ===== ANNONCES =====
 async function loadAds() {
   try {
-    const { data } = await sb.from('annonces')
-      .select('*')
-      .eq('actif', true)
-      .order('created_at', { ascending: false })
-      .limit(50);
-    
-    allAds = data || [];
-    
-    // Charger les infos des vendeurs
-    const userIds = [...new Set(allAds.map(a => a.user_id).filter(Boolean))];
-    if (userIds.length) {
-      const { data: profiles } = await sb.from('profiles')
-        .select('id, full_name, whatsapp, is_premium')
-        .in('id', userIds);
-      
-      const profileMap = {};
-      (profiles || []).forEach(p => profileMap[p.id] = p);
-      
-      allAds = allAds.map(a => ({
-        ...a,
-        profiles: profileMap[a.user_id] || { full_name: 'Vendeur' }
-      }));
+    const { data: annonces, error } = await sb.from('annonces').select('*').eq('actif', true).order('created_at', {ascending:false}).limit(80);
+    if(error) throw error;
+    if(!annonces || !annonces.length) { allAds = []; renderAds(); return; }
+    const userIds = [...new Set(annonces.map(a => a.user_id).filter(Boolean))];
+    let profilesMap = {};
+    if(userIds.length) {
+      const { data: profiles } = await sb.from('profiles').select('id,full_name,whatsapp,is_premium').in('id', userIds);
+      if(profiles) profiles.forEach(p => { profilesMap[p.id] = p; });
     }
-    
+    allAds = annonces.map(a => ({...a, profiles: profilesMap[a.user_id] || {full_name:'Vendeur', whatsapp: a.whatsapp || ''}}));
     renderAds();
-  } catch (err) {
-    console.error(err);
+  } catch(err) {
+    console.error(err); allAds = []; renderAds();
     showToast('Erreur de chargement', 'error');
   }
 }
 
 function renderAds() {
   let ads = [...allAds];
-  
-  if (currentCat !== 'all') {
-    ads = ads.filter(a => a.categorie === currentCat);
-  }
-  
-  if (currentTab === 'feat') {
-    ads = ads.filter(a => a.featured === true);
-  } else if (currentTab === 'urgent') {
-    ads = ads.filter(a => a.urgent === true);
-  }
-  
-  const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
-  if (search) {
-    ads = ads.filter(a => 
-      (a.titre || '').toLowerCase().includes(search) ||
-      (a.description || '').toLowerCase().includes(search)
-    );
-  }
-  
+  ads.sort((a,b) => (b.featured===true?1:0) - (a.featured===true?1:0) || new Date(b.created_at) - new Date(a.created_at));
+  if(currentCat !== 'all') ads = ads.filter(a => a.categorie === currentCat);
+  if(currentTab === 'feat') ads = ads.filter(a => a.featured === true);
+  if(currentTab === 'urgent') ads = ads.filter(a => a.urgent);
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  if(q) ads = ads.filter(a => (a.titre||'').toLowerCase().includes(q) || (a.description||'').toLowerCase().includes(q) || (a.ville||'').toLowerCase().includes(q));
+
   document.getElementById('adsCount').textContent = ads.length + ' annonce' + (ads.length > 1 ? 's' : '');
-  
-  if (!ads.length) {
-    document.getElementById('adsGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem;">Aucune annonce trouvée</div>';
+  const grid = document.getElementById('adsGrid');
+  if(!ads.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-ico">🔍</div><h3>Aucune annonce trouvée</h3><p>Soyez le premier à publier dans cette catégorie !</p></div>`;
     return;
   }
-  
-  const emojiMap = {
-    immobilier: '🏠', vehicules: '🚗', electronique: '📱',
-    mode: '👗', services: '🛠️', emploi: '💼', alimentation: '🥘'
-  };
-  
-  document.getElementById('adsGrid').innerHTML = ads.map(ad => {
-    const emoji = emojiMap[ad.categorie] || '📦';
+  grid.innerHTML = ads.map((ad, i) => {
+    const emoji = EMOJI_MAP[ad.categorie] || '📦';
+    const isFeat = ad.featured === true;
+    const badge = isFeat
+      ? `<div class="ad-badge feat">⭐ En avant</div>`
+      : ad.urgent ? `<div class="ad-badge">Urgent</div>`
+      : ad.promo ? `<div class="ad-badge" style="background:var(--turq)">Promo</div>` : '';
     const isLiked = liked.has(ad.id);
-    
-    return `
-      <div class="ad-card" onclick="openDetail('${ad.id}')">
-        <div class="ad-img" style="padding:0; background:none;">
-          ${ad.image_url ? 
-            `<img src="${ad.image_url}" style="width:100%; aspect-ratio:4/3; object-fit:cover;">` :
-            `<div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; font-size:2.5rem;">${emoji}</div>`
-          }
-          ${ad.featured ? '<div class="ad-badge" style="background:var(--gold);">⭐ En avant</div>' : ''}
-          ${ad.urgent ? '<div class="ad-badge">Urgent</div>' : ''}
-          <button class="ad-fav ${isLiked ? 'liked' : ''}" id="fav_${ad.id}" onclick="event.stopPropagation(); toggleFav('${ad.id}')"></button>
-        </div>
-        <div class="ad-body">
-          <div class="ad-title">${ad.titre || 'Sans titre'}</div>
-          <div class="ad-price">${formatPrice(ad.prix)}</div>
-          <div class="ad-location">📍 ${ad.ville || '—'}</div>
-          <div class="ad-footer">
-            <span class="ad-time">${timeAgo(ad.created_at)}</span>
-            <button class="btn-wa" onclick="event.stopPropagation(); contactWA('${ad.whatsapp || ''}')">💬</button>
-          </div>
+    // FIX #3: échappement correct des guillemets dans onerror
+    const safeTitle = (ad.titre || '').replace(/"/g, '&quot;');
+    const imgContent = ad.image_url
+      ? `<img src="${ad.image_url}" alt="${safeTitle}" style="width:100%;aspect-ratio:4/3;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div style="width:100%;aspect-ratio:4/3;display:none;align-items:center;justify-content:center;font-size:2.5rem">${emoji}</div>`
+      : `<div style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.5rem">${emoji}</div>`;
+    const sellerPrem = ad.profiles?.is_premium ? '<span style="font-size:.58rem;background:rgba(245,183,49,.15);color:#C8901A;border:1px solid rgba(200,144,26,.25);border-radius:99px;padding:1px 5px;font-weight:700;margin-left:.3rem">✓ Vérifié</span>' : '';
+    const waNum = (ad.profiles?.whatsapp || ad.whatsapp || '').replace(/[^0-9+]/g, '');
+    return `<div class="ad-card" style="animation-delay:${i*0.05}s;${isFeat?'border-color:rgba(200,144,26,.3);box-shadow:0 4px 20px rgba(200,144,26,.15);':''}" onclick="openDetail('${ad.id}')">
+      <div class="ad-img" style="padding:0;background:none;">${imgContent}${badge}
+        <button class="ad-fav ${isLiked?'liked':''}" id="fav_${ad.id}" onclick="event.stopPropagation();toggleFav('${ad.id}')" aria-label="Favori"></button>
+      </div>
+      <div class="ad-body">
+        <div class="ad-title">${ad.titre || 'Sans titre'}</div>
+        <div class="ad-price">${fmtPrice(ad.prix)}</div>
+        <div class="ad-location">📍 ${ad.ville || '—'}${sellerPrem}</div>
+        <div class="ad-footer">
+          <span class="ad-time">${timeAgo(ad.created_at)}</span>
+          <button class="btn-wa" onclick="event.stopPropagation();contactWA('${waNum}')" title="WhatsApp">💬</button>
         </div>
       </div>
-    `;
+    </div>`;
   }).join('');
 }
 
-function formatPrice(price) {
-  if (!price && price !== 0) return 'Prix à débattre';
-  return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
-}
+function filterCat(cat, el) { currentCat = cat; document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); renderAds(); }
+function filterAds() { renderAds(); }
+function setAdTab(tab, el) { currentTab = tab; document.querySelectorAll('.ad-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderAds(); }
 
-function timeAgo(date) {
-  if (!date) return '';
-  const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (seconds < 60) return 'À l\'instant';
-  if (seconds < 3600) return `Il y a ${Math.floor(seconds / 60)} min`;
-  if (seconds < 86400) return `Il y a ${Math.floor(seconds / 3600)} h`;
-  return `Il y a ${Math.floor(seconds / 86400)} j`;
-}
-
-function filterCat(cat, el) {
-  currentCat = cat;
-  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderAds();
-}
-
-function filterAds() {
-  renderAds();
-}
-
-function setAdTab(tab, el) {
-  currentTab = tab;
-  document.querySelectorAll('.ad-tab').forEach(t => {
-    t.classList.remove('active');
-    t.style.background = 'white';
-    t.style.color = 'var(--gray)';
-  });
-  el.classList.add('active');
-  el.style.background = 'var(--blue2)';
-  el.style.color = 'white';
-  renderAds();
-}
-
-// ===== FAVORIS =====
 async function loadFavs() {
-  if (!currentUser) return;
-  const { data } = await sb.from('favoris').select('annonce_id').eq('user_id', currentUser.id);
-  (data || []).forEach(f => liked.add(f.annonce_id));
+  if(!currentUser) return;
+  try {
+    const { data } = await sb.from('favoris').select('annonce_id').eq('user_id', currentUser.id);
+    (data || []).forEach(f => liked.add(f.annonce_id));
+  } catch(e) { console.warn('favoris:', e); }
 }
 
 async function toggleFav(id) {
-  if (!currentUser) {
-    showToast('Connectez-vous pour ajouter aux favoris', 'warning');
-    return;
-  }
-  
+  if(!currentUser) { showToast('Connecte-toi pour sauvegarder', 'warning'); return; }
   const btn = document.getElementById('fav_' + id);
-  if (liked.has(id)) {
+  if(liked.has(id)) {
     liked.delete(id);
-    if (btn) btn.classList.remove('liked');
-    await sb.from('favoris').delete().eq('user_id', currentUser.id).eq('annonce_id', id);
+    if(btn) btn.classList.remove('liked');
     showToast('Retiré des favoris', 'info');
+    await sb.from('favoris').delete().eq('user_id', currentUser.id).eq('annonce_id', id);
   } else {
     liked.add(id);
-    if (btn) btn.classList.add('liked');
-    await sb.from('favoris').upsert({
-      user_id: currentUser.id,
-      annonce_id: id,
-      created_at: new Date().toISOString()
-    });
-    showToast('Ajouté aux favoris ❤️');
+    if(btn) btn.classList.add('liked');
+    showToast('Ajouté aux favoris ❤️', 'success');
+    await sb.from('favoris').upsert({user_id:currentUser.id, annonce_id:id, created_at:new Date().toISOString()}, {onConflict:'user_id,annonce_id'});
   }
 }
 
-// ===== WHATSAPP =====
 function contactWA(num) {
-  if (!num) {
-    showToast('Numéro WhatsApp non disponible', 'warning');
-    return;
-  }
+  if(!num) { showToast('Numéro WhatsApp non disponible', 'warning'); return; }
   let n = num.replace(/[\s\-\.\(\)]/g, '');
-  if (n.startsWith('00')) n = '+' + n.slice(2);
-  if (!n.startsWith('+')) n = '+237' + n; // Cameroun par défaut
-  window.open('https://wa.me/' + n + '?text=Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9%20par%20votre%20annonce', '_blank');
+  if(n.startsWith('00')) n = n.slice(2);
+  else n = n.replace(/^\+/, '');
+  const afriPrefixes = ['237','225','221','223','226','228','229','241','242','235','224','33','1'];
+  if(!afriPrefixes.some(p => n.startsWith(p))) n = '237' + n;
+  window.open('https://wa.me/' + n + '?text=Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9%20par%20votre%20annonce%20sur%20AfriMarket%20%F0%9F%9B%92', '_blank');
 }
 
-// ===== DETAIL MODAL =====
-function openDetail(id) {
+// FIX #4: openDetail rendu async et corrigé (await dans fonction non-async = crash)
+async function openDetail(id) {
   const ad = allAds.find(a => a.id === id);
-  if (!ad) return;
-  
+  if(!ad) return;
+
+  // Sauvegarder l'annonce courante pour le modal avis
+  currentDetailAd = ad;
+
+  const emoji = EMOJI_MAP[ad.categorie] || '📦';
   const mImg = document.getElementById('mImg');
-  if (ad.image_url) {
-    mImg.innerHTML = `<img src="${ad.image_url}" style="width:100%; height:200px; object-fit:cover; border-radius:16px;">`;
+  if(ad.image_url) {
+    mImg.innerHTML = `<img src="${ad.image_url}" alt="${(ad.titre||'').replace(/"/g,'&quot;')}" style="width:100%;height:200px;object-fit:cover;border-radius:16px;" onerror="this.style.display='none';this.parentElement.textContent='${emoji}';this.parentElement.style.fontSize='4rem'">`;
+    mImg.style.background = 'none';
+    mImg.style.fontSize = 'unset';
   } else {
-    mImg.textContent = '📦';
+    mImg.textContent = emoji;
     mImg.style.background = 'linear-gradient(135deg,#E8EEFF,#F0F4FF)';
+    mImg.style.fontSize = '4rem';
   }
-  
+
   document.getElementById('mTitle').textContent = ad.titre || 'Sans titre';
-  document.getElementById('mPrice').textContent = formatPrice(ad.prix);
-  document.getElementById('mDesc').textContent = ad.description || 'Aucune description.';
-  
+  document.getElementById('mPrice').textContent  = fmtPrice(ad.prix);
+  document.getElementById('mDesc').textContent   = ad.description || 'Aucune description.';
+
   document.getElementById('mInfo').innerHTML = `
-    <span style="background:var(--bg); padding:.3rem .8rem; border-radius:99px; font-size:.74rem;">📍 ${ad.ville || '—'}</span>
-    <span style="background:var(--bg); padding:.3rem .8rem; border-radius:99px; font-size:.74rem;">🏷️ ${ad.categorie || '—'}</span>
-    <span style="background:var(--bg); padding:.3rem .8rem; border-radius:99px; font-size:.74rem;">🕐 ${timeAgo(ad.created_at)}</span>
-  `;
-  
+    <span class="modal-tag">📍 ${ad.ville || '—'}</span>
+    <span class="modal-tag">🏷️ ${ad.categorie || '—'}</span>
+    <span class="modal-tag">🕐 ${timeAgo(ad.created_at)}</span>
+    ${ad.featured ? '<span class="modal-tag" style="background:rgba(200,144,26,.1);color:#C8901A">⭐ En avant</span>' : ''}
+    ${ad.urgent   ? '<span class="modal-tag" style="background:#FFF3E0;color:var(--orange)">🔥 Urgent</span>' : ''}`;
+
   const seller = ad.profiles || {};
-  const sellerName = seller.full_name || 'Vendeur inconnu';
-  
+  const sNom   = seller.full_name || 'Vendeur inconnu';
+  const verified = seller.is_premium ? '👑 Premium · Vendeur vérifié ✅' : 'Vendeur';
+
+  // FIX #5: await utilisable car openDetail est maintenant async
+  let starHtml = '<span style="font-size:.68rem;color:var(--gray)">Aucun avis encore</span>';
+  try {
+    const sellerId = seller.id || ad.user_id;
+    if(sellerId) {
+      const { data: rating } = await sb.from('profiles').select('rating_avg,rating_count').eq('id', sellerId).single();
+      if(rating && rating.rating_count > 0) {
+        const avg = parseFloat(rating.rating_avg) || 0;
+        const filled = Math.min(5, Math.round(avg));
+        const stars = '⭐'.repeat(filled) + '☆'.repeat(5 - filled);
+        starHtml = `<span style="font-size:.72rem;color:var(--gold)">${stars}</span> <span style="font-size:.68rem;color:var(--gray)">${avg.toFixed(1)} (${rating.rating_count} avis)</span>`;
+      }
+    }
+  } catch(e) { console.warn('rating:', e.message); }
+
   document.getElementById('mSeller').innerHTML = `
-    <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--turq),var(--blue2)); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">${sellerName[0]?.toUpperCase() || '?'}</div>
-    <div style="flex:1;">
-      <h4 style="font-size:.88rem;">${sellerName}</h4>
-      <p style="font-size:.74rem; color:var(--gray);">${seller.is_premium ? 'Vendeur vérifié ✅' : 'Vendeur'}</p>
-    </div>
-  `;
-  
-  const wa = (ad.whatsapp || seller.whatsapp || '').replace(/[^0-9+]/g, '');
+    <div class="seller-ava">${sNom[0]?.toUpperCase() || '?'}</div>
+    <div class="seller-info"><h4>${sNom}</h4><p>${verified}</p><div style="margin-top:.2rem">${starHtml}</div></div>`;
+
+  const wa = (seller.whatsapp || ad.whatsapp || '').replace(/[^0-9+]/g, '');
   document.getElementById('mWaBtn').onclick = () => contactWA(wa);
-  
+
+  const msgBtn = document.getElementById('mMsgBtn');
+  if(ad.user_id && ad.user_id !== currentUser?.id) {
+    msgBtn.style.display = '';
+    msgBtn.onclick = () => {
+      document.getElementById('detailOverlay').classList.remove('open');
+      location.href = 'messages.html?with=' + ad.user_id + '&ad=' + ad.id;
+    };
+  } else {
+    msgBtn.style.display = 'none';
+  }
+
   document.getElementById('detailOverlay').classList.add('open');
 }
 
 function closeDetail(e) {
-  if (e.target === document.getElementById('detailOverlay')) {
+  if(e.target === document.getElementById('detailOverlay'))
     document.getElementById('detailOverlay').classList.remove('open');
-  }
 }
 
-// ===== PUBLIER =====
-function openPublish() {
-  if (!currentUser) {
-    showToast('Connectez-vous pour publier', 'warning');
+async function loadNotifs() {
+  if(!currentUser) return;
+  const { data } = await sb.from('notifications').select('*').eq('user_id', currentUser.id).order('created_at', {ascending:false}).limit(30);
+  allNotifs = data || [];
+  updateNotifBadge();
+  renderNotifPanel();
+}
+
+function renderNotifPanel() {
+  const el = document.getElementById('notifPanelList');
+  if(!allNotifs.length) {
+    el.innerHTML = `<div class="np-empty"><div class="ei">🔔</div><p>Aucune notification pour l'instant</p></div>`;
     return;
+  }
+  const typeBg = {info:'info', success:'success', warning:'warning', alert:'alert', promo:'promo', news:'news'};
+  el.innerHTML = allNotifs.map(n => `
+    <div class="np-item${n.read ? ' read' : ''}" onclick="markRead('${n.id}')">
+      <div class="np-ico ${typeBg[n.type] || 'info'}">${n.icon || '🔔'}</div>
+      <div class="np-body">
+        <div class="np-ntitle">${n.title || ''}${!n.read ? '<div class="np-dot"></div>' : ''}</div>
+        <div class="np-msg">${n.message || ''}</div>
+        ${n.link ? `<a href="${n.link}" target="_blank" style="font-size:.7rem;color:var(--blue2);font-weight:600">🔗 Voir</a>` : ''}
+        <div class="np-time">${timeAgo(n.created_at)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function openNotifPanel() { document.getElementById('notifOverlay').classList.add('open'); }
+function closeNotifPanel() { document.getElementById('notifOverlay').classList.remove('open'); }
+
+async function markRead(id) {
+  allNotifs = allNotifs.map(n => n.id === id ? {...n, read:true} : n);
+  renderNotifPanel();
+  updateNotifBadge();
+  await sb.from('notifications').update({read:true}).eq('id', id);
+}
+
+async function markAllRead() {
+  allNotifs = allNotifs.map(n => ({...n, read:true}));
+  renderNotifPanel();
+  updateNotifBadge();
+  await sb.from('notifications').update({read:true}).eq('user_id', currentUser.id);
+  showToast('Tout marqué comme lu ✅');
+}
+
+async function openPublish() {
+  if(!currentUser) { showToast('Connectez-vous pour publier', 'warning'); return; }
+  const { data: freshP } = await sb.from('profiles').select('is_premium,plan,plan_expires').eq('id', currentUser.id).single();
+  if(freshP) {
+    userProfile.is_premium   = (freshP.is_premium === true || freshP.is_premium === 'true' || freshP.is_premium === 1);
+    userProfile.plan         = freshP.plan || 'free';
+    userProfile.plan_expires = freshP.plan_expires;
+  }
+  const isPrem  = userProfile?.is_premium === true;
+  const warn    = document.getElementById('limitWarn');
+  const limitBar = document.getElementById('pubLimitBar');
+  const btnPub  = document.getElementById('btnPub');
+
+  if(!isPrem) {
+    limitBar.style.display = '';
+    const pct = Math.min(myAdsCount / FREE_LIMIT * 100, 100);
+    document.getElementById('plbCount').textContent = myAdsCount + ' / ' + FREE_LIMIT;
+    document.getElementById('plbFill').style.width = pct + '%';
+    document.getElementById('plbFill').className = 'plb-fill' + (pct >= 100 ? ' full' : '');
+    if(myAdsCount >= FREE_LIMIT) {
+      warn.classList.add('show'); btnPub.disabled = true;
+      btnPub.style.background = 'linear-gradient(135deg,#999,#777)';
+      btnPub.querySelector('.pub-lbl').textContent = '🔒 Limite atteinte — Passer Premium';
+    } else {
+      warn.classList.remove('show'); btnPub.disabled = false;
+      btnPub.style.background = '';
+      btnPub.querySelector('.pub-lbl').textContent = "🚀 Publier l'annonce";
+    }
+  } else {
+    limitBar.style.display = 'none'; warn.classList.remove('show');
+    btnPub.disabled = false; btnPub.style.background = '';
+    btnPub.querySelector('.pub-lbl').textContent = "🚀 Publier l'annonce";
   }
   document.getElementById('pubOverlay').classList.add('open');
 }
 
-function closePub(e) {
-  if (e.target === document.getElementById('pubOverlay')) {
-    document.getElementById('pubOverlay').classList.remove('open');
-  }
+function closePub(e) { if(e.target === document.getElementById('pubOverlay')) document.getElementById('pubOverlay').classList.remove('open'); }
+
+function previewImage(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const preview = document.getElementById('imgPreview');
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const zone = document.getElementById('uploadZone');
+  const reader = new FileReader();
+  reader.onload = ev => { preview.src = ev.target.result; preview.classList.add('show'); placeholder.style.display = 'none'; zone.classList.add('has-img'); };
+  reader.readAsDataURL(file);
 }
 
-async function submitPublish() {
+document.getElementById('pubForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const isPrem = userProfile?.is_premium;
+  if(!isPrem && myAdsCount >= FREE_LIMIT) { showToast('Limite atteinte ! Passez Premium 👑', 'warning'); window.location.href = 'pricing.html'; return; }
   const title = document.getElementById('p_title').value.trim();
-  const desc = document.getElementById('p_desc').value.trim();
+  const desc  = document.getElementById('p_desc').value.trim();
   const price = document.getElementById('p_price').value;
-  const cat = document.getElementById('p_cat').value;
+  const cat   = document.getElementById('p_cat').value;
   const ville = document.getElementById('p_ville').value.trim();
-  const wa = document.getElementById('p_wa').value.trim();
-  
-  if (!title || !desc || !cat || !ville || !wa) {
-    showToast('Remplissez tous les champs obligatoires', 'warning');
-    return;
-  }
-  
+  const wa    = document.getElementById('p_wa').value.trim();
+  if(!title || !desc || !cat || !ville || !wa) { showToast('Remplissez tous les champs obligatoires', 'warning'); return; }
+
+  const btn = document.getElementById('btnPub');
+  btn.disabled = true; btn.classList.add('loading');
   try {
     let image_url = null;
     const imgFile = document.getElementById('p_img').files[0];
-    if (imgFile) {
+    if(imgFile) {
       const ext = imgFile.name.split('.').pop();
       const fileName = `${currentUser.id}/${Date.now()}.${ext}`;
-      await sb.storage.from('annonces').upload(fileName, imgFile);
+      const { error: storageErr } = await sb.storage.from('annonces').upload(fileName, imgFile, {upsert:true});
+      if(storageErr) throw storageErr;
       const { data: urlData } = sb.storage.from('annonces').getPublicUrl(fileName);
       image_url = urlData.publicUrl;
     }
-    
-    const payload = {
-      titre: title,
-      description: desc,
-      prix: price ? parseInt(price) : null,
-      categorie: cat,
-      ville: ville,
-      whatsapp: wa,
-      image_url: image_url,
-      user_id: currentUser.id,
-      created_at: new Date().toISOString(),
-      actif: true,
-      featured: false,
-      urgent: false
-    };
-    
+    const payload = { titre:title, description:desc, prix:price?parseInt(price):null, categorie:cat, ville, whatsapp:wa, image_url, user_id:currentUser.id, created_at:new Date().toISOString(), actif:true, featured:false };
     const { data, error } = await sb.from('annonces').insert([payload]).select().single();
-    if (error) throw error;
-    
-    allAds.unshift({
-      ...data,
-      profiles: { full_name: userProfile?.full_name || 'Moi', whatsapp: wa }
-    });
+    if(error) throw error;
+
+    const newAd = {...data, profiles:{full_name:userProfile?.full_name||currentUser.user_metadata?.full_name||'Moi', whatsapp:wa, is_premium:userProfile?.is_premium||false}};
+    allAds.unshift(newAd); myAdsCount++;
     renderAds();
-    
+
     document.getElementById('pubOverlay').classList.remove('open');
     document.getElementById('pubForm').reset();
-    showToast('Annonce publiée avec succès !');
-    
-  } catch (err) {
+    document.getElementById('imgPreview').classList.remove('show');
+    document.getElementById('imgPreview').src = '';
+    document.getElementById('uploadPlaceholder').style.display = '';
+    document.getElementById('uploadZone').classList.remove('has-img');
+    showToast('Annonce publiée avec succès ! 🎉');
+    if(!isPrem && myAdsCount >= FREE_LIMIT - 1) setTimeout(() => showToast("⚠️ Plus qu'une annonce gratuite disponible ! Passez Premium.", 'warning'), 1500);
+  } catch(err) {
     console.error(err);
-    showToast('Erreur : ' + err.message, 'error');
-  }
-}
+    showToast(err.message?.includes('does not exist') ? 'Créez la table "annonces" dans Supabase' : 'Erreur : ' + err.message, 'error');
+  } finally { btn.disabled = false; btn.classList.remove('loading'); }
+});
 
-// ===== NAVIGATION =====
 function navGo(page, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
-  
-  if (page === 'home') {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else {
-    goToPage(page);
+  if(page === 'home') { window.scrollTo({top:0, behavior:'smooth'}); return; }
+  if(page === 'notifications') { openNotifPanel(); return; }
+  const pages = {favoris:'favoris.html', profil:'profil.html', messages:'messages.html'};
+  if(pages[page]) window.location.href = pages[page];
+}
+
+function scrollToAds() { document.getElementById('adsAnchor').scrollIntoView({behavior:'smooth'}); }
+
+function shareApp() {
+  if(navigator.share) navigator.share({title:'AfriMarket', text:'Découvrez AfriMarket — La marketplace africaine de petites annonces !', url:window.location.origin}).catch(()=>{});
+  else navigator.clipboard?.writeText(window.location.origin).then(() => showToast('Lien copié ! 📋', 'success')).catch(() => showToast('Partagez : ' + window.location.origin, 'info'));
+}
+
+// FIX #6: sous-requête async dans .in() corrigée (deux appels séparés)
+async function loadUnreadMsgCount() {
+  if(!currentUser) return;
+  try {
+    const { data: convs } = await sb.from('conversations').select('id')
+      .or('participant_1.eq.' + currentUser.id + ',participant_2.eq.' + currentUser.id);
+    const convIds = (convs || []).map(c => c.id);
+    if(!convIds.length) return;
+    const { count } = await sb.from('messages').select('id', {count:'exact', head:true})
+      .eq('read', false).neq('sender_id', currentUser.id).in('conversation_id', convIds);
+    const n = count || 0;
+    const badge = document.getElementById('msgNavBadge');
+    if(badge) { badge.textContent = n; badge.style.display = n > 0 ? 'block' : 'none'; }
+  } catch(e) { console.warn('msgCount:', e.message); }
+}
+
+let _pollingTimer = null;
+function startPremiumWatcher() {
+  if(!currentUser) return;
+  _pollingTimer = setInterval(async () => {
+    try {
+      const { data: f } = await sb.from('profiles').select('is_premium,plan,plan_expires').eq('id', currentUser.id).single();
+      if(!f) return;
+      const wasP = userProfile?.is_premium === true;
+      const nowP = (f.is_premium === true || f.is_premium === 'true' || f.is_premium === 1);
+      if(nowP !== wasP) {
+        userProfile.is_premium = f.is_premium; userProfile.plan = f.plan || 'free'; userProfile.plan_expires = f.plan_expires;
+        renderPlanUI();
+        const qbtn = document.getElementById('qbtnPremium');
+        if(qbtn) qbtn.style.display = nowP ? 'none' : 'flex';
+        if(nowP && !wasP) {
+          showToast('🎉 Compte ' + (f.plan === 'elite' ? 'Elite 🚀' : 'Premium 👑') + ' activé ! Publiez sans limites.', 'success');
+          launchConfetti();
+        }
+      }
+    } catch(e) {}
+  }, 8000);
+}
+
+function launchConfetti() {
+  const colors = ['#1B3FE4','#00C2B7','#FF6B1A','#F5B731','#00C271'];
+  for(let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;z-index:9999;pointer-events:none;top:-10px;left:${Math.random()*100}vw;width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;border-radius:${Math.random()>.5?'50%':'2px'};background:${colors[Math.floor(Math.random()*colors.length)]};animation:cFall ${Math.random()*3+2}s linear ${Math.random()}s forwards`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+  if(!document.getElementById('cFallStyle')) {
+    const s = document.createElement('style'); s.id = 'cFallStyle';
+    s.textContent = '@keyframes cFall{from{opacity:1;transform:translateY(0) rotate(0)}to{opacity:0;transform:translateY(110vh) rotate(720deg)}}';
+    document.head.appendChild(s);
   }
 }
 
-// ===== INITIALISATION =====
-async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  
-  if (!session) {
-    window.location.href = 'index.html';
-    return;
-  }
-  
-  currentUser = session.user;
-  
-  // Charger le profil
-  const { data: prof } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  userProfile = prof;
-  
-  // Afficher le nom
-  const name = prof?.full_name || currentUser.email?.split('@')[0] || 'Utilisateur';
-  document.getElementById('welcomeName').textContent = name.split(' ')[0] + ' 👋';
-  
-  // Plan badge
-  const isPrem = prof?.is_premium === true;
-  document.getElementById('planBadgeWrap').innerHTML = isPrem ?
-    '<div class="plan-badge premium">👑 Premium actif</div>' :
-    '<div class="plan-badge free">🆓 Compte gratuit</div>';
-  
-  // Charger les données
-  await Promise.all([
-    loadAds(),
-    loadNotifs(),
-    loadFavs()
-  ]);
+let _realtimeChannel = null;
+function startRealtimeNotifs() {
+  if(!currentUser || _realtimeChannel) return;
+  _realtimeChannel = sb.channel('notifs_' + currentUser.id)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'notifications', filter:'user_id=eq.' + currentUser.id}, payload => {
+      const n = payload.new; if(!n) return;
+      allNotifs.unshift(n);
+      updateNotifBadge(); // FIX: appel de la fonction définie
+      showPushBanner(n);
+    }).subscribe();
 }
 
-// Lancer l'initialisation
+function showPushBanner(n) {
+  let banner = document.getElementById('pushBanner');
+  if(!banner) {
+    banner = document.createElement('div'); banner.id = 'pushBanner';
+    banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--dark);color:white;border-radius:16px;padding:.8rem 1.1rem;display:flex;align-items:center;gap:.7rem;box-shadow:0 8px 28px rgba(8,14,42,.35);z-index:9990;max-width:340px;width:90vw;cursor:pointer;border-left:4px solid var(--turq);transition:transform .45s cubic-bezier(.34,1.56,.64,1);';
+    banner.onclick = () => { banner.style.transform = 'translateX(-50%) translateY(-100px)'; openNotifPanel(); };
+    document.body.appendChild(banner);
+  }
+  const tc = {success:'var(--turq)', error:'var(--red)', warning:'var(--orange)', info:'var(--blue2)'};
+  banner.style.borderLeftColor = tc[n.type] || 'var(--turq)';
+  banner.innerHTML = `<span style="font-size:1.4rem">${n.icon||'🔔'}</span><div style="flex:1;min-width:0"><div style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700">${n.title||''}</div><div style="font-size:.72rem;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.message||''}</div></div><span style="font-size:.75rem;color:rgba(255,255,255,.3)">✕</span>`;
+  setTimeout(() => { banner.style.transform = 'translateX(-50%) translateY(0)'; }, 50);
+  clearTimeout(banner._timer);
+  banner._timer = setTimeout(() => { banner.style.transform = 'translateX(-50%) translateY(-100px)'; }, 5000);
+}
+
+window.addEventListener('beforeunload', () => {
+  if(_pollingTimer) clearInterval(_pollingTimer);
+  if(_realtimeChannel) sb.removeChannel(_realtimeChannel);
+});
+
+// ===== AVIS =====
+let selectedNote = 0;
+const noteLabels = ['','😞 Très mauvais','😕 Mauvais','😐 Moyen','😊 Bien','🤩 Excellent !'];
+
+// FIX #7: openAvisModal lit depuis currentDetailAd (plus de perte de contexte entre modals)
+function openAvisModal() {
+  if(!currentUser) { showToast('Connecte-toi pour laisser un avis', 'warning'); return; }
+  if(!currentDetailAd) { showToast('Aucune annonce sélectionnée', 'info'); return; }
+  const sellerId = currentDetailAd.profiles?.id || currentDetailAd.user_id;
+  if(!sellerId || sellerId === currentUser?.id) { showToast('Tu ne peux pas te noter toi-même', 'info'); return; }
+
+  const avisOverlay = document.getElementById('avisOverlay');
+  avisOverlay.dataset.sellerId = sellerId;
+  avisOverlay.dataset.adId     = currentDetailAd.id || '';
+  document.getElementById('avisSellerName').textContent = "Pour l'annonce : " + (currentDetailAd.titre || '—');
+  selectedNote = 0;
+  renderStars(0);
+  document.getElementById('avisNoteLabel').textContent = 'Sélectionne une note';
+  document.getElementById('avisComment').value = '';
+  document.getElementById('avisSubmitBtn').disabled = true;
+  avisOverlay.classList.add('open');
+}
+
+function selectStar(n) {
+  selectedNote = n; renderStars(n);
+  document.getElementById('avisNoteLabel').textContent = noteLabels[n] || '';
+  document.getElementById('avisSubmitBtn').disabled = false;
+}
+
+function renderStars(n) {
+  document.querySelectorAll('.star-btn').forEach(s => {
+    const v = parseInt(s.dataset.v);
+    s.textContent = v <= n ? '⭐' : '☆';
+    s.style.transform = v <= n ? 'scale(1.15)' : 'scale(1)';
+  });
+}
+
+async function submitAvis() {
+  const overlay  = document.getElementById('avisOverlay');
+  const sellerId = overlay.dataset.sellerId;
+  const adId     = overlay.dataset.adId;
+  const comment  = document.getElementById('avisComment').value.trim();
+  const btn      = document.getElementById('avisSubmitBtn');
+  if(!selectedNote) { showToast('Choisis une note', 'warning'); return; }
+  btn.disabled = true; btn.textContent = '⏳…';
+  try {
+    const { error } = await sb.from('avis').upsert({
+      reviewer_id: currentUser.id, seller_id: sellerId,
+      annonce_id: adId || null, note: selectedNote,
+      commentaire: comment || null, created_at: new Date().toISOString()
+    }, {onConflict:'reviewer_id,annonce_id'});
+    if(error) throw error;
+    showToast('⭐ Avis envoyé, merci !', 'success');
+    closeAvis();
+  } catch(e) {
+    showToast(e.message?.includes('unique') ? 'Tu as déjà noté cette annonce' : 'Erreur : ' + e.message, e.message?.includes('unique') ? 'info' : 'error');
+  } finally { btn.disabled = false; btn.textContent = '⭐ Envoyer'; }
+}
+
+function closeAvis() { document.getElementById('avisOverlay').classList.remove('open'); }
+
 init();
+</script>
+
+<script>
+  if('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(r => console.log('[SW] Registered:', r.scope))
+        .catch(e => console.warn('[SW] Error:', e));
+    });
+  }
 </script>
 </body>
 </html>
