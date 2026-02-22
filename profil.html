@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AfriMarket — Mon Profil</title>
+  <!-- PWA -->
   <link rel="manifest" href="/manifest.json"/>
   <meta name="theme-color" content="#080E2A"/>
   <meta name="mobile-web-app-capable" content="yes"/>
@@ -35,6 +36,7 @@
     .h-save{background:var(--turq);color:white;border:none;border-radius:99px;padding:.35rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;opacity:0;pointer-events:none;transition:all .3s;}
     .h-save.show{opacity:1;pointer-events:all;}
 
+    /* HERO */
     .hero{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 55%,#1B3FE4 100%);padding:2rem 1.2rem 3.8rem;position:relative;overflow:hidden;}
     .hero::before{content:'';position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(0,194,183,.08);right:-60px;top:-80px;}
     .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;}
@@ -54,12 +56,14 @@
     .hp-prem{background:rgba(245,183,49,.2);color:var(--gold);border:1px solid rgba(245,183,49,.3);}
     .hp-elite{background:rgba(0,194,183,.2);color:var(--turq);border:1px solid rgba(0,194,183,.3);}
 
+    /* STATS FLOAT */
     .stats-float{position:relative;z-index:10;margin:-1.8rem 1.2rem .8rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 8px 24px rgba(27,63,228,.1);padding:1rem;display:flex;}
     .sf{flex:1;text-align:center;}
     .sf+.sf{border-left:1px solid var(--border);}
     .sf-n{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
     .sf-l{font-size:.58rem;color:var(--gray);font-weight:600;margin-top:.1rem;letter-spacing:.2px;}
 
+    /* COMPLÉTION */
     .comp-card{margin:0 1.2rem .8rem;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
     .comp-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.55rem;}
     .comp-ttl{font-size:.82rem;font-weight:700;color:var(--dark);}
@@ -72,9 +76,11 @@
     .cdot.ok{background:rgba(0,194,113,.08);color:var(--green);border:1px solid rgba(0,194,113,.18);}
     .cdot.ko{background:rgba(255,107,26,.06);color:var(--orange);border:1px solid rgba(255,107,26,.12);}
 
+    /* SECTION */
     .sec{padding:1.1rem 1.2rem .5rem;}
     .sec-ttl{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
 
+    /* FORM */
     .form-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.05);padding:1.2rem;display:flex;flex-direction:column;gap:.85rem;}
     .field{display:flex;flex-direction:column;gap:.28rem;}
     .field label{font-size:.72rem;font-weight:700;color:var(--dark);letter-spacing:.15px;}
@@ -91,6 +97,7 @@
     .btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(27,63,228,.3);}
     .btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
+    /* PREMIUM CARD */
     .prem-card{margin:0 1.2rem;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(27,63,228,.08);}
     .pc-free{background:linear-gradient(135deg,#F8F9FF,#EEF2FF);border:1.5px solid var(--border);}
     .pc-prem{background:linear-gradient(135deg,#080E2A,#1B3FE4);}
@@ -115,6 +122,7 @@
     .pc-btn-up{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.25);}
     .pc-btn-mg{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.2);}
 
+    /* DANGER */
     .danger-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid rgba(232,48,48,.12);padding:1.2rem;}
     .dz-ttl{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--red);margin-bottom:.85rem;}
     .dz-btn{width:100%;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:all .2s;margin-bottom:.5rem;}
@@ -124,17 +132,19 @@
     .dz-del{background:rgba(100,0,0,.04);color:#8B0000;border:1.5px solid rgba(100,0,0,.09);}
     .dz-del:hover{background:#8B0000;color:white;}
 
+    /* BOTTOM NAV */
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
     .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;}
     .nav-item:hover{background:var(--bg);}
     .nav-ico{font-size:1.25rem;line-height:1;}
     .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
-    .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
     .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
 
-    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:9999;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;display:flex;align-items:center;gap:.5rem;}
+    /* TOAST */
+    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:300;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+    /* MODAL */
     .ov{position:fixed;inset:0;background:rgba(8,14,42,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
     .ov.open{opacity:1;pointer-events:all;}
     .modal{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.4rem 1.3rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
@@ -156,15 +166,14 @@
   <button class="h-save" id="hSave" onclick="saveProfile()">💾 Sauver</button>
 </div>
 
+<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
-    <!-- FIX: onclick déclenche correctement le file input -->
     <div class="av-wrap" onclick="document.getElementById('avInput').click()">
       <div class="av" id="avEl"><span id="avInit">?</span></div>
       <div class="av-edit-btn">✏️</div>
       <div class="av-spin" id="avSpin">⏳</div>
     </div>
-    <!-- FIX: onchange pointe vers la bonne fonction uploadAvatar -->
     <input type="file" id="avInput" accept="image/*" onchange="uploadAvatar(this)"/>
     <div class="h-name" id="hName">Chargement…</div>
     <div class="h-email" id="hEmail"></div>
@@ -172,6 +181,7 @@
   </div>
 </div>
 
+<!-- STATS FLOTTANTES -->
 <div class="stats-float">
   <div class="sf"><div class="sf-n" id="sAds">—</div><div class="sf-l">ANNONCES</div></div>
   <div class="sf"><div class="sf-n" id="sRefs">—</div><div class="sf-l">FILLEULS</div></div>
@@ -179,6 +189,7 @@
   <div class="sf"><div class="sf-n" id="sDays">—</div><div class="sf-l">JOURS</div></div>
 </div>
 
+<!-- COMPLÉTION -->
 <div class="comp-card">
   <div class="comp-top">
     <div class="comp-ttl">✨ Complétion du profil</div>
@@ -188,14 +199,17 @@
   <div class="comp-dots" id="cDots"></div>
 </div>
 
+<!-- FORMULAIRE -->
 <div class="sec"><div class="sec-ttl">👤 Informations personnelles</div></div>
 <div class="form-card">
+
   <div class="field">
     <label>Nom complet *</label>
     <div class="fi"><span class="fi-ico">👤</span>
       <input type="text" id="fName" placeholder="Ton nom complet" oninput="onChange(this)"/>
     </div>
   </div>
+
   <div class="field">
     <label>Numéro WhatsApp *</label>
     <div class="fi"><span class="fi-ico">💬</span>
@@ -203,6 +217,7 @@
     </div>
     <div class="f-hint">Les acheteurs te contactent via WhatsApp</div>
   </div>
+
   <div class="field">
     <label>Pays</label>
     <div class="fi"><span class="fi-ico">🌍</span>
@@ -224,20 +239,24 @@
       </select>
     </div>
   </div>
+
   <div class="field">
     <label>Ville</label>
     <div class="fi"><span class="fi-ico">📍</span>
       <input type="text" id="fVille" placeholder="Ex: Yaoundé, Douala…" oninput="onChange(this)"/>
     </div>
   </div>
+
   <div class="field">
     <label>Bio (optionnel)</label>
     <textarea class="f-ta" id="fBio" placeholder="Parle un peu de toi ou de ce que tu vends…" oninput="onChange(this)"></textarea>
     <div class="f-hint">Visible sur tes annonces</div>
   </div>
+
   <button class="btn-save" id="btnSave" onclick="saveProfile()">💾 Sauvegarder</button>
 </div>
 
+<!-- ABONNEMENT -->
 <div class="sec"><div class="sec-ttl">👑 Mon abonnement</div></div>
 <div class="prem-card pc-free" id="premCard">
   <div class="pc-in">
@@ -256,11 +275,14 @@
   </div>
 </div>
 
+<!-- DANGER ZONE -->
+<!-- MES AVIS REÇUS -->
 <div class="sec"><div class="sec-ttl">⭐ Mes avis reçus</div></div>
 <div id="avisSection" style="margin:0 1.2rem .9rem;display:flex;flex-direction:column;gap:.6rem;">
   <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem">⏳ Chargement…</div>
 </div>
 
+<!-- SUPPORT -->
 <div class="sec"><div class="sec-ttl">🎧 Service client</div></div>
 <div style="margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;flex-direction:column;gap:.7rem;">
   <div style="font-size:.78rem;color:var(--gray);line-height:1.6;">Une question ? Un problème ? Notre équipe est disponible pour t'aider 🙌</div>
@@ -274,15 +296,21 @@
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
   </a>
-  <a href="mailto:support@afrimarket.app"
-     style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;"
-     onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
+  <a href="mailto:abdoula13cherif&#64;gmail.com?subject=Support%20AfriMarket" style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
     <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
     <div>
       <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">support@afrimarket.app</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">abdoula13cherif&#64;gmail.com</div>
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
+  </a>
+  <a href="telecharger.html" style="display:flex;align-items:center;gap:.85rem;background:linear-gradient(135deg,rgba(0,194,183,.08),rgba(27,63,228,.06));border:1.5px solid rgba(0,194,183,.25);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
+    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📲</div>
+    <div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq);">Installer l'application</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Ajouter AfriMarket à l'écran d'accueil</div>
+    </div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--turq);">→</div>
   </a>
 </div>
 
@@ -295,18 +323,19 @@
 
 <div style="height:1rem"></div>
 
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-item" onclick="location.href='dashboard.html'">
+  <button class="nav-item " onclick="location.href='dashboard.html'">
     <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
   </button>
-  <button class="nav-item" onclick="location.href='messages.html'">
+  <button class="nav-item " onclick="location.href='messages.html'">
     <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
   </button>
-  <div class="nav-item" style="pointer-events:none">
-    <div class="nav-plus-btn" style="pointer-events:all" onclick="location.href='dashboard.html'">➕</div>
+  <div class="nav-item nav-plus">
+    <div class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</div>
     <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
   </div>
-  <button class="nav-item" onclick="location.href='favoris.html'">
+  <button class="nav-item " onclick="location.href='favoris.html'">
     <span class="nav-ico">❤️</span><span class="nav-lbl">Favoris</span>
   </button>
   <button class="nav-item active" onclick="location.href='profil.html'">
@@ -327,209 +356,32 @@
   </div>
 </div>
 
-<div id="toast"><span id="tIco"></span><span id="tMsg"></span></div>
+<div id="toast"></div>
 
-<script>
-// ===== SUPABASE =====
-const { createClient } = supabase;
-const sb = createClient(
-  'https://elgbvitijyjriozvzqpf.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
-);
-
-let U = null, P = {}, dirty = false;
-
-// ===== TOAST (FIX: fonction complète qui était tronquée) =====
-let _tt;
-function showToast(msg, type = 'success') {
-  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
-  document.getElementById('tIco').textContent = icons[type] || '💬';
-  document.getElementById('tMsg').textContent = msg;
-  const el = document.getElementById('toast');
-  el.classList.add('show');
-  el.style.borderLeftColor = type==='success' ? 'var(--turq)' : type==='error' ? 'var(--red)' : type==='warning' ? 'var(--orange)' : 'var(--blue2)';
-  clearTimeout(_tt);
-  _tt = setTimeout(() => el.classList.remove('show'), 3800);
-}
-
-// ===== INIT =====
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if(!session) { location.href = 'index.html'; return; }
-  U = session.user;
-
-  // FIX: gestion d'erreur sur le chargement du profil
-  let profData = null;
-  try {
-    const { data, error } = await sb.from('profiles').select('*').eq('id', U.id).single();
-    if(error && error.code !== 'PGRST116') throw error; // PGRST116 = not found
-    profData = data;
-  } catch(e) {
-    console.warn('[profil] load error:', e.message);
-  }
-
-  // Si profil inexistant, créer un profil minimal
-  if(!profData) {
-    const newP = {
-      id: U.id,
-      full_name: U.user_metadata?.full_name || U.email?.split('@')[0] || 'Utilisateur',
-      email: U.email,
-      is_premium: false,
-      plan: 'free',
-      created_at: new Date().toISOString()
-    };
-    const { data: created } = await sb.from('profiles').upsert(newP, { onConflict: 'id' }).select().single();
-    profData = created || newP;
-  }
-
-  P = profData;
-  // FIX: normaliser is_premium (peut être string, bool, ou int selon Supabase)
-  P.is_premium = (P.is_premium === true || P.is_premium === 'true' || P.is_premium === 1);
-
-  fillForm();
-  updateHero();
-  updateCompletion();
-  updatePremCard();
-  loadStats();
-  loadMyAvis(U.id);
-})();
-
-// ===== REMPLIR LE FORMULAIRE =====
-function fillForm() {
-  document.getElementById('fName').value  = P.full_name  || '';
-  document.getElementById('fWa').value    = P.whatsapp   || '';
-  document.getElementById('fPays').value  = P.pays       || '';
-  document.getElementById('fVille').value = P.ville      || '';
-  document.getElementById('fBio').value   = P.bio        || '';
-}
-
-// ===== HERO =====
-function updateHero() {
-  const name = P.full_name || U?.email?.split('@')[0] || 'Utilisateur';
-  document.getElementById('hName').textContent  = name;
-  document.getElementById('hEmail').textContent = U?.email || '';
-
-  const avEl = document.getElementById('avEl');
-  if(P.avatar_url) {
-    avEl.innerHTML = `<img src="${P.avatar_url}" alt="avatar" onerror="this.parentElement.innerHTML='<span>${(name[0]||'?').toUpperCase()}</span>'"/>`;
-  } else {
-    avEl.innerHTML = `<span>${(name[0] || '?').toUpperCase()}</span>`;
-  }
-
-  const pl = document.getElementById('hPlan');
-  if(P.is_premium) {
-    pl.className = 'h-plan ' + (P.plan === 'elite' ? 'hp-elite' : 'hp-prem');
-    pl.textContent = P.plan === 'elite' ? '⚡ Elite' : '👑 Premium';
-  } else {
-    pl.className = 'h-plan hp-free';
-    pl.textContent = '🆓 Compte Gratuit';
-  }
-}
-
-// ===== COMPLÉTION =====
-function updateCompletion() {
-  const checks = [
-    { ok: !!P.full_name,   lbl: 'Nom' },
-    { ok: !!P.whatsapp,    lbl: 'WhatsApp' },
-    { ok: !!P.ville,       lbl: 'Ville' },
-    { ok: !!P.avatar_url,  lbl: 'Photo' },
-    { ok: !!P.pays,        lbl: 'Pays' },
-    { ok: !!P.bio,         lbl: 'Bio' },
-  ];
-  const n = checks.filter(c => c.ok).length;
-  const pct = Math.round(n / checks.length * 100);
-  document.getElementById('cPct').textContent = pct + '%';
-  const f = document.getElementById('cFill');
-  f.style.width = pct + '%';
-  if(pct >= 100) f.classList.add('win'); else f.classList.remove('win');
-  document.getElementById('cDots').innerHTML = checks.map(c =>
-    `<span class="cdot ${c.ok ? 'ok' : 'ko'}">${c.ok ? '✅' : '❌'} ${c.lbl}</span>`
-  ).join('');
-}
-
-// ===== PLAN CARD =====
-function updatePremCard() {
-  if(!P.is_premium) return;
-  const card = document.getElementById('premCard');
-  card.className = 'prem-card pc-prem';
-  document.getElementById('pcIco').textContent = P.plan === 'elite' ? '⚡' : '👑';
-  document.getElementById('pcBadge').className = 'pc-badge pc-badge-p';
-  document.getElementById('pcBadge').textContent = P.plan === 'elite' ? '⚡ Elite' : '👑 Premium';
-  document.getElementById('pcTitle').textContent = 'Compte Premium Actif';
-  document.getElementById('pcFeats').innerHTML = `
-    <div class="pc-feat">✅ Annonces illimitées</div>
-    <div class="pc-feat">✅ Mise en avant prioritaire</div>
-    <div class="pc-feat">✅ Badge vendeur vérifié</div>
-    <div class="pc-feat">✅ Statistiques avancées</div>`;
-  const exp = P.plan_expires
-    ? new Date(P.plan_expires).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
-    : '—';
-  document.getElementById('pcDesc').innerHTML = `<div class="pc-expires">⏰ Expire le ${exp}</div>`;
-  const btn = document.getElementById('pcBtn');
-  btn.className = 'pc-btn pc-btn-mg';
-  btn.textContent = 'Gérer mon abonnement';
-  btn.onclick = () => location.href = 'pricing.html';
-}
-
-// ===== STATS =====
-async function loadStats() {
-  try {
-    // Annonces
-    const { count: ads } = await sb.from('annonces')
-      .select('*', { count:'exact', head:true })
-      .eq('user_id', U.id);
-    document.getElementById('sAds').textContent = ads || 0;
-
-    // Filleuls
-    const rc = P.ref_code || U.id.substring(0, 8);
-    const { count: refs } = await sb.from('profiles')
-      .select('*', { count:'exact', head:true })
-      .eq('referred_by', rc);
-    document.getElementById('sRefs').textContent = refs || 0;
-
-    // Solde (FIX: gestion d'erreur si table manquante)
-    let solde = 0;
-    try {
-      const { data: earn } = await sb.from('referral_earnings')
-        .select('amount,status')
-        .eq('user_id', U.id);
-      solde = (earn || []).filter(e => e.status === 'available').reduce((s, e) => s + (e.amount || 0), 0);
-    } catch(e) { /* table peut ne pas exister */ }
-    document.getElementById('sSolde').textContent = solde.toLocaleString('fr-FR');
-
-    // Jours membre
-    const days = P.created_at ? Math.floor((Date.now() - new Date(P.created_at)) / 86400000) : 0;
-    document.getElementById('sDays').textContent = days;
-  } catch(e) {
-    console.warn('[stats]', e.message);
-  }
-}
-
-// ===== AVIS REÇUS (FIX: déplacé dans le bon <script>, plus dans un attribut data-cfasync) =====
-async function loadMyAvis(uid) {
-  const sec = document.getElementById('avisSection');
-  try {
-    const { data: avisData, error } = await sb.from('avis')
-      .select('note, commentaire, created_at, profiles!reviewer_id(full_name)')
-      .eq('seller_id', uid)
-      .order('created_at', { ascending: false })
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+// ===== MES AVIS REÇUS =====
+async function loadMyAvis(uid){
+  try{
+    const{data:avisData}=await sb.from('avis')
+      .select('note,commentaire,created_at,profiles!reviewer_id(full_name)')
+      .eq('seller_id',uid)
+      .order('created_at',{ascending:false})
       .limit(20);
 
-    if(error) throw error;
-
-    if(!avisData?.length) {
-      sec.innerHTML = `<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
+    const sec=document.getElementById('avisSection');
+    if(!avisData?.length){
+      sec.innerHTML=`<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
         <div style="font-size:2rem;margin-bottom:.4rem">🌟</div>
         <div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l'instant.<br>Les acheteurs pourront te noter après un échange.</div>
       </div>`;
       return;
     }
 
-    const avg = (avisData.reduce((s, a) => s + a.note, 0) / avisData.length).toFixed(1);
-    const avgRound = Math.min(5, Math.round(parseFloat(avg)));
-    const stars = '⭐'.repeat(avgRound) + '☆'.repeat(5 - avgRound);
+    // Calcul moyenne
+    const avg=(avisData.reduce((s,a)=>s+a.note,0)/avisData.length).toFixed(1);
+    const stars='⭐'.repeat(Math.round(avg))+'☆'.repeat(5-Math.round(avg));
 
-    sec.innerHTML = `
+    sec.innerHTML=`
       <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(27,63,228,.05)">
         <div style="text-align:center;flex-shrink:0">
           <div style="font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">${avg}</div>
@@ -537,9 +389,9 @@ async function loadMyAvis(uid) {
           <div style="font-size:.65rem;color:var(--gray)">${avisData.length} avis</div>
         </div>
         <div style="flex:1">
-          ${[5,4,3,2,1].map(n => {
-            const cnt = avisData.filter(a => a.note === n).length;
-            const pct = Math.round(cnt / avisData.length * 100);
+          ${[5,4,3,2,1].map(n=>{
+            const cnt=avisData.filter(a=>a.note===n).length;
+            const pct=Math.round(cnt/avisData.length*100);
             return `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem">
               <span style="font-size:.62rem;color:var(--gray);width:12px">${n}</span>
               <div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden">
@@ -550,11 +402,11 @@ async function loadMyAvis(uid) {
           }).join('')}
         </div>
       </div>
-      ${avisData.slice(0, 5).map(a => {
-        const name = a.profiles?.full_name || 'Anonyme';
-        const init = (name[0] || '?').toUpperCase();
-        const d = new Date(a.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-        const noteStars = '⭐'.repeat(Math.min(5, a.note)) + '☆'.repeat(Math.max(0, 5 - a.note));
+      ${avisData.slice(0,5).map(a=>{
+        const name=(a.profiles?.full_name||'Anonyme');
+        const init=name[0].toUpperCase();
+        const d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+        const stars2='⭐'.repeat(a.note)+'☆'.repeat(5-a.note);
         return `<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;box-shadow:0 2px 8px rgba(27,63,228,.04)">
           <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
             <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0">${init}</div>
@@ -562,129 +414,268 @@ async function loadMyAvis(uid) {
               <div style="font-size:.78rem;font-weight:700;color:var(--dark)">${name}</div>
               <div style="font-size:.62rem;color:var(--gray)">${d}</div>
             </div>
-            <div style="margin-left:auto;font-size:.85rem">${noteStars}</div>
+            <div style="margin-left:auto;font-size:.85rem">${stars2}</div>
           </div>
-          ${a.commentaire ? `<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"${a.commentaire}"</div>` : ''}
+          ${a.commentaire?`<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"${a.commentaire}"</div>`:''}
         </div>`;
-      }).join('')}`;
-  } catch(e) {
-    console.warn('avis:', e.message);
-    sec.innerHTML = `<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center;color:var(--gray);font-size:.8rem">Impossible de charger les avis.</div>`;
+      }).join('')}
+    `;
+  }catch(e){ console.warn('avis:',e); }
+}
+
+</script><script>
+const{createClient}=supabase;
+const sb=createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+let U=null, P={}, dirty=false;
+
+(async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){location.href='index.html';return;}
+  U=session.user;
+  const{data:p}=await sb.from('profiles').select('*').eq('id',U.id).single();
+  loadMyAvis(U.id);
+  P=p||{};
+  fillForm();
+  updateHero();
+  updateCompletion();
+  updatePremCard();
+  loadStats();
+})();
+
+function fillForm(){
+  document.getElementById('fName').value  = P.full_name||'';
+  document.getElementById('fWa').value    = P.whatsapp||'';
+  document.getElementById('fPays').value  = P.pays||'';
+  document.getElementById('fVille').value = P.ville||'';
+  document.getElementById('fBio').value   = P.bio||'';
+}
+
+function updateHero(){
+  const name=P.full_name||U?.email?.split('@')[0]||'Utilisateur';
+  document.getElementById('hName').textContent=name;
+  document.getElementById('hEmail').textContent=U?.email||'';
+  if(P.avatar_url){
+    document.getElementById('avEl').innerHTML=`<img src="${P.avatar_url}" alt="av"/>`;
+  } else {
+    document.getElementById('avInit').textContent=(name[0]||'?').toUpperCase();
+  }
+  const pl=document.getElementById('hPlan');
+  if(P.is_premium){
+    pl.className='h-plan '+(P.plan==='elite'?'hp-elite':'hp-prem');
+    pl.textContent=P.plan==='elite'?'⚡ Elite':'👑 Premium';
+  } else {
+    pl.className='h-plan hp-free';
+    pl.textContent='🆓 Compte Gratuit';
   }
 }
 
-// ===== CHANGED INDICATOR =====
-function onChange(el) {
+function updateCompletion(){
+  const checks=[
+    {ok:!!P.full_name,  lbl:'Nom'},
+    {ok:!!P.whatsapp,   lbl:'WhatsApp'},
+    {ok:!!P.ville,      lbl:'Ville'},
+    {ok:!!P.avatar_url, lbl:'Photo'},
+    {ok:!!P.pays,       lbl:'Pays'},
+    {ok:!!P.bio,        lbl:'Bio'},
+  ];
+  const n=checks.filter(c=>c.ok).length;
+  const pct=Math.round(n/checks.length*100);
+  document.getElementById('cPct').textContent=pct+'%';
+  const f=document.getElementById('cFill');
+  f.style.width=pct+'%';
+  if(pct>=100) f.classList.add('win');
+  document.getElementById('cDots').innerHTML=checks.map(c=>
+    `<span class="cdot ${c.ok?'ok':'ko'}">${c.ok?'✅':'❌'} ${c.lbl}</span>`
+  ).join('');
+}
+
+function updatePremCard(){
+  if(!P.is_premium) return;
+  const card=document.getElementById('premCard');
+  card.className='prem-card pc-prem';
+  document.getElementById('pcIco').textContent='👑';
+  document.getElementById('pcBadge').className='pc-badge pc-badge-p';
+  document.getElementById('pcBadge').textContent=P.plan==='elite'?'⚡ Elite':'👑 Premium';
+  document.getElementById('pcTitle').textContent='Compte Premium Actif';
+  document.getElementById('pcFeats').innerHTML=`
+    <div class="pc-feat">✅ Annonces illimitées</div>
+    <div class="pc-feat">✅ Mise en avant prioritaire</div>
+    <div class="pc-feat">✅ Badge vendeur vérifié</div>
+    <div class="pc-feat">✅ Statistiques avancées</div>`;
+  const exp=P.plan_expires
+    ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})
+    : '—';
+  document.getElementById('pcDesc').innerHTML=`<div class="pc-expires">⏰ Expire le ${exp}</div>`;
+  const btn=document.getElementById('pcBtn');
+  btn.className='pc-btn pc-btn-mg';
+  btn.textContent='Gérer mon abonnement';
+}
+
+async function loadStats(){
+  const{count:ads}=await sb.from('annonces').select('*',{count:'exact',head:true}).eq('user_id',U.id);
+  const rc=P.ref_code||U.id.substring(0,8);
+  const{count:refs}=await sb.from('profiles').select('*',{count:'exact',head:true}).eq('referred_by',rc);
+  const{data:earn}=await sb.from('referral_earnings').select('amount,status').eq('user_id',U.id);
+  const solde=(earn||[]).filter(e=>e.status==='available').reduce((s,e)=>s+(e.amount||0),0);
+  const days=P.created_at?Math.floor((Date.now()-new Date(P.created_at))/86400000):0;
+  document.getElementById('sAds').textContent=ads||0;
+  document.getElementById('sRefs').textContent=refs||0;
+  document.getElementById('sSolde').textContent=solde.toLocaleString('fr-FR');
+  document.getElementById('sDays').textContent=days;
+}
+
+function onChange(el){
   el.classList.add('ch');
-  dirty = true;
+  dirty=true;
   document.getElementById('hSave').classList.add('show');
 }
 
-// ===== UPLOAD AVATAR =====
-async function uploadAvatar(input) {
-  const file = input.files[0];
+async function uploadAvatar(input){
+  const file=input.files[0];
   if(!file) return;
-  if(file.size > 3 * 1024 * 1024) { showToast('Image trop lourde (max 3 Mo)', 'warning'); return; }
+  if(file.size>3*1024*1024){showToast('Image trop lourde (max 3 Mo)','warning');return;}
   document.getElementById('avSpin').classList.add('show');
-  try {
-    const ext  = file.name.split('.').pop().toLowerCase();
-    const path = `avatars/${U.id}_${Date.now()}.${ext}`;
-    const { error: e } = await sb.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
+  try{
+    const ext=file.name.split('.').pop().toLowerCase();
+    const path=`avatars/${U.id}_${Date.now()}.${ext}`;
+    const{error:e}=await sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
     if(e) throw e;
-    const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path);
-    const url = publicUrl + '?t=' + Date.now();
-    await sb.from('profiles').update({ avatar_url: url }).eq('id', U.id);
-    P.avatar_url = url;
-    // FIX: mise à jour propre de l'avatar
-    document.getElementById('avEl').innerHTML = `<img src="${url}" alt="avatar" onerror="this.parentElement.innerHTML='<span>${(P.full_name||'?')[0].toUpperCase()}</span>'"/>`;
+    const{data:{publicUrl}}=sb.storage.from('avatars').getPublicUrl(path);
+    const url=publicUrl+'?t='+Date.now();
+    await sb.from('profiles').update({avatar_url:url}).eq('id',U.id);
+    P.avatar_url=url;
+    document.getElementById('avEl').innerHTML=`<img src="${url}" alt="av"/>`;
     updateCompletion();
-    showToast('Photo mise à jour ! 📸', 'success');
-  } catch(e) {
-    showToast('Erreur upload : ' + e.message, 'error');
-  } finally {
-    document.getElementById('avSpin').classList.remove('show');
-    // FIX: réinitialiser l'input pour permettre de recharger le même fichier
-    input.value = '';
-  }
+    showToast('Photo mise à jour ! 📸','success');
+  }catch(e){showToast('Erreur : '+e.message,'error');}
+  finally{document.getElementById('avSpin').classList.remove('show');}
 }
 
-// ===== SAVE PROFILE =====
-async function saveProfile() {
-  const name  = document.getElementById('fName').value.trim();
-  const wa    = document.getElementById('fWa').value.trim();
-  const pays  = document.getElementById('fPays').value;
-  const ville = document.getElementById('fVille').value.trim();
-  const bio   = document.getElementById('fBio').value.trim();
-
-  if(!name) { showToast('Le nom est requis', 'warning'); return; }
-
-  const btn = document.getElementById('btnSave');
-  btn.disabled = true;
-  btn.textContent = '⏳ Sauvegarde…';
-
-  try {
-    const { error } = await sb.from('profiles').update({
-      full_name: name, whatsapp: wa, pays, ville, bio,
-      updated_at: new Date().toISOString()
-    }).eq('id', U.id);
+async function saveProfile(){
+  const name =document.getElementById('fName').value.trim();
+  const wa   =document.getElementById('fWa').value.trim();
+  const pays =document.getElementById('fPays').value;
+  const ville=document.getElementById('fVille').value.trim();
+  const bio  =document.getElementById('fBio').value.trim();
+  if(!name){showToast('Le nom est requis','warning');return;}
+  const btn=document.getElementById('btnSave');
+  btn.disabled=true;btn.textContent='⏳ Sauvegarde…';
+  try{
+    const{error}=await sb.from('profiles').update({
+      full_name:name,whatsapp:wa,pays,ville,bio,
+      updated_at:new Date().toISOString()
+    }).eq('id',U.id);
     if(error) throw error;
-
-    P = { ...P, full_name: name, whatsapp: wa, pays, ville, bio };
-    document.querySelectorAll('.ch').forEach(el => el.classList.remove('ch'));
-    dirty = false;
+    P={...P,full_name:name,whatsapp:wa,pays,ville,bio};
+    document.querySelectorAll('.ch').forEach(el=>el.classList.remove('ch'));
+    dirty=false;
     document.getElementById('hSave').classList.remove('show');
     updateHero();
     updateCompletion();
-    showToast('Profil sauvegardé ✅', 'success');
-  } catch(e) {
-    showToast('Erreur : ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '💾 Sauvegarder';
-  }
+    showToast('Profil sauvegardé ✅','success');
+  }catch(e){showToast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='💾 Sauvegarder';}
 }
 
-// ===== LOGOUT =====
-async function logout() {
-  try {
+async function logout(){
+  await sb.auth.signOut();
+  location.href='index.html';
+}
+
+async function deleteAccount(){
+  try{
+    await sb.from('annonces').delete().eq('user_id',U.id);
+    await sb.from('profiles').delete().eq('id',U.id);
     await sb.auth.signOut();
-  } catch(e) {}
-  location.href = 'index.html';
+    location.href='index.html';
+  }catch(e){showToast('Erreur : '+e.message,'error');}
 }
 
-// ===== DELETE ACCOUNT =====
-async function deleteAccount() {
-  const delBtn = document.querySelector('.mb-del');
-  if(delBtn) { delBtn.disabled = true; delBtn.textContent = '⏳…'; }
-  try {
-    await sb.from('annonces').delete().eq('user_id', U.id);
-    await sb.from('favoris').delete().eq('user_id', U.id);
-    await sb.from('profiles').delete().eq('id', U.id);
-    await sb.auth.signOut();
-    location.href = 'index.html';
-  } catch(e) {
-    showToast('Erreur : ' + e.message, 'error');
-    if(delBtn) { delBtn.disabled = false; delBtn.textContent = 'Supprimer'; }
-  }
+let tt;
+function showToast(msg,type='success'){
+  const ic={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  const el=document.getElementById('toast');
+  el.textContent=(ic[type]||'')+' '+msg;
+  el.className='show';
+  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt);tt=setTimeout(()=>el.className='',3800);
 }
 
-// FIX: avertir avant de quitter si des changements non sauvegardés
-window.addEventListener('beforeunload', e => {
-  if(dirty) {
-    e.preventDefault();
-    e.returnValue = '';
-  }
-});
-</script>
+// ===== MES AVIS REÇUS =====
+async function loadMyAvis(uid){
+  try{
+    const{data:avisData}=await sb.from('avis')
+      .select('note,commentaire,created_at,profiles!reviewer_id(full_name)')
+      .eq('seller_id',uid)
+      .order('created_at',{ascending:false})
+      .limit(20);
 
-<script>
-  if('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(r => console.log('[SW] Registered:', r.scope))
-        .catch(e => console.warn('[SW] Error:', e));
-    });
-  }
+    const sec=document.getElementById('avisSection');
+    if(!avisData?.length){
+      sec.innerHTML=`<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
+        <div style="font-size:2rem;margin-bottom:.4rem">🌟</div>
+        <div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l'instant.<br>Les acheteurs pourront te noter après un échange.</div>
+      </div>`;
+      return;
+    }
+
+    const avg=(avisData.reduce((s,a)=>s+a.note,0)/avisData.length).toFixed(1);
+    const stars='⭐'.repeat(Math.round(avg))+'☆'.repeat(5-Math.round(avg));
+
+    sec.innerHTML=`
+      <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(27,63,228,.05)">
+        <div style="text-align:center;flex-shrink:0">
+          <div style="font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">${avg}</div>
+          <div style="font-size:1rem;margin:.2rem 0">${stars}</div>
+          <div style="font-size:.65rem;color:var(--gray)">${avisData.length} avis</div>
+        </div>
+        <div style="flex:1">
+          ${[5,4,3,2,1].map(n=>{
+            const cnt=avisData.filter(a=>a.note===n).length;
+            const pct=Math.round(cnt/avisData.length*100);
+            return `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem">
+              <span style="font-size:.62rem;color:var(--gray);width:12px">${n}</span>
+              <div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px"></div>
+              </div>
+              <span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">${cnt}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      ${avisData.slice(0,5).map(a=>{
+        const name=(a.profiles?.full_name||'Anonyme');
+        const init=name[0].toUpperCase();
+        const d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+        const stars2='⭐'.repeat(a.note)+'☆'.repeat(5-a.note);
+        return `<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;box-shadow:0 2px 8px rgba(27,63,228,.04)">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0">${init}</div>
+            <div>
+              <div style="font-size:.78rem;font-weight:700;color:var(--dark)">${name}</div>
+              <div style="font-size:.62rem;color:var(--gray)">${d}</div>
+            </div>
+            <div style="margin-left:auto;font-size:.85rem">${stars2}</div>
+          </div>
+          ${a.commentaire?`<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"${a.commentaire}"</div>`:''}
+        </div>`;
+      }).join('')}
+    `;
+  }catch(e){console.warn('avis:',e);}
+}
 </script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(r => console.log('[SW] Registered:', r.scope))
+          .catch(e => console.warn('[SW] Error:', e));
+      });
+    }
+  </script>
 </body>
 </html>
