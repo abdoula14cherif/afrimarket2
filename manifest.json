@@ -1,7 +1,7 @@
 {
   "name": "AfriMarket",
   "short_name": "AfriMarket",
-  "description": "La marketplace africaine — Achète et vends gratuitement",
+  "description": "La marketplace africaine. Achetez et vendez gratuitement vos annonces.",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
@@ -9,7 +9,10 @@
   "background_color": "#080E2A",
   "theme_color": "#080E2A",
   "lang": "fr",
-  "categories": ["shopping", "business"],
+  "categories": [
+    "shopping",
+    "business"
+  ],
   "icons": [
     {
       "src": "/icons/icon-72.png",
@@ -75,14 +78,24 @@
       "short_name": "Publier",
       "description": "Publier une nouvelle annonce",
       "url": "/dashboard.html?action=publish",
-      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Mes messages",
       "short_name": "Messages",
       "description": "Voir mes conversations",
       "url": "/messages.html",
-      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ],
   "related_applications": [],
