@@ -12,9 +12,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
   <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
-  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
+  <!-- OG -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="AfriMarket — Mon Profil"/>
+  <meta property="og:description" content="Gérez votre profil AfriMarket."/>
+  <meta property="og:image" content="https://afrimarket2.vercel.app/icons/og-image.png"/>
+  <meta name="description" content="Achète et vends gratuitement tes annonces en Afrique."/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
@@ -28,6 +32,7 @@
     html{scroll-behavior:smooth;}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h)+20px);overflow-x:hidden;}
 
+    /* ── HEADER ── */
     .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
     .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;}
     .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
@@ -36,9 +41,10 @@
     .h-save{background:var(--turq);color:white;border:none;border-radius:99px;padding:.35rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;opacity:0;pointer-events:none;transition:all .3s;}
     .h-save.show{opacity:1;pointer-events:all;}
 
-    /* HERO */
+    /* ── HERO ── */
     .hero{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 55%,#1B3FE4 100%);padding:2rem 1.2rem 3.8rem;position:relative;overflow:hidden;}
     .hero::before{content:'';position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(0,194,183,.08);right:-60px;top:-80px;}
+    .hero::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(255,107,26,.06);left:-40px;bottom:-40px;}
     .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;}
 
     .av-wrap{position:relative;margin-bottom:1rem;cursor:pointer;}
@@ -56,14 +62,14 @@
     .hp-prem{background:rgba(245,183,49,.2);color:var(--gold);border:1px solid rgba(245,183,49,.3);}
     .hp-elite{background:rgba(0,194,183,.2);color:var(--turq);border:1px solid rgba(0,194,183,.3);}
 
-    /* STATS FLOAT */
+    /* ── STATS FLOAT ── */
     .stats-float{position:relative;z-index:10;margin:-1.8rem 1.2rem .8rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 8px 24px rgba(27,63,228,.1);padding:1rem;display:flex;}
     .sf{flex:1;text-align:center;}
     .sf+.sf{border-left:1px solid var(--border);}
     .sf-n{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
     .sf-l{font-size:.58rem;color:var(--gray);font-weight:600;margin-top:.1rem;letter-spacing:.2px;}
 
-    /* COMPLÉTION */
+    /* ── COMPLÉTION ── */
     .comp-card{margin:0 1.2rem .8rem;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
     .comp-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.55rem;}
     .comp-ttl{font-size:.82rem;font-weight:700;color:var(--dark);}
@@ -76,11 +82,24 @@
     .cdot.ok{background:rgba(0,194,113,.08);color:var(--green);border:1px solid rgba(0,194,113,.18);}
     .cdot.ko{background:rgba(255,107,26,.06);color:var(--orange);border:1px solid rgba(255,107,26,.12);}
 
-    /* SECTION */
+    /* ── MES ANNONCES ── */
+    .my-ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:0 1.2rem;}
+    .my-ad-card{background:white;border-radius:16px;border:1.5px solid var(--border);overflow:hidden;box-shadow:0 2px 10px rgba(27,63,228,.05);cursor:pointer;transition:transform .2s,box-shadow .2s;}
+    .my-ad-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(27,63,228,.12);}
+    .my-ad-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:2rem;}
+    .my-ad-body{padding:.6rem .7rem;}
+    .my-ad-title{font-size:.76rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .my-ad-price{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);margin-top:.15rem;}
+    .my-ad-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--border);}
+    .my-ad-time{font-size:.6rem;color:var(--gray);}
+    .my-ad-del{background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.2rem .4rem;font-size:.65rem;color:var(--red);cursor:pointer;font-weight:700;}
+    .my-ad-del:hover{background:var(--red);color:white;}
+
+    /* ── SECTION ── */
     .sec{padding:1.1rem 1.2rem .5rem;}
     .sec-ttl{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
 
-    /* FORM */
+    /* ── FORM ── */
     .form-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.05);padding:1.2rem;display:flex;flex-direction:column;gap:.85rem;}
     .field{display:flex;flex-direction:column;gap:.28rem;}
     .field label{font-size:.72rem;font-weight:700;color:var(--dark);letter-spacing:.15px;}
@@ -97,7 +116,7 @@
     .btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(27,63,228,.3);}
     .btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
-    /* PREMIUM CARD */
+    /* ── PREMIUM CARD ── */
     .prem-card{margin:0 1.2rem;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(27,63,228,.08);}
     .pc-free{background:linear-gradient(135deg,#F8F9FF,#EEF2FF);border:1.5px solid var(--border);}
     .pc-prem{background:linear-gradient(135deg,#080E2A,#1B3FE4);}
@@ -122,7 +141,19 @@
     .pc-btn-up{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.25);}
     .pc-btn-mg{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.2);}
 
-    /* DANGER */
+    /* ── AVIS ── */
+    .avis-summary{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);margin-bottom:.7rem;}
+    .avis-avg-num{font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1;text-align:center;}
+    .avis-avg-stars{font-size:1rem;margin:.2rem 0;text-align:center;}
+    .avis-avg-count{font-size:.65rem;color:var(--gray);text-align:center;}
+    .avis-bar-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;}
+    .avis-card{background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;box-shadow:0 2px 8px rgba(27,63,228,.04);margin-bottom:.6rem;}
+    .avis-card:last-child{margin-bottom:0;}
+    .avis-reviewer{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;}
+    .avis-ava{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0;}
+    .avis-comment{font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem;}
+
+    /* ── DANGER ── */
     .danger-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid rgba(232,48,48,.12);padding:1.2rem;}
     .dz-ttl{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--red);margin-bottom:.85rem;}
     .dz-btn{width:100%;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:all .2s;margin-bottom:.5rem;}
@@ -132,19 +163,21 @@
     .dz-del{background:rgba(100,0,0,.04);color:#8B0000;border:1.5px solid rgba(100,0,0,.09);}
     .dz-del:hover{background:#8B0000;color:white;}
 
-    /* BOTTOM NAV */
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
-    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;}
+    /* ── BOTTOM NAV ── */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;border-radius:24px 24px 0 0;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;position:relative;}
     .nav-item:hover{background:var(--bg);}
+    .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
+    .nav-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--blue),var(--turq));}
     .nav-ico{font-size:1.25rem;line-height:1;}
     .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
-    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
+    .nav-plus-btn{width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(27,63,228,.4);}
 
-    /* TOAST */
+    /* ── TOAST ── */
     #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:300;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-    /* MODAL */
+    /* ── MODAL ── */
     .ov{position:fixed;inset:0;background:rgba(8,14,42,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
     .ov.open{opacity:1;pointer-events:all;}
     .modal{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.4rem 1.3rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
@@ -156,6 +189,11 @@
     .mb{flex:1;padding:.72rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;}
     .mb-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
     .mb-del{background:var(--red);color:white;}
+
+    /* ── SUPPORT LINK ── */
+    .support-link{display:flex;align-items:center;gap:.85rem;border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;}
+    .support-link:hover{filter:brightness(1.05);}
+    .support-link-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
   </style>
 </head>
 <body>
@@ -199,17 +237,21 @@
   <div class="comp-dots" id="cDots"></div>
 </div>
 
+<!-- MES ANNONCES -->
+<div class="sec"><div class="sec-ttl">📢 Mes annonces</div></div>
+<div class="my-ads-grid" id="myAdsGrid">
+  <div style="grid-column:1/-1;text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem">⏳ Chargement…</div>
+</div>
+
 <!-- FORMULAIRE -->
 <div class="sec"><div class="sec-ttl">👤 Informations personnelles</div></div>
 <div class="form-card">
-
   <div class="field">
     <label>Nom complet *</label>
     <div class="fi"><span class="fi-ico">👤</span>
       <input type="text" id="fName" placeholder="Ton nom complet" oninput="onChange(this)"/>
     </div>
   </div>
-
   <div class="field">
     <label>Numéro WhatsApp *</label>
     <div class="fi"><span class="fi-ico">💬</span>
@@ -217,7 +259,6 @@
     </div>
     <div class="f-hint">Les acheteurs te contactent via WhatsApp</div>
   </div>
-
   <div class="field">
     <label>Pays</label>
     <div class="fi"><span class="fi-ico">🌍</span>
@@ -234,25 +275,24 @@
         <option value="Tchad">🇹🇩 Tchad</option>
         <option value="Congo">🇨🇬 Congo</option>
         <option value="Gabon">🇬🇦 Gabon</option>
+        <option value="RDC">🇨🇩 RDC</option>
+        <option value="Niger">🇳🇪 Niger</option>
         <option value="France">🇫🇷 France</option>
         <option value="Autre">🌍 Autre</option>
       </select>
     </div>
   </div>
-
   <div class="field">
     <label>Ville</label>
     <div class="fi"><span class="fi-ico">📍</span>
       <input type="text" id="fVille" placeholder="Ex: Yaoundé, Douala…" oninput="onChange(this)"/>
     </div>
   </div>
-
   <div class="field">
     <label>Bio (optionnel)</label>
     <textarea class="f-ta" id="fBio" placeholder="Parle un peu de toi ou de ce que tu vends…" oninput="onChange(this)"></textarea>
     <div class="f-hint">Visible sur tes annonces</div>
   </div>
-
   <button class="btn-save" id="btnSave" onclick="saveProfile()">💾 Sauvegarder</button>
 </div>
 
@@ -268,52 +308,59 @@
     <div class="pc-feats" id="pcFeats">
       <div class="pc-feat">❌ 3 annonces maximum</div>
       <div class="pc-feat">❌ Pas de mise en avant</div>
-      <div class="pc-feat">❌ Pas de badge vendeur</div>
+      <div class="pc-feat">❌ Pas de badge vendeur vérifié</div>
     </div>
     <div class="pc-desc" id="pcDesc">Débloque toutes les fonctionnalités dès 1 000 FCFA/mois.</div>
     <button class="pc-btn pc-btn-up" id="pcBtn" onclick="location.href='pricing.html'">👑 Passer Premium</button>
   </div>
 </div>
 
-<!-- DANGER ZONE -->
 <!-- MES AVIS REÇUS -->
 <div class="sec"><div class="sec-ttl">⭐ Mes avis reçus</div></div>
-<div id="avisSection" style="margin:0 1.2rem .9rem;display:flex;flex-direction:column;gap:.6rem;">
-  <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem">⏳ Chargement…</div>
+<div id="avisSection" style="margin:0 1.2rem .9rem">
+  <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.5rem;text-align:center;color:var(--gray);font-size:.8rem">⏳ Chargement…</div>
 </div>
 
-<!-- SUPPORT -->
+<!-- SERVICE CLIENT -->
 <div class="sec"><div class="sec-ttl">🎧 Service client</div></div>
 <div style="margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;flex-direction:column;gap:.7rem;">
   <div style="font-size:.78rem;color:var(--gray);line-height:1.6;">Une question ? Un problème ? Notre équipe est disponible pour t'aider 🙌</div>
-  <a href="https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20besoin%20d%27aide%20%F0%9F%91%8B" target="_blank"
-     style="display:flex;align-items:center;gap:.85rem;background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;"
-     onmouseover="this.style.background='rgba(0,194,113,.12)'" onmouseout="this.style.background='rgba(0,194,113,.06)'">
-    <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,194,113,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">💬</div>
+
+  <!-- WhatsApp -->
+  <a class="support-link" href="https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20besoin%20d%27aide%20%F0%9F%91%8B" target="_blank"
+     style="background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);">
+    <div class="support-link-ico" style="background:rgba(0,194,113,.12);">💬</div>
     <div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878;">WhatsApp</div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878;">WhatsApp Support</div>
       <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">+237 689 011 185 · Réponse rapide</div>
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
   </a>
-  <a href="mailto:abdoula13cherif&#64;gmail.com?subject=Support%20AfriMarket" style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
-    <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
+
+  <!-- Email — lien direct sans Cloudflare encode -->
+  <a class="support-link" href="mailto:abdoula13cherif@gmail.com"
+     style="background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);">
+    <div class="support-link-ico" style="background:rgba(27,63,228,.08);">📧</div>
     <div>
       <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">abdoula13cherif&#64;gmail.com</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">abdoula13cherif@gmail.com</div>
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
   </a>
-  <a href="telecharger.html" style="display:flex;align-items:center;gap:.85rem;background:linear-gradient(135deg,rgba(0,194,183,.08),rgba(27,63,228,.06));border:1.5px solid rgba(0,194,183,.25);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
-    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📲</div>
+
+  <!-- Télécharger App -->
+  <a class="support-link" href="telecharger.html"
+     style="background:linear-gradient(135deg,rgba(0,194,183,.08),rgba(27,63,228,.06));border:1.5px solid rgba(0,194,183,.25);">
+    <div class="support-link-ico" style="background:linear-gradient(135deg,var(--turq),var(--blue2));">📲</div>
     <div>
       <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq);">Installer l'application</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Ajouter AfriMarket à l'écran d'accueil</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Télécharger l'APK ou ajouter à l'écran</div>
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--turq);">→</div>
   </a>
 </div>
 
+<!-- ZONE DE DANGER -->
 <div class="sec"><div class="sec-ttl">⚠️ Zone de danger</div></div>
 <div class="danger-card">
   <div class="dz-ttl">Actions irréversibles</div>
@@ -325,17 +372,17 @@
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-item " onclick="location.href='dashboard.html'">
+  <button class="nav-item" onclick="location.href='dashboard.html'">
     <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
   </button>
-  <button class="nav-item " onclick="location.href='messages.html'">
+  <button class="nav-item" onclick="location.href='messages.html'">
     <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
   </button>
-  <div class="nav-item nav-plus">
-    <div class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</div>
+  <button class="nav-item" style="pointer-events:none;">
+    <div class="nav-plus-btn" onclick="location.href='dashboard.html';event.stopPropagation()" style="pointer-events:all">➕</div>
     <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
-  </div>
-  <button class="nav-item " onclick="location.href='favoris.html'">
+  </button>
+  <button class="nav-item" onclick="location.href='favoris.html'">
     <span class="nav-ico">❤️</span><span class="nav-lbl">Favoris</span>
   </button>
   <button class="nav-item active" onclick="location.href='profil.html'">
@@ -358,324 +405,330 @@
 
 <div id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
-// ===== MES AVIS REÇUS =====
-async function loadMyAvis(uid){
-  try{
-    const{data:avisData}=await sb.from('avis')
-      .select('note,commentaire,created_at,profiles!reviewer_id(full_name)')
-      .eq('seller_id',uid)
-      .order('created_at',{ascending:false})
-      .limit(20);
-
-    const sec=document.getElementById('avisSection');
-    if(!avisData?.length){
-      sec.innerHTML=`<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
-        <div style="font-size:2rem;margin-bottom:.4rem">🌟</div>
-        <div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l'instant.<br>Les acheteurs pourront te noter après un échange.</div>
-      </div>`;
-      return;
-    }
-
-    // Calcul moyenne
-    const avg=(avisData.reduce((s,a)=>s+a.note,0)/avisData.length).toFixed(1);
-    const stars='⭐'.repeat(Math.round(avg))+'☆'.repeat(5-Math.round(avg));
-
-    sec.innerHTML=`
-      <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(27,63,228,.05)">
-        <div style="text-align:center;flex-shrink:0">
-          <div style="font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">${avg}</div>
-          <div style="font-size:1rem;margin:.2rem 0">${stars}</div>
-          <div style="font-size:.65rem;color:var(--gray)">${avisData.length} avis</div>
-        </div>
-        <div style="flex:1">
-          ${[5,4,3,2,1].map(n=>{
-            const cnt=avisData.filter(a=>a.note===n).length;
-            const pct=Math.round(cnt/avisData.length*100);
-            return `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem">
-              <span style="font-size:.62rem;color:var(--gray);width:12px">${n}</span>
-              <div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden">
-                <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px"></div>
-              </div>
-              <span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">${cnt}</span>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-      ${avisData.slice(0,5).map(a=>{
-        const name=(a.profiles?.full_name||'Anonyme');
-        const init=name[0].toUpperCase();
-        const d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
-        const stars2='⭐'.repeat(a.note)+'☆'.repeat(5-a.note);
-        return `<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;box-shadow:0 2px 8px rgba(27,63,228,.04)">
-          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
-            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0">${init}</div>
-            <div>
-              <div style="font-size:.78rem;font-weight:700;color:var(--dark)">${name}</div>
-              <div style="font-size:.62rem;color:var(--gray)">${d}</div>
-            </div>
-            <div style="margin-left:auto;font-size:.85rem">${stars2}</div>
-          </div>
-          ${a.commentaire?`<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"${a.commentaire}"</div>`:''}
-        </div>`;
-      }).join('')}
-    `;
-  }catch(e){ console.warn('avis:',e); }
-}
-
-</script><script>
-const{createClient}=supabase;
-const sb=createClient(
+<script>
+// ── SUPABASE ──
+const { createClient } = supabase;
+const sb = createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-let U=null, P={}, dirty=false;
+const EMOJI_MAP = { immobilier:'🏠', vehicules:'🚗', electronique:'📱', mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦' };
+let U = null, P = {}, dirty = false;
 
-(async()=>{
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){location.href='index.html';return;}
-  U=session.user;
-  const{data:p}=await sb.from('profiles').select('*').eq('id',U.id).single();
-  loadMyAvis(U.id);
-  P=p||{};
+// ── INIT ──
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session) { location.href = 'index.html'; return; }
+  U = session.user;
+  const { data: p } = await sb.from('profiles').select('*').eq('id', U.id).single();
+  P = p || {};
   fillForm();
   updateHero();
   updateCompletion();
   updatePremCard();
-  loadStats();
+  await Promise.all([loadStats(), loadMyAds(), loadMyAvis()]);
 })();
 
-function fillForm(){
-  document.getElementById('fName').value  = P.full_name||'';
-  document.getElementById('fWa').value    = P.whatsapp||'';
-  document.getElementById('fPays').value  = P.pays||'';
-  document.getElementById('fVille').value = P.ville||'';
-  document.getElementById('fBio').value   = P.bio||'';
+// ── FORM ──
+function fillForm() {
+  document.getElementById('fName').value  = P.full_name || '';
+  document.getElementById('fWa').value    = P.whatsapp  || '';
+  document.getElementById('fPays').value  = P.pays      || '';
+  document.getElementById('fVille').value = P.ville     || '';
+  document.getElementById('fBio').value   = P.bio       || '';
 }
 
-function updateHero(){
-  const name=P.full_name||U?.email?.split('@')[0]||'Utilisateur';
-  document.getElementById('hName').textContent=name;
-  document.getElementById('hEmail').textContent=U?.email||'';
-  if(P.avatar_url){
-    document.getElementById('avEl').innerHTML=`<img src="${P.avatar_url}" alt="av"/>`;
+// ── HERO ──
+function updateHero() {
+  const name = P.full_name || U?.email?.split('@')[0] || 'Utilisateur';
+  document.getElementById('hName').textContent  = name;
+  document.getElementById('hEmail').textContent = U?.email || '';
+  if(P.avatar_url) {
+    document.getElementById('avEl').innerHTML = `<img src="${P.avatar_url}" alt="avatar"/>`;
   } else {
-    document.getElementById('avInit').textContent=(name[0]||'?').toUpperCase();
+    document.getElementById('avInit').textContent = (name[0] || '?').toUpperCase();
   }
-  const pl=document.getElementById('hPlan');
-  if(P.is_premium){
-    pl.className='h-plan '+(P.plan==='elite'?'hp-elite':'hp-prem');
-    pl.textContent=P.plan==='elite'?'⚡ Elite':'👑 Premium';
+  const pl = document.getElementById('hPlan');
+  if(P.is_premium) {
+    pl.className = 'h-plan ' + (P.plan === 'elite' ? 'hp-elite' : 'hp-prem');
+    pl.textContent = P.plan === 'elite' ? '⚡ Elite' : '👑 Premium';
   } else {
-    pl.className='h-plan hp-free';
-    pl.textContent='🆓 Compte Gratuit';
+    pl.className = 'h-plan hp-free';
+    pl.textContent = '🆓 Compte Gratuit';
   }
 }
 
-function updateCompletion(){
-  const checks=[
-    {ok:!!P.full_name,  lbl:'Nom'},
-    {ok:!!P.whatsapp,   lbl:'WhatsApp'},
-    {ok:!!P.ville,      lbl:'Ville'},
-    {ok:!!P.avatar_url, lbl:'Photo'},
-    {ok:!!P.pays,       lbl:'Pays'},
-    {ok:!!P.bio,        lbl:'Bio'},
+// ── COMPLÉTION ──
+function updateCompletion() {
+  const checks = [
+    { ok: !!P.full_name,  lbl: 'Nom' },
+    { ok: !!P.whatsapp,   lbl: 'WhatsApp' },
+    { ok: !!P.ville,      lbl: 'Ville' },
+    { ok: !!P.avatar_url, lbl: 'Photo' },
+    { ok: !!P.pays,       lbl: 'Pays' },
+    { ok: !!P.bio,        lbl: 'Bio' },
   ];
-  const n=checks.filter(c=>c.ok).length;
-  const pct=Math.round(n/checks.length*100);
-  document.getElementById('cPct').textContent=pct+'%';
-  const f=document.getElementById('cFill');
-  f.style.width=pct+'%';
-  if(pct>=100) f.classList.add('win');
-  document.getElementById('cDots').innerHTML=checks.map(c=>
-    `<span class="cdot ${c.ok?'ok':'ko'}">${c.ok?'✅':'❌'} ${c.lbl}</span>`
+  const n = checks.filter(c => c.ok).length;
+  const pct = Math.round(n / checks.length * 100);
+  document.getElementById('cPct').textContent = pct + '%';
+  const f = document.getElementById('cFill');
+  f.style.width = pct + '%';
+  if(pct >= 100) f.classList.add('win');
+  document.getElementById('cDots').innerHTML = checks.map(c =>
+    `<span class="cdot ${c.ok ? 'ok' : 'ko'}">${c.ok ? '✅' : '❌'} ${c.lbl}</span>`
   ).join('');
 }
 
-function updatePremCard(){
+// ── PREMIUM CARD ──
+function updatePremCard() {
   if(!P.is_premium) return;
-  const card=document.getElementById('premCard');
-  card.className='prem-card pc-prem';
-  document.getElementById('pcIco').textContent='👑';
-  document.getElementById('pcBadge').className='pc-badge pc-badge-p';
-  document.getElementById('pcBadge').textContent=P.plan==='elite'?'⚡ Elite':'👑 Premium';
-  document.getElementById('pcTitle').textContent='Compte Premium Actif';
-  document.getElementById('pcFeats').innerHTML=`
+  document.getElementById('premCard').className = 'prem-card pc-prem';
+  document.getElementById('pcIco').textContent = '👑';
+  document.getElementById('pcBadge').className = 'pc-badge pc-badge-p';
+  document.getElementById('pcBadge').textContent = P.plan === 'elite' ? '⚡ Elite' : '👑 Premium';
+  document.getElementById('pcTitle').textContent = 'Compte Premium Actif';
+  document.getElementById('pcFeats').innerHTML = `
     <div class="pc-feat">✅ Annonces illimitées</div>
     <div class="pc-feat">✅ Mise en avant prioritaire</div>
-    <div class="pc-feat">✅ Badge vendeur vérifié</div>
+    <div class="pc-feat">✅ Badge vendeur vérifié ✓</div>
     <div class="pc-feat">✅ Statistiques avancées</div>`;
-  const exp=P.plan_expires
-    ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})
+  const exp = P.plan_expires
+    ? new Date(P.plan_expires).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
     : '—';
-  document.getElementById('pcDesc').innerHTML=`<div class="pc-expires">⏰ Expire le ${exp}</div>`;
-  const btn=document.getElementById('pcBtn');
-  btn.className='pc-btn pc-btn-mg';
-  btn.textContent='Gérer mon abonnement';
+  document.getElementById('pcDesc').innerHTML = `<div class="pc-expires">⏰ Expire le ${exp}</div>`;
+  const btn = document.getElementById('pcBtn');
+  btn.className = 'pc-btn pc-btn-mg';
+  btn.textContent = 'Gérer mon abonnement';
 }
 
-async function loadStats(){
-  const{count:ads}=await sb.from('annonces').select('*',{count:'exact',head:true}).eq('user_id',U.id);
-  const rc=P.ref_code||U.id.substring(0,8);
-  const{count:refs}=await sb.from('profiles').select('*',{count:'exact',head:true}).eq('referred_by',rc);
-  const{data:earn}=await sb.from('referral_earnings').select('amount,status').eq('user_id',U.id);
-  const solde=(earn||[]).filter(e=>e.status==='available').reduce((s,e)=>s+(e.amount||0),0);
-  const days=P.created_at?Math.floor((Date.now()-new Date(P.created_at))/86400000):0;
-  document.getElementById('sAds').textContent=ads||0;
-  document.getElementById('sRefs').textContent=refs||0;
-  document.getElementById('sSolde').textContent=solde.toLocaleString('fr-FR');
-  document.getElementById('sDays').textContent=days;
+// ── MES ANNONCES ──
+async function loadMyAds() {
+  try {
+    const { data: ads } = await sb.from('annonces')
+      .select('id,titre,prix,ville,categorie,image_url,created_at,actif')
+      .eq('user_id', U.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    const grid = document.getElementById('myAdsGrid');
+    if(!ads?.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.5rem;text-align:center">
+        <div style="font-size:2rem;margin-bottom:.4rem">📢</div>
+        <div style="font-size:.8rem;color:var(--gray)">Tu n'as pas encore d'annonces.<br>Publie ta première annonce gratuitement !</div>
+        <button onclick="location.href='dashboard.html'" style="margin-top:.8rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;padding:.5rem 1.2rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Clash Display',sans-serif">✏️ Publier</button>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = ads.map(ad => {
+      const emoji = EMOJI_MAP[ad.categorie] || '📦';
+      const imgHtml = ad.image_url
+        ? `<img src="${ad.image_url}" style="width:100%;aspect-ratio:4/3;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          + `<div style="width:100%;aspect-ratio:4/3;display:none;align-items:center;justify-content:center;font-size:2rem;background:var(--bg)">${emoji}</div>`
+        : `<div style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--bg)">${emoji}</div>`;
+      const price = ad.prix ? Number(ad.prix).toLocaleString('fr-FR') + ' FCFA' : 'Prix à débattre';
+      const s = Math.floor((Date.now() - new Date(ad.created_at)) / 1000);
+      const time = s < 86400 ? `Il y a ${Math.floor(s/3600)}h` : `Il y a ${Math.floor(s/86400)}j`;
+      return `<div class="my-ad-card">
+        <div class="my-ad-img">${imgHtml}</div>
+        <div class="my-ad-body">
+          <div class="my-ad-title">${ad.titre || 'Sans titre'}</div>
+          <div class="my-ad-price">${price}</div>
+          <div class="my-ad-footer">
+            <span class="my-ad-time">${time}</span>
+            <button class="my-ad-del" onclick="event.stopPropagation();deleteMyAd('${ad.id}',this)">🗑️ Suppr.</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.warn('loadMyAds:', e); }
 }
 
-function onChange(el){
-  el.classList.add('ch');
-  dirty=true;
-  document.getElementById('hSave').classList.add('show');
+async function deleteMyAd(id, btn) {
+  if(!confirm('Supprimer cette annonce ?')) return;
+  btn.disabled = true; btn.textContent = '⏳';
+  const { error } = await sb.from('annonces').delete().eq('id', id).eq('user_id', U.id);
+  if(error) { showToast('Erreur : ' + error.message, 'error'); btn.disabled = false; btn.textContent = '🗑️ Suppr.'; return; }
+  showToast('Annonce supprimée', 'info');
+  await loadMyAds();
+  await loadStats();
 }
 
-async function uploadAvatar(input){
-  const file=input.files[0];
-  if(!file) return;
-  if(file.size>3*1024*1024){showToast('Image trop lourde (max 3 Mo)','warning');return;}
-  document.getElementById('avSpin').classList.add('show');
-  try{
-    const ext=file.name.split('.').pop().toLowerCase();
-    const path=`avatars/${U.id}_${Date.now()}.${ext}`;
-    const{error:e}=await sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
-    if(e) throw e;
-    const{data:{publicUrl}}=sb.storage.from('avatars').getPublicUrl(path);
-    const url=publicUrl+'?t='+Date.now();
-    await sb.from('profiles').update({avatar_url:url}).eq('id',U.id);
-    P.avatar_url=url;
-    document.getElementById('avEl').innerHTML=`<img src="${url}" alt="av"/>`;
-    updateCompletion();
-    showToast('Photo mise à jour ! 📸','success');
-  }catch(e){showToast('Erreur : '+e.message,'error');}
-  finally{document.getElementById('avSpin').classList.remove('show');}
+// ── STATS ──
+async function loadStats() {
+  try {
+    const { count: ads } = await sb.from('annonces').select('*', { count:'exact', head:true }).eq('user_id', U.id);
+    const rc = P.ref_code || U.id.substring(0, 8);
+    const { count: refs } = await sb.from('profiles').select('*', { count:'exact', head:true }).eq('referred_by', rc);
+    const { data: earn } = await sb.from('referral_earnings').select('amount,status').eq('user_id', U.id);
+    const solde = (earn || []).filter(e => e.status === 'available').reduce((s, e) => s + (e.amount || 0), 0);
+    const days = P.created_at ? Math.floor((Date.now() - new Date(P.created_at)) / 86400000) : 0;
+    document.getElementById('sAds').textContent   = ads || 0;
+    document.getElementById('sRefs').textContent  = refs || 0;
+    document.getElementById('sSolde').textContent = solde.toLocaleString('fr-FR');
+    document.getElementById('sDays').textContent  = days;
+  } catch(e) { console.warn('loadStats:', e); }
 }
 
-async function saveProfile(){
-  const name =document.getElementById('fName').value.trim();
-  const wa   =document.getElementById('fWa').value.trim();
-  const pays =document.getElementById('fPays').value;
-  const ville=document.getElementById('fVille').value.trim();
-  const bio  =document.getElementById('fBio').value.trim();
-  if(!name){showToast('Le nom est requis','warning');return;}
-  const btn=document.getElementById('btnSave');
-  btn.disabled=true;btn.textContent='⏳ Sauvegarde…';
-  try{
-    const{error}=await sb.from('profiles').update({
-      full_name:name,whatsapp:wa,pays,ville,bio,
-      updated_at:new Date().toISOString()
-    }).eq('id',U.id);
-    if(error) throw error;
-    P={...P,full_name:name,whatsapp:wa,pays,ville,bio};
-    document.querySelectorAll('.ch').forEach(el=>el.classList.remove('ch'));
-    dirty=false;
-    document.getElementById('hSave').classList.remove('show');
-    updateHero();
-    updateCompletion();
-    showToast('Profil sauvegardé ✅','success');
-  }catch(e){showToast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;btn.textContent='💾 Sauvegarder';}
-}
-
-async function logout(){
-  await sb.auth.signOut();
-  location.href='index.html';
-}
-
-async function deleteAccount(){
-  try{
-    await sb.from('annonces').delete().eq('user_id',U.id);
-    await sb.from('profiles').delete().eq('id',U.id);
-    await sb.auth.signOut();
-    location.href='index.html';
-  }catch(e){showToast('Erreur : '+e.message,'error');}
-}
-
-let tt;
-function showToast(msg,type='success'){
-  const ic={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
-  const el=document.getElementById('toast');
-  el.textContent=(ic[type]||'')+' '+msg;
-  el.className='show';
-  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
-  clearTimeout(tt);tt=setTimeout(()=>el.className='',3800);
-}
-
-// ===== MES AVIS REÇUS =====
-async function loadMyAvis(uid){
-  try{
-    const{data:avisData}=await sb.from('avis')
+// ── AVIS REÇUS ──
+async function loadMyAvis() {
+  try {
+    const { data: avisData } = await sb.from('avis')
       .select('note,commentaire,created_at,profiles!reviewer_id(full_name)')
-      .eq('seller_id',uid)
-      .order('created_at',{ascending:false})
+      .eq('seller_id', U.id)
+      .order('created_at', { ascending: false })
       .limit(20);
 
-    const sec=document.getElementById('avisSection');
-    if(!avisData?.length){
-      sec.innerHTML=`<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
+    const sec = document.getElementById('avisSection');
+    if(!avisData?.length) {
+      sec.innerHTML = `<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
         <div style="font-size:2rem;margin-bottom:.4rem">🌟</div>
         <div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l'instant.<br>Les acheteurs pourront te noter après un échange.</div>
       </div>`;
       return;
     }
 
-    const avg=(avisData.reduce((s,a)=>s+a.note,0)/avisData.length).toFixed(1);
-    const stars='⭐'.repeat(Math.round(avg))+'☆'.repeat(5-Math.round(avg));
+    const avg = (avisData.reduce((s, a) => s + a.note, 0) / avisData.length).toFixed(1);
+    const filled = Math.min(5, Math.round(parseFloat(avg)));
+    const stars = '⭐'.repeat(filled) + '☆'.repeat(5 - filled);
 
-    sec.innerHTML=`
-      <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(27,63,228,.05)">
-        <div style="text-align:center;flex-shrink:0">
-          <div style="font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">${avg}</div>
-          <div style="font-size:1rem;margin:.2rem 0">${stars}</div>
-          <div style="font-size:.65rem;color:var(--gray)">${avisData.length} avis</div>
+    sec.innerHTML = `
+      <div class="avis-summary">
+        <div style="flex-shrink:0;text-align:center">
+          <div class="avis-avg-num">${avg}</div>
+          <div class="avis-avg-stars">${stars}</div>
+          <div class="avis-avg-count">${avisData.length} avis</div>
         </div>
         <div style="flex:1">
-          ${[5,4,3,2,1].map(n=>{
-            const cnt=avisData.filter(a=>a.note===n).length;
-            const pct=Math.round(cnt/avisData.length*100);
-            return `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem">
+          ${[5,4,3,2,1].map(n => {
+            const cnt = avisData.filter(a => a.note === n).length;
+            const pct = Math.round(cnt / avisData.length * 100);
+            return `<div class="avis-bar-row">
               <span style="font-size:.62rem;color:var(--gray);width:12px">${n}</span>
               <div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden">
                 <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px"></div>
               </div>
-              <span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">${cnt}</span>
+              <span style="font-size:.6rem;color:var(--gray);width:22px;text-align:right">${cnt}</span>
             </div>`;
           }).join('')}
         </div>
       </div>
-      ${avisData.slice(0,5).map(a=>{
-        const name=(a.profiles?.full_name||'Anonyme');
-        const init=name[0].toUpperCase();
-        const d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
-        const stars2='⭐'.repeat(a.note)+'☆'.repeat(5-a.note);
-        return `<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;box-shadow:0 2px 8px rgba(27,63,228,.04)">
-          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
-            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0">${init}</div>
+      ${avisData.slice(0, 5).map(a => {
+        const name = a.profiles?.full_name || 'Anonyme';
+        const init = name[0].toUpperCase();
+        const d = new Date(a.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+        const s2 = '⭐'.repeat(a.note) + '☆'.repeat(5 - a.note);
+        return `<div class="avis-card">
+          <div class="avis-reviewer">
+            <div class="avis-ava">${init}</div>
             <div>
               <div style="font-size:.78rem;font-weight:700;color:var(--dark)">${name}</div>
               <div style="font-size:.62rem;color:var(--gray)">${d}</div>
             </div>
-            <div style="margin-left:auto;font-size:.85rem">${stars2}</div>
+            <div style="margin-left:auto;font-size:.85rem">${s2}</div>
           </div>
-          ${a.commentaire?`<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"${a.commentaire}"</div>`:''}
+          ${a.commentaire ? `<div class="avis-comment">"${a.commentaire}"</div>` : ''}
         </div>`;
       }).join('')}
     `;
-  }catch(e){console.warn('avis:',e);}
+  } catch(e) { console.warn('loadMyAvis:', e); }
 }
+
+// ── FORM CHANGE ──
+function onChange(el) {
+  el.classList.add('ch');
+  dirty = true;
+  document.getElementById('hSave').classList.add('show');
+}
+
+// ── UPLOAD AVATAR ──
+async function uploadAvatar(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 3 * 1024 * 1024) { showToast('Image trop lourde (max 3 Mo)', 'warning'); return; }
+  document.getElementById('avSpin').classList.add('show');
+  try {
+    const ext  = file.name.split('.').pop().toLowerCase();
+    const path = `avatars/${U.id}_${Date.now()}.${ext}`;
+    const { error: e } = await sb.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
+    if(e) throw e;
+    const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path);
+    const url = publicUrl + '?t=' + Date.now();
+    await sb.from('profiles').update({ avatar_url: url }).eq('id', U.id);
+    P.avatar_url = url;
+    document.getElementById('avEl').innerHTML = `<img src="${url}" alt="avatar"/>`;
+    updateCompletion();
+    showToast('Photo mise à jour ! 📸', 'success');
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  finally { document.getElementById('avSpin').classList.remove('show'); }
+}
+
+// ── SAVE PROFILE ──
+async function saveProfile() {
+  const name  = document.getElementById('fName').value.trim();
+  const wa    = document.getElementById('fWa').value.trim();
+  const pays  = document.getElementById('fPays').value;
+  const ville = document.getElementById('fVille').value.trim();
+  const bio   = document.getElementById('fBio').value.trim();
+  if(!name) { showToast('Le nom est requis', 'warning'); return; }
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true; btn.textContent = '⏳ Sauvegarde…';
+  try {
+    const { error } = await sb.from('profiles').update({
+      full_name: name, whatsapp: wa, pays, ville, bio,
+      updated_at: new Date().toISOString()
+    }).eq('id', U.id);
+    if(error) throw error;
+    P = { ...P, full_name: name, whatsapp: wa, pays, ville, bio };
+    document.querySelectorAll('.ch').forEach(el => el.classList.remove('ch'));
+    dirty = false;
+    document.getElementById('hSave').classList.remove('show');
+    updateHero();
+    updateCompletion();
+    showToast('Profil sauvegardé ✅', 'success');
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '💾 Sauvegarder'; }
+}
+
+// ── LOGOUT / DELETE ──
+async function logout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+async function deleteAccount() {
+  try {
+    await sb.from('annonces').delete().eq('user_id', U.id);
+    await sb.from('profiles').delete().eq('id', U.id);
+    await sb.auth.signOut();
+    location.href = 'index.html';
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+// ── TOAST ──
+let tt;
+function showToast(msg, type = 'success') {
+  const ic = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  const el = document.getElementById('toast');
+  el.textContent = (ic[type] || '') + ' ' + msg;
+  el.className = 'show';
+  el.style.borderLeftColor = type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt); tt = setTimeout(() => el.className = '', 3800);
+}
+
+// ── WARN ON UNSAVED ──
+window.addEventListener('beforeunload', e => {
+  if(dirty) { e.preventDefault(); e.returnValue = ''; }
+});
 </script>
-  <script>
-    if('serviceWorker' in navigator){
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(r => console.log('[SW] Registered:', r.scope))
-          .catch(e => console.warn('[SW] Error:', e));
-      });
-    }
-  </script>
+
+<script>
+  if('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(r => console.log('[SW] Registered:', r.scope))
+        .catch(e => console.warn('[SW] Error:', e));
+    });
+  }
+</script>
 </body>
 </html>
