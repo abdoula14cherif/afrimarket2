@@ -4,6 +4,17 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AfriMarket — Admin</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#080E2A"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
@@ -184,6 +195,13 @@
     <div class="sb-item" onclick="goPage('ads',this)">
       <span class="sb-ico">📢</span><span>Annonces</span>
     </div>
+    <div class="sb-item" onclick="goPage('avis',this)">
+      <span class="sb-ico">⭐</span><span>Avis</span>
+      <span class="sb-badge gold" id="nb-avis" style="display:none">0</span>
+    </div>
+    <div class="sb-item" onclick="goPage('messages',this)">
+      <span class="sb-ico">💬</span><span>Messages</span>
+    </div>
   </nav>
   <div class="sb-footer">
     <div class="sb-user-info" id="adminEmail">—</div>
@@ -213,6 +231,9 @@
         <div class="sc green"><div class="sc-ico">💰</div><div class="sc-num" id="s-rev">—</div><div class="sc-lbl">Revenus FCFA</div></div>
         <div class="sc blue"><div class="sc-ico">📢</div><div class="sc-num" id="s-ads">—</div><div class="sc-lbl">Annonces</div></div>
         <div class="sc gold"><div class="sc-ico">🤝</div><div class="sc-num" id="s-refs">—</div><div class="sc-lbl">Parrainages</div></div>
+        <div class="sc turq"><div class="sc-ico">⭐</div><div class="sc-num" id="s-avis">—</div><div class="sc-lbl">Avis reçus</div></div>
+        <div class="sc blue"><div class="sc-ico">💬</div><div class="sc-num" id="s-msgs">—</div><div class="sc-lbl">Messages</div></div>
+        <div class="sc red"><div class="sc-ico">❤️</div><div class="sc-num" id="s-favs">—</div><div class="sc-lbl">Favoris</div></div>
       </div>
       <div class="sec" id="urgentSec" style="display:none">
         <div class="sec-head"><div class="sec-title">🚨 Actions urgentes</div></div>
@@ -298,6 +319,41 @@
             <th>Titre</th><th>Vendeur</th><th>Catégorie</th>
             <th>Prix</th><th>Ville</th><th>Date</th><th>Actions</th>
           </tr></thead><tbody id="adsTbl"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AVIS ══ -->
+    <div class="page" id="page-avis">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">⭐ Avis & Notations</div>
+          <div class="sec-count" id="avis-count">—</div>
+        </div>
+        <div class="filter-row">
+          <button class="fb active" onclick="filterAvis('all',this)">Tous</button>
+          <button class="fb gr" onclick="filterAvis('5',this)">⭐⭐⭐⭐⭐ Excellents</button>
+          <button class="fb re" onclick="filterAvis('low',this)">⭐⭐ Négatifs</button>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Acheteur</th><th>Vendeur</th><th>Note</th><th>Commentaire</th><th>Date</th><th>Actions</th>
+          </tr></thead><tbody id="avisTbl"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MESSAGES ══ -->
+    <div class="page" id="page-messages">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">💬 Conversations</div>
+          <div class="sec-count" id="msgs-count">—</div>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Dernier message</th><th>Annonce</th><th>Date</th><th>Messages</th>
+          </tr></thead><tbody id="msgsTbl"></tbody></table>
         </div>
       </div>
     </div>
@@ -411,7 +467,7 @@ let fPay='all',fWr='all',fUsers='all';
 
 async function loadAll(){
   toast('Chargement…','info');
-  await Promise.all([loadStats(),loadPay(),loadWr(),loadUsers(),loadAds()]);
+  await Promise.all([loadStats(),loadPay(),loadWr(),loadUsers(),loadAds(),loadAvis(),loadMsgs()]);
   toast('Données actualisées ✅','success');
 }
 
@@ -438,6 +494,16 @@ async function loadStats(){
   document.getElementById('s-ads').textContent=ads||0;
   const{count:refs}=await sb.from('referral_earnings').select('*',{count:'exact',head:true});
   document.getElementById('s-refs').textContent=refs||0;
+
+  // Nouvelles stats
+  try{
+    const{count:avisC}=await sb.from('avis').select('*',{count:'exact',head:true});
+    document.getElementById('s-avis').textContent=avisC||0;
+    const{count:msgsC}=await sb.from('messages').select('*',{count:'exact',head:true});
+    document.getElementById('s-msgs').textContent=msgsC||0;
+    const{count:favsC}=await sb.from('favoris').select('*',{count:'exact',head:true});
+    document.getElementById('s-favs').textContent=favsC||0;
+  }catch(e){console.warn('stats extras:',e);}
 
   // Actions urgentes
   const ul=document.getElementById('urgentList');ul.innerHTML='';
@@ -877,8 +943,71 @@ function goPage(name,btn){
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
-  const titles={stats:'📊 Tableau de bord',payments:'💳 Paiements Premium',withdrawals:'💸 Retraits',users:'👥 Utilisateurs',ads:'📢 Annonces'};
+  const titles={stats:'📊 Tableau de bord',payments:'💳 Paiements Premium',withdrawals:'💸 Retraits',users:'👥 Utilisateurs',ads:'📢 Annonces',avis:'⭐ Avis & Notations',messages:'💬 Messages'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
+}
+
+// ══ AVIS ══
+let allAvis=[], fAvis='all';
+async function loadAvis(){
+  try{
+    const{data,count}=await sb.from('avis')
+      .select('*,reviewer:profiles!reviewer_id(full_name),seller:profiles!seller_id(full_name)',{count:'exact'})
+      .order('created_at',{ascending:false}).limit(100);
+    allAvis=data||[];
+    document.getElementById('avis-count').textContent=(count||0)+' avis';
+    renderAvis();
+  }catch(e){console.warn('loadAvis:',e);}
+}
+function renderAvis(){
+  let d=allAvis;
+  if(fAvis==='5') d=d.filter(a=>a.note===5);
+  if(fAvis==='low') d=d.filter(a=>a.note<=2);
+  const stars=n=>'⭐'.repeat(n)+'☆'.repeat(5-n);
+  document.getElementById('avisTbl').innerHTML=!d.length
+    ? emptyRow(6,'⭐','Aucun avis')
+    : d.map(a=>`<tr>
+        <td>${esc(a.reviewer?.full_name||'?')}</td>
+        <td>${esc(a.seller?.full_name||'?')}</td>
+        <td style="font-size:1rem">${stars(a.note)}</td>
+        <td style="max-width:200px;font-size:.78rem;color:var(--gray)">${esc(a.commentaire||'—')}</td>
+        <td>${fmt(a.created_at)}</td>
+        <td><button onclick="delAvis('${a.id}')" style="background:var(--red);color:white;border:none;border-radius:8px;padding:.3rem .7rem;font-size:.72rem;cursor:pointer">🗑️</button></td>
+      </tr>`).join('');
+}
+function filterAvis(f,btn){fAvis=f;document.querySelectorAll('#page-avis .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAvis();}
+async function delAvis(id){
+  if(!confirm('Supprimer cet avis ?')) return;
+  const{error}=await sb.from('avis').delete().eq('id',id);
+  if(error){toast('Erreur: '+error.message,'error');return;}
+  allAvis=allAvis.filter(a=>a.id!==id);
+  renderAvis();
+  toast('Avis supprimé','success');
+}
+
+// ══ MESSAGES ══
+async function loadMsgs(){
+  try{
+    const{data,count}=await sb.from('conversations')
+      .select('*',{count:'exact'})
+      .order('last_message_at',{ascending:false}).limit(50);
+    document.getElementById('msgs-count').textContent=(count||0)+' conversations';
+    const rows=data||[];
+    document.getElementById('msgsTbl').innerHTML=!rows.length
+      ? emptyRow(4,'💬','Aucune conversation')
+      : rows.map(r=>`<tr>
+          <td style="font-size:.78rem;max-width:220px;color:var(--gray)">${esc(r.last_message||'—')}</td>
+          <td style="font-size:.72rem;color:var(--gray)">${esc(r.annonce_id?.substring(0,8)||'—')}</td>
+          <td>${fmt(r.last_message_at)}</td>
+          <td><button onclick="viewConv('${r.id}')" style="background:var(--blue2);color:white;border:none;border-radius:8px;padding:.3rem .7rem;font-size:.72rem;cursor:pointer">👁️ Voir</button></td>
+        </tr>`).join('');
+  }catch(e){console.warn('loadMsgs:',e);}
+}
+async function viewConv(id){
+  const{data}=await sb.from('messages').select('*').eq('conversation_id',id).order('created_at');
+  if(!data?.length){toast('Aucun message','info');return;}
+  const preview=data.map(m=>`${fmt(m.created_at)}: ${m.content}`).join('\n');
+  alert('Conversation ('+data.length+' messages):\n\n'+preview.substring(0,500));
 }
 
 async function doLogout(){await sb.auth.signOut();location.href='index.html';}
@@ -891,5 +1020,14 @@ function toast(msg,type='success'){
   clearTimeout(tt);tt=setTimeout(()=>el.className='',4000);
 }
 </script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(r => console.log('[SW] Registered:', r.scope))
+          .catch(e => console.warn('[SW] Error:', e));
+      });
+    }
+  </script>
 </body>
 </html>
