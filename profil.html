@@ -4,6 +4,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AfriMarket — Mon Profil</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#080E2A"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
@@ -19,32 +27,31 @@
 
     /* ── HEADER ── */
     .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
-    .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:.3rem;}
+    .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;}
     .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
     .h-logo{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-1px;}
     .h-logo .la{color:var(--turq);}.h-logo .lm{color:var(--orange);}
-    .h-save{background:var(--turq);color:white;border:none;border-radius:99px;padding:.35rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;display:none;}
-    .h-save.show{display:block;}
+    .h-right{display:flex;align-items:center;gap:.45rem;}
+    .h-save{background:var(--turq);color:white;border:none;border-radius:99px;padding:.35rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;opacity:0;pointer-events:none;transition:all .3s;}
+    .h-save.show{opacity:1;pointer-events:all;}
     .h-save:hover{background:#00A89F;}
-    .h-save:disabled{opacity:.5;cursor:not-allowed;}
-    .h-menu-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:white;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;font-weight:700;letter-spacing:-.5px;}
-    .h-menu-btn:hover{background:rgba(255,255,255,.2);}
-    .dots-menu{position:fixed;top:68px;right:1.2rem;z-index:500;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(8,14,42,.18);border:1px solid var(--border);min-width:200px;overflow:hidden;transform:scale(.95) translateY(-6px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.34,1.56,.64,1);}
+    .h-save:disabled{opacity:.4;cursor:not-allowed;}
+    .h-dots{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:white;font-size:1.3rem;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;letter-spacing:-.5px;flex-shrink:0;}
+    .h-dots:hover{background:rgba(255,255,255,.2);}
+
+    /* ── MENU ⋮ ── */
+    .dots-menu{position:fixed;top:68px;right:1rem;z-index:500;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(8,14,42,.2);border:1px solid var(--border);min-width:195px;overflow:hidden;transform:scale(.95) translateY(-8px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.56,.64,1);}
     .dots-menu.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all;}
-    .dm-item{display:flex;align-items:center;gap:.75rem;padding:.8rem 1rem;cursor:pointer;transition:background .15s;font-size:.85rem;font-weight:600;color:var(--dark);text-decoration:none;}
+    .dm-item{display:flex;align-items:center;gap:.7rem;padding:.8rem 1rem;cursor:pointer;transition:background .15s;font-size:.84rem;font-weight:600;color:var(--dark);text-decoration:none;border:none;background:none;width:100%;font-family:'Plus Jakarta Sans',sans-serif;text-align:left;}
     .dm-item:not(:last-child){border-bottom:1px solid var(--border);}
     .dm-item:hover{background:var(--bg);}
-    .dm-item:active{background:var(--border);}
-    .dm-ico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
-    .dm-sep{height:4px;background:var(--bg);}
+    .dm-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
 
-    /* ── HERO PROFIL ── */
-    .hero{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 60%,#1B3FE4 100%);padding:1.8rem 1.2rem 3.5rem;position:relative;overflow:hidden;}
+    /* ── HERO ── */
+    .hero{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 55%,#1B3FE4 100%);padding:2rem 1.2rem 3.5rem;position:relative;overflow:hidden;}
     .hero::before{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(0,194,183,.08);right:-60px;top:-80px;}
     .hero::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,107,26,.06);left:-50px;bottom:-60px;}
     .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;}
-
-    /* AVATAR */
     .avatar-wrap{position:relative;margin-bottom:1rem;cursor:pointer;}
     .avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:white;border:3px solid rgba(255,255,255,.3);overflow:hidden;transition:all .3s;}
     .avatar img{width:100%;height:100%;object-fit:cover;}
@@ -52,7 +59,6 @@
     .avatar-uploading{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;font-size:1.2rem;}
     .avatar-uploading.show{display:flex;}
     #avatarInput{display:none;}
-
     .hero-name{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:white;letter-spacing:-.5px;margin-bottom:.2rem;}
     .hero-email{font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:.7rem;}
     .hero-plan{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .8rem;border-radius:99px;font-size:.68rem;font-weight:700;}
@@ -60,14 +66,14 @@
     .hero-plan.premium{background:rgba(245,183,49,.2);color:var(--gold);border:1px solid rgba(245,183,49,.35);}
     .hero-plan.elite{background:rgba(0,194,183,.2);color:var(--turq);border:1px solid rgba(0,194,183,.35);}
 
-    /* ── STATS FLOTTANTES ── */
+    /* ── STATS ── */
     .stats-float{position:relative;z-index:10;margin:-1.5rem 1.2rem .8rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 8px 24px rgba(27,63,228,.1);padding:1rem;display:flex;gap:.5rem;}
     .sf{flex:1;text-align:center;padding:.4rem 0;}
     .sf+.sf{border-left:1px solid var(--border);}
     .sf-num{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
     .sf-lbl{font-size:.6rem;color:var(--gray);font-weight:600;margin-top:.1rem;letter-spacing:.2px;}
 
-    /* ── COMPLÉTION PROFIL ── */
+    /* ── COMPLÉTION ── */
     .complet-card{margin:0 1.2rem .8rem;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
     .cc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
     .cc-title{font-size:.82rem;font-weight:700;color:var(--dark);}
@@ -80,11 +86,11 @@
     .cc-dot.ok{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.2);}
     .cc-dot.ko{background:rgba(255,107,26,.08);color:var(--orange);border:1px solid rgba(255,107,26,.15);}
 
-    /* ── SECTION ── */
+    /* ── SECTION TITLE ── */
     .sec{padding:1.1rem 1.2rem .5rem;}
-    .sec-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
+    .sec-ttl{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
 
-    /* ── FORM CARD ── */
+    /* ── FORM ── */
     .form-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.05);padding:1.2rem;display:flex;flex-direction:column;gap:.85rem;}
     .field{display:flex;flex-direction:column;gap:.3rem;}
     .field label{font-size:.72rem;font-weight:700;color:var(--dark);letter-spacing:.2px;}
@@ -114,22 +120,25 @@
     .pc-expires{font-size:.72rem;font-weight:600;color:var(--gold);margin-bottom:.8rem;}
     .pc-btn{width:100%;padding:.72rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
     .pc-btn-upgrade{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.3);}
-    .pc-btn-upgrade:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(27,63,228,.4);}
+    .pc-btn-upgrade:hover{transform:translateY(-1px);}
     .pc-btn-manage{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25);}
     .pc-features{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
     .pc-feat{font-size:.75rem;display:flex;align-items:center;gap:.5rem;}
     .free-card .pc-feat{color:var(--gray);}
     .prem-active .pc-feat{color:rgba(255,255,255,.75);}
 
+    /* ── ANNONCES GRID ── */
+    .ad-mini-card{background:white;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.06);cursor:pointer;transition:transform .2s;}
+    .ad-mini-card:hover{transform:translateY(-3px);}
+
     /* ── DANGER ZONE ── */
     .danger-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid rgba(232,48,48,.15);padding:1.2rem;box-shadow:0 2px 10px rgba(232,48,48,.05);}
-    .dz-title{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--red);margin-bottom:.9rem;}
-    .dz-btns{display:flex;flex-direction:column;gap:.6rem;}
-    .dz-btn{width:100%;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:.6rem;}
-    .dz-btn-logout{background:rgba(232,48,48,.06);color:var(--red);border:1.5px solid rgba(232,48,48,.15);}
-    .dz-btn-logout:hover{background:var(--red);color:white;}
-    .dz-btn-del{background:rgba(139,0,0,.05);color:#8B0000;border:1.5px solid rgba(139,0,0,.1);}
-    .dz-btn-del:hover{background:#8B0000;color:white;}
+    .dz-ttl{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--red);margin-bottom:.9rem;}
+    .dz-btn{width:100%;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
+    .dz-logout{background:rgba(232,48,48,.06);color:var(--red);border:1.5px solid rgba(232,48,48,.15);}
+    .dz-logout:hover{background:var(--red);color:white;}
+    .dz-del{background:rgba(139,0,0,.05);color:#8B0000;border:1.5px solid rgba(139,0,0,.1);}
+    .dz-del:hover{background:#8B0000;color:white;}
 
     /* ── BOTTOM NAV ── */
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
@@ -168,31 +177,26 @@
 <div class="header">
   <a class="h-back" href="dashboard.html">← Accueil</a>
   <div class="h-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
-  <div style="display:flex;align-items:center;gap:.5rem;">
+  <div class="h-right">
     <button class="h-save" id="hSaveBtn" onclick="saveProfile()">💾 Sauvegarder</button>
-    <button class="h-menu-btn" onclick="toggleDotsMenu(event)" id="dotsBtn" title="Plus d'options">⋮</button>
+    <button class="h-dots" id="dotsBtn" onclick="toggleDots(event)">⋮</button>
   </div>
 </div>
 
-<!-- MENU DÉROULANT ⋮ -->
+<!-- MENU ⋮ -->
 <div class="dots-menu" id="dotsMenu">
   <a class="dm-item" href="parametres.html">
-    <div class="dm-ico" style="background:rgba(27,63,228,.1);">⚙️</div>
-    Paramètres
+    <div class="dm-ico" style="background:rgba(27,63,228,.1);">⚙️</div>Paramètres
   </a>
-  <div class="dm-item" onclick="shareApp();closeDotsMenu()">
-    <div class="dm-ico" style="background:rgba(0,194,183,.1);">📤</div>
-    Partager l'app
-  </div>
-  <div class="dm-item" onclick="window.open('https://wa.me/237600000000?text=Support AfriMarket','_blank');closeDotsMenu()">
-    <div class="dm-ico" style="background:rgba(37,211,102,.1);">💬</div>
-    Aide & Support
-  </div>
-  <div class="dm-sep"></div>
-  <div class="dm-item" onclick="closeDotsMenu();document.getElementById('logoutBtn').click()" style="color:var(--red);">
-    <div class="dm-ico" style="background:rgba(232,48,48,.08);">🚪</div>
-    Se déconnecter
-  </div>
+  <button class="dm-item" onclick="shareApp();closeDots()">
+    <div class="dm-ico" style="background:rgba(0,194,183,.1);">📤</div>Partager l'app
+  </button>
+  <a class="dm-item" href="https://wa.me/237689011185?text=Support AfriMarket" target="_blank">
+    <div class="dm-ico" style="background:rgba(37,211,102,.1);">💬</div>Aide & Support
+  </a>
+  <button class="dm-item" onclick="closeDots();logout()" style="color:var(--red);">
+    <div class="dm-ico" style="background:rgba(232,48,48,.08);">🚪</div>Se déconnecter
+  </button>
 </div>
 
 <!-- HERO -->
@@ -231,7 +235,7 @@
 </div>
 
 <!-- INFOS PERSONNELLES -->
-<div class="sec"><div class="sec-title">👤 Informations personnelles</div></div>
+<div class="sec"><div class="sec-ttl">👤 Informations personnelles</div></div>
 <div class="form-card" id="formCard">
 
   <div class="field">
@@ -291,14 +295,14 @@
     <div class="field-hint">Visible sur tes annonces</div>
   </div>
 
-  <button class="pc-btn pc-btn-upgrade" onclick="saveProfile()" id="saveBtn" style="margin-top:.2rem;width:100%;padding:.78rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.25);">
+  <button onclick="saveProfile()" id="saveBtn" style="width:100%;padding:.78rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.25);">
     💾 Sauvegarder les modifications
   </button>
 
 </div>
 
 <!-- STATUT PREMIUM -->
-<div class="sec"><div class="sec-title">👑 Mon abonnement</div></div>
+<div class="sec"><div class="sec-ttl">👑 Mon abonnement</div></div>
 <div class="prem-card free-card" id="premCard">
   <div class="pc-inner">
     <div class="pc-top">
@@ -311,42 +315,83 @@
       <div class="pc-feat">❌ Pas de mise en avant</div>
       <div class="pc-feat">❌ Pas de badge vendeur</div>
     </div>
-    <div class="pc-desc" id="planDesc">Débloques toutes les fonctionnalités avec un abonnement Premium dès 1 000 FCFA/mois.</div>
+    <div class="pc-desc" id="planDesc">Débloque toutes les fonctionnalités avec un abonnement Premium dès 1 000 FCFA/mois.</div>
     <button class="pc-btn pc-btn-upgrade" id="planBtn" onclick="location.href='pricing.html'">
       👑 Passer Premium
     </button>
   </div>
 </div>
 
-<!-- DANGER ZONE -->
-<div class="sec"><div class="sec-title">⚠️ Zone de danger</div></div>
-
-<!-- ━━━━ MES ANNONCES ━━━━ -->
-<div class="sec" style="margin-top:.4rem;"><div class="sec-title">📋 Mes annonces publiées</div></div>
-<div style="padding:0 1.2rem;margin-bottom:.8rem;">
-  <div id="myAdsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
-    <!-- Skeleton -->
-    <div class="skel" style="height:140px;border-radius:16px;"></div>
-    <div class="skel" style="height:140px;border-radius:16px;"></div>
+<!-- MES ANNONCES -->
+<div class="sec"><div class="sec-ttl">📋 Mes annonces publiées</div></div>
+<div style="padding:0 1.2rem;margin-bottom:.4rem;">
+  <div id="myAdsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+    <div class="skel" style="height:130px;border-radius:16px;"></div>
+    <div class="skel" style="height:130px;border-radius:16px;"></div>
   </div>
-  <div id="myAdsEmpty" style="display:none;text-align:center;padding:2rem 1rem;color:var(--gray);">
-    <div style="font-size:2.5rem;margin-bottom:.6rem;">📭</div>
-    <div style="font-weight:600;color:var(--dark);font-size:.9rem;">Aucune annonce publiée</div>
-    <div style="font-size:.78rem;margin-top:.3rem;">Publie ta première annonce depuis le tableau de bord !</div>
-    <button onclick="location.href='dashboard.html'" style="margin-top:.9rem;padding:.55rem 1.2rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🛍️ Aller publier</button>
+  <div id="myAdsEmpty" style="display:none;text-align:center;padding:1.8rem 1rem;background:white;border-radius:16px;border:1.5px solid var(--border);">
+    <div style="font-size:2.2rem;margin-bottom:.5rem;">📭</div>
+    <div style="font-size:.85rem;font-weight:700;color:var(--dark);">Aucune annonce publiée</div>
+    <div style="font-size:.75rem;color:var(--gray);margin-top:.3rem;">Publie ta première annonce depuis le tableau de bord !</div>
+    <button onclick="location.href='dashboard.html'" style="margin-top:.8rem;padding:.5rem 1.2rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🛍️ Publier</button>
   </div>
 </div>
 
+<!-- MES AVIS REÇUS -->
+<div class="sec"><div class="sec-ttl">⭐ Mes avis reçus</div></div>
+<div id="avisSection" style="margin:0 1.2rem .4rem;display:flex;flex-direction:column;gap:.6rem;">
+  <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem;">⏳ Chargement…</div>
+</div>
+
+<!-- SERVICE CLIENT -->
+<div class="sec"><div class="sec-ttl">🎧 Service client</div></div>
+<div style="margin:0 1.2rem .4rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;flex-direction:column;gap:.7rem;">
+  <div style="font-size:.78rem;color:var(--gray);line-height:1.6;">Une question ? Un problème ? Notre équipe est disponible pour t'aider 🙌</div>
+
+  <a href="https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20besoin%20d%27aide%20%F0%9F%91%8B" target="_blank"
+     style="display:flex;align-items:center;gap:.85rem;background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;"
+     onmouseover="this.style.background='rgba(0,194,113,.12)'" onmouseout="this.style.background='rgba(0,194,113,.06)'">
+    <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,194,113,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">💬</div>
+    <div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878;">WhatsApp</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">+237 689 011 185 · Réponse rapide</div>
+    </div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
+  </a>
+
+  <a href="mailto:abdoula13cherif@gmail.com?subject=Support%20AfriMarket&body=Bonjour%2C%20j%27ai%20besoin%20d%27aide."
+     style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;"
+     onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
+    <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
+    <div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">abdoula13cherif@gmail.com</div>
+    </div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
+  </a>
+
+  <a href="telecharger.html"
+     style="display:flex;align-items:center;gap:.85rem;background:linear-gradient(135deg,rgba(0,194,183,.06),rgba(27,63,228,.04));border:1.5px solid rgba(0,194,183,.25);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;"
+     onmouseover="this.style.borderColor='rgba(0,194,183,.5)'" onmouseout="this.style.borderColor='rgba(0,194,183,.25)'">
+    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📲</div>
+    <div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq);">Installer l'application</div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Ajouter AfriMarket à l'écran d'accueil</div>
+    </div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--turq);">→</div>
+  </a>
+</div>
+
+<!-- ZONE DE DANGER -->
+<div class="sec"><div class="sec-ttl">⚠️ Zone de danger</div></div>
 <div class="danger-card">
-  <div class="dz-title">Actions irréversibles</div>
-  <div class="dz-btns">
-    <button class="dz-btn dz-btn-logout" onclick="logout()">
-      🚪 <span>Se déconnecter</span>
-    </button>
-    <button class="dz-btn dz-btn-del" onclick="openDeleteModal()">
-      🗑️ <span>Supprimer mon compte</span>
-    </button>
-  </div>
+  <div class="dz-ttl">Actions irréversibles</div>
+  <button class="dz-btn dz-logout" id="logoutBtn" onclick="logout()">
+    🚪 <span>Se déconnecter</span>
+  </button>
+  <button class="dz-btn dz-del" onclick="document.getElementById('delOv').classList.add('open')">
+    🗑️ <span>Supprimer mon compte</span>
+  </button>
 </div>
 
 <div style="height:1rem"></div>
@@ -356,8 +401,8 @@
   <button class="nav-item" onclick="location.href='dashboard.html'">
     <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
   </button>
-  <button class="nav-item" onclick="location.href='dashboard.html'">
-    <span class="nav-ico">🔔</span><span class="nav-lbl">Notifs</span>
+  <button class="nav-item" onclick="location.href='messages.html'">
+    <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
   </button>
   <div class="nav-item">
     <button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button>
@@ -373,13 +418,13 @@
 </nav>
 
 <!-- MODAL SUPPRESSION -->
-<div class="modal-ov" id="deleteModal" onclick="if(event.target===this)closeModal()">
+<div class="modal-ov" id="delOv" onclick="if(event.target===this)document.getElementById('delOv').classList.remove('open')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title">🗑️ Supprimer ton compte ?</div>
     <div class="modal-desc">Cette action est <strong>irréversible</strong>. Toutes tes annonces, ton solde et tes données seront définitivement supprimés.</div>
     <div class="modal-btns">
-      <button class="mbtn mbtn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="mbtn mbtn-cancel" onclick="document.getElementById('delOv').classList.remove('open')">Annuler</button>
       <button class="mbtn mbtn-ok" onclick="deleteAccount()">Supprimer</button>
     </div>
   </div>
@@ -410,30 +455,11 @@ let U=null, P=null, hasChanges=false;
   updateCompletion();
   updatePremiumCard();
   await loadStats();
-  loadMyAds();
+  await loadMyAds();
+  await loadMyAvis(U.id);
 })();
 
 // ===== REMPLIR LE FORMULAIRE =====
-
-// ── MENU ⋮ ──
-function toggleDotsMenu(e) {
-  e.stopPropagation();
-  document.getElementById('dotsMenu').classList.toggle('open');
-}
-function closeDotsMenu() {
-  document.getElementById('dotsMenu').classList.remove('open');
-}
-document.addEventListener('click', function(e) {
-  const menu = document.getElementById('dotsMenu');
-  const btn = document.getElementById('dotsBtn');
-  if (menu && !menu.contains(e.target) && e.target !== btn) closeDotsMenu();
-});
-function shareApp() {
-  const url = 'https://afrimarket2.vercel.app';
-  if (navigator.share) navigator.share({ title: 'AfriMarket', text: '🛒 La marketplace africaine !', url }).catch(()=>{});
-  else navigator.clipboard?.writeText(url).then(() => toast('Lien copié ! 📋')).catch(()=>{});
-}
-
 function fillForm(){
   document.getElementById('fName').value  = P.full_name||'';
   document.getElementById('fWa').value    = P.whatsapp||'';
@@ -448,14 +474,12 @@ function updateHero(){
   document.getElementById('heroName').textContent=name;
   document.getElementById('heroEmail').textContent=U?.email||'';
 
-  // Avatar
   if(P.avatar_url){
     document.getElementById('avatarEl').innerHTML=`<img src="${P.avatar_url}" alt="avatar"/>`;
   } else {
     document.getElementById('avatarInitial').textContent=name[0]?.toUpperCase()||'?';
   }
 
-  // Plan badge
   const planEl=document.getElementById('heroPlan');
   if(P.is_premium){
     planEl.className='hero-plan '+(P.plan==='elite'?'elite':'premium');
@@ -469,12 +493,12 @@ function updateHero(){
 // ===== COMPLÉTION =====
 function updateCompletion(){
   const checks=[
-    {ok:!!(P.full_name),    label:'Nom'},
-    {ok:!!(P.whatsapp),     label:'WhatsApp'},
-    {ok:!!(P.ville),        label:'Ville'},
-    {ok:!!(P.avatar_url),   label:'Photo'},
-    {ok:!!(P.pays),         label:'Pays'},
-    {ok:!!(P.bio),          label:'Bio'},
+    {ok:!!(P.full_name),  label:'Nom'},
+    {ok:!!(P.whatsapp),   label:'WhatsApp'},
+    {ok:!!(P.ville),      label:'Ville'},
+    {ok:!!(P.avatar_url), label:'Photo'},
+    {ok:!!(P.pays),       label:'Pays'},
+    {ok:!!(P.bio),        label:'Bio'},
   ];
   const done=checks.filter(c=>c.ok).length;
   const pct=Math.round(done/checks.length*100);
@@ -519,107 +543,156 @@ function updatePremiumCard(){
 
 // ===== STATS =====
 async function loadStats(){
-  const{count:ads}=await sb.from('annonces')
-    .select('*',{count:'exact',head:true})
-    .eq('user_id',U.id);
+  try{
+    const{count:ads}=await sb.from('annonces')
+      .select('*',{count:'exact',head:true})
+      .eq('user_id',U.id)
+      .eq('actif',true);
 
-  const refCode=P.ref_code||U.id.substring(0,8);
-  const{count:refs}=await sb.from('profiles')
-    .select('*',{count:'exact',head:true})
-    .eq('referred_by',refCode);
+    const refCode=P.ref_code||U.id.substring(0,8);
+    const{count:refs}=await sb.from('profiles')
+      .select('*',{count:'exact',head:true})
+      .eq('referred_by',refCode);
 
-  const{data:earn}=await sb.from('referral_earnings')
-    .select('amount,status')
-    .eq('user_id',U.id);
-  const solde=(earn||[]).filter(e=>e.status==='available').reduce((s,e)=>s+(e.amount||0),0);
+    const{data:earn}=await sb.from('referral_earnings')
+      .select('amount,status')
+      .eq('user_id',U.id);
+    const solde=(earn||[]).filter(e=>e.status==='available').reduce((s,e)=>s+(e.amount||0),0);
 
-  const days=P.created_at
-    ? Math.floor((Date.now()-new Date(P.created_at).getTime())/86400000)
-    : 0;
+    const days=P.created_at
+      ? Math.floor((Date.now()-new Date(P.created_at).getTime())/86400000)
+      : 0;
 
-  document.getElementById('statAds').textContent=ads||0;
-  document.getElementById('statRefs').textContent=refs||0;
-  document.getElementById('statSolde').textContent=solde.toLocaleString('fr-FR');
-  document.getElementById('statDays').textContent=days;
+    document.getElementById('statAds').textContent=ads||0;
+    document.getElementById('statRefs').textContent=refs||0;
+    document.getElementById('statSolde').textContent=solde.toLocaleString('fr-FR');
+    document.getElementById('statDays').textContent=days;
+  }catch(e){console.warn('loadStats:',e);}
 }
 
-
-
 // ===== MES ANNONCES =====
-async function loadMyAds() {
-  if (!U) return;
-  try {
-    const { data: ads, error } = await sb.from('annonces')
+async function loadMyAds(){
+  try{
+    const{data:ads}=await sb.from('annonces')
       .select('*')
-      .eq('user_id', U.id)
-      .eq('actif', true)
-      .order('created_at', { ascending: false })
+      .eq('user_id',U.id)
+      .eq('actif',true)
+      .order('created_at',{ascending:false})
       .limit(20);
 
-    const grid = document.getElementById('myAdsGrid');
-    const empty = document.getElementById('myAdsEmpty');
-    if (!grid) return;
-
-    if (error || !ads || ads.length === 0) {
-      grid.style.display = 'none';
-      if (empty) empty.style.display = 'block';
+    const grid=document.getElementById('myAdsGrid');
+    const empty=document.getElementById('myAdsEmpty');
+    if(!ads||ads.length===0){
+      grid.style.display='none';
+      empty.style.display='block';
       return;
     }
 
-    const EMAP = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
-    grid.style.display = 'grid';
-    if (empty) empty.style.display = 'none';
-
-    grid.innerHTML = ads.map((ad, i) => {
-      const emoji = EMAP[ad.categorie] || '📦';
-      const prix = ad.prix ? Number(ad.prix).toLocaleString('fr-FR') + ' FCFA' : 'Prix libre';
-      const imgHtml = ad.image_url
-        ? `<img id="pad_${ad.id}" src="${ad.image_url}" alt="" style="width:100%;height:100px;object-fit:cover;border-radius:12px;">`
-        : `<div style="width:100%;height:100px;border-radius:12px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:2rem;">${emoji}</div>`;
-      return `<div style="background:white;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.06);cursor:pointer;animation:shimmer .0s;transition:transform .2s;" onclick="editMyAd('${ad.id}')" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
-        ${imgHtml}
-        <div style="padding:.6rem .7rem;">
-          <div style="font-size:.78rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ad.titre || 'Sans titre'}</div>
-          <div style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;background:linear-gradient(90deg,var(--blue),var(--turq));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:2px;">${prix}</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.4rem;">
-            <span style="font-size:.62rem;color:var(--gray);">📍 ${ad.ville || '—'}</span>
-            <button onclick="event.stopPropagation();deleteMyAd('${ad.id}')" style="font-size:.65rem;color:var(--red);background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.15rem .5rem;cursor:pointer;font-weight:700;">🗑️</button>
+    const EMAP={immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
+    grid.innerHTML=ads.map(ad=>{
+      const em=EMAP[ad.categorie]||'📦';
+      const prix=ad.prix?Number(ad.prix).toLocaleString('fr-FR')+' FCFA':'Prix libre';
+      const img=ad.image_url
+        ?`<img id="ami_${ad.id}" src="${ad.image_url}" alt="" style="width:100%;height:95px;object-fit:cover;">`
+        :`<div style="width:100%;height:95px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">${em}</div>`;
+      return `<div class="ad-mini-card">
+        ${img}
+        <div style="padding:.5rem .65rem .6rem;">
+          <div style="font-size:.76rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ad.titre||'Sans titre'}</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:.8rem;font-weight:700;color:var(--blue2);margin-top:1px;">${prix}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.35rem;">
+            <span style="font-size:.6rem;color:var(--gray);">📍 ${ad.ville||'—'}</span>
+            <button onclick="event.stopPropagation();deleteAd('${ad.id}')" style="font-size:.6rem;color:var(--red);background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.12rem .45rem;cursor:pointer;font-weight:700;">🗑️</button>
           </div>
         </div>
       </div>`;
     }).join('');
 
-    // Fix img onerror
-    ads.forEach(ad => {
-      if (!ad.image_url) return;
-      const img = document.getElementById('pad_' + ad.id);
-      if (img) {
-        const em = EMAP[ad.categorie] || '📦';
-        img.onerror = function() {
-          this.parentElement.innerHTML = `<div style="width:100%;height:100px;border-radius:12px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:2rem;">${em}</div>`;
+    // Fix onerror pour les images
+    ads.forEach(ad=>{
+      if(!ad.image_url) return;
+      const img=document.getElementById('ami_'+ad.id);
+      if(img){
+        const em=EMAP[ad.categorie]||'📦';
+        img.onerror=function(){
+          this.parentElement.innerHTML=`<div style="width:100%;height:95px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">${em}</div>`;
         };
       }
     });
-  } catch(e) {
-    console.error('loadMyAds:', e);
-  }
+  }catch(e){console.warn('loadMyAds:',e);}
 }
 
-function editMyAd(id) {
-  toast('Modification d'annonce bientôt disponible 🔧', 'info');
-}
-
-async function deleteMyAd(id) {
-  if (!confirm('Supprimer cette annonce ?')) return;
-  try {
-    const { error } = await sb.from('annonces').update({ actif: false }).eq('id', id).eq('user_id', U.id);
-    if (error) throw error;
-    toast('Annonce supprimée ✅', 'success');
+async function deleteAd(id){
+  if(!confirm('Supprimer cette annonce ?')) return;
+  try{
+    await sb.from('annonces').update({actif:false}).eq('id',id).eq('user_id',U.id);
+    showToast('Annonce supprimée ✅','success');
     loadMyAds();
     loadStats();
-  } catch(e) {
-    toast('Erreur : ' + e.message, 'error');
-  }
+  }catch(e){showToast('Erreur : '+e.message,'error');}
+}
+
+// ===== MES AVIS REÇUS =====
+async function loadMyAvis(uid){
+  try{
+    const{data:avisData}=await sb.from('avis')
+      .select('note,commentaire,created_at,profiles!reviewer_id(full_name)')
+      .eq('seller_id',uid)
+      .order('created_at',{ascending:false})
+      .limit(20);
+
+    const sec=document.getElementById('avisSection');
+    if(!avisData?.length){
+      sec.innerHTML=`<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center">
+        <div style="font-size:2rem;margin-bottom:.4rem">🌟</div>
+        <div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l'instant.<br>Les acheteurs pourront te noter après un échange.</div>
+      </div>`;
+      return;
+    }
+
+    const avg=(avisData.reduce((s,a)=>s+a.note,0)/avisData.length).toFixed(1);
+    const stars='⭐'.repeat(Math.round(avg))+'☆'.repeat(5-Math.round(avg));
+
+    sec.innerHTML=`
+      <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(27,63,228,.05)">
+        <div style="text-align:center;flex-shrink:0">
+          <div style="font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">${avg}</div>
+          <div style="font-size:1rem;margin:.2rem 0">${stars}</div>
+          <div style="font-size:.65rem;color:var(--gray)">${avisData.length} avis</div>
+        </div>
+        <div style="flex:1">
+          ${[5,4,3,2,1].map(n=>{
+            const cnt=avisData.filter(a=>a.note===n).length;
+            const pct=Math.round(cnt/avisData.length*100);
+            return `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem">
+              <span style="font-size:.62rem;color:var(--gray);width:12px">${n}</span>
+              <div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px"></div>
+              </div>
+              <span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">${cnt}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      ${avisData.slice(0,5).map(a=>{
+        const name=(a.profiles?.full_name||'Anonyme');
+        const init=name[0].toUpperCase();
+        const d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+        const s2='⭐'.repeat(a.note)+'☆'.repeat(5-a.note);
+        return `<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;box-shadow:0 2px 8px rgba(27,63,228,.04)">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0">${init}</div>
+            <div>
+              <div style="font-size:.78rem;font-weight:700;color:var(--dark)">${name}</div>
+              <div style="font-size:.62rem;color:var(--gray)">${d}</div>
+            </div>
+            <div style="margin-left:auto;font-size:.85rem">${s2}</div>
+          </div>
+          ${a.commentaire?`<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"${a.commentaire}"</div>`:''}
+        </div>`;
+      }).join('')}
+    `;
+  }catch(e){console.warn('loadMyAvis:',e);}
 }
 
 // ===== MARQUER CHANGEMENTS =====
@@ -639,7 +712,6 @@ async function uploadAvatar(input){
   try{
     const ext=file.name.split('.').pop();
     const path=`avatars/${U.id}.${ext}`;
-
     const{error:upErr}=await sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
     if(upErr) throw upErr;
 
@@ -676,15 +748,12 @@ async function saveProfile(){
 
   try{
     const{error}=await sb.from('profiles').update({
-      full_name:name, whatsapp:wa, pays, ville, bio,
+      full_name:name,whatsapp:wa,pays,ville,bio,
       updated_at:new Date().toISOString()
     }).eq('id',U.id);
     if(error) throw error;
 
-    // Mettre à jour le profil local
     P={...P,full_name:name,whatsapp:wa,pays,ville,bio};
-
-    // Retirer la classe changed
     document.querySelectorAll('.changed').forEach(el=>el.classList.remove('changed'));
     hasChanges=false;
     hBtn.classList.remove('show');
@@ -707,12 +776,6 @@ async function logout(){
 }
 
 // ===== SUPPRESSION COMPTE =====
-function openDeleteModal(){
-  document.getElementById('deleteModal').classList.add('open');
-}
-function closeModal(){
-  document.getElementById('deleteModal').classList.remove('open');
-}
 async function deleteAccount(){
   showToast('Suppression en cours…','info');
   try{
@@ -723,6 +786,25 @@ async function deleteAccount(){
   }catch(e){
     showToast('Erreur : '+e.message,'error');
   }
+}
+
+// ===== MENU ⋮ =====
+function toggleDots(e){
+  e.stopPropagation();
+  document.getElementById('dotsMenu').classList.toggle('open');
+}
+function closeDots(){
+  document.getElementById('dotsMenu').classList.remove('open');
+}
+document.addEventListener('click',function(e){
+  const m=document.getElementById('dotsMenu');
+  const b=document.getElementById('dotsBtn');
+  if(m&&!m.contains(e.target)&&e.target!==b) m.classList.remove('open');
+});
+function shareApp(){
+  const url='https://afrimarket2.vercel.app';
+  if(navigator.share) navigator.share({title:'AfriMarket',text:'🛒 La marketplace africaine !',url}).catch(()=>{});
+  else navigator.clipboard?.writeText(url).then(()=>showToast('Lien copié ! 📋')).catch(()=>{});
 }
 
 // ===== TOAST =====
