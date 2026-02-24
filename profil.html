@@ -457,6 +457,7 @@ let U=null, P=null, hasChanges=false;
   await loadStats();
   await loadMyAds();
   await loadMyAvis(U.id);
+  setupRealtime();
 })();
 
 // ===== REMPLIR LE FORMULAIRE =====
@@ -708,24 +709,61 @@ async function uploadAvatar(input){
   if(!file) return;
   if(file.size>3*1024*1024){showToast('Image trop grande (max 3 Mo)','warning');return;}
 
+  // ── Preview immédiat via FileReader ──
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('avatarEl').innerHTML=`<img src="${e.target.result}" alt="avatar" style="width:100%;height:100%;object-fit:cover;"/>`;
+  };
+  reader.readAsDataURL(file);
+
   document.getElementById('avatarUploading').classList.add('show');
   try{
-    const ext=file.name.split('.').pop();
-    const path=`avatars/${U.id}.${ext}`;
-    const{error:upErr}=await sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
-    if(upErr) throw upErr;
+    const ext=file.name.split('.').pop().toLowerCase().replace('jpeg','jpg');
+    const path=`avatars/${U.id}_${Date.now()}.${ext}`;
 
-    const{data:{publicUrl}}=sb.storage.from('avatars').getPublicUrl(path);
-    const url=publicUrl+'?t='+Date.now();
+    // Essai 1 : upload
+    const{error:upErr}=await sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
+    if(upErr){
+      console.warn('[avatar] upload error:',upErr.message);
+      // On garde quand même le preview FileReader en local
+      showToast('Photo affichée localement (storage indisponible)','warning');
+      return;
+    }
+
+    // Essai 1 : URL publique
+    let url;
+    const{data:pub}=sb.storage.from('avatars').getPublicUrl(path);
+    const pubUrl=pub?.publicUrl;
+
+    // Vérifier si l'URL publique est accessible
+    try{
+      const test=await fetch(pubUrl,{method:'HEAD'});
+      if(test.ok){
+        url=pubUrl+'?t='+Date.now();
+      }
+    }catch(_){}
+
+    // Essai 2 : signed URL (si public URL échoue)
+    if(!url){
+      const{data:signed}=await sb.storage.from('avatars').createSignedUrl(path,315360000); // 10 ans
+      if(signed?.signedUrl) url=signed.signedUrl;
+    }
+
+    if(!url){
+      showToast('Photo affichée localement (URL inaccessible)','warning');
+      return;
+    }
 
     await sb.from('profiles').update({avatar_url:url}).eq('id',U.id);
     P.avatar_url=url;
 
-    document.getElementById('avatarEl').innerHTML=`<img src="${url}" alt="avatar"/>`;
+    // Mettre à jour l'img avec la vraie URL
+    document.getElementById('avatarEl').innerHTML=`<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>`;
     updateCompletion();
-    showToast('Photo mise à jour ! 🎉','success');
+    showToast('Photo de profil mise à jour ! 🎉','success');
   }catch(e){
-    showToast('Erreur upload : '+e.message,'error');
+    console.error('[avatar]',e);
+    showToast('Erreur : '+e.message,'error');
   }finally{
     document.getElementById('avatarUploading').classList.remove('show');
   }
@@ -786,6 +824,71 @@ async function deleteAccount(){
   }catch(e){
     showToast('Erreur : '+e.message,'error');
   }
+}
+
+
+// ===== REALTIME — ÉCOUTE LES CHANGEMENTS ADMIN =====
+function setupRealtime(){
+  // Canal 1 : changements sur le profil de l'utilisateur connecté
+  sb.channel('profile-changes-'+U.id)
+    .on('postgres_changes',{
+      event:'UPDATE',
+      schema:'public',
+      table:'profiles',
+      filter:'id=eq.'+U.id
+    },async(payload)=>{
+      console.log('[Realtime] profil mis à jour:',payload.new);
+      // Recharger le profil depuis la DB pour avoir les données fraîches
+      const{data:fresh}=await sb.from('profiles').select('*').eq('id',U.id).single();
+      if(fresh){
+        P={...P,...fresh};
+        updateHero();
+        updatePremiumCard();
+        updateCompletion();
+        loadStats();
+        showToast(P.is_premium?'👑 Premium activé par l\'admin !':'🔒 Plan mis à jour par l\'admin','info');
+      }
+    })
+    .subscribe(status=>{
+      console.log('[Realtime profil]',status);
+    });
+
+  // Canal 2 : nouvelles notifications pour l'utilisateur
+  sb.channel('notifs-'+U.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'notifications',
+      filter:'user_id=eq.'+U.id
+    },(payload)=>{
+      const n=payload.new;
+      console.log('[Realtime notif]',n);
+      const types={success:'success',error:'error',info:'info',warning:'warning'};
+      showToast((n.icon||'🔔')+' '+n.title,'info');
+      // Si c'est lié au premium, recharger aussi le profil
+      if(n.title?.includes('Premium')||n.title?.includes('Retrait')||n.title?.includes('Recharge')){
+        setTimeout(async()=>{
+          const{data:fresh}=await sb.from('profiles').select('*').eq('id',U.id).single();
+          if(fresh){P={...P,...fresh};updateHero();updatePremiumCard();updateCompletion();}
+        },1000);
+      }
+    })
+    .subscribe(status=>{
+      console.log('[Realtime notifs]',status);
+    });
+
+  // Fallback polling toutes les 30s (si Realtime désactivé dans Supabase)
+  setInterval(async()=>{
+    try{
+      const{data:fresh}=await sb.from('profiles').select('is_premium,plan,plan_expires,avatar_url').eq('id',U.id).single();
+      if(fresh&&(fresh.is_premium!==P.is_premium||fresh.plan!==P.plan)){
+        P={...P,...fresh};
+        updateHero();
+        updatePremiumCard();
+        showToast('Compte mis à jour','info');
+      }
+    }catch(e){}
+  }, 30000);
 }
 
 // ===== MENU ⋮ =====
