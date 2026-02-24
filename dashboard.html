@@ -7,9 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-:root{--blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;--turq:#00C2B7;--bg:#F2F5FF;--dark:#080E2A;--gray:#8892A8;--border:#E4E9F8;--nav-h:72px;}
+:root{--blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;--turq:#00C2B7;--bg:#F2F5FF;--dark:#080E2A;--gray:#8892A8;--border:#E4E9F8;--nav-h:72px;--gold:#F5B731;}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
 body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h) + 16px);overflow-x:hidden;}
+
+/* ===== HEADER ===== */
 .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
 .header-logo{font-family:"Clash Display",sans-serif;font-size:1.45rem;font-weight:700;letter-spacing:-1px;}
 .la{color:var(--turq);}.lm{color:var(--orange);}
@@ -19,6 +21,8 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 .avatar-btn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:white;cursor:pointer;border:2px solid rgba(255,255,255,.2);font-family:"Clash Display",sans-serif;overflow:hidden;}
 .avatar-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+/* ===== SEARCH ===== */
 .search-wrap{padding:1rem 1.2rem .5rem;}
 .search-box{display:flex;align-items:center;gap:.6rem;background:white;border-radius:16px;padding:.65rem 1rem;box-shadow:0 4px 20px rgba(27,63,228,.08);border:1.5px solid var(--border);transition:border-color .2s;}
 .search-box:focus-within{border-color:var(--blue2);}
@@ -26,6 +30,8 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .search-box input::placeholder{color:#B8C1D8;}
 .search-icon{font-size:1.1rem;color:var(--gray);}
 .search-filter{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;flex-shrink:0;}
+
+/* ===== WELCOME ===== */
 .welcome-section{padding:.8rem 1.2rem .4rem;}
 .welcome-card{background:linear-gradient(135deg,var(--blue) 0%,#1A2FA8 40%,var(--turq) 100%);border-radius:22px;padding:1.3rem 1.4rem;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(27,63,228,.3);}
 .welcome-card::before{content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);right:-50px;top:-60px;}
@@ -33,7 +39,10 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .welcome-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;}
 .welcome-texts{position:relative;z-index:1;}
 .welcome-greeting{color:rgba(255,255,255,.7);font-size:.78rem;font-weight:500;}
-.welcome-name{font-family:"Clash Display",sans-serif;font-size:1.3rem;font-weight:700;color:white;margin-top:2px;}
+.welcome-name{font-family:"Clash Display",sans-serif;font-size:1.3rem;font-weight:700;color:white;margin-top:2px;display:flex;align-items:center;gap:.4rem;}
+/* COURONNE PREMIUM */
+.crown-badge{display:inline-flex;align-items:center;justify-content:center;font-size:1rem;filter:drop-shadow(0 0 6px rgba(245,183,49,.8));animation:crownPulse 2.5s ease-in-out infinite;}
+@keyframes crownPulse{0%,100%{transform:scale(1) rotate(-5deg);filter:drop-shadow(0 0 6px rgba(245,183,49,.8))}50%{transform:scale(1.2) rotate(5deg);filter:drop-shadow(0 0 14px rgba(245,183,49,1));}}
 .welcome-sub{color:rgba(255,255,255,.6);font-size:.75rem;margin-top:2px;}
 .welcome-emoji{font-size:2.2rem;position:relative;z-index:1;animation:wave 2s ease-in-out infinite;}
 @keyframes wave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(15deg)}75%{transform:rotate(-5deg)}}
@@ -44,9 +53,13 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .qbtn-turq{background:var(--turq);color:white;}
 .qbtn-orange{background:var(--orange);color:white;}
 .qbtn-red{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25);}
+
+/* ===== SECTIONS ===== */
 .section-head{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.2rem .7rem;}
 .section-title{font-family:"Clash Display",sans-serif;font-size:1rem;font-weight:700;color:var(--dark);}
 .see-all{font-size:.75rem;color:var(--blue2);font-weight:600;cursor:pointer;}
+
+/* ===== CATS ===== */
 .cats-scroll{display:flex;gap:.7rem;overflow-x:auto;padding:0 1.2rem 1rem;scrollbar-width:none;}
 .cats-scroll::-webkit-scrollbar{display:none;}
 .cat-chip{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex-shrink:0;cursor:pointer;}
@@ -56,6 +69,8 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .cat-chip.active .cat-lbl{color:var(--blue2);font-weight:700;}
 .cat-lbl{font-size:.65rem;color:var(--gray);font-weight:500;text-align:center;}
 .ci-1{background:linear-gradient(135deg,#FFF3E0,#FFE0B2)}.ci-2{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}.ci-3{background:linear-gradient(135deg,#E8F5E9,#C8E6C9)}.ci-4{background:linear-gradient(135deg,#FCE4EC,#F8BBD0)}.ci-5{background:linear-gradient(135deg,#F3E5F5,#E1BEE7)}.ci-6{background:linear-gradient(135deg,#E0F7FA,#B2EBF2)}.ci-7{background:linear-gradient(135deg,#FFF9C4,#FFF176)}.ci-8{background:linear-gradient(135deg,#E8EAF6,#C5CAE9)}
+
+/* ===== ADS GRID ===== */
 .ads-section{padding:0 1.2rem;}
 .ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
 .ad-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(27,63,228,.07);cursor:pointer;transition:transform .25s,box-shadow .25s;animation:cardIn .4s ease both;border:1px solid var(--border);}
@@ -72,14 +87,20 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .ad-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border);}
 .ad-time{font-size:.62rem;color:#B8C1D8;}
 .btn-wa-sm{width:26px;height:26px;border-radius:99px;background:linear-gradient(135deg,#25D366,#128C7E);display:flex;align-items:center;justify-content:center;font-size:.75rem;border:none;cursor:pointer;}
+
+/* ===== SKELETON ===== */
 .skeleton{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:10px;}
 @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
 .skel-card{background:white;border-radius:20px;overflow:hidden;border:1px solid var(--border);}
 .skel-img{height:110px;}.skel-body{padding:.75rem;display:flex;flex-direction:column;gap:.5rem;}.skel-line{height:10px;}.skel-line.short{width:60%;}
+
+/* ===== EMPTY STATE ===== */
 .empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;padding:3rem 1rem;text-align:center;gap:.7rem;}
 .empty-ico{font-size:3.5rem;}
 .empty-state h3{font-family:"Clash Display",sans-serif;font-size:1.1rem;color:var(--dark);}
 .empty-state p{color:var(--gray);font-size:.82rem;}
+
+/* ===== BOTTOM NAV ===== */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:stretch;box-shadow:0 -8px 32px rgba(27,63,228,.1);border-radius:24px 24px 0 0;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:none;background:none;position:relative;padding-bottom:4px;}
 .nav-ico{font-size:1.35rem;line-height:1;}
@@ -90,8 +111,12 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .nav-item.nav-plus{margin-top:-18px;}
 .nav-plus-btn{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:0 8px 24px rgba(27,63,228,.45);border:none;cursor:pointer;}
 .nav-item.nav-plus .nav-lbl{margin-top:2px;}
+
+/* ===== TOAST ===== */
 #toast{position:fixed;bottom:calc(var(--nav-h) + 12px);right:1rem;max-width:300px;background:var(--dark);color:white;padding:.8rem 1.2rem;border-radius:14px;font-size:.83rem;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;align-items:center;gap:.6rem;transform:translateY(20px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);border-left:3px solid var(--turq);}
 #toast.show{transform:translateY(0);opacity:1;}
+
+/* ===== MODALS ===== */
 .modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(8,14,42,.6);backdrop-filter:blur(6px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal-sheet{background:white;border-radius:28px 28px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:1.5rem 1.4rem 2rem;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
@@ -103,8 +128,11 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .modal-info{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem;}
 .modal-tag{background:var(--bg);padding:.3rem .8rem;border-radius:99px;font-size:.74rem;color:var(--dark);font-weight:500;}
 .modal-seller{display:flex;align-items:center;gap:.8rem;background:var(--bg);border-radius:16px;padding:1rem;margin-bottom:1.2rem;}
-.seller-ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:white;font-family:"Clash Display",sans-serif;flex-shrink:0;}
-.seller-info h4{font-size:.88rem;font-weight:700;color:var(--dark);}
+.seller-ava{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:white;font-family:"Clash Display",sans-serif;flex-shrink:0;overflow:hidden;}
+.seller-ava img{width:100%;height:100%;object-fit:cover;}
+.seller-info h4{font-size:.88rem;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:.3rem;}
+/* Couronne dans le modal vendeur */
+.seller-crown{font-size:.85rem;filter:drop-shadow(0 0 4px rgba(245,183,49,.9));animation:crownPulse 2.5s ease-in-out infinite;}
 .seller-info p{font-size:.74rem;color:var(--gray);}
 .modal-actions{display:flex;gap:.8rem;}
 .btn-modal{flex:1;padding:.8rem;border-radius:14px;border:none;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;font-size:.88rem;font-weight:700;transition:transform .2s;}
@@ -113,6 +141,13 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .btn-modal.wa{background:linear-gradient(135deg,#25D366,#128C7E);color:white;}
 .btn-avis-wrap{text-align:center;margin-top:.9rem;}
 .btn-avis{background:rgba(245,183,49,.08);border:1.5px solid rgba(245,183,49,.3);color:#C8901A;font-size:.8rem;font-weight:700;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;padding:.5rem 1.4rem;border-radius:99px;}
+
+/* ===== AVIS ===== */
+.star-row{display:flex;gap:.5rem;justify-content:center;margin-bottom:.9rem;}
+.star{font-size:2.2rem;cursor:pointer;transition:transform .15s;user-select:none;}
+.star.on{transform:scale(1.15);}
+
+/* ===== PUBLIER FORM ===== */
 .pub-overlay{position:fixed;inset:0;z-index:600;background:rgba(8,14,42,.65);backdrop-filter:blur(8px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
 .pub-overlay.open{opacity:1;pointer-events:all;}
 .pub-sheet{background:white;border-radius:28px 28px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:1.5rem 1.4rem 2.5rem;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
@@ -136,16 +171,14 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .upload-txt{font-size:.75rem;color:var(--gray);margin-top:.3rem;}
 .img-prev{width:100%;height:150px;object-fit:cover;border-radius:10px;display:none;}
 .img-prev.show{display:block;}
+
+/* ===== TABS ===== */
 .ad-tabs{display:flex;gap:.5rem;padding:0 1.2rem .8rem;}
 .ad-tab{padding:.38rem .9rem;border-radius:99px;border:none;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;font-size:.76rem;font-weight:600;transition:all .2s;}
 .ad-tab.active{background:var(--blue2);color:white;}
 .ad-tab:not(.active){background:white;color:var(--gray);border:1px solid var(--border);}
-/* Avis stars */
-.star-row{display:flex;gap:.5rem;justify-content:center;margin-bottom:.9rem;}
-.star{font-size:2.2rem;cursor:pointer;transition:transform .15s;user-select:none;}
-.star.on{transform:scale(1.15);}
-@media(min-width:600px){.ads-grid{grid-template-columns:repeat(3,1fr);}}
-/* Earn card */
+
+/* ===== EARN CARD ===== */
 #earnCard{position:fixed;bottom:calc(var(--nav-h)+18px);left:14px;z-index:8000;width:210px;background:linear-gradient(135deg,#080E2A,#0D1E6B 55%,#1B3FE4);border-radius:24px;padding:1.1rem 1rem 1rem;box-shadow:0 14px 44px rgba(27,63,228,.38);border:1px solid rgba(245,183,49,.22);transform:translateX(-260px);opacity:0;transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s;pointer-events:none;overflow:hidden;}
 #earnCard.show{transform:translateX(0);opacity:1;pointer-events:all;}
 .ec-x{position:absolute;top:9px;right:10px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.55);font-size:.72rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
@@ -158,10 +191,13 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .ec-btns{display:flex;gap:.45rem;}
 .ec-go{flex:1;padding:.44rem .55rem;border-radius:12px;border:none;background:linear-gradient(135deg,#C8901A,#F5B731);color:#080E2A;font-family:"Clash Display",sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;}
 .ec-cls{padding:.44rem .55rem;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);font-size:.66rem;cursor:pointer;}
+
+@media(min-width:600px){.ads-grid{grid-template-columns:repeat(3,1fr);}}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <div class="header-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
   <div class="header-right">
@@ -170,6 +206,7 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   </div>
 </div>
 
+<!-- SEARCH -->
 <div class="search-wrap">
   <div class="search-box">
     <span class="search-icon">🔍</span>
@@ -178,13 +215,14 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   </div>
 </div>
 
+<!-- WELCOME -->
 <div class="welcome-section">
   <div class="welcome-card">
     <div class="welcome-top">
       <div class="welcome-texts">
         <div class="welcome-greeting">Bonjour 👋</div>
         <div class="welcome-name" id="welcomeName">Chargement…</div>
-        <div class="welcome-sub">Que cherchez-vous aujourd’hui ?</div>
+        <div class="welcome-sub">Que cherchez-vous aujourd'hui ?</div>
       </div>
       <div class="welcome-emoji">🛍️</div>
     </div>
@@ -197,6 +235,7 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   </div>
 </div>
 
+<!-- CATEGORIES -->
 <div class="section-head">
   <div class="section-title">Catégories</div>
   <span class="see-all" id="seeAllCats">Voir tout →</span>
@@ -212,6 +251,7 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   <div class="cat-chip" data-cat="alimentation"><div class="cat-ico ci-7">🥘</div><span class="cat-lbl">Alimentaire</span></div>
 </div>
 
+<!-- ADS -->
 <div class="section-head" id="adsAnchor">
   <div class="section-title">Annonces récentes</div>
   <span class="see-all" id="adsCount"></span>
@@ -230,6 +270,7 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   </div>
 </div>
 
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-item active" data-nav="home"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
   <button class="nav-item" data-nav="gagner"><span class="nav-ico">💰</span><span class="nav-lbl">Gagner</span></button>
@@ -300,7 +341,7 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
           <img class="img-prev" id="imgPrev" alt=""/>
         </div>
       </div>
-      <div class="f"><label>Titre *</label><input type="text" id="p_title" placeholder="Ex : iPhone 14 Pro Max"/></div>
+      <div class="f"><label>Titre *</label><input type="text" id="p_title" placeholder="Ex : iPhone 14 Pro Max"/></div>
       <div class="f"><label>Description *</label><textarea id="p_desc" rows="3" placeholder="Décrivez votre article…"></textarea></div>
       <div class="f-row">
         <div class="f"><label>Prix (FCFA)</label><input type="number" id="p_price" placeholder="150000"/></div>
@@ -324,12 +365,13 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
       </div>
       <button type="submit" class="btn-pub" id="btnPub">
         <div class="spin-sm"></div>
-        <span class="pub-lbl">🚀 Publier l’annonce</span>
+        <span class="pub-lbl">🚀 Publier l'annonce</span>
       </button>
     </form>
   </div>
 </div>
 
+<!-- TOAST -->
 <div id="toast"><span id="tIco"></span>&nbsp;<span id="tMsg"></span></div>
 
 <!-- EARN CARD -->
@@ -337,8 +379,8 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   <button class="ec-x" id="ecX">✕</button>
   <span class="ec-em">🤑</span>
   <span class="ec-lbl">💡 Le savais-tu ?</span>
-  <div class="ec-ttl">Gagne jusqu’à<br><em>1 000 FCFA</em>/jour</div>
-  <div class="ec-sub">Missions, parrainage &amp; connexion quotidienne. Retire sur Mobile Money !</div>
+  <div class="ec-ttl">Gagne jusqu'à<br><em>1 000 FCFA</em>/jour</div>
+  <div class="ec-sub">Missions, parrainage &amp; connexion quotidienne. Retire sur Mobile Money !</div>
   <div class="ec-btns">
     <button class="ec-go" id="ecGo">💰 Voir</button>
     <button class="ec-cls" id="ecCls">Fermer</button>
@@ -348,43 +390,36 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 <script>
 'use strict';
 
-/* ===================== SUPABASE ===================== */
-const {createClient} = supabase;
-const sb = createClient(
+/* ===== SUPABASE ===== */
+var _sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-/* ===================== STATE ===================== */
-let allAds = [];
-let currentAd = null;   /* annonce ouverte dans le modal */
-let currentUser = null;
-let currentCat = 'all';
-let currentTab = 'recent';
-let selectedNote = 0;
-const liked = new Set();
+/* ===== STATE ===== */
+var allAds      = [];
+var currentAd   = null;
+var currentUser = null;
+var currentCat  = 'all';
+var currentTab  = 'recent';
+var selectedNote= 0;
+var liked       = new Set();
+var premiumSet  = new Set(); /* IDs des utilisateurs premium */
 
-/* ===================== EMOJI MAP ===================== */
-const EM = {
-  immobilier:   '🏠',
-  vehicules:    '🚗',
-  electronique: '📱',
-  mode:         '👗',
-  services:     '🛠️',
-  emploi:       '💼',
-  alimentation: '🥘',
-  autres:       '📦'
+/* ===== EMOJIS MAP ===== */
+var EM = {
+  immobilier:'🏠', vehicules:'🚗', electronique:'📱',
+  mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦'
 };
+var NOTE_LBL = ['','😞 Très mauvais','😕 Mauvais','😐 Moyen','😊 Bien','🤩 Excellent !'];
 
-const NOTE_LBL = ['','😞 Très mauvais','😕 Mauvais','😐 Moyen','😊 Bien','🤩 Excellent !'];
-
-/* ===================== TOAST ===================== */
-let _tt;
+/* ===== TOAST ===== */
+var _tt;
 function toast(msg, type) {
   type = type || 'success';
   var ico = {success:'✅', error:'❌', warning:'⚠️', info:'ℹ️'}[type] || 'ℹ️';
-  var col = {success:'var(--turq)', error:'var(--red)', warning:'var(--orange)', info:'var(--blue2)'}[type] || 'var(--blue2)';
-  var el = document.getElementById('toast');
+  var col = {success:'var(--turq)', error:'var(--red)', warning:'var(--orange)', info:'var(--blue2)'}[type];
+  var el  = document.getElementById('toast');
   document.getElementById('tIco').textContent = ico;
   document.getElementById('tMsg').textContent = msg;
   el.style.borderLeftColor = col;
@@ -393,25 +428,27 @@ function toast(msg, type) {
   _tt = setTimeout(function(){ el.classList.remove('show'); }, 3800);
 }
 
-/* ===================== UTILS ===================== */
+/* ===== UTILS ===== */
 function fmtPrice(n) {
   if (n === null || n === undefined || n === '') return 'Prix à débattre';
-  return Number(n).toLocaleString('fr-FR') + ' FCFA';
+  return Number(n).toLocaleString('fr-FR') + ' FCFA';
 }
-
 function timeAgo(d) {
   if (!d) return '';
   var s = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
-  if (s < 60) return 'À l’instant';
-  if (s < 3600) return 'Il y a ' + Math.floor(s/60) + ' min';
-  if (s < 86400) return 'Il y a ' + Math.floor(s/3600) + ' h';
-  return 'Il y a ' + Math.floor(s/86400) + ' j';
+  if (s < 60)    return 'À l\'instant';
+  if (s < 3600)  return 'Il y a ' + Math.floor(s/60) + ' min';
+  if (s < 86400) return 'Il y a ' + Math.floor(s/3600) + ' h';
+  return 'Il y a ' + Math.floor(s/86400) + ' j';
+}
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-/* ===================== INIT ===================== */
+/* ===== INIT ===== */
 async function init() {
   try {
-    var res = await sb.auth.getSession();
+    var res = await _sb.auth.getSession();
     var session = res.data && res.data.session;
     if (!session) { location.href = 'index.html'; return; }
     currentUser = session.user;
@@ -420,71 +457,92 @@ async function init() {
     return;
   }
 
-  /* Charger profil */
+  /* Profil utilisateur — FIX: sélectionner is_premium aussi */
   try {
-    var pr = await sb.from('profiles').select('full_name,whatsapp,ville,avatar_url').eq('id', currentUser.id).single();
-    var prof = pr.data || {};
-    var name = prof.full_name || (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email.split('@')[0];
+    var pr = await _sb.from('profiles')
+      .select('full_name, whatsapp, ville, avatar_url, is_premium')
+      .eq('id', currentUser.id)
+      .single();
+    var prof = (pr.data) || {};
+    var name   = prof.full_name
+              || (currentUser.user_metadata && currentUser.user_metadata.full_name)
+              || currentUser.email.split('@')[0];
     var prenom = name.split(' ')[0];
-    document.getElementById('welcomeName').textContent = prenom + ' 👋';
+
+    /* FIX: Afficher la couronne si premium */
+    var crownHtml = prof.is_premium
+      ? '<span class="crown-badge" title="Utilisateur Premium">👑</span>'
+      : '';
+    var nameEl = document.getElementById('welcomeName');
+    nameEl.innerHTML = escHtml(prenom) + ' ' + crownHtml;
+
+    /* Si premium, mémoriser pour le modal vendeur */
+    if (prof.is_premium) premiumSet.add(currentUser.id);
 
     /* Avatar */
     var avBtn = document.getElementById('avatarBtn');
     if (prof.avatar_url) {
-      avBtn.innerHTML = '<img src="' + prof.avatar_url + '" alt="avatar"/>';
+      avBtn.innerHTML = '<img src="' + escHtml(prof.avatar_url) + '" alt="avatar"/>';
     } else {
       avBtn.textContent = prenom.charAt(0).toUpperCase();
     }
 
-    /* Pré-remplir pub form */
-    if (prof.whatsapp) document.getElementById('p_wa').value = prof.whatsapp;
+    /* Pré-remplir le formulaire de publication */
+    if (prof.whatsapp) document.getElementById('p_wa').value   = prof.whatsapp;
     if (prof.ville)    document.getElementById('p_ville').value = prof.ville;
+
   } catch(e) {
-    var em = currentUser.email.split('@')[0];
-    document.getElementById('welcomeName').textContent = em + ' 👋';
-    document.getElementById('avatarBtn').textContent = em.charAt(0).toUpperCase();
+    /* Fallback si profil absent */
+    var em2 = currentUser.email.split('@')[0];
+    document.getElementById('welcomeName').textContent = em2;
+    document.getElementById('avatarBtn').textContent   = em2.charAt(0).toUpperCase();
   }
 
-  /* Charger annonces */
   loadAds();
 }
 
-/* ===================== CHARGER ANNONCES ===================== */
+/* ===== CHARGER ANNONCES — FIX: pas de filtre sur actif par défaut ===== */
 async function loadAds() {
   try {
-    /* FIX: on ne filtre PAS sur actif - certaines annonces peuvent ne pas avoir ce champ */
-    var q = sb.from('annonces').select('*').order('created_at', {ascending: false}).limit(60);
-    var res = await q;
+    var res = await _sb.from('annonces')
+      .select('id, titre, description, prix, categorie, ville, whatsapp, image_url, urgent, promo, user_id, created_at')
+      .order('created_at', { ascending: false })
+      .limit(80);
 
     if (res.error) throw res.error;
     var annonces = res.data || [];
 
-    if (!annonces.length) {
-      allAds = [];
-      renderAds();
-      return;
-    }
+    if (!annonces.length) { allAds = []; renderAds(); return; }
 
-    /* Récupérer profils des vendeurs */
+    /* Récupérer profils des vendeurs en une seule requête */
     var uids = [];
-    annonces.forEach(function(a) { if (a.user_id && uids.indexOf(a.user_id) === -1) uids.push(a.user_id); });
+    annonces.forEach(function(a) {
+      if (a.user_id && uids.indexOf(a.user_id) === -1) uids.push(a.user_id);
+    });
 
     var profMap = {};
     if (uids.length) {
-      var pr = await sb.from('profiles').select('id,full_name,whatsapp,avatar_url').in('id', uids);
+      /* FIX: inclure is_premium dans la sélection des vendeurs */
+      var pr = await _sb.from('profiles')
+        .select('id, full_name, whatsapp, avatar_url, is_premium')
+        .in('id', uids);
       if (pr.data) {
-        pr.data.forEach(function(p) { profMap[p.id] = p; });
+        pr.data.forEach(function(p) {
+          profMap[p.id] = p;
+          if (p.is_premium) premiumSet.add(p.id);
+        });
       }
     }
 
     allAds = annonces.map(function(a) {
-      var prof = profMap[a.user_id] || {};
+      var p = profMap[a.user_id] || {};
       return Object.assign({}, a, {
         _seller: {
-          id:         a.user_id,
-          full_name:  prof.full_name  || 'Vendeur',
-          whatsapp:   prof.whatsapp   || a.whatsapp || '',
-          avatar_url: prof.avatar_url || ''
+          id:         a.user_id || '',
+          full_name:  p.full_name  || 'Vendeur',
+          whatsapp:   p.whatsapp   || a.whatsapp || '',
+          avatar_url: p.avatar_url || '',
+          is_premium: !!p.is_premium
         }
       });
     });
@@ -494,30 +552,31 @@ async function loadAds() {
     console.error('loadAds error:', err);
     allAds = [];
     renderAds();
-    toast('Erreur chargement : ' + err.message, 'error');
+    toast('Erreur chargement : ' + err.message, 'error');
   }
 }
 
-/* ===================== RENDER ANNONCES ===================== */
+/* ===== RENDER ANNONCES ===== */
 function renderAds() {
   var ads = allAds.slice();
 
-  /* Filtres */
-  if (currentCat !== 'all') ads = ads.filter(function(a){ return a.categorie === currentCat; });
+  if (currentCat !== 'all') {
+    ads = ads.filter(function(a){ return a.categorie === currentCat; });
+  }
   if (currentTab === 'urgent') ads = ads.filter(function(a){ return a.urgent; });
   if (currentTab === 'promo')  ads = ads.filter(function(a){ return a.promo; });
 
-  var q = document.getElementById('searchInput').value.trim().toLowerCase();
+  var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
   if (q) {
-    ads = ads.filter(function(a) {
-      return (a.titre||'').toLowerCase().indexOf(q) !== -1 ||
-             (a.description||'').toLowerCase().indexOf(q) !== -1 ||
-             (a.ville||'').toLowerCase().indexOf(q) !== -1;
+    ads = ads.filter(function(a){
+      return (a.titre       || '').toLowerCase().indexOf(q) !== -1 ||
+             (a.description || '').toLowerCase().indexOf(q) !== -1 ||
+             (a.ville       || '').toLowerCase().indexOf(q) !== -1;
     });
   }
 
   var countEl = document.getElementById('adsCount');
-  countEl.textContent = ads.length + (ads.length > 1 ? ' annonces' : ' annonce');
+  countEl.textContent = ads.length + (ads.length > 1 ? ' annonces' : ' annonce');
 
   var grid = document.getElementById('adsGrid');
   grid.innerHTML = '';
@@ -525,18 +584,18 @@ function renderAds() {
   if (!ads.length) {
     var empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.innerHTML = '<div class="empty-ico">🔍</div><h3>Aucune annonce trouvée</h3><p>Soyez le premier à publier dans cette catégorie !</p>';
+    empty.innerHTML = '<div class="empty-ico">🔍</div><h3>Aucune annonce trouvée</h3><p>Soyez le premier à publier dans cette catégorie !</p>';
     grid.appendChild(empty);
     return;
   }
 
   ads.forEach(function(ad, i) {
-    var em = EM[ad.categorie] || '📦';
+    var em  = EM[ad.categorie] || '📦';
     var card = document.createElement('div');
     card.className = 'ad-card';
     card.style.animationDelay = (i * 0.04) + 's';
 
-    /* -- Image wrapper -- */
+    /* -- Image -- */
     var wrap = document.createElement('div');
     wrap.className = 'ad-img-wrap';
 
@@ -544,20 +603,21 @@ function renderAds() {
       var img = document.createElement('img');
       img.src = ad.image_url;
       img.alt = ad.titre || '';
-      img.onerror = function() {
+      img.loading = 'lazy';
+      img.onerror = function(){
         this.style.display = 'none';
         var sp = document.createElement('span');
         sp.textContent = em;
-        wrap.appendChild(sp);
+        wrap.insertBefore(sp, wrap.firstChild);
       };
       wrap.appendChild(img);
     } else {
-      var sp = document.createElement('span');
-      sp.textContent = em;
-      wrap.appendChild(sp);
+      var sp2 = document.createElement('span');
+      sp2.textContent = em;
+      wrap.appendChild(sp2);
     }
 
-    /* Badge */
+    /* Badge urgent / promo */
     if (ad.urgent || ad.promo) {
       var badge = document.createElement('div');
       badge.className = 'ad-badge';
@@ -566,12 +626,12 @@ function renderAds() {
       wrap.appendChild(badge);
     }
 
-    /* Fav */
+    /* Favori */
     var fav = document.createElement('button');
     fav.className = 'ad-fav';
     fav.title = 'Favori';
     fav.textContent = liked.has(ad.id) ? '❤️' : '🤍';
-    fav.addEventListener('click', function(e) {
+    fav.addEventListener('click', function(e){
       e.stopPropagation();
       if (liked.has(ad.id)) { liked.delete(ad.id); fav.textContent = '🤍'; toast('Retiré des favoris', 'info'); }
       else { liked.add(ad.id); fav.textContent = '❤️'; toast('Ajouté aux favoris', 'success'); }
@@ -579,7 +639,7 @@ function renderAds() {
     wrap.appendChild(fav);
 
     /* -- Body -- */
-    var body = document.createElement('div');
+    var body     = document.createElement('div');
     body.className = 'ad-body';
 
     var titleEl = document.createElement('div');
@@ -601,15 +661,18 @@ function renderAds() {
     timeEl.className = 'ad-time';
     timeEl.textContent = timeAgo(ad.created_at);
 
+    /* FIX: bouton WA — s'assurer que le numéro est valide */
     var waBtn = document.createElement('button');
     waBtn.className = 'btn-wa-sm';
     waBtn.title = 'WhatsApp';
     waBtn.textContent = '💬';
-    var waNum = (ad._seller.whatsapp || '').replace(/[^0-9+]/g, '');
-    waBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      openWA(waNum);
-    });
+    var waNum = ((ad._seller && ad._seller.whatsapp) || ad.whatsapp || '').replace(/[^0-9+]/g, '');
+    (function(num){
+      waBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        openWA(num);
+      });
+    })(waNum);
 
     footer.appendChild(timeEl);
     footer.appendChild(waBtn);
@@ -620,21 +683,22 @@ function renderAds() {
 
     card.appendChild(wrap);
     card.appendChild(body);
-
-    /* Ouvrir detail */
-    card.addEventListener('click', function() { openDetail(ad.id); });
+    card.addEventListener('click', function(){ openDetail(ad.id); });
     grid.appendChild(card);
   });
 }
 
-/* ===================== WHATSAPP ===================== */
+/* ===== WHATSAPP ===== */
 function openWA(num) {
   if (!num) { toast('Numéro non disponible', 'warning'); return; }
   var n = num.replace(/^\+/, '');
-  window.open('https://wa.me/' + n + '?text=Bonjour%2C%20je%20vous%20contacte%20via%20AfriMarket %F0%9F%9B%92', '_blank');
+  window.open(
+    'https://wa.me/' + n + '?text=' + encodeURIComponent('Bonjour, je vous contacte via AfriMarket 🛒'),
+    '_blank'
+  );
 }
 
-/* ===================== DETAIL MODAL ===================== */
+/* ===== DETAIL MODAL — FIX: messages + couronne vendeur ===== */
 async function openDetail(id) {
   var ad = null;
   for (var i = 0; i < allAds.length; i++) { if (allAds[i].id === id) { ad = allAds[i]; break; } }
@@ -646,25 +710,24 @@ async function openDetail(id) {
   /* Image */
   var box = document.getElementById('mImgBox');
   box.innerHTML = '';
-  box.style.fontSize = '4rem';
-  box.style.background = 'linear-gradient(135deg,#E8EEFF,#F0F4FF)';
+  box.style.cssText = 'width:100%;height:200px;border-radius:16px;margin-bottom:1rem;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;';
   if (ad.image_url) {
-    var img = document.createElement('img');
-    img.src = ad.image_url;
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-    img.onerror = function() { box.textContent = em; };
-    box.appendChild(img);
+    var mImg = document.createElement('img');
+    mImg.src = ad.image_url;
+    mImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+    mImg.onerror = function(){ box.textContent = em; box.style.fontSize = '4rem'; };
+    box.appendChild(mImg);
     box.style.background = 'none';
     box.style.fontSize = 'unset';
   } else {
     box.textContent = em;
   }
 
-  /* Textes */
   document.getElementById('mTitle').textContent = ad.titre || 'Sans titre';
   document.getElementById('mPrice').textContent = fmtPrice(ad.prix);
   document.getElementById('mDesc').textContent  = ad.description || 'Aucune description.';
 
+  /* Tags info */
   var infoEl = document.getElementById('mInfo');
   infoEl.innerHTML = '';
   function tag(txt, extra) {
@@ -678,37 +741,67 @@ async function openDetail(id) {
   tag('🏷️ ' + (ad.categorie || '—'));
   tag('🕐 ' + timeAgo(ad.created_at));
   if (ad.urgent) tag('🔥 Urgent', 'background:#FFF3E0;color:var(--orange)');
-  if (ad.promo)  tag('🎉 Promo', 'background:#E0FAF8;color:var(--turq)');
+  if (ad.promo)  tag('🎉 Promo',  'background:#E0FAF8;color:var(--turq)');
 
-  /* Vendeur */
-  var seller = ad._seller;
-  var sNom = seller.full_name || 'Vendeur inconnu';
+  /* Vendeur — FIX: utiliser _seller existant + chercher rating */
+  var seller  = ad._seller || {};
+  var sNom    = seller.full_name || 'Vendeur inconnu';
+  var sId     = seller.id || '';
+  var isPrem  = seller.is_premium || premiumSet.has(sId);
+
+  /* Rating */
   var ratingHTML = '';
-  try {
-    var av = await sb.from('avis').select('note').eq('seller_id', seller.id);
-    if (av.data && av.data.length) {
-      var sum = av.data.reduce(function(a,b){ return a + b.note; }, 0);
-      var avg = (sum / av.data.length).toFixed(1);
-      var filled = Math.round(parseFloat(avg));
-      ratingHTML = '<div style="font-size:.72rem;color:var(--gray);margin-top:.2rem;">'
-        + '⭐'.repeat(filled) + '☆'.repeat(5-filled)
-        + ' ' + avg + ' · ' + av.data.length + ' avis</div>';
-    }
-  } catch(e) {}
+  if (sId) {
+    try {
+      var av = await _sb.from('avis').select('note').eq('seller_id', sId);
+      if (!av.error && av.data && av.data.length) {
+        var sum    = av.data.reduce(function(a, b){ return a + b.note; }, 0);
+        var avg    = (sum / av.data.length).toFixed(1);
+        var filled = Math.round(parseFloat(avg));
+        ratingHTML = '<div style="font-size:.72rem;color:var(--gray);margin-top:.2rem;">'
+          + '⭐'.repeat(filled) + '☆'.repeat(Math.max(0, 5 - filled))
+          + ' ' + avg + ' · ' + av.data.length + ' avis</div>';
+      }
+    } catch(e) {}
+  }
+
+  /* Avatar vendeur */
+  var avaHtml = seller.avatar_url
+    ? '<img src="' + escHtml(seller.avatar_url) + '" alt=""/>'
+    : escHtml(sNom.charAt(0).toUpperCase());
+
+  /* FIX: Couronne premium vendeur dans le modal */
+  var sellerCrownHtml = isPrem
+    ? '<span class="seller-crown" title="Vendeur Premium">👑</span>'
+    : '';
 
   document.getElementById('mSeller').innerHTML =
-    '<div class="seller-ava">' + sNom.charAt(0).toUpperCase() + '</div>' +
-    '<div class="seller-info"><h4>' + sNom + '</h4><p>Vendeur vérifié ✅</p>' + ratingHTML + '</div>';
+    '<div class="seller-ava">' + avaHtml + '</div>' +
+    '<div class="seller-info">' +
+      '<h4>' + escHtml(sNom) + sellerCrownHtml + '</h4>' +
+      '<p>Vendeur vérifié ✅</p>' +
+      ratingHTML +
+    '</div>';
 
-  /* Boutons */
-  var wa = (seller.whatsapp || '').replace(/[^0-9+]/g, '');
-  document.getElementById('mWaBtn').onclick  = function() { openWA(wa); };
-  document.getElementById('mMsgBtn').onclick = function() {
-    location.href = 'messages.html?with=' + seller.id + '&ad=' + ad.id;
-  };
+  /* FIX: Bouton Message — vérifier que sellerId est défini */
+  var mMsgBtn = document.getElementById('mMsgBtn');
+  if (sId && sId !== '') {
+    mMsgBtn.onclick = function(){
+      location.href = 'messages.html?with=' + encodeURIComponent(sId) + '&ad=' + encodeURIComponent(ad.id || '');
+    };
+    mMsgBtn.disabled = false;
+    mMsgBtn.style.opacity = '1';
+  } else {
+    mMsgBtn.disabled = true;
+    mMsgBtn.style.opacity = '.45';
+  }
 
-  /* Bouton avis */
-  document.getElementById('mAvisBtn').onclick = function() { openAvis(); };
+  /* FIX: Bouton WhatsApp */
+  var waNum2 = (seller.whatsapp || '').replace(/[^0-9+]/g, '');
+  document.getElementById('mWaBtn').onclick = function(){ openWA(waNum2); };
+
+  /* Avis */
+  document.getElementById('mAvisBtn').onclick = function(){ openAvis(); };
 
   document.getElementById('detailOverlay').classList.add('open');
 }
@@ -717,10 +810,10 @@ function closeDetailModal() {
   document.getElementById('detailOverlay').classList.remove('open');
 }
 
-/* ===================== AVIS ===================== */
+/* ===== AVIS ===== */
 function openAvis() {
   if (!currentUser) { toast('Connecte-toi pour laisser un avis', 'warning'); return; }
-  if (!currentAd) { toast('Aucune annonce sélectionnée', 'info'); return; }
+  if (!currentAd)   { toast('Aucune annonce sélectionnée', 'info'); return; }
 
   var sellerId = currentAd._seller && currentAd._seller.id;
   if (!sellerId || sellerId === currentUser.id) {
@@ -728,20 +821,17 @@ function openAvis() {
     return;
   }
 
-  /* Réinitialiser */
   selectedNote = 0;
   renderStars(0);
-  document.getElementById('avisLabel').textContent   = 'Sélectionne une note';
-  document.getElementById('avisTarget').textContent  = 'Annonce : ' + (currentAd.titre || '—');
-  document.getElementById('avisComment').value       = '';
+  document.getElementById('avisLabel').textContent  = 'Sélectionne une note';
+  document.getElementById('avisTarget').textContent = 'Annonce : ' + (currentAd.titre || '—');
+  document.getElementById('avisComment').value      = '';
   var sendBtn = document.getElementById('avisSend');
   sendBtn.disabled = true;
   sendBtn.style.opacity = '.45';
 
-  /* Stocker seller id sur l’overlay */
   document.getElementById('avisOverlay').dataset.sid = sellerId;
   document.getElementById('avisOverlay').dataset.aid = currentAd.id || '';
-
   document.getElementById('avisOverlay').classList.add('open');
 }
 
@@ -750,7 +840,7 @@ function closeAvis() {
 }
 
 function renderStars(n) {
-  document.querySelectorAll('.star').forEach(function(s) {
+  document.querySelectorAll('.star').forEach(function(s){
     var v = parseInt(s.dataset.v);
     s.textContent = v <= n ? '⭐' : '☆';
     s.classList.toggle('on', v <= n);
@@ -770,20 +860,24 @@ async function sendAvis() {
   btn.style.opacity = '.6';
 
   try {
-    var ins = await sb.from('avis').upsert({
+    var ins = await _sb.from('avis').upsert([{
       reviewer_id: currentUser.id,
       seller_id:   sid,
       annonce_id:  aid || null,
       note:        selectedNote,
       commentaire: cmt || null,
       created_at:  new Date().toISOString()
-    }, {onConflict: 'reviewer_id,annonce_id'});
+    }], { onConflict: 'reviewer_id,annonce_id' });
+
     if (ins.error) throw ins.error;
-    toast('⭐ Avis envoyé, merci !', 'success');
+    toast('⭐ Avis envoyé, merci !', 'success');
     closeAvis();
   } catch(e) {
     var msg = (e.message || '').toLowerCase();
-    toast(msg.indexOf('unique') !== -1 ? 'Tu as déjà noté cette annonce' : 'Erreur : ' + e.message, 'info');
+    toast(
+      msg.indexOf('unique') !== -1 ? 'Tu as déjà noté cette annonce' : 'Erreur : ' + e.message,
+      'info'
+    );
   } finally {
     btn.disabled = false;
     btn.textContent = '⭐ Envoyer';
@@ -791,7 +885,7 @@ async function sendAvis() {
   }
 }
 
-/* ===================== PUBLIER ===================== */
+/* ===== PUBLIER ===== */
 function openPub() {
   if (!currentUser) { toast('Connectez-vous pour publier', 'warning'); return; }
   document.getElementById('pubOverlay').classList.add('open');
@@ -800,42 +894,43 @@ function closePub() {
   document.getElementById('pubOverlay').classList.remove('open');
 }
 
-/* ===================== FILTRES ===================== */
+/* ===== FILTRES ===== */
 function filterCat(cat) {
   currentCat = cat;
-  document.querySelectorAll('.cat-chip').forEach(function(c) {
+  document.querySelectorAll('.cat-chip').forEach(function(c){
     c.classList.toggle('active', c.dataset.cat === cat);
   });
   renderAds();
 }
-
 function filterTab(tab) {
   currentTab = tab;
-  document.querySelectorAll('.ad-tab').forEach(function(t) {
+  document.querySelectorAll('.ad-tab').forEach(function(t){
     t.classList.toggle('active', t.dataset.tab === tab);
   });
   renderAds();
 }
 
-/* ===================== NAV ===================== */
+/* ===== NAVIGATION ===== */
 function navGo(page, el) {
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
   el.classList.add('active');
-  if (page === 'home') { window.scrollTo({top:0,behavior:'smooth'}); return; }
-  var routes = {gagner:'gagner.html', historique:'historique.html', profil:'profil.html'};
+  var routes = { gagner:'gagner.html', historique:'historique.html', profil:'profil.html' };
+  if (page === 'home') { window.scrollTo({top:0, behavior:'smooth'}); return; }
   if (routes[page]) location.href = routes[page];
 }
 
 function shareApp() {
   if (navigator.share) {
-    navigator.share({title:'AfriMarket', text:'La marketplace africaine !', url:location.origin}).catch(function(){});
+    navigator.share({ title:'AfriMarket', text:'La marketplace africaine !', url: location.origin }).catch(function(){});
   } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(location.origin).then(function(){ toast('Lien copié ! 📋', 'success'); });
+    navigator.clipboard.writeText(location.origin).then(function(){ toast('Lien copié ! 📋', 'success'); });
+  } else {
+    toast('Partage non supporté sur cet appareil', 'info');
   }
 }
 
-/* ===================== BIND EVENTS ===================== */
-document.addEventListener('DOMContentLoaded', function() {
+/* ===== BIND EVENTS ===== */
+document.addEventListener('DOMContentLoaded', function(){
 
   /* Header */
   document.getElementById('notifBtn').addEventListener('click', function(){ toast('Aucune nouvelle notification', 'info'); });
@@ -847,22 +942,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
   /* Quick buttons */
   document.getElementById('qPublier').addEventListener('click', openPub);
-  document.getElementById('qTendances').addEventListener('click', function(){ document.getElementById('adsAnchor').scrollIntoView({behavior:'smooth'}); });
+  document.getElementById('qTendances').addEventListener('click', function(){
+    document.getElementById('adsAnchor').scrollIntoView({ behavior:'smooth' });
+  });
   document.getElementById('qGagner').addEventListener('click', function(){ location.href = 'gagner.html'; });
   document.getElementById('qPartager').addEventListener('click', shareApp);
 
   /* Catégories */
-  document.querySelectorAll('.cat-chip').forEach(function(c) {
+  document.querySelectorAll('.cat-chip').forEach(function(c){
     c.addEventListener('click', function(){ filterCat(c.dataset.cat); });
   });
 
   /* Tabs */
-  document.querySelectorAll('.ad-tab').forEach(function(t) {
+  document.querySelectorAll('.ad-tab').forEach(function(t){
     t.addEventListener('click', function(){ filterTab(t.dataset.tab); });
   });
 
   /* Bottom nav */
-  document.querySelectorAll('.nav-item[data-nav]').forEach(function(el) {
+  document.querySelectorAll('.nav-item[data-nav]').forEach(function(el){
     el.addEventListener('click', function(){ navGo(el.dataset.nav, el); });
   });
   document.getElementById('navPlusBtn').addEventListener('click', openPub);
@@ -879,8 +976,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   document.getElementById('avisCancel').addEventListener('click', closeAvis);
   document.getElementById('avisSend').addEventListener('click', sendAvis);
-  document.querySelectorAll('.star').forEach(function(s) {
-    s.addEventListener('click', function() {
+  document.querySelectorAll('.star').forEach(function(s){
+    s.addEventListener('click', function(){
       selectedNote = parseInt(s.dataset.v);
       renderStars(selectedNote);
       document.getElementById('avisLabel').textContent = NOTE_LBL[selectedNote] || '';
@@ -895,15 +992,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === this) closePub();
   });
 
-  /* Image preview */
-  document.getElementById('p_img').addEventListener('change', function() {
+  /* Preview image */
+  document.getElementById('p_img').addEventListener('change', function(){
     var file = this.files[0];
     if (!file) return;
-    var prev  = document.getElementById('imgPrev');
-    var ph    = document.getElementById('uploadPh');
-    var zone  = document.getElementById('uploadZone');
-    var rdr   = new FileReader();
-    rdr.onload = function(ev) {
+    var prev = document.getElementById('imgPrev');
+    var ph   = document.getElementById('uploadPh');
+    var zone = document.getElementById('uploadZone');
+    var rdr  = new FileReader();
+    rdr.onload = function(ev){
       prev.src = ev.target.result;
       prev.classList.add('show');
       ph.style.display = 'none';
@@ -913,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /* Submit annonce */
-  document.getElementById('pubForm').addEventListener('submit', async function(e) {
+  document.getElementById('pubForm').addEventListener('submit', async function(e){
     e.preventDefault();
     var title = document.getElementById('p_title').value.trim();
     var desc  = document.getElementById('p_desc').value.trim();
@@ -923,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var wa    = document.getElementById('p_wa').value.trim();
 
     if (!title || !desc || !cat || !ville || !wa) {
-      toast('Remplissez tous les champs obligatoires', 'warning');
+      toast('Remplissez tous les champs obligatoires (*)', 'warning');
       return;
     }
 
@@ -933,42 +1030,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
       var imageUrl = null;
-      var imgFile = document.getElementById('p_img').files[0];
+      var imgFile  = document.getElementById('p_img').files[0];
       if (imgFile) {
-        var ext  = imgFile.name.split('.').pop();
+        var ext   = imgFile.name.split('.').pop();
         var fname = currentUser.id + '/' + Date.now() + '.' + ext;
-        var up = await sb.storage.from('annonces').upload(fname, imgFile, {upsert:true});
+        var up    = await _sb.storage.from('annonces').upload(fname, imgFile, { upsert: true });
         if (up.error) throw up.error;
-        imageUrl = sb.storage.from('annonces').getPublicUrl(fname).data.publicUrl;
+        imageUrl = _sb.storage.from('annonces').getPublicUrl(fname).data.publicUrl;
       }
 
-      var ins = await sb.from('annonces').insert([{
-        titre: title, description: desc,
-        prix: price ? parseInt(price) : null,
-        categorie: cat, ville: ville, whatsapp: wa,
-        image_url: imageUrl, user_id: currentUser.id,
-        created_at: new Date().toISOString()
+      var ins = await _sb.from('annonces').insert([{
+        titre:       title,
+        description: desc,
+        prix:        price ? parseInt(price) : null,
+        categorie:   cat,
+        ville:       ville,
+        whatsapp:    wa,
+        image_url:   imageUrl,
+        user_id:     currentUser.id,
+        created_at:  new Date().toISOString()
       }]).select().single();
+
       if (ins.error) throw ins.error;
 
-      /* Ajouter localement */
+      /* Ajouter localement sans recharger */
       var newAd = Object.assign({}, ins.data, {
-        _seller: {id: currentUser.id, full_name: 'Moi', whatsapp: wa, avatar_url: ''}
+        _seller: {
+          id:         currentUser.id,
+          full_name:  'Moi',
+          whatsapp:   wa,
+          avatar_url: '',
+          is_premium: premiumSet.has(currentUser.id)
+        }
       });
       allAds.unshift(newAd);
       renderAds();
       closePub();
 
-      /* Reset form */
+      /* Reset formulaire */
       document.getElementById('pubForm').reset();
       document.getElementById('imgPrev').classList.remove('show');
       document.getElementById('uploadPh').style.display = '';
       document.getElementById('uploadZone').classList.remove('has-img');
-      toast('Annonce publiée ! 🎉', 'success');
+
+      toast('Annonce publiée avec succès ! 🎉', 'success');
 
     } catch(err) {
-      console.error(err);
-      toast('Erreur : ' + err.message, 'error');
+      console.error('Publish error:', err);
+      toast('Erreur : ' + (err.message || 'Inconnue'), 'error');
     } finally {
       btn.disabled = false;
       btn.classList.remove('loading');
@@ -978,16 +1087,22 @@ document.addEventListener('DOMContentLoaded', function() {
   /* Earn card */
   var ec = document.getElementById('earnCard');
   var ecT, ecL;
-  function showEc() { ec.classList.add('show'); clearTimeout(ecT); ecT = setTimeout(hideEc, 12000); }
-  function hideEc() { ec.classList.remove('show'); }
-  function closeEc() { clearTimeout(ecT); clearTimeout(ecL); hideEc(); ecL = setTimeout(function(){ showEc(); schedEc(); }, 3*60*60*1000); }
-  function schedEc() { ecL = setTimeout(function(){ showEc(); schedEc(); }, 3*60*60*1000); }
+  function showEc(){ ec.classList.add('show'); clearTimeout(ecT); ecT = setTimeout(hideEc, 12000); }
+  function hideEc(){ ec.classList.remove('show'); }
+  function closeEc(){
+    clearTimeout(ecT); clearTimeout(ecL); hideEc();
+    ecL = setTimeout(function(){ showEc(); schedEc(); }, 3 * 60 * 60 * 1000);
+  }
+  function schedEc(){
+    ecL = setTimeout(function(){ showEc(); schedEc(); }, 3 * 60 * 60 * 1000);
+  }
   setTimeout(function(){ showEc(); schedEc(); }, 2500);
+
   document.getElementById('ecX').addEventListener('click', closeEc);
   document.getElementById('ecCls').addEventListener('click', closeEc);
   document.getElementById('ecGo').addEventListener('click', function(){ hideEc(); location.href = 'gagner.html'; });
 
-  /* Lancer */
+  /* Lancer l'app */
   init();
 });
 </script>
