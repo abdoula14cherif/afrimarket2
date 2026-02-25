@@ -106,8 +106,8 @@
     /* TOGGLE SWITCH */
     .toggle-wrap{display:flex;align-items:center;gap:.5rem;}
     .tgl{position:relative;width:36px;height:20px;cursor:pointer;}
-    .tgl input{opacity:0;width:0;height:0;}
-    .tgl-slider{position:absolute;inset:0;background:#ddd;border-radius:99px;transition:.3s;}
+    .tgl input{opacity:0;width:0;height:0;position:absolute;}
+    .tgl-slider{position:absolute;inset:0;background:#ddd;border-radius:99px;transition:.3s;cursor:pointer;}
     .tgl-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;}
     .tgl input:checked + .tgl-slider{background:var(--green);}
     .tgl input:checked + .tgl-slider::before{transform:translateX(16px);}
@@ -137,13 +137,20 @@
     .mf input,.mf select,.mf textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;color:var(--dark);outline:none;transition:border-color .2s;background:var(--bg);}
     .mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--blue2);}
     .mf textarea{resize:vertical;min-height:70px;}
-    .mbtns{display:flex;gap:.6rem;margin-top:1rem;}
+    /* Unified modal buttons class — supports both .mbtns and .modal-btns */
+    .mbtns,.modal-btns{display:flex;gap:.6rem;margin-top:1rem;}
     .mbtn{flex:1;padding:.7rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
     .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
     .mbtn-ok{background:var(--green);color:white;box-shadow:0 4px 14px rgba(0,194,113,.2);}
     .mbtn-ok.danger{background:var(--red);box-shadow:0 4px 14px rgba(232,48,48,.2);}
     .mbtn-ok.gold{background:var(--gold);color:var(--dark);}
     .mbtn-ok:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* Recharge modal input styles */
+    .recharge-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;background:var(--bg);color:var(--dark);transition:border-color .2s;}
+    .recharge-input:focus{border-color:var(--blue2);}
+    .recharge-label{font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;}
+    .recharge-field{margin-bottom:.8rem;}
 
     /* TOAST */
     #toast{position:fixed;top:1.2rem;right:1.2rem;background:var(--dark);color:white;padding:.7rem 1.1rem;border-radius:12px;font-size:.8rem;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.2);max-width:300px;}
@@ -165,23 +172,23 @@
   </div>
   <nav class="sb-nav">
     <div class="sb-group">Principal</div>
-    <div class="sb-item active" onclick="goPage('stats',this)">
+    <div class="sb-item active" data-page="stats" onclick="goPage('stats',this)">
       <span class="sb-ico">📊</span><span>Tableau de bord</span>
     </div>
 
     <div class="sb-group">Gestion</div>
-    <div class="sb-item" onclick="goPage('payments',this)">
+    <div class="sb-item" data-page="payments" onclick="goPage('payments',this)">
       <span class="sb-ico">💳</span><span>Paiements</span>
       <span class="sb-badge red" id="nb-pay" style="display:none">0</span>
     </div>
-    <div class="sb-item" onclick="goPage('withdrawals',this)">
+    <div class="sb-item" data-page="withdrawals" onclick="goPage('withdrawals',this)">
       <span class="sb-ico">💸</span><span>Retraits</span>
       <span class="sb-badge gold" id="nb-wr" style="display:none">0</span>
     </div>
-    <div class="sb-item" onclick="goPage('users',this)">
+    <div class="sb-item" data-page="users" onclick="goPage('users',this)">
       <span class="sb-ico">👥</span><span>Utilisateurs</span>
     </div>
-    <div class="sb-item" onclick="goPage('ads',this)">
+    <div class="sb-item" data-page="ads" onclick="goPage('ads',this)">
       <span class="sb-ico">📢</span><span>Annonces</span>
     </div>
   </nav>
@@ -306,607 +313,859 @@
 </div>
 
 <!-- ══ MODAL APPROUVER PAIEMENT ══ -->
-<div class="ov" id="mApprove"><div class="modal">
-  <div class="modal-title">✅ Approuver le paiement</div>
-  <div class="modal-info" id="mApproveInfo">—</div>
-  <div class="mbtns">
-    <button class="mbtn mbtn-cancel" onclick="closeOv('mApprove')">Annuler</button>
-    <button class="mbtn mbtn-ok" id="mApproveBtn">✅ Approuver & Activer Premium</button>
+<div class="ov" id="mApprove" onclick="if(event.target===this)closeOv('mApprove')">
+  <div class="modal">
+    <div class="modal-title">✅ Approuver le paiement</div>
+    <div class="modal-info" id="mApproveInfo">—</div>
+    <div class="mbtns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('mApprove')">Annuler</button>
+      <button class="mbtn mbtn-ok" id="mApproveBtn">✅ Approuver & Activer Premium</button>
+    </div>
   </div>
-</div></div>
+</div>
 
 <!-- ══ MODAL REJETER PAIEMENT ══ -->
-<div class="ov" id="mRejectPay"><div class="modal">
-  <div class="modal-title">❌ Rejeter le paiement</div>
-  <div class="modal-info" id="mRejectPayInfo">—</div>
-  <div class="mf"><label>Raison du rejet *</label>
-    <textarea id="mRejectPayReason" placeholder="Ex: Référence incorrecte, montant insuffisant…"></textarea>
+<div class="ov" id="mRejectPay" onclick="if(event.target===this)closeOv('mRejectPay')">
+  <div class="modal">
+    <div class="modal-title">❌ Rejeter le paiement</div>
+    <div class="modal-info" id="mRejectPayInfo">—</div>
+    <div class="mf">
+      <label>Raison du rejet *</label>
+      <textarea id="mRejectPayReason" placeholder="Ex: Référence incorrecte, montant insuffisant…"></textarea>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectPay')">Annuler</button>
+      <button class="mbtn mbtn-ok danger" id="mRejectPayBtn">❌ Rejeter</button>
+    </div>
   </div>
-  <div class="mbtns">
-    <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectPay')">Annuler</button>
-    <button class="mbtn mbtn-ok danger" id="mRejectPayBtn">❌ Rejeter</button>
-  </div>
-</div></div>
+</div>
 
 <!-- ══ MODAL VALIDER RETRAIT ══ -->
-<div class="ov" id="mPayWr"><div class="modal">
-  <div class="modal-title">💸 Confirmer le paiement</div>
-  <div class="modal-info" id="mPayWrInfo">—</div>
-  <div class="mf"><label>Note admin (optionnel)</label>
-    <input type="text" id="mPayWrNote" placeholder="Ex: Payé le 21/02 via Orange"/>
+<div class="ov" id="mPayWr" onclick="if(event.target===this)closeOv('mPayWr')">
+  <div class="modal">
+    <div class="modal-title">💸 Confirmer le paiement</div>
+    <div class="modal-info" id="mPayWrInfo">—</div>
+    <div class="mf">
+      <label>Note admin (optionnel)</label>
+      <input type="text" id="mPayWrNote" placeholder="Ex: Payé le 21/02 via Orange"/>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('mPayWr')">Annuler</button>
+      <button class="mbtn mbtn-ok" id="mPayWrBtn">✅ Marquer comme payé</button>
+    </div>
   </div>
-  <div class="mbtns">
-    <button class="mbtn mbtn-cancel" onclick="closeOv('mPayWr')">Annuler</button>
-    <button class="mbtn mbtn-ok" id="mPayWrBtn">✅ Marquer comme payé</button>
-  </div>
-</div></div>
+</div>
 
 <!-- ══ MODAL REJETER RETRAIT ══ -->
-<div class="ov" id="mRejectWr"><div class="modal">
-  <div class="modal-title">❌ Rejeter la demande</div>
-  <div class="modal-info" id="mRejectWrInfo">—</div>
-  <div class="mf"><label>Raison du rejet *</label>
-    <textarea id="mRejectWrReason" placeholder="Ex: Numéro incorrect, solde insuffisant…"></textarea>
+<div class="ov" id="mRejectWr" onclick="if(event.target===this)closeOv('mRejectWr')">
+  <div class="modal">
+    <div class="modal-title">❌ Rejeter la demande</div>
+    <div class="modal-info" id="mRejectWrInfo">—</div>
+    <div class="mf">
+      <label>Raison du rejet *</label>
+      <textarea id="mRejectWrReason" placeholder="Ex: Numéro incorrect, solde insuffisant…"></textarea>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectWr')">Annuler</button>
+      <button class="mbtn mbtn-ok danger" id="mRejectWrBtn">❌ Rejeter</button>
+    </div>
   </div>
-  <div class="mbtns">
-    <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectWr')">Annuler</button>
-    <button class="mbtn mbtn-ok danger" id="mRejectWrBtn">❌ Rejeter</button>
-  </div>
-</div></div>
+</div>
 
 <!-- ══ MODAL PREMIUM MANUEL ══ -->
-<div class="ov" id="mPremium"><div class="modal">
-  <div class="modal-title" id="mPremiumTitle">👑 Gérer le Premium</div>
-  <div class="modal-info" id="mPremiumInfo">—</div>
-  <div class="mf" id="mPremiumPlanWrap"><label>Plan</label>
-    <select id="mPremiumPlan">
-      <option value="premium">👑 Premium — 1 mois</option>
-      <option value="elite">⚡ Elite — 1 mois</option>
-      <option value="premium_annual">👑 Premium — 1 an</option>
-    </select>
+<div class="ov" id="mPremium" onclick="if(event.target===this)closeOv('mPremium')">
+  <div class="modal">
+    <div class="modal-title" id="mPremiumTitle">👑 Gérer le Premium</div>
+    <div class="modal-info" id="mPremiumInfo">—</div>
+    <div class="mf" id="mPremiumPlanWrap">
+      <label>Plan</label>
+      <select id="mPremiumPlan">
+        <option value="premium">👑 Premium — 1 mois</option>
+        <option value="elite">⚡ Elite — 1 mois</option>
+        <option value="premium_annual">👑 Premium — 1 an</option>
+      </select>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('mPremium')">Annuler</button>
+      <button class="mbtn mbtn-ok gold" id="mPremiumBtn">👑 Confirmer</button>
+    </div>
   </div>
-  <div class="mbtns">
-    <button class="mbtn mbtn-cancel" onclick="closeOv('mPremium')">Annuler</button>
-    <button class="mbtn mbtn-ok gold" id="mPremiumBtn">👑 Confirmer</button>
-  </div>
-</div></div>
+</div>
 
 <!-- ══ MODAL SUPPRIMER USER ══ -->
-<div class="ov" id="mDelUser"><div class="modal">
-  <div class="modal-title">🗑️ Supprimer l'utilisateur</div>
-  <div class="modal-info" id="mDelUserInfo">—</div>
-  <div class="mbtns">
-    <button class="mbtn mbtn-cancel" onclick="closeOv('mDelUser')">Annuler</button>
-    <button class="mbtn mbtn-ok danger" id="mDelUserBtn">🗑️ Supprimer</button>
+<div class="ov" id="mDelUser" onclick="if(event.target===this)closeOv('mDelUser')">
+  <div class="modal">
+    <div class="modal-title">🗑️ Supprimer l'utilisateur</div>
+    <div class="modal-info" id="mDelUserInfo">—</div>
+    <div class="mbtns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('mDelUser')">Annuler</button>
+      <button class="mbtn mbtn-ok danger" id="mDelUserBtn">🗑️ Supprimer</button>
+    </div>
   </div>
-</div></div>
+</div>
 
-<div id="toast"></div>
-
-<script>
-const{createClient}=supabase;
-const sb=createClient(
-  'https://elgbvitijyjriozvzqpf.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
-);
-
-// !! Remplace par ton email admin !!
-const ADMIN_EMAILS=['abdoula13cherif@gmail.com'];
-
-let allPay=[],allWr=[],allUsers=[],allAds=[];
-let fPay='all',fWr='all',fUsers='all';
-
-// ── INIT ──
-(async()=>{
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){location.href='index.html';return;}
-  const em=session.user.email;
-  if(!ADMIN_EMAILS.includes(em)){
-    alert('Accès refusé. Vous n\'êtes pas administrateur.');
-    await sb.auth.signOut();location.href='index.html';return;
-  }
-  document.getElementById('adminEmail').textContent=em;
-  await loadAll();
-  setupAdminRealtime();
-})();
-
-async function loadAll(){
-  toast('Chargement…','info');
-  await Promise.all([loadStats(),loadPay(),loadWr(),loadUsers(),loadAds()]);
-  toast('Données actualisées ✅','success');
-}
-
-// ── STATS ──
-async function loadStats(){
-  const{data:us}=await sb.from('profiles').select('id,is_premium,created_at');
-  const today=new Date().toISOString().split('T')[0];
-  document.getElementById('s-users').textContent=(us||[]).length;
-  document.getElementById('s-prem').textContent=(us||[]).filter(u=>u.is_premium).length;
-  document.getElementById('s-today').textContent=(us||[]).filter(u=>u.created_at?.startsWith(today)).length;
-
-  const{count:pp}=await sb.from('payment_requests').select('*',{count:'exact',head:true}).eq('status','pending');
-  const{count:wp}=await sb.from('withdrawal_requests').select('*',{count:'exact',head:true}).eq('status','pending');
-  const ppN=pp||0,wpN=wp||0;
-  document.getElementById('s-ppend').textContent=ppN;
-  document.getElementById('s-wpend').textContent=wpN;
-  if(ppN>0){document.getElementById('nb-pay').textContent=ppN;document.getElementById('nb-pay').style.display='block';}
-  if(wpN>0){document.getElementById('nb-wr').textContent=wpN;document.getElementById('nb-wr').style.display='block';}
-
-  const{data:rev}=await sb.from('payment_requests').select('amount').eq('status','approved');
-  document.getElementById('s-rev').textContent=((rev||[]).reduce((s,p)=>s+(p.amount||0),0)).toLocaleString('fr-FR')+' F';
-
-  const{count:ads}=await sb.from('annonces').select('*',{count:'exact',head:true});
-  document.getElementById('s-ads').textContent=ads||0;
-  const{count:refs}=await sb.from('referral_earnings').select('*',{count:'exact',head:true});
-  document.getElementById('s-refs').textContent=refs||0;
-
-  // Actions urgentes
-  const ul=document.getElementById('urgentList');ul.innerHTML='';
-  if(ppN>0||wpN>0){
-    document.getElementById('urgentSec').style.display='block';
-    if(ppN>0) ul.innerHTML+=urgentItem('⏳','orange',`<strong>${ppN}</strong> paiement(s) en attente`,'payments');
-    if(wpN>0) ul.innerHTML+=urgentItem('💸','gold',`<strong>${wpN}</strong> retrait(s) à valider`,'withdrawals');
-  }
-}
-
-function urgentItem(ico,color,txt,page){
-  const c={orange:'rgba(255,107,26,.05)',gold:'rgba(245,183,49,.05)'};
-  const b={orange:'rgba(255,107,26,.15)',gold:'rgba(245,183,49,.15)'};
-  return `<div style="display:flex;align-items:center;justify-content:space-between;background:${c[color]};border:1px solid ${b[color]};border-radius:12px;padding:.75rem 1rem;">
-    <span style="font-size:.81rem;font-weight:600">${ico} ${txt}</span>
-    <button class="ab ab-blue" onclick="goPage('${page}',document.querySelector('.sb-item[onclick*=${page}]'))">Voir →</button>
-  </div>`;
-}
-
-// ── PAIEMENTS ──
-async function loadPay(){
-  const{data}=await sb.from('payment_requests')
-    .select('*,profiles(full_name,email,whatsapp)')
-    .order('created_at',{ascending:false}).limit(200);
-  allPay=data||[];renderPay();
-}
-
-function renderPay(){
-  const list=fPay==='all'?allPay:allPay.filter(p=>p.status===fPay);
-  document.getElementById('pay-count').textContent=list.length+' entrées';
-  if(!list.length){document.getElementById('payTbl').innerHTML=emptyRow(9,'💳','Aucun paiement');return;}
-  document.getElementById('payTbl').innerHTML=list.map(p=>{
-    const d=fmt(p.created_at);
-    const badge=`<span class="b b-${p.status}">${p.status==='pending'?'⏳ En attente':p.status==='approved'?'✅ Approuvé':'❌ Rejeté'}</span>`;
-    const acts=p.status==='pending'
-      ?`<div class="arow"><button class="ab ab-approve" onclick="openApprovePay('${p.id}','${esc(p.profiles?.full_name)}','${p.plan}',${p.amount})">✅ Approuver</button><button class="ab ab-reject" onclick="openRejectPay('${p.id}','${esc(p.profiles?.full_name)}')">❌ Rejeter</button></div>`
-      :`<span style="font-size:.68rem;color:var(--gray)">—</span>`;
-    return `<tr>
-      <td><div class="uname"><div class="uav">${(p.profiles?.full_name||'?')[0].toUpperCase()}</div><div><strong>${p.profiles?.full_name||'—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${p.profiles?.email||''}</span></div></div></td>
-      <td><span class="b b-premium">${p.plan||'?'} · ${p.billing||'?'}</span></td>
-      <td><strong>${(p.amount||0).toLocaleString('fr-FR')} F</strong></td>
-      <td>${p.operator==='orange'?'🟠 Orange':'💛 MTN'}</td>
-      <td style="font-size:.7rem;font-family:monospace;max-width:110px;overflow:hidden;text-overflow:ellipsis">${p.transaction_ref||'—'}</td>
-      <td>${p.sender_phone||'—'}</td>
-      <td style="font-size:.7rem">${d}</td>
-      <td>${badge}</td>
-      <td>${acts}</td>
-    </tr>`;
-  }).join('');
-}
-
-function filterPay(f,btn){fPay=f;document.querySelectorAll('#page-payments .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPay();}
-
-// ── RETRAITS ──
-async function loadWr(){
-  const{data}=await sb.from('withdrawal_requests')
-    .select('*,profiles(full_name,email)')
-    .order('created_at',{ascending:false}).limit(200);
-  allWr=data||[];renderWr();
-}
-
-function renderWr(){
-  const list=fWr==='all'?allWr:allWr.filter(w=>w.status===fWr);
-  document.getElementById('wr-count').textContent=list.length+' entrées';
-  if(!list.length){document.getElementById('wrTbl').innerHTML=emptyRow(8,'💸','Aucun retrait');return;}
-  document.getElementById('wrTbl').innerHTML=list.map(w=>{
-    const d=fmt(w.created_at);
-    const badge=`<span class="b b-${w.status==='paid'?'approved':w.status}">${w.status==='pending'?'⏳ En attente':w.status==='paid'?'✅ Payé':'❌ Rejeté'}</span>`;
-    const acts=w.status==='pending'
-      ?`<div class="arow">
-          <button class="ab ab-approve" onclick="openPayWr('${w.id}',${w.amount},'${w.operator}','${esc(w.phone)}','${esc(w.name)}','${esc(w.profiles?.full_name)}')">✅ Valider paiement</button>
-          <button class="ab ab-reject" onclick="openRejectWr('${w.id}','${esc(w.profiles?.full_name)}',${w.amount})">❌ Rejeter</button>
-        </div>`
-      :`<span style="font-size:.68rem;color:var(--gray)">${w.status==='paid'?'Payé ✅':'Rejeté ❌'}${w.admin_note?'<br><em style="font-size:.62rem">'+w.admin_note+'</em>':''}</span>`;
-    return `<tr>
-      <td><div class="uname"><div class="uav">${(w.profiles?.full_name||'?')[0].toUpperCase()}</div><div><strong>${w.profiles?.full_name||'—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${w.profiles?.email||''}</span></div></div></td>
-      <td><strong style="color:var(--green)">${(w.amount||0).toLocaleString('fr-FR')} F</strong></td>
-      <td>${w.operator==='orange'?'🟠 Orange':'💛 MTN'}</td>
-      <td><strong>${w.phone||'—'}</strong></td>
-      <td>${w.name||'—'}</td>
-      <td style="font-size:.7rem">${d}</td>
-      <td>${badge}</td>
-      <td>${acts}</td>
-    </tr>`;
-  }).join('');
-}
-
-function filterWr(f,btn){fWr=f;document.querySelectorAll('#page-withdrawals .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderWr();}
-
-// ── UTILISATEURS ──
-async function loadUsers(){
-  const{data}=await sb.from('profiles')
-    .select('id,full_name,email,whatsapp,ville,is_premium,plan,plan_expires,created_at')
-    .order('created_at',{ascending:false}).limit(300);
-  allUsers=data||[];
-  document.getElementById('users-count').textContent=allUsers.length+' utilisateurs';
-  renderUsers();
-}
-
-function renderUsers(){
-  const list=fUsers==='all'?allUsers:fUsers==='premium'?allUsers.filter(u=>u.is_premium):allUsers.filter(u=>!u.is_premium);
-  if(!list.length){document.getElementById('usersTbl').innerHTML=emptyRow(8,'👥','Aucun utilisateur');return;}
-  document.getElementById('usersTbl').innerHTML=list.map(u=>{
-    const init=(u.full_name||'?')[0].toUpperCase();
-    const exp=u.plan_expires?new Date(u.plan_expires).toLocaleDateString('fr-FR'):'—';
-    const planBadge=u.is_premium?`<span class="b b-premium">👑 ${u.plan||'premium'}</span>`:`<span class="b b-free">🆓 Gratuit</span>`;
-    // Toggle switch pour premium
-    const toggleHtml=`<label class="tgl" title="${u.is_premium?'Désactiver Premium':'Activer Premium'}">
-      <input type="checkbox" ${u.is_premium?'checked':''} onchange="togglePremium('${u.id}','${esc(u.full_name)}',this.checked)"/>
-      <span class="tgl-slider"></span>
-    </label>`;
-    return `<tr>
-      <td><div class="uname"><div class="uav">${init}</div><div><strong>${u.full_name||'—'}</strong></div></div></td>
-      <td style="font-size:.73rem">${u.email||'—'}</td>
-      <td>${u.whatsapp||'—'}</td>
-      <td>${u.ville||'—'}</td>
-      <td>${planBadge}</td>
-      <td style="font-size:.7rem">${exp}</td>
-      <td><div class="toggle-wrap">${toggleHtml}<span class="tgl-lbl" style="color:${u.is_premium?'var(--green)':'var(--gray)'}">${u.is_premium?'Actif':'Inactif'}</span></div></td>
-      <td>
-        <div class="arow">
-          <button class="ab ab-gold" onclick="openPremiumModal('${u.id}','${esc(u.full_name)}',${u.is_premium})">👑 Gérer</button>
-          <button class="ab ab-approve" style="background:rgba(0,194,113,.1);color:var(--green);" onclick="openRechargeModal('${u.id}','${esc(u.full_name)}')">💰 Recharger</button>
-          <button class="ab ab-reject" onclick="openDelUser('${u.id}','${esc(u.full_name)}')">🗑️</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function filterUsers(f,btn){fUsers=f;document.querySelectorAll('#page-users .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderUsers();}
-
-// ── ANNONCES ──
-async function loadAds(){
-  const{data}=await sb.from('annonces')
-    .select('id,titre,categorie,prix,ville,created_at,actif,profiles(full_name)')
-    .order('created_at',{ascending:false}).limit(200);
-  allAds=data||[];
-  document.getElementById('ads-count').textContent=allAds.length+' annonces';
-  if(!allAds.length){document.getElementById('adsTbl').innerHTML=emptyRow(7,'📢','Aucune annonce');return;}
-  document.getElementById('adsTbl').innerHTML=allAds.map(a=>{
-    const d=fmt(a.created_at);
-    return `<tr>
-      <td><strong>${a.titre||'—'}</strong></td>
-      <td>${a.profiles?.full_name||'—'}</td>
-      <td><span class="b b-free">${a.categorie||'—'}</span></td>
-      <td>${a.prix?a.prix.toLocaleString('fr-FR')+' F':'—'}</td>
-      <td>${a.ville||'—'}</td>
-      <td style="font-size:.7rem">${d}</td>
-      <td><button class="ab ab-reject" onclick="delAd('${a.id}')">🗑️ Supprimer</button></td>
-    </tr>`;
-  }).join('');
-}
-
-// ════════════════════════════════
-// ── ACTIONS PAIEMENTS ──
-// ════════════════════════════════
-function openApprovePay(id,name,plan,amount){
-  document.getElementById('mApproveInfo').innerHTML=`Utilisateur : <strong>${name}</strong><br>Plan : <strong>${plan}</strong><br>Montant : <strong>${amount.toLocaleString('fr-FR')} FCFA</strong><br><br>✅ Le compte sera activé en Premium immédiatement.`;
-  document.getElementById('mApproveBtn').onclick=()=>doApprovePay(id);
-  openOv('mApprove');
-}
-
-async function doApprovePay(id){
-  const btn=document.getElementById('mApproveBtn');
-  btn.disabled=true;btn.textContent='⏳…';
-  try{
-    const{data:pay}=await sb.from('payment_requests').select('*').eq('id',id).single();
-    if(!pay) throw new Error('Paiement introuvable');
-    const exp=new Date();
-    if(pay.billing==='annual'||pay.billing==='1an') exp.setFullYear(exp.getFullYear()+1);
-    else exp.setMonth(exp.getMonth()+1);
-    await sb.from('profiles').update({is_premium:true,plan:pay.plan,plan_expires:exp.toISOString()}).eq('id',pay.user_id);
-    await sb.from('payment_requests').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',id);
-    await notif(pay.user_id,'👑 Compte Premium activé !','Votre paiement a été validé. Profitez de toutes les fonctionnalités Premium !','👑','success');
-    toast('✅ Premium activé !','success');
-    closeOv('mApprove');
-    await Promise.all([loadStats(),loadPay()]);
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;btn.textContent='✅ Approuver & Activer Premium';}
-}
-
-function openRejectPay(id,name){
-  document.getElementById('mRejectPayInfo').innerHTML=`Rejeter le paiement de <strong>${name}</strong> ?`;
-  document.getElementById('mRejectPayReason').value='';
-  document.getElementById('mRejectPayBtn').onclick=()=>doRejectPay(id);
-  openOv('mRejectPay');
-}
-
-async function doRejectPay(id){
-  const reason=document.getElementById('mRejectPayReason').value.trim()||'Paiement non confirmé';
-  const btn=document.getElementById('mRejectPayBtn');
-  btn.disabled=true;
-  try{
-    const{data:pay}=await sb.from('payment_requests').select('user_id').eq('id',id).single();
-    await sb.from('payment_requests').update({status:'rejected',rejected_at:new Date().toISOString(),rejection_reason:reason}).eq('id',id);
-    if(pay) await notif(pay.user_id,'❌ Paiement refusé','Votre paiement n\'a pas pu être vérifié. Raison : '+reason,'❌','error');
-    toast('Paiement rejeté','info');
-    closeOv('mRejectPay');
-    await Promise.all([loadStats(),loadPay()]);
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;}
-}
-
-// ════════════════════════════════
-// ── ACTIONS RETRAITS ──
-// ════════════════════════════════
-function openPayWr(id,amount,op,phone,name,userName){
-  document.getElementById('mPayWrInfo').innerHTML=
-    `Bénéficiaire : <strong>${userName||name}</strong><br>`+
-    `Montant : <strong style="color:var(--green)">${amount.toLocaleString('fr-FR')} FCFA</strong><br>`+
-    `Opérateur : <strong>${op==='orange'?'🟠 Orange Money':'💛 MTN MoMo'}</strong><br>`+
-    `Numéro : <strong>${phone}</strong>`;
-  document.getElementById('mPayWrNote').value='';
-  document.getElementById('mPayWrBtn').onclick=()=>doPayWr(id,amount,op,phone);
-  openOv('mPayWr');
-}
-
-async function doPayWr(id,amount,op,phone){
-  const note=document.getElementById('mPayWrNote').value.trim();
-  const btn=document.getElementById('mPayWrBtn');
-  btn.disabled=true;
-  try{
-    const{data:wr}=await sb.from('withdrawal_requests').select('user_id').eq('id',id).single();
-    await sb.from('withdrawal_requests').update({status:'paid',paid_at:new Date().toISOString(),admin_note:note||null}).eq('id',id);
-    // Marquer les earnings comme retirés
-    const{data:earns}=await sb.from('referral_earnings').select('id').eq('user_id',wr.user_id).eq('status','available').order('created_at',{ascending:true}).limit(Math.ceil(amount/500));
-    if(earns?.length) await sb.from('referral_earnings').update({status:'withdrawn'}).in('id',earns.map(e=>e.id));
-    await notif(wr.user_id,'✅ Retrait effectué !',amount+' FCFA ont été envoyés sur votre '+op+' ('+phone+'). Merci !','✅','success');
-    toast('✅ Retrait validé et payé !','success');
-    closeOv('mPayWr');
-    await Promise.all([loadStats(),loadWr()]);
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;}
-}
-
-function openRejectWr(id,userName,amount){
-  document.getElementById('mRejectWrInfo').innerHTML=`Rejeter la demande de retrait de <strong>${userName}</strong> — <strong>${(amount||0).toLocaleString('fr-FR')} FCFA</strong> ?`;
-  document.getElementById('mRejectWrReason').value='';
-  document.getElementById('mRejectWrBtn').onclick=()=>doRejectWr(id);
-  openOv('mRejectWr');
-}
-
-async function doRejectWr(id){
-  const reason=document.getElementById('mRejectWrReason').value.trim()||'Demande non validée';
-  const btn=document.getElementById('mRejectWrBtn');
-  btn.disabled=true;
-  try{
-    const{data:wr}=await sb.from('withdrawal_requests').select('user_id,amount').eq('id',id).single();
-    await sb.from('withdrawal_requests').update({status:'rejected',admin_note:reason}).eq('id',id);
-    if(wr) await notif(wr.user_id,'❌ Retrait refusé','Votre demande de '+wr.amount+' FCFA a été refusée. Raison : '+reason,'❌','error');
-    toast('Demande rejetée','info');
-    closeOv('mRejectWr');
-    await Promise.all([loadStats(),loadWr()]);
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;}
-}
-
-// ════════════════════════════════
-// ── TOGGLE PREMIUM (switch) ──
-// ════════════════════════════════
-async function togglePremium(uid,name,activate){
-  try{
-    if(activate){
-      const exp=new Date();exp.setMonth(exp.getMonth()+1);
-      await sb.from('profiles').update({is_premium:true,plan:'premium',plan_expires:exp.toISOString()}).eq('id',uid);
-      await notif(uid,'👑 Compte Premium activé !','L\'administration a activé votre compte Premium. Profitez-en !','👑','success');
-      toast('✅ Premium activé pour '+name,'success');
-    } else {
-      await sb.from('profiles').update({is_premium:false,plan:null,plan_expires:null}).eq('id',uid);
-      await notif(uid,'🔒 Premium désactivé','Votre compte Premium a été désactivé par l\'administration.','🔒','info');
-      toast('Premium désactivé pour '+name,'info');
-    }
-    // Mettre à jour localement sans recharger
-    const idx=allUsers.findIndex(u=>u.id===uid);
-    if(idx>-1){allUsers[idx].is_premium=activate;allUsers[idx].plan=activate?'premium':null;}
-    renderUsers();
-    loadStats();
-  }catch(e){toast('Erreur : '+e.message,'error');}
-}
-
-// ── MODAL PREMIUM MANUEL ──
-function openPremiumModal(uid,name,isPremium){
-  document.getElementById('mPremiumTitle').textContent=isPremium?'🔒 Gérer le Premium de '+name:'👑 Activer Premium pour '+name;
-  document.getElementById('mPremiumInfo').innerHTML=isPremium
-    ?`<strong>${name}</strong> est actuellement <strong style="color:var(--green)">Premium actif</strong>.<br>Tu peux modifier le plan ou désactiver le compte.`
-    :`<strong>${name}</strong> est sur le plan <strong>Gratuit</strong>.<br>Sélectionne le plan à activer.`;
-  document.getElementById('mPremiumPlanWrap').style.display=isPremium?'none':'block';
-  document.getElementById('mPremiumBtn').textContent=isPremium?'🔒 Désactiver Premium':'👑 Activer Premium';
-  document.getElementById('mPremiumBtn').onclick=()=>doManualPremium(uid,name,isPremium);
-  openOv('mPremium');
-}
-
-async function doManualPremium(uid,name,wasPremium){
-  const btn=document.getElementById('mPremiumBtn');
-  btn.disabled=true;
-  try{
-    if(wasPremium){
-      await togglePremium(uid,name,false);
-    } else {
-      const plan=document.getElementById('mPremiumPlan').value;
-      const exp=new Date();
-      if(plan.includes('annual')) exp.setFullYear(exp.getFullYear()+1);
-      else exp.setMonth(exp.getMonth()+1);
-      await sb.from('profiles').update({is_premium:true,plan:plan.replace('_annual',''),plan_expires:exp.toISOString()}).eq('id',uid);
-      await notif(uid,'👑 Compte Premium activé !','L\'administration a activé votre compte Premium ('+plan+'). Profitez-en !','👑','success');
-      const idx=allUsers.findIndex(u=>u.id===uid);
-      if(idx>-1){allUsers[idx].is_premium=true;allUsers[idx].plan=plan;}
-      toast('✅ Premium activé pour '+name,'success');
-      renderUsers();loadStats();
-    }
-    closeOv('mPremium');
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;}
-}
-
-// ── SUPPRIMER USER ──
-function openDelUser(uid,name){
-  document.getElementById('mDelUserInfo').innerHTML=`Supprimer définitivement le compte de <strong>${name}</strong> ?<br><span style="color:var(--red);font-size:.78rem">⚠️ Toutes ses annonces et données seront supprimées.</span>`;
-  document.getElementById('mDelUserBtn').onclick=()=>doDelUser(uid,name);
-  openOv('mDelUser');
-}
-
-async function doDelUser(uid,name){
-  const btn=document.getElementById('mDelUserBtn');
-  btn.disabled=true;
-  try{
-    // Notif avant suppression (sera effacée avec le compte mais utile si l'utilisateur est connecté)
-    await notif(uid,'⚠️ Compte supprimé','Votre compte AfriMarket a été supprimé par l\'administration.','⚠️','error');
-    await new Promise(r=>setTimeout(r,500)); // laisser le temps au Realtime de déclencher
-    await sb.from('annonces').delete().eq('user_id',uid);
-    await sb.from('referral_earnings').delete().eq('user_id',uid);
-    await sb.from('withdrawal_requests').delete().eq('user_id',uid);
-    await sb.from('notifications').delete().eq('user_id',uid);
-    await sb.from('profiles').delete().eq('id',uid);
-    allUsers=allUsers.filter(u=>u.id!==uid);
-    renderUsers();loadStats();
-    toast('Utilisateur supprimé','info');
-    closeOv('mDelUser');
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;}
-}
-
-// ── SUPPRIMER ANNONCE ──
-async function delAd(id){
-  if(!confirm('Supprimer cette annonce ?')) return;
-  await sb.from('annonces').delete().eq('id',id);
-  allAds=allAds.filter(a=>a.id!==id);
-  document.getElementById('ads-count').textContent=allAds.length+' annonces';
-  document.getElementById('adsTbl').innerHTML=allAds.length?allAds.map(a=>`<tr><td>${a.titre||'—'}</td><td>${a.profiles?.full_name||'—'}</td><td>${a.categorie||'—'}</td><td>${a.prix?a.prix.toLocaleString('fr-FR')+' F':'—'}</td><td>${a.ville||'—'}</td><td>${fmt(a.created_at)}</td><td><button class="ab ab-reject" onclick="delAd('${a.id}')">🗑️</button></td></tr>`).join(''):emptyRow(7,'📢','Aucune annonce');
-  toast('Annonce supprimée','info');
-}
-
-// ── NOTIFICATION ──
-
-// ── RECHARGER LE SOLDE ──
-function openRechargeModal(uid,name){
-  document.getElementById('mRechargeInfo').innerHTML=`Ajouter du solde au compte de <strong>${name}</strong>.`;
-  document.getElementById('mRechargeAmount').value='';
-  document.getElementById('mRechargeNote').value='';
-  document.getElementById('mRechargeBtn').dataset.uid=uid;
-  document.getElementById('mRechargeBtn').dataset.name=name;
-  openOv('mRecharge');
-}
-
-async function doRecharge(){
-  const btn=document.getElementById('mRechargeBtn');
-  const uid=btn.dataset.uid;
-  const name=btn.dataset.name;
-  const amount=parseInt(document.getElementById('mRechargeAmount').value)||0;
-  const note=document.getElementById('mRechargeNote').value.trim();
-  if(amount<=0){toast('Montant invalide','warning');return;}
-  btn.disabled=true;btn.textContent='⏳…';
-  try{
-    // Insérer un earning "available" pour créditer le solde
-    const{error}=await sb.from('referral_earnings').insert({
-      user_id:uid,
-      amount:amount,
-      status:'available',
-      type:'admin_credit',
-      note:note||'Crédit administrateur',
-      created_at:new Date().toISOString()
-    });
-    if(error) throw error;
-    await notif(uid,'💰 Solde rechargé !','Un montant de '+amount.toLocaleString('fr-FR')+' FCFA a été ajouté à votre solde.'+(note?' ('+note+')':''),'💰','success');
-    toast('✅ '+amount.toLocaleString('fr-FR')+' FCFA crédités à '+name,'success');
-    closeOv('mRecharge');
-    loadStats();
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;btn.textContent='💰 Créditer';}
-}
-
-async function notif(uid,title,msg,icon,type){
-  try{
-    await sb.from('notifications').insert({user_id:uid,title,message:msg,icon,type,read:false,created_at:new Date().toISOString()});
-  }catch(e){console.warn('notif error',e);}
-}
-
-// ── UTILS ──
-function fmt(d){
-  if(!d) return '—';
-  return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-}
-function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
-function emptyRow(cols,ico,txt){return `<tr><td colspan="${cols}"><div class="empty"><span class="empty-ico">${ico}</span>${txt}</div></td></tr>`;}
-
-function openOv(id){document.getElementById(id).classList.add('open');}
-function closeOv(id){document.getElementById(id).classList.remove('open');}
-
-function goPage(name,btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  if(btn) btn.classList.add('active');
-  const titles={stats:'📊 Tableau de bord',payments:'💳 Paiements Premium',withdrawals:'💸 Retraits',users:'👥 Utilisateurs',ads:'📢 Annonces'};
-  document.getElementById('pageTitle').textContent=titles[name]||name;
-}
-
-async function doLogout(){await sb.auth.signOut();location.href='index.html';}
-
-let tt;
-
-// ── REALTIME ADMIN — rafraîchissement auto ──
-function setupAdminRealtime(){
-  // Écouter les nouveaux paiements et retraits en temps réel
-  sb.channel('admin-live')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'payment_requests'},(p)=>{
-      toast('💳 Nouveau paiement reçu !','info');
-      loadPay();loadStats();
-    })
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'withdrawal_requests'},(p)=>{
-      toast('💸 Nouvelle demande de retrait !','info');
-      loadWr();loadStats();
-    })
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},(p)=>{
-      // Refresh discret de la liste users si un profil change
-      const idx=allUsers.findIndex(u=>u.id===p.new.id);
-      if(idx>-1){allUsers[idx]={...allUsers[idx],...p.new};renderUsers();}
-    })
-    .subscribe(s=>console.log('[Admin Realtime]',s));
-}
-
-function toast(msg,type='success'){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.className='show';
-  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
-  clearTimeout(tt);tt=setTimeout(()=>el.className='',4000);
-}
-</script>
-
-<!-- MODAL RECHARGE SOLDE -->
+<!-- ══ MODAL RECHARGER SOLDE ══ -->
 <div class="ov" id="mRecharge" onclick="if(event.target===this)closeOv('mRecharge')">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
     <div class="modal-title">💰 Recharger le solde</div>
-    <div class="modal-desc" id="mRechargeInfo">—</div>
-    <div style="display:flex;flex-direction:column;gap:.7rem;margin-bottom:1rem;">
-      <label style="font-size:.78rem;font-weight:700;color:var(--dark);">Montant à ajouter (FCFA)</label>
-      <input type="number" id="mRechargeAmount" placeholder="Ex: 500" min="0" step="100" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"/>
-      <label style="font-size:.78rem;font-weight:700;color:var(--dark);">Motif (optionnel)</label>
-      <input type="text" id="mRechargeNote" placeholder="Ex: Bonus parrainage, correction erreur…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"/>
+    <div class="modal-info" id="mRechargeInfo">—</div>
+    <div class="recharge-field">
+      <label class="recharge-label">Montant à ajouter (FCFA)</label>
+      <input type="number" id="mRechargeAmount" class="recharge-input" placeholder="Ex: 500" min="0" step="100"/>
     </div>
-    <div class="modal-btns">
+    <div class="recharge-field">
+      <label class="recharge-label">Motif (optionnel)</label>
+      <input type="text" id="mRechargeNote" class="recharge-input" placeholder="Ex: Bonus parrainage, correction erreur…"/>
+    </div>
+    <div class="mbtns">
       <button class="mbtn mbtn-cancel" onclick="closeOv('mRecharge')">Annuler</button>
       <button class="mbtn mbtn-ok" id="mRechargeBtn" style="background:linear-gradient(135deg,var(--green),#00A878);" onclick="doRecharge()">💰 Créditer</button>
     </div>
   </div>
 </div>
 
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+const ADMIN_EMAILS = ['abdoula13cherif@gmail.com'];
+
+let allPay = [], allWr = [], allUsers = [], allAds = [];
+let fPay = 'all', fWr = 'all', fUsers = 'all';
+
+// Stockage interne des données indexées par id pour éviter les fermetures sur inline handlers
+const _payMap = {};
+const _wrMap = {};
+const _userMap = {};
+const _adMap = {};
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  const em = session.user.email;
+  if (!ADMIN_EMAILS.includes(em)) {
+    alert('Accès refusé. Vous n\'êtes pas administrateur.');
+    await sb.auth.signOut();
+    location.href = 'index.html';
+    return;
+  }
+  document.getElementById('adminEmail').textContent = em;
+  await loadAll();
+  setupAdminRealtime();
+})();
+
+// ════════════════════════════════════════════
+// LOAD ALL
+// ════════════════════════════════════════════
+async function loadAll() {
+  toast('Chargement…', 'info');
+  await Promise.all([loadStats(), loadPay(), loadWr(), loadUsers(), loadAds()]);
+  toast('Données actualisées ✅', 'success');
+}
+
+// ════════════════════════════════════════════
+// STATS
+// ════════════════════════════════════════════
+async function loadStats() {
+  const { data: us } = await sb.from('profiles').select('id,is_premium,created_at');
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('s-users').textContent = (us || []).length;
+  document.getElementById('s-prem').textContent = (us || []).filter(u => u.is_premium).length;
+  document.getElementById('s-today').textContent = (us || []).filter(u => u.created_at?.startsWith(today)).length;
+
+  const { count: pp } = await sb.from('payment_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  const { count: wp } = await sb.from('withdrawal_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  const ppN = pp || 0, wpN = wp || 0;
+  document.getElementById('s-ppend').textContent = ppN;
+  document.getElementById('s-wpend').textContent = wpN;
+
+  const nbPay = document.getElementById('nb-pay');
+  const nbWr = document.getElementById('nb-wr');
+  if (ppN > 0) { nbPay.textContent = ppN; nbPay.style.display = 'block'; }
+  else { nbPay.style.display = 'none'; }
+  if (wpN > 0) { nbWr.textContent = wpN; nbWr.style.display = 'block'; }
+  else { nbWr.style.display = 'none'; }
+
+  const { data: rev } = await sb.from('payment_requests').select('amount').eq('status', 'approved');
+  document.getElementById('s-rev').textContent = ((rev || []).reduce((s, p) => s + (p.amount || 0), 0)).toLocaleString('fr-FR') + ' F';
+
+  const { count: ads } = await sb.from('annonces').select('*', { count: 'exact', head: true });
+  document.getElementById('s-ads').textContent = ads || 0;
+  const { count: refs } = await sb.from('referral_earnings').select('*', { count: 'exact', head: true });
+  document.getElementById('s-refs').textContent = refs || 0;
+
+  // Actions urgentes
+  const ul = document.getElementById('urgentList');
+  ul.innerHTML = '';
+  if (ppN > 0 || wpN > 0) {
+    document.getElementById('urgentSec').style.display = 'block';
+    if (ppN > 0) ul.innerHTML += urgentItem('⏳', 'orange', `<strong>${ppN}</strong> paiement(s) en attente`, 'payments');
+    if (wpN > 0) ul.innerHTML += urgentItem('💸', 'gold', `<strong>${wpN}</strong> retrait(s) à valider`, 'withdrawals');
+  } else {
+    document.getElementById('urgentSec').style.display = 'none';
+  }
+}
+
+function urgentItem(ico, color, txt, page) {
+  const c = { orange: 'rgba(255,107,26,.05)', gold: 'rgba(245,183,49,.05)' };
+  const b = { orange: 'rgba(255,107,26,.15)', gold: 'rgba(245,183,49,.15)' };
+  return `<div style="display:flex;align-items:center;justify-content:space-between;background:${c[color]};border:1px solid ${b[color]};border-radius:12px;padding:.75rem 1rem;">
+    <span style="font-size:.81rem;font-weight:600">${ico} ${txt}</span>
+    <button class="ab ab-blue" onclick="goPageByName('${page}')">Voir →</button>
+  </div>`;
+}
+
+// ════════════════════════════════════════════
+// PAIEMENTS
+// ════════════════════════════════════════════
+async function loadPay() {
+  const { data } = await sb.from('payment_requests')
+    .select('*,profiles(full_name,email,whatsapp)')
+    .order('created_at', { ascending: false }).limit(200);
+  allPay = data || [];
+  // Indexer par id
+  allPay.forEach(p => _payMap[p.id] = p);
+  renderPay();
+}
+
+function renderPay() {
+  const list = fPay === 'all' ? allPay : allPay.filter(p => p.status === fPay);
+  document.getElementById('pay-count').textContent = list.length + ' entrées';
+  if (!list.length) {
+    document.getElementById('payTbl').innerHTML = emptyRow(9, '💳', 'Aucun paiement');
+    return;
+  }
+  document.getElementById('payTbl').innerHTML = list.map(p => {
+    const d = fmt(p.created_at);
+    const badge = `<span class="b b-${p.status}">${p.status === 'pending' ? '⏳ En attente' : p.status === 'approved' ? '✅ Approuvé' : '❌ Rejeté'}</span>`;
+    const acts = p.status === 'pending'
+      ? `<div class="arow">
+          <button class="ab ab-approve" onclick="openApprovePay('${p.id}')">✅ Approuver</button>
+          <button class="ab ab-reject" onclick="openRejectPay('${p.id}')">❌ Rejeter</button>
+        </div>`
+      : `<span style="font-size:.68rem;color:var(--gray)">—</span>`;
+    return `<tr>
+      <td><div class="uname"><div class="uav">${firstLetter(p.profiles?.full_name)}</div><div><strong>${p.profiles?.full_name || '—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${p.profiles?.email || ''}</span></div></div></td>
+      <td><span class="b b-premium">${p.plan || '?'} · ${p.billing || '?'}</span></td>
+      <td><strong>${(p.amount || 0).toLocaleString('fr-FR')} F</strong></td>
+      <td>${p.operator === 'orange' ? '🟠 Orange' : '💛 MTN'}</td>
+      <td style="font-size:.7rem;font-family:monospace;max-width:110px;overflow:hidden;text-overflow:ellipsis">${p.transaction_ref || '—'}</td>
+      <td>${p.sender_phone || '—'}</td>
+      <td style="font-size:.7rem">${d}</td>
+      <td>${badge}</td>
+      <td>${acts}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterPay(f, btn) {
+  fPay = f;
+  document.querySelectorAll('#page-payments .fb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPay();
+}
+
+// ════════════════════════════════════════════
+// RETRAITS
+// ════════════════════════════════════════════
+async function loadWr() {
+  const { data } = await sb.from('withdrawal_requests')
+    .select('*,profiles(full_name,email)')
+    .order('created_at', { ascending: false }).limit(200);
+  allWr = data || [];
+  allWr.forEach(w => _wrMap[w.id] = w);
+  renderWr();
+}
+
+function renderWr() {
+  const list = fWr === 'all' ? allWr : allWr.filter(w => w.status === fWr);
+  document.getElementById('wr-count').textContent = list.length + ' entrées';
+  if (!list.length) {
+    document.getElementById('wrTbl').innerHTML = emptyRow(8, '💸', 'Aucun retrait');
+    return;
+  }
+  document.getElementById('wrTbl').innerHTML = list.map(w => {
+    const d = fmt(w.created_at);
+    const badge = `<span class="b b-${w.status === 'paid' ? 'approved' : w.status}">${w.status === 'pending' ? '⏳ En attente' : w.status === 'paid' ? '✅ Payé' : '❌ Rejeté'}</span>`;
+    const acts = w.status === 'pending'
+      ? `<div class="arow">
+          <button class="ab ab-approve" onclick="openPayWr('${w.id}')">✅ Valider paiement</button>
+          <button class="ab ab-reject" onclick="openRejectWr('${w.id}')">❌ Rejeter</button>
+        </div>`
+      : `<span style="font-size:.68rem;color:var(--gray)">${w.status === 'paid' ? 'Payé ✅' : 'Rejeté ❌'}${w.admin_note ? '<br><em style="font-size:.62rem">' + htmlEsc(w.admin_note) + '</em>' : ''}</span>`;
+    return `<tr>
+      <td><div class="uname"><div class="uav">${firstLetter(w.profiles?.full_name)}</div><div><strong>${w.profiles?.full_name || '—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${w.profiles?.email || ''}</span></div></div></td>
+      <td><strong style="color:var(--green)">${(w.amount || 0).toLocaleString('fr-FR')} F</strong></td>
+      <td>${w.operator === 'orange' ? '🟠 Orange' : '💛 MTN'}</td>
+      <td><strong>${w.phone || '—'}</strong></td>
+      <td>${w.name || '—'}</td>
+      <td style="font-size:.7rem">${d}</td>
+      <td>${badge}</td>
+      <td>${acts}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterWr(f, btn) {
+  fWr = f;
+  document.querySelectorAll('#page-withdrawals .fb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWr();
+}
+
+// ════════════════════════════════════════════
+// UTILISATEURS
+// ════════════════════════════════════════════
+async function loadUsers() {
+  const { data } = await sb.from('profiles')
+    .select('id,full_name,email,whatsapp,ville,is_premium,plan,plan_expires,created_at')
+    .order('created_at', { ascending: false }).limit(300);
+  allUsers = data || [];
+  allUsers.forEach(u => _userMap[u.id] = u);
+  document.getElementById('users-count').textContent = allUsers.length + ' utilisateurs';
+  renderUsers();
+}
+
+function renderUsers() {
+  const list = fUsers === 'all' ? allUsers
+    : fUsers === 'premium' ? allUsers.filter(u => u.is_premium)
+    : allUsers.filter(u => !u.is_premium);
+  document.getElementById('users-count').textContent = list.length + ' utilisateurs';
+  if (!list.length) {
+    document.getElementById('usersTbl').innerHTML = emptyRow(8, '👥', 'Aucun utilisateur');
+    return;
+  }
+  document.getElementById('usersTbl').innerHTML = list.map(u => {
+    const exp = u.plan_expires ? new Date(u.plan_expires).toLocaleDateString('fr-FR') : '—';
+    const planBadge = u.is_premium
+      ? `<span class="b b-premium">👑 ${u.plan || 'premium'}</span>`
+      : `<span class="b b-free">🆓 Gratuit</span>`;
+    const checked = u.is_premium ? 'checked' : '';
+    return `<tr>
+      <td><div class="uname"><div class="uav">${firstLetter(u.full_name)}</div><div><strong>${u.full_name || '—'}</strong></div></div></td>
+      <td style="font-size:.73rem">${u.email || '—'}</td>
+      <td>${u.whatsapp || '—'}</td>
+      <td>${u.ville || '—'}</td>
+      <td>${planBadge}</td>
+      <td style="font-size:.7rem">${exp}</td>
+      <td>
+        <div class="toggle-wrap">
+          <label class="tgl" title="${u.is_premium ? 'Désactiver Premium' : 'Activer Premium'}">
+            <input type="checkbox" ${checked} onchange="togglePremium('${u.id}',this.checked)"/>
+            <span class="tgl-slider"></span>
+          </label>
+          <span class="tgl-lbl" style="color:${u.is_premium ? 'var(--green)' : 'var(--gray)'}">${u.is_premium ? 'Actif' : 'Inactif'}</span>
+        </div>
+      </td>
+      <td>
+        <div class="arow">
+          <button class="ab ab-gold" onclick="openPremiumModal('${u.id}')">👑 Gérer</button>
+          <button class="ab ab-approve" onclick="openRechargeModal('${u.id}')">💰 Recharger</button>
+          <button class="ab ab-reject" onclick="openDelUser('${u.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterUsers(f, btn) {
+  fUsers = f;
+  document.querySelectorAll('#page-users .fb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderUsers();
+}
+
+// ════════════════════════════════════════════
+// ANNONCES
+// ════════════════════════════════════════════
+async function loadAds() {
+  const { data } = await sb.from('annonces')
+    .select('id,titre,categorie,prix,ville,created_at,actif,profiles(full_name)')
+    .order('created_at', { ascending: false }).limit(200);
+  allAds = data || [];
+  allAds.forEach(a => _adMap[a.id] = a);
+  document.getElementById('ads-count').textContent = allAds.length + ' annonces';
+  renderAds();
+}
+
+function renderAds() {
+  if (!allAds.length) {
+    document.getElementById('adsTbl').innerHTML = emptyRow(7, '📢', 'Aucune annonce');
+    return;
+  }
+  document.getElementById('adsTbl').innerHTML = allAds.map(a => {
+    const d = fmt(a.created_at);
+    return `<tr>
+      <td><strong>${htmlEsc(a.titre) || '—'}</strong></td>
+      <td>${a.profiles?.full_name || '—'}</td>
+      <td><span class="b b-free">${htmlEsc(a.categorie) || '—'}</span></td>
+      <td>${a.prix ? a.prix.toLocaleString('fr-FR') + ' F' : '—'}</td>
+      <td>${htmlEsc(a.ville) || '—'}</td>
+      <td style="font-size:.7rem">${d}</td>
+      <td><button class="ab ab-reject" onclick="delAd('${a.id}')">🗑️ Supprimer</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// ACTIONS PAIEMENTS
+// ════════════════════════════════════════════
+function openApprovePay(id) {
+  const p = _payMap[id];
+  if (!p) { toast('Données introuvables', 'error'); return; }
+  document.getElementById('mApproveInfo').innerHTML =
+    `Utilisateur : <strong>${htmlEsc(p.profiles?.full_name || '—')}</strong><br>` +
+    `Plan : <strong>${p.plan || '?'}</strong><br>` +
+    `Montant : <strong>${(p.amount || 0).toLocaleString('fr-FR')} FCFA</strong><br><br>` +
+    `✅ Le compte sera activé en Premium immédiatement.`;
+  document.getElementById('mApproveBtn').onclick = () => doApprovePay(id);
+  openOv('mApprove');
+}
+
+async function doApprovePay(id) {
+  const btn = document.getElementById('mApproveBtn');
+  btn.disabled = true; btn.textContent = '⏳…';
+  try {
+    const { data: pay, error } = await sb.from('payment_requests').select('*').eq('id', id).single();
+    if (error || !pay) throw new Error('Paiement introuvable');
+    const exp = new Date();
+    if (pay.billing === 'annual' || pay.billing === '1an') exp.setFullYear(exp.getFullYear() + 1);
+    else exp.setMonth(exp.getMonth() + 1);
+    const { error: e1 } = await sb.from('profiles').update({ is_premium: true, plan: pay.plan, plan_expires: exp.toISOString() }).eq('id', pay.user_id);
+    if (e1) throw e1;
+    const { error: e2 } = await sb.from('payment_requests').update({ status: 'approved', approved_at: new Date().toISOString() }).eq('id', id);
+    if (e2) throw e2;
+    await notif(pay.user_id, '👑 Compte Premium activé !', 'Votre paiement a été validé. Profitez de toutes les fonctionnalités Premium !', '👑', 'success');
+    toast('✅ Premium activé !', 'success');
+    closeOv('mApprove');
+    await Promise.all([loadStats(), loadPay()]);
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Approuver & Activer Premium';
+  }
+}
+
+function openRejectPay(id) {
+  const p = _payMap[id];
+  if (!p) { toast('Données introuvables', 'error'); return; }
+  document.getElementById('mRejectPayInfo').innerHTML = `Rejeter le paiement de <strong>${htmlEsc(p.profiles?.full_name || '—')}</strong> ?`;
+  document.getElementById('mRejectPayReason').value = '';
+  document.getElementById('mRejectPayBtn').onclick = () => doRejectPay(id);
+  openOv('mRejectPay');
+}
+
+async function doRejectPay(id) {
+  const reason = document.getElementById('mRejectPayReason').value.trim() || 'Paiement non confirmé';
+  const btn = document.getElementById('mRejectPayBtn');
+  btn.disabled = true;
+  try {
+    const { data: pay } = await sb.from('payment_requests').select('user_id').eq('id', id).single();
+    const { error } = await sb.from('payment_requests').update({
+      status: 'rejected',
+      rejected_at: new Date().toISOString(),
+      rejection_reason: reason
+    }).eq('id', id);
+    if (error) throw error;
+    if (pay) await notif(pay.user_id, '❌ Paiement refusé', 'Votre paiement n\'a pas pu être vérifié. Raison : ' + reason, '❌', 'error');
+    toast('Paiement rejeté', 'info');
+    closeOv('mRejectPay');
+    await Promise.all([loadStats(), loadPay()]);
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════════
+// ACTIONS RETRAITS
+// ════════════════════════════════════════════
+function openPayWr(id) {
+  const w = _wrMap[id];
+  if (!w) { toast('Données introuvables', 'error'); return; }
+  document.getElementById('mPayWrInfo').innerHTML =
+    `Bénéficiaire : <strong>${htmlEsc(w.profiles?.full_name || w.name || '—')}</strong><br>` +
+    `Montant : <strong style="color:var(--green)">${(w.amount || 0).toLocaleString('fr-FR')} FCFA</strong><br>` +
+    `Opérateur : <strong>${w.operator === 'orange' ? '🟠 Orange Money' : '💛 MTN MoMo'}</strong><br>` +
+    `Numéro : <strong>${w.phone || '—'}</strong>`;
+  document.getElementById('mPayWrNote').value = '';
+  document.getElementById('mPayWrBtn').onclick = () => doPayWr(id);
+  openOv('mPayWr');
+}
+
+async function doPayWr(id) {
+  const note = document.getElementById('mPayWrNote').value.trim();
+  const btn = document.getElementById('mPayWrBtn');
+  btn.disabled = true;
+  try {
+    const { data: wr, error: e0 } = await sb.from('withdrawal_requests').select('user_id,amount,operator,phone').eq('id', id).single();
+    if (e0 || !wr) throw new Error('Demande introuvable');
+    const { error: e1 } = await sb.from('withdrawal_requests').update({
+      status: 'paid',
+      paid_at: new Date().toISOString(),
+      admin_note: note || null
+    }).eq('id', id);
+    if (e1) throw e1;
+    // Marquer les earnings comme retirés
+    const { data: earns } = await sb.from('referral_earnings')
+      .select('id')
+      .eq('user_id', wr.user_id)
+      .eq('status', 'available')
+      .order('created_at', { ascending: true })
+      .limit(Math.ceil((wr.amount || 0) / 500));
+    if (earns?.length) {
+      await sb.from('referral_earnings').update({ status: 'withdrawn' }).in('id', earns.map(e => e.id));
+    }
+    await notif(wr.user_id, '✅ Retrait effectué !', `${wr.amount} FCFA ont été envoyés sur votre ${wr.operator} (${wr.phone}). Merci !`, '✅', 'success');
+    toast('✅ Retrait validé et payé !', 'success');
+    closeOv('mPayWr');
+    await Promise.all([loadStats(), loadWr()]);
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function openRejectWr(id) {
+  const w = _wrMap[id];
+  if (!w) { toast('Données introuvables', 'error'); return; }
+  document.getElementById('mRejectWrInfo').innerHTML =
+    `Rejeter la demande de retrait de <strong>${htmlEsc(w.profiles?.full_name || '—')}</strong> — <strong>${(w.amount || 0).toLocaleString('fr-FR')} FCFA</strong> ?`;
+  document.getElementById('mRejectWrReason').value = '';
+  document.getElementById('mRejectWrBtn').onclick = () => doRejectWr(id);
+  openOv('mRejectWr');
+}
+
+async function doRejectWr(id) {
+  const reason = document.getElementById('mRejectWrReason').value.trim() || 'Demande non validée';
+  const btn = document.getElementById('mRejectWrBtn');
+  btn.disabled = true;
+  try {
+    const { data: wr } = await sb.from('withdrawal_requests').select('user_id,amount').eq('id', id).single();
+    const { error } = await sb.from('withdrawal_requests').update({ status: 'rejected', admin_note: reason }).eq('id', id);
+    if (error) throw error;
+    if (wr) await notif(wr.user_id, '❌ Retrait refusé', `Votre demande de ${wr.amount} FCFA a été refusée. Raison : ${reason}`, '❌', 'error');
+    toast('Demande rejetée', 'info');
+    closeOv('mRejectWr');
+    await Promise.all([loadStats(), loadWr()]);
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════════
+// TOGGLE PREMIUM (switch direct)
+// ════════════════════════════════════════════
+async function togglePremium(uid, activate) {
+  const u = _userMap[uid];
+  const name = u?.full_name || uid;
+  try {
+    if (activate) {
+      const exp = new Date(); exp.setMonth(exp.getMonth() + 1);
+      const { error } = await sb.from('profiles').update({ is_premium: true, plan: 'premium', plan_expires: exp.toISOString() }).eq('id', uid);
+      if (error) throw error;
+      await notif(uid, '👑 Compte Premium activé !', 'L\'administration a activé votre compte Premium. Profitez-en !', '👑', 'success');
+      toast('✅ Premium activé pour ' + name, 'success');
+    } else {
+      const { error } = await sb.from('profiles').update({ is_premium: false, plan: null, plan_expires: null }).eq('id', uid);
+      if (error) throw error;
+      await notif(uid, '🔒 Premium désactivé', 'Votre compte Premium a été désactivé par l\'administration.', '🔒', 'info');
+      toast('Premium désactivé pour ' + name, 'info');
+    }
+    const idx = allUsers.findIndex(u => u.id === uid);
+    if (idx > -1) {
+      allUsers[idx].is_premium = activate;
+      allUsers[idx].plan = activate ? 'premium' : null;
+      allUsers[idx].plan_expires = activate ? new Date(Date.now() + 30 * 86400000).toISOString() : null;
+      _userMap[uid] = allUsers[idx];
+    }
+    renderUsers();
+    loadStats();
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+    // Annuler le toggle visuellement
+    renderUsers();
+  }
+}
+
+// ════════════════════════════════════════════
+// MODAL PREMIUM MANUEL
+// ════════════════════════════════════════════
+function openPremiumModal(uid) {
+  const u = _userMap[uid];
+  if (!u) { toast('Utilisateur introuvable', 'error'); return; }
+  const isPremium = u.is_premium;
+  document.getElementById('mPremiumTitle').textContent = isPremium ? '🔒 Gérer le Premium de ' + u.full_name : '👑 Activer Premium pour ' + u.full_name;
+  document.getElementById('mPremiumInfo').innerHTML = isPremium
+    ? `<strong>${htmlEsc(u.full_name)}</strong> est actuellement <strong style="color:var(--green)">Premium actif</strong>.<br>Tu peux modifier le plan ou désactiver le compte.`
+    : `<strong>${htmlEsc(u.full_name)}</strong> est sur le plan <strong>Gratuit</strong>.<br>Sélectionne le plan à activer.`;
+  document.getElementById('mPremiumPlanWrap').style.display = isPremium ? 'none' : 'block';
+  document.getElementById('mPremiumBtn').textContent = isPremium ? '🔒 Désactiver Premium' : '👑 Activer Premium';
+  document.getElementById('mPremiumBtn').onclick = () => doManualPremium(uid, isPremium);
+  openOv('mPremium');
+}
+
+async function doManualPremium(uid, wasPremium) {
+  const btn = document.getElementById('mPremiumBtn');
+  btn.disabled = true;
+  try {
+    if (wasPremium) {
+      await togglePremium(uid, false);
+    } else {
+      const plan = document.getElementById('mPremiumPlan').value;
+      const exp = new Date();
+      if (plan.includes('annual')) exp.setFullYear(exp.getFullYear() + 1);
+      else exp.setMonth(exp.getMonth() + 1);
+      const cleanPlan = plan.replace('_annual', '');
+      const { error } = await sb.from('profiles').update({ is_premium: true, plan: cleanPlan, plan_expires: exp.toISOString() }).eq('id', uid);
+      if (error) throw error;
+      await notif(uid, '👑 Compte Premium activé !', `L'administration a activé votre compte Premium (${plan}). Profitez-en !`, '👑', 'success');
+      const idx = allUsers.findIndex(u => u.id === uid);
+      if (idx > -1) {
+        allUsers[idx].is_premium = true;
+        allUsers[idx].plan = cleanPlan;
+        allUsers[idx].plan_expires = exp.toISOString();
+        _userMap[uid] = allUsers[idx];
+      }
+      toast('✅ Premium activé', 'success');
+      renderUsers();
+      loadStats();
+    }
+    closeOv('mPremium');
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════════
+// SUPPRIMER USER
+// ════════════════════════════════════════════
+function openDelUser(uid) {
+  const u = _userMap[uid];
+  if (!u) { toast('Utilisateur introuvable', 'error'); return; }
+  document.getElementById('mDelUserInfo').innerHTML =
+    `Supprimer définitivement le compte de <strong>${htmlEsc(u.full_name || '—')}</strong> ?<br>` +
+    `<span style="color:var(--red);font-size:.78rem">⚠️ Toutes ses annonces et données seront supprimées.</span>`;
+  document.getElementById('mDelUserBtn').onclick = () => doDelUser(uid);
+  openOv('mDelUser');
+}
+
+async function doDelUser(uid) {
+  const btn = document.getElementById('mDelUserBtn');
+  btn.disabled = true;
+  try {
+    // Supprimer les données associées
+    await sb.from('annonces').delete().eq('user_id', uid);
+    await sb.from('referral_earnings').delete().eq('user_id', uid);
+    await sb.from('withdrawal_requests').delete().eq('user_id', uid);
+    await sb.from('notifications').delete().eq('user_id', uid);
+    const { error } = await sb.from('profiles').delete().eq('id', uid);
+    if (error) throw error;
+    allUsers = allUsers.filter(u => u.id !== uid);
+    delete _userMap[uid];
+    renderUsers();
+    loadStats();
+    toast('Utilisateur supprimé', 'info');
+    closeOv('mDelUser');
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════════
+// SUPPRIMER ANNONCE
+// ════════════════════════════════════════════
+async function delAd(id) {
+  if (!confirm('Supprimer cette annonce ?')) return;
+  try {
+    const { error } = await sb.from('annonces').delete().eq('id', id);
+    if (error) throw error;
+    allAds = allAds.filter(a => a.id !== id);
+    delete _adMap[id];
+    document.getElementById('ads-count').textContent = allAds.length + ' annonces';
+    renderAds();
+    toast('Annonce supprimée', 'info');
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  }
+}
+
+// ════════════════════════════════════════════
+// RECHARGER LE SOLDE
+// ════════════════════════════════════════════
+function openRechargeModal(uid) {
+  const u = _userMap[uid];
+  if (!u) { toast('Utilisateur introuvable', 'error'); return; }
+  document.getElementById('mRechargeInfo').innerHTML = `Ajouter du solde au compte de <strong>${htmlEsc(u.full_name || '—')}</strong>.`;
+  document.getElementById('mRechargeAmount').value = '';
+  document.getElementById('mRechargeNote').value = '';
+  // Stocker l'uid dans le bouton via dataset
+  document.getElementById('mRechargeBtn').dataset.uid = uid;
+  openOv('mRecharge');
+}
+
+async function doRecharge() {
+  const btn = document.getElementById('mRechargeBtn');
+  const uid = btn.dataset.uid;
+  const u = _userMap[uid] || {};
+  const name = u.full_name || uid;
+  const amount = parseInt(document.getElementById('mRechargeAmount').value) || 0;
+  const note = document.getElementById('mRechargeNote').value.trim();
+  if (amount <= 0) { toast('Montant invalide', 'warning'); return; }
+  btn.disabled = true; btn.textContent = '⏳…';
+  try {
+    const { error } = await sb.from('referral_earnings').insert({
+      user_id: uid,
+      amount: amount,
+      status: 'available',
+      type: 'admin_credit',
+      note: note || 'Crédit administrateur',
+      created_at: new Date().toISOString()
+    });
+    if (error) throw error;
+    await notif(uid, '💰 Solde rechargé !',
+      `Un montant de ${amount.toLocaleString('fr-FR')} FCFA a été ajouté à votre solde.${note ? ' (' + note + ')' : ''}`,
+      '💰', 'success');
+    toast('✅ ' + amount.toLocaleString('fr-FR') + ' FCFA crédités à ' + name, 'success');
+    closeOv('mRecharge');
+    loadStats();
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💰 Créditer';
+  }
+}
+
+// ════════════════════════════════════════════
+// NOTIFICATION
+// ════════════════════════════════════════════
+async function notif(uid, title, msg, icon, type) {
+  try {
+    await sb.from('notifications').insert({
+      user_id: uid,
+      title,
+      message: msg,
+      icon,
+      type,
+      read: false,
+      created_at: new Date().toISOString()
+    });
+  } catch (e) {
+    console.warn('notif error', e);
+  }
+}
+
+// ════════════════════════════════════════════
+// REALTIME
+// ════════════════════════════════════════════
+function setupAdminRealtime() {
+  sb.channel('admin-live')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'payment_requests' }, () => {
+      toast('💳 Nouveau paiement reçu !', 'info');
+      loadPay(); loadStats();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'withdrawal_requests' }, () => {
+      toast('💸 Nouvelle demande de retrait !', 'info');
+      loadWr(); loadStats();
+    })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (p) => {
+      if (!p.new) return;
+      const idx = allUsers.findIndex(u => u.id === p.new.id);
+      if (idx > -1) {
+        allUsers[idx] = { ...allUsers[idx], ...p.new };
+        _userMap[p.new.id] = allUsers[idx];
+        renderUsers();
+      }
+    })
+    .subscribe(s => console.log('[Admin Realtime]', s));
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = {
+    stats: '📊 Tableau de bord',
+    payments: '💳 Paiements Premium',
+    withdrawals: '💸 Retraits',
+    users: '👥 Utilisateurs',
+    ads: '📢 Annonces'
+  };
+  document.getElementById('pageTitle').textContent = titles[name] || name;
+}
+
+function goPageByName(name) {
+  const btn = document.querySelector(`.sb-item[data-page="${name}"]`);
+  goPage(name, btn);
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ════════════════════════════════════════════
+// MODAL HELPERS
+// ════════════════════════════════════════════
+function openOv(id) { document.getElementById(id).classList.add('open'); }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+
+// ════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════
+function fmt(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function htmlEsc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function firstLetter(name) {
+  return (name || '?')[0].toUpperCase();
+}
+
+function emptyRow(cols, ico, txt) {
+  return `<tr><td colspan="${cols}"><div class="empty"><span class="empty-ico">${ico}</span>${txt}</div></td></tr>`;
+}
+
+let tt;
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show';
+  const colors = { success: 'var(--turq)', error: 'var(--red)', warning: 'var(--orange)', info: 'var(--blue2)' };
+  el.style.borderLeftColor = colors[type] || 'var(--turq)';
+  clearTimeout(tt);
+  tt = setTimeout(() => el.className = '', 4000);
+}
+</script>
 </body>
 </html>
