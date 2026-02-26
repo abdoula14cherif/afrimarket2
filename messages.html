@@ -4,17 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"/>
   <title>AfriMarket — Messages</title>
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json"/>
-  <meta name="theme-color" content="#080E2A"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
-  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
-  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
@@ -27,9 +16,11 @@
     html,body{height:100%;overflow:hidden;}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);display:flex;flex-direction:column;}
 
+    /* ── VUES ── */
     #viewList{display:flex;flex-direction:column;height:100%;overflow:hidden;}
     #viewChat{display:none;flex-direction:column;height:100%;overflow:hidden;}
 
+    /* ══ VUE LISTE ══ */
     .header{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);height:60px;padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 4px 20px rgba(8,14,42,.3);}
     .h-logo{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-1px;}
     .h-logo .la{color:var(--turq);}.h-logo .lm{color:var(--orange);}
@@ -40,6 +31,7 @@
 
     .list-scroll{flex:1;overflow-y:auto;padding:.8rem 0;padding-bottom:calc(var(--nav-h)+8px);}
 
+    /* CONVERSATION ITEM */
     .conv-item{display:flex;align-items:center;gap:.85rem;padding:.85rem 1.2rem;cursor:pointer;transition:background .2s;position:relative;}
     .conv-item:hover{background:rgba(27,63,228,.03);}
     .conv-item.unread{background:rgba(45,85,255,.04);}
@@ -56,11 +48,13 @@
     .ci-ad{font-size:.62rem;color:var(--blue2);font-weight:600;margin-bottom:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .ci-badge{position:absolute;right:1.2rem;top:50%;transform:translateY(-50%);background:var(--blue2);color:white;font-size:.58rem;font-weight:800;padding:.15rem .45rem;border-radius:99px;min-width:18px;text-align:center;}
 
+    /* EMPTY LIST */
     .empty-convs{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;color:var(--gray);}
     .empty-ico{font-size:3.5rem;margin-bottom:.8rem;}
     .empty-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:.4rem;}
     .empty-sub{font-size:.78rem;line-height:1.6;}
 
+    /* ══ VUE CHAT ══ */
     .chat-header{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);height:64px;padding:0 1rem;display:flex;align-items:center;gap:.8rem;flex-shrink:0;box-shadow:0 4px 20px rgba(8,14,42,.3);}
     .ch-back{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.2rem;cursor:pointer;padding:.3rem;border-radius:8px;}
     .ch-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:white;flex-shrink:0;}
@@ -69,6 +63,7 @@
     .ch-sub{font-size:.65rem;color:rgba(255,255,255,.4);}
     .ch-wa{background:rgba(0,194,113,.15);border:1px solid rgba(0,194,113,.3);border-radius:99px;padding:.3rem .7rem;font-size:.72rem;font-weight:700;color:#4DFFB4;cursor:pointer;}
 
+    /* ANNONCE CONTEXT */
     .ad-context{background:rgba(27,63,228,.06);border-bottom:1px solid var(--border);padding:.6rem 1.1rem;display:flex;align-items:center;gap:.7rem;flex-shrink:0;}
     .adc-img{width:36px;height:36px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;flex-shrink:0;}
     .adc-img img{width:100%;height:100%;object-fit:cover;}
@@ -76,8 +71,10 @@
     .adc-title{font-size:.75rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .adc-price{font-size:.65rem;color:var(--blue2);font-weight:700;}
 
+    /* MESSAGES ZONE */
     .msgs-zone{flex:1;overflow-y:auto;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.5rem;scroll-behavior:smooth;}
 
+    /* MESSAGE BUBBLE */
     .msg-wrap{display:flex;gap:.5rem;max-width:85%;animation:msgIn .25s ease;}
     @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     .msg-wrap.me{align-self:flex-end;flex-direction:row-reverse;}
@@ -89,15 +86,18 @@
     .msg-time{font-size:.58rem;opacity:.55;margin-top:.25rem;display:block;text-align:right;}
     .msg-wrap.them .msg-time{text-align:left;}
 
+    /* DATE SEPARATOR */
     .date-sep{text-align:center;margin:.5rem 0;}
     .date-sep span{font-size:.63rem;font-weight:700;color:var(--gray);background:var(--bg);padding:.2rem .7rem;border-radius:99px;border:1px solid var(--border);}
 
+    /* TYPING */
     .typing-indicator{display:flex;gap:.35rem;padding:.55rem .8rem;width:60px;}
     .typing-dot{width:7px;height:7px;border-radius:50%;background:var(--gray);animation:typing 1.2s infinite;}
     .typing-dot:nth-child(2){animation-delay:.2s;}
     .typing-dot:nth-child(3){animation-delay:.4s;}
     @keyframes typing{0%,80%,100%{transform:scale(.8);opacity:.4}40%{transform:scale(1);opacity:1}}
 
+    /* INPUT ZONE */
     .input-zone{background:white;border-top:1px solid var(--border);padding:.75rem 1rem;display:flex;align-items:flex-end;gap:.65rem;flex-shrink:0;padding-bottom:max(.75rem, env(safe-area-inset-bottom));}
     .msg-input{flex:1;border:1.5px solid var(--border);border-radius:22px;padding:.65rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;color:var(--dark);outline:none;resize:none;max-height:120px;line-height:1.4;transition:border-color .2s;background:var(--bg);}
     .msg-input:focus{border-color:var(--blue2);background:white;}
@@ -105,9 +105,11 @@
     .msg-send:hover{transform:scale(1.08);box-shadow:0 6px 18px rgba(27,63,228,.4);}
     .msg-send:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 
+    /* SKELETON */
     .sk{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shim 1.4s infinite;border-radius:8px;}
     @keyframes shim{from{background-position:200% 0}to{background-position:-200% 0}}
 
+    /* BOTTOM NAV */
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
     .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;position:relative;}
     .nav-ico{font-size:1.25rem;line-height:1;}
@@ -115,16 +117,20 @@
     .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
     .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
 
+    /* TOAST */
     #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:400;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+    /* SCROLLBAR fine */
     .msgs-zone::-webkit-scrollbar,.list-scroll::-webkit-scrollbar{width:3px;}
     .msgs-zone::-webkit-scrollbar-thumb,.list-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
   </style>
 </head>
 <body>
 
-<!-- VUE LISTE -->
+<!-- ══════════════════════════════ -->
+<!-- VUE LISTE DES CONVERSATIONS  -->
+<!-- ══════════════════════════════ -->
 <div id="viewList">
   <div class="header">
     <a class="h-back" href="dashboard.html">← Accueil</a>
@@ -133,6 +139,7 @@
   </div>
 
   <div class="list-scroll" id="convList">
+    <!-- skeletons -->
     <div style="padding:.85rem 1.2rem;display:flex;gap:.85rem;align-items:center">
       <div class="sk" style="width:50px;height:50px;border-radius:50%;flex-shrink:0"></div>
       <div style="flex:1;display:flex;flex-direction:column;gap:.5rem"><div class="sk" style="height:12px;width:60%"></div><div class="sk" style="height:10px;width:80%"></div></div>
@@ -147,29 +154,21 @@
     </div>
   </div>
 
-  <!-- BOTTOM NAV liste — Favoris → Historique -->
+  <!-- BOTTOM NAV liste -->
   <nav class="bottom-nav">
-    <button class="nav-item" onclick="location.href='dashboard.html'">
-      <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
-    </button>
-    <button class="nav-item active" onclick="location.href='messages.html'">
-      <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
-    </button>
-    <div class="nav-item" style="pointer-events:none">
-      <div class="nav-plus-btn" style="pointer-events:all" onclick="location.href='dashboard.html'">➕</div>
-      <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
-    </div>
-    <button class="nav-item" onclick="location.href='historique.html'">
-      <span class="nav-ico">🕐</span><span class="nav-lbl">Historique</span>
-    </button>
-    <button class="nav-item" onclick="location.href='profil.html'">
-      <span class="nav-ico">👤</span><span class="nav-lbl">Profil</span>
-    </button>
+    <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+    <button class="nav-item" onclick="location.href='historique.html'"><span class="nav-ico">🕐</span><span class="nav-lbl">Historique</span></button>
+    <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+    <button class="nav-item" onclick="location.href='favoris.html'"><span class="nav-ico">❤️</span><span class="nav-lbl">Favoris</span></button>
+    <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
   </nav>
 </div>
 
-<!-- VUE CHAT -->
+<!-- ══════════════════════════════ -->
+<!-- VUE CHAT                      -->
+<!-- ══════════════════════════════ -->
 <div id="viewChat">
+  <!-- Header chat -->
   <div class="chat-header">
     <button class="ch-back" onclick="backToList()">←</button>
     <div class="ch-av" id="chAv">?</div>
@@ -180,6 +179,7 @@
     <button class="ch-wa" id="chWaBtn">💬 WA</button>
   </div>
 
+  <!-- Contexte annonce -->
   <div class="ad-context" id="adContext" style="display:none">
     <div class="adc-img" id="adcImg">📦</div>
     <div class="adc-body">
@@ -188,8 +188,10 @@
     </div>
   </div>
 
+  <!-- Zone messages -->
   <div class="msgs-zone" id="msgsZone"></div>
 
+  <!-- Input -->
   <div class="input-zone">
     <textarea class="msg-input" id="msgInput" placeholder="Écrire un message…" rows="1"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
@@ -212,6 +214,7 @@ let currentConvId = null, currentOther = {}, currentAd = {};
 let allMsgs = [], realtimeChannel = null;
 const EMOJI = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
 
+// ─── INIT ───
 (async () => {
   const {data:{session}} = await sb.auth.getSession();
   if (!session) { location.href = 'index.html'; return; }
@@ -220,9 +223,10 @@ const EMOJI = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗
   const {data:p} = await sb.from('profiles').select('*').eq('id', U.id).single();
   myProfile = p || {};
 
+  // Si on arrive depuis dashboard avec un conv à ouvrir
   const params = new URLSearchParams(location.search);
-  const openWith = params.get('with');
-  const openAd   = params.get('ad');
+  const openWith = params.get('with');   // user_id de l'autre
+  const openAd   = params.get('ad');     // annonce_id
 
   await loadConversations();
 
@@ -231,22 +235,33 @@ const EMOJI = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗
   }
 })();
 
+// ══════════════════════════════════
+// LISTE DES CONVERSATIONS
+// ══════════════════════════════════
 async function loadConversations() {
   try {
+    // Conversations où je suis participant
     const {data: convs, error} = await sb
       .from('conversations')
-      .select(`id, annonce_id, created_at, participant_1, participant_2, last_message, last_message_at, annonces(id, titre, prix, image_url, categorie)`)
+      .select(`
+        id, annonce_id, created_at,
+        participant_1, participant_2,
+        last_message, last_message_at,
+        annonces(id, titre, prix, image_url, categorie)
+      `)
       .or(`participant_1.eq.${U.id},participant_2.eq.${U.id}`)
       .order('last_message_at', {ascending: false, nullsFirst: false});
 
     if (error) throw error;
     if (!convs?.length) { showEmptyList(); return; }
 
+    // Récupérer profils des autres participants
     const otherIds = convs.map(c => c.participant_1 === U.id ? c.participant_2 : c.participant_1);
-    const {data: profiles} = await sb.from('profiles').select('id,full_name,whatsapp,avatar_url').in('id', otherIds);
+    const {data: profiles} = await sb.from('profiles').select('id,full_name,whatsapp,avatar_url,is_premium').in('id', otherIds);
     const profMap = {};
     (profiles||[]).forEach(p => profMap[p.id] = p);
 
+    // Compter messages non lus par conv
     const {data: unreadRows} = await sb.from('messages')
       .select('conversation_id')
       .in('conversation_id', convs.map(c=>c.id))
@@ -270,7 +285,7 @@ async function loadConversations() {
           <div class="ci-av">${other.avatar_url?`<img src="${other.avatar_url}" onerror="this.parentElement.textContent='${init}'">`:`${init}`}</div>
           <div class="ci-body">
             <div class="ci-top">
-              <div class="ci-name">${other.full_name||'Utilisateur'}</div>
+              <div class="ci-name">${other.full_name||'Utilisateur'}${other.is_premium?' <span style="font-size:.7rem;">👑</span>':''}</div>
               <div class="ci-time">${lastTime}</div>
             </div>
             ${ad.titre?`<div class="ci-ad">📌 ${ad.titre}</div>`:''}
@@ -296,7 +311,11 @@ function showEmptyList() {
     </div>`;
 }
 
+// ══════════════════════════════════
+// OUVRIR / CRÉER CONVERSATION
+// ══════════════════════════════════
 async function openOrCreateConv(otherId, annonceId) {
+  // Chercher conv existante
   let {data: existing} = await sb.from('conversations')
     .select('id')
     .eq('annonce_id', annonceId)
@@ -307,6 +326,7 @@ async function openOrCreateConv(otherId, annonceId) {
   if (existing) {
     convId = existing.id;
   } else {
+    // Créer la conv
     const {data: newConv, error} = await sb.from('conversations').insert({
       participant_1: U.id,
       participant_2: otherId,
@@ -318,7 +338,8 @@ async function openOrCreateConv(otherId, annonceId) {
     convId = newConv.id;
   }
 
-  const {data: otherProf} = await sb.from('profiles').select('full_name,whatsapp,avatar_url').eq('id', otherId).single();
+  // Récupérer infos
+  const {data: otherProf} = await sb.from('profiles').select('full_name,whatsapp,avatar_url,is_premium').eq('id', otherId).single();
   const {data: ad} = await sb.from('annonces').select('titre,prix,image_url,categorie').eq('id', annonceId).single();
 
   openConv(
@@ -333,11 +354,15 @@ async function openConv(convId, otherId, otherName, otherWa, adId, adTitre, adPr
   currentOther = {id: otherId, name: otherName, wa: otherWa};
   currentAd = {id: adId, titre: adTitre, prix: adPrix, img: adImg, cat: adCat};
 
+  // Remplir header
   document.getElementById('chAv').textContent = (otherName||'?')[0].toUpperCase();
   document.getElementById('chName').textContent = otherName;
+  /* Badge premium dans le header — sera mis à jour par loadChatPremiumBadge */
+  loadChatPremiumBadge(otherId);
   document.getElementById('chSub').textContent = 'AfriMarket · ' + (adTitre||'Discussion');
   document.getElementById('chWaBtn').onclick = () => contactWA(otherWa);
 
+  // Contexte annonce
   if (adTitre) {
     document.getElementById('adContext').style.display = 'flex';
     const aImg = document.getElementById('adcImg');
@@ -347,25 +372,44 @@ async function openConv(convId, otherId, otherName, otherWa, adId, adTitre, adPr
     document.getElementById('adcPrice').textContent = adPrix ? Number(adPrix).toLocaleString('fr-FR')+' FCFA' : 'Prix à débattre';
   }
 
+  // Afficher vue chat
   document.getElementById('viewList').style.display = 'none';
   document.getElementById('viewChat').style.display = 'flex';
 
+  // Charger messages
   await loadMessages();
 
+  // Activer input
   const inp = document.getElementById('msgInput');
   inp.disabled = false;
   document.getElementById('sendBtn').disabled = false;
   inp.focus();
 
+  // Marquer messages lus
   await sb.from('messages').update({read: true})
     .eq('conversation_id', convId)
     .eq('read', false)
     .neq('sender_id', U.id);
 
+  // Realtime
   startChatRealtime();
+  startMsgPolling();
+}
+
+/* ★ Badge 👑 dans le header chat selon statut premium du vendeur */
+async function loadChatPremiumBadge(userId) {
+  try {
+    var el = document.getElementById('chName');
+    if (!el) return;
+    var res = await sb.from('profiles').select('is_premium').eq('id', userId).single();
+    if (res.data && res.data.is_premium) {
+      el.innerHTML = el.textContent + ' <span style="font-size:.75rem;" title="Vendeur Premium vérifié">👑</span>';
+    }
+  } catch(e) {}
 }
 
 function backToList() {
+  stopMsgPolling();
   document.getElementById('viewChat').style.display = 'none';
   document.getElementById('viewList').style.display = 'flex';
   currentConvId = null;
@@ -373,6 +417,9 @@ function backToList() {
   loadConversations();
 }
 
+// ══════════════════════════════════
+// MESSAGES
+// ══════════════════════════════════
 async function loadMessages() {
   document.getElementById('msgsZone').innerHTML = `<div style="flex:1"></div><div style="display:flex;align-items:center;justify-content:center;padding:2rem;color:var(--gray);font-size:.8rem">⏳ Chargement…</div>`;
 
@@ -431,6 +478,9 @@ function scrollBottom() {
   setTimeout(() => { z.scrollTop = z.scrollHeight; }, 50);
 }
 
+// ══════════════════════════════════
+// ENVOYER MESSAGE
+// ══════════════════════════════════
 async function sendMsg() {
   const inp = document.getElementById('msgInput');
   const content = inp.value.trim();
@@ -449,6 +499,7 @@ async function sendMsg() {
     created_at: new Date().toISOString()
   };
 
+  // Optimistic UI
   allMsgs.push(msg);
   renderMessages();
 
@@ -456,13 +507,16 @@ async function sendMsg() {
     const {data, error} = await sb.from('messages').insert([msg]).select().single();
     if (error) throw error;
 
+    // Remplacer le msg optimistic par le vrai
     allMsgs[allMsgs.length - 1] = data;
 
+    // Mettre à jour last_message dans la conv
     await sb.from('conversations').update({
       last_message: content.length > 60 ? content.slice(0,60)+'…' : content,
       last_message_at: new Date().toISOString()
     }).eq('id', currentConvId);
 
+    // Notification à l'autre
     const senderName = myProfile?.full_name || 'Quelqu\'un';
     await sb.from('notifications').insert({
       user_id: currentOther.id,
@@ -482,6 +536,42 @@ async function sendMsg() {
   }
 }
 
+
+// ── POLLING FALLBACK (si Realtime désactivé sur Supabase) ──
+let _pollInterval = null;
+let _lastMsgCount = 0;
+
+function startMsgPolling() {
+  stopMsgPolling();
+  _lastMsgCount = allMsgs.length;
+  _pollInterval = setInterval(async () => {
+    if (!currentConvId) return;
+    try {
+      const {data: msgs} = await sb.from('messages')
+        .select('id, conversation_id, sender_id, content, read, created_at')
+        .eq('conversation_id', currentConvId)
+        .order('created_at', {ascending: true})
+        .limit(200);
+      if (!msgs) return;
+      // Seulement mettre à jour si nouveaux messages
+      if (msgs.length > allMsgs.length) {
+        allMsgs = msgs;
+        renderMessages();
+        // Marquer lu les messages de l'autre
+        const unread = msgs.filter(m => m.sender_id !== U.id && !m.read).map(m => m.id);
+        if (unread.length) sb.from('messages').update({read: true}).in('id', unread).then(() => {});
+      }
+    } catch(e) {}
+  }, 3000);
+}
+
+function stopMsgPolling() {
+  if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
+}
+
+// ══════════════════════════════════
+// REALTIME CHAT
+// ══════════════════════════════════
 function startChatRealtime() {
   if (realtimeChannel) sb.removeChannel(realtimeChannel);
 
@@ -493,14 +583,18 @@ function startChatRealtime() {
       filter: 'conversation_id=eq.'+currentConvId
     }, payload => {
       const m = payload.new;
-      if (!m || m.sender_id === U.id) return;
+      if (!m || m.sender_id === U.id) return; // déjà ajouté en optimistic
       allMsgs.push(m);
       renderMessages();
+      // Marquer lu
       sb.from('messages').update({read:true}).eq('id', m.id);
     })
     .subscribe();
 }
 
+// ══════════════════════════════════
+// UTILS
+// ══════════════════════════════════
 function contactWA(num) {
   if (!num) { showToast('Numéro non disponible','warning'); return; }
   let n = num.replace(/[\s\-\.\(\)]/g,'');
@@ -541,15 +635,6 @@ function showToast(msg, type='success') {
 window.addEventListener('beforeunload', () => {
   if (realtimeChannel) sb.removeChannel(realtimeChannel);
 });
-</script>
-<script>
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(r => console.log('[SW] Registered:', r.scope))
-        .catch(e => console.warn('[SW] Error:', e));
-    });
-  }
 </script>
 </body>
 </html>
