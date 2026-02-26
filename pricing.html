@@ -4,6 +4,17 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AfriMarket — Passer Premium</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#080E2A"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
@@ -433,22 +444,23 @@
 
       <!-- ── MODE AUTO ── -->
       <div id="modeAuto" style="display:none">
-        <div class="auto-placeholder">
-          <div class="ap-ico">⚡</div>
-          <div class="ap-title">Paiement automatique</div>
-          <div class="ap-desc">L'intégration CinetPay / FedaPay / PayDunya est en cours de déploiement. Elle sera disponible très prochainement pour un paiement instantané et sécurisé.</div>
-          <div class="ap-methods">
-            <div class="apm">🟠 Orange Money</div>
-            <div class="apm">💛 MTN MoMo</div>
-            <div class="apm">🔵 Wave</div>
-            <div class="apm">💳 Carte bancaire</div>
-          </div>
-          <button class="btn-notify" onclick="notifyAuto()">🔔 Me prévenir dès que disponible</button>
+        <!-- ★ MONETBIL — Paiement automatique réel -->
+        <div style="background:rgba(0,194,183,.05);border:1px solid rgba(0,194,183,.2);border-radius:14px;padding:.9rem 1rem;margin-bottom:.9rem;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:.3rem;">⚡</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.2rem;">Paiement instantané via Monetbil</div>
+          <div style="font-size:.72rem;color:var(--gray);line-height:1.5;">Tu seras redirigé vers la page de paiement Monetbil sécurisée. Activation immédiate après confirmation.</div>
         </div>
-        <div style="margin-top:1rem;text-align:center">
-          <span style="font-size:.8rem;color:var(--gray);">En attendant, utilisez le </span>
-          <span style="font-size:.8rem;color:var(--blue2);font-weight:700;cursor:pointer" onclick="switchMode('manual')">Paiement Manuel →</span>
+        <div style="display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.9rem;">
+          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">📱 MTN MoMo</span>
+          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">🟠 Orange Money</span>
+          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">🔵 Moov Money</span>
+          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">🟡 Wave</span>
         </div>
+        <button id="monetbilPayBtn" onclick="lancerMonetbil()" style="width:100%;padding:.8rem;border-radius:13px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(27,63,228,.3);display:flex;align-items:center;justify-content:center;gap:.5rem;">
+          <span id="monetbilPayLbl">💳 Payer maintenant</span>
+          <span id="monetbilSpin" style="width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none;"></span>
+        </button>
+        <div style="text-align:center;font-size:.63rem;color:var(--gray);margin-top:.5rem;">🔒 Paiement sécurisé par Monetbil · Aucune carte requise</div>
       </div>
     </div>
 
@@ -650,6 +662,86 @@ function openCheckout(plan){
   selectOperator('orange');
   document.getElementById('checkoutModal').classList.add('open');
 }
+
+/* ════════════════════════════════════════
+   ★ MONETBIL — Paiement automatique réel
+════════════════════════════════════════ */
+const MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
+const MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
+
+async function lancerMonetbil() {
+  if (!currentUser) {
+    showToast('Connecte-toi pour payer','warning');
+    setTimeout(()=>location.href='index.html',1500);
+    return;
+  }
+  const plan = PLANS[selectedPlan];
+  const amount = isAnnual ? plan.annual : plan.monthly;
+  const planKey = selectedPlan + (isAnnual ? '_annual' : '');
+  const ref = 'AM_' + Date.now() + '_' + currentUser.id.slice(0,8);
+
+  const btn  = document.getElementById('monetbilPayBtn');
+  const lbl  = document.getElementById('monetbilPayLbl');
+  const spin = document.getElementById('monetbilSpin');
+  btn.disabled = true; lbl.style.display='none'; spin.style.display='block';
+
+  try {
+    /* Sauvegarder la demande en base */
+    await sb.from('payment_requests').insert([{
+      user_id:     currentUser.id,
+      plan:        planKey,
+      amount:      amount,
+      payment_ref: ref,
+      status:      'pending',
+      created_at:  new Date().toISOString()
+    }]);
+
+    /* Fermer le modal checkout */
+    document.getElementById('checkoutModal').classList.remove('open');
+
+    /* Lancer Monetbil */
+    if (typeof monetbil !== 'undefined') {
+      monetbil.launch({
+        service:     MONETBIL_KEY,
+        amount:      amount,
+        currency:    'XAF',
+        locale:      'fr',
+        item_ref:    currentUser.id,
+        payment_ref: ref,
+        notify_url:  MONETBIL_NOTIFY,
+        return_url:  window.location.href,
+        onComplete: async function(data) {
+          if (data && data.status === 'success') {
+            showToast('🎉 Paiement confirmé ! Activation en cours…','success');
+            setTimeout(async () => {
+              const {data:prof} = await sb.from('profiles').select('is_premium,plan').eq('id',currentUser.id).single();
+              if (prof && prof.is_premium) {
+                showToast('👑 Premium activé ! Bienvenue !','success');
+                setTimeout(()=>location.href='profil.html',2000);
+              }
+            }, 3000);
+          } else {
+            showToast('Paiement annulé ou échoué','warning');
+          }
+        }
+      });
+    } else {
+      /* Fallback redirection directe */
+      const p = new URLSearchParams({
+        amount, currency:'XAF', locale:'fr',
+        item_ref:currentUser.id, payment_ref:ref,
+        notify_url:MONETBIL_NOTIFY,
+        return_url:window.location.href
+      });
+      location.href = 'https://www.monetbil.com/widget/v2.1/'+MONETBIL_KEY+'?'+p.toString();
+    }
+  } catch(err) {
+    showToast('Erreur : '+(err.message||'Inconnue'),'error');
+  } finally {
+    btn.disabled=false; lbl.style.display=''; spin.style.display='none';
+  }
+}
+/* ════════ FIN MONETBIL ════════ */
 
 function closeModal(e){
   if(e.target===document.getElementById('checkoutModal'))
@@ -926,5 +1018,17 @@ function showToast(msg,type='success'){
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('checkoutModal').classList.remove('open');});
 </script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(r => console.log('[SW] Registered:', r.scope))
+          .catch(e => console.warn('[SW] Error:', e));
+      });
+    }
+  </script>
+<!-- ★ Monetbil Widget SDK -->
+<script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
+<style>#monetbilSpin{animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style>
 </body>
 </html>
