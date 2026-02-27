@@ -4,7 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AfriMarket — Passer Premium</title>
-  <!-- PWA -->
   <link rel="manifest" href="/manifest.json"/>
   <meta name="theme-color" content="#080E2A"/>
   <meta name="mobile-web-app-capable" content="yes"/>
@@ -28,14 +27,12 @@
     html{scroll-behavior:smooth}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);overflow-x:hidden;min-height:100vh;}
 
-    /* HEADER */
     .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.4rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
     .h-logo{font-family:'Clash Display',sans-serif;font-size:1.45rem;font-weight:700;letter-spacing:-1px;text-decoration:none;}
     .h-logo .la{color:var(--turq)}.h-logo .lm{color:var(--orange)}
     .h-back{display:flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.6);font-size:.83rem;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid rgba(255,255,255,.15);padding:.38rem .85rem;border-radius:99px;transition:all .2s;}
     .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
 
-    /* HERO */
     .hero{text-align:center;padding:3rem 1.4rem 2rem;position:relative;overflow:hidden;}
     .hero::before,.hero::after{content:'';position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
     .hero::before{width:400px;height:400px;background:rgba(27,63,228,.1);top:-150px;left:-80px;}
@@ -47,15 +44,13 @@
     .hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--turq));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
     .hero-sub{font-size:.95rem;color:var(--gray);max-width:480px;margin:0 auto 1rem;line-height:1.6;position:relative;z-index:1;}
 
-    /* TRIAL COUNTDOWN */
-    .trial-countdown{display:inline-flex;align-items:center;gap:1rem;background:var(--dark);color:white;border-radius:16px;padding:.9rem 1.5rem;margin:1.5rem auto 0;font-size:.82rem;position:relative;z-index:1;box-shadow:0 16px 40px rgba(8,14,42,.25);display:none;}
+    .trial-countdown{display:none;align-items:center;gap:1rem;background:var(--dark);color:white;border-radius:16px;padding:.9rem 1.5rem;margin:1.5rem auto 0;font-size:.82rem;position:relative;z-index:1;box-shadow:0 16px 40px rgba(8,14,42,.25);}
     .trial-countdown.show{display:inline-flex;}
     .tc-num{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1;}
     .tc-sep{width:1px;height:36px;background:rgba(255,255,255,.12);}
     .tc-info{font-size:.78rem;color:rgba(255,255,255,.65);line-height:1.4;}
     .tc-info strong{color:white;}
 
-    /* BILLING TOGGLE */
     .billing-wrap{display:flex;align-items:center;justify-content:center;gap:.8rem;margin:2.5rem 0 2rem;}
     .billing-lbl{font-size:.85rem;font-weight:600;color:var(--gray);}
     .billing-lbl.on{color:var(--dark);}
@@ -64,13 +59,18 @@
     .toggle.on::after{transform:translateX(23px);}
     .save-pill{background:var(--green);color:white;font-size:.6rem;font-weight:800;padding:.2rem .5rem;border-radius:99px;letter-spacing:.5px;}
 
-    /* PLANS */
     .plans-wrap{padding:0 1.4rem 4rem;max-width:900px;margin:0 auto;}
     .plans-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
     .plan-card{background:white;border:1.5px solid var(--border);border-radius:22px;padding:1.6rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
     .plan-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(27,63,228,.12);}
     .plan-card.popular{background:var(--dark);border-color:transparent;color:white;box-shadow:0 24px 64px rgba(8,14,42,.25);}
+    /* Plan actif — bordure verte */
+    .plan-card.current-plan{border:2.5px solid var(--green);box-shadow:0 0 0 4px rgba(0,194,113,.1);}
+    .plan-card.popular.current-plan{border:2.5px solid var(--gold);}
     .pop-badge{position:absolute;top:1rem;right:1rem;background:linear-gradient(135deg,var(--gold2),var(--gold));color:white;font-size:.6rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:.25rem .7rem;border-radius:99px;}
+    /* Badge "Plan actuel" */
+    .current-badge{position:absolute;top:1rem;left:1rem;background:var(--green);color:white;font-size:.6rem;font-weight:800;letter-spacing:.5px;padding:.25rem .7rem;border-radius:99px;}
+    .plan-card.popular .current-badge{background:var(--gold);color:var(--dark);}
     .plan-ico{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem;}
     .ico-free{background:rgba(0,0,0,.05)}.ico-prem{background:rgba(245,183,49,.15)}.ico-elite{background:rgba(0,194,183,.1)}
     .plan-label{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:.25rem;}
@@ -98,7 +98,6 @@
     .feat-txt.dim{color:var(--gray);text-decoration:line-through;}
     .plan-card.popular .feat-txt.dim{color:rgba(255,255,255,.22);}
 
-    /* CTA BUTTONS */
     .btn-plan{width:100%;padding:.82rem;border-radius:13px;font-family:'Clash Display',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .25s;border:none;display:flex;align-items:center;justify-content:center;gap:.45rem;}
     .btn-free-plan{background:rgba(0,0,0,.05);color:var(--dark);border:1.5px solid var(--border);}
     .btn-free-plan:hover{background:rgba(0,0,0,.1);}
@@ -106,11 +105,13 @@
     .btn-prem-plan:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(200,144,26,.5);}
     .btn-elite-plan{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 8px 24px rgba(27,63,228,.3);}
     .btn-elite-plan:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(27,63,228,.45);}
+    /* Bouton plan actif désactivé */
+    .btn-current{background:rgba(0,194,113,.1);color:var(--green);border:1.5px solid rgba(0,194,113,.3);cursor:not-allowed;opacity:1!important;}
+    .plan-card.popular .btn-current{background:rgba(245,183,49,.15);color:var(--gold);border:1.5px solid rgba(245,183,49,.3);}
     .btn-plan:disabled{opacity:.6;cursor:not-allowed;transform:none!important;}
     .plan-note{text-align:center;font-size:.68rem;color:var(--gray);margin-top:.5rem;}
     .plan-card.popular .plan-note{color:rgba(255,255,255,.3);}
 
-    /* TRUST */
     .trust-section{padding:0 1.4rem 4rem;max-width:900px;margin:0 auto;}
     .trust-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;text-align:center;margin-bottom:1.8rem;letter-spacing:-.5px;}
     .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
@@ -120,7 +121,6 @@
     .trust-label{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.25rem;}
     .trust-desc{font-size:.78rem;color:var(--gray);line-height:1.5;}
 
-    /* FAQ */
     .faq-section{max-width:600px;margin:0 auto;padding:0 1.4rem 4rem;}
     .faq-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;text-align:center;margin-bottom:1.5rem;}
     .faq-item{background:white;border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:.5rem;}
@@ -131,7 +131,6 @@
     .faq-a{font-size:.81rem;color:var(--gray);line-height:1.6;padding:0 1.2rem;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;}
     .faq-item.open .faq-a{max-height:200px;padding:0 1.2rem 1rem;}
 
-    /* FINAL CTA BAND */
     .final-band{background:linear-gradient(135deg,var(--dark),#0D1E6B);color:white;margin:0 1.4rem 4rem;border-radius:22px;padding:2.5rem 2rem;text-align:center;position:relative;overflow:hidden;}
     .fb-blob{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;}
     .fb1{width:260px;height:260px;background:rgba(27,63,228,.25);top:-80px;left:-60px;}
@@ -144,7 +143,6 @@
     .fb-ghost{padding:.73rem 1.5rem;border-radius:99px;background:transparent;color:rgba(255,255,255,.5);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;font-weight:600;border:1px solid rgba(255,255,255,.2);cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s;}
     .fb-ghost:hover{color:white;border-color:rgba(255,255,255,.5);}
 
-    /* CHECKOUT MODAL */
     .modal-ov{position:fixed;inset:0;z-index:500;background:rgba(8,14,42,.65);backdrop-filter:blur(8px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
     .modal-ov.open{opacity:1;pointer-events:all;}
     .modal{background:white;border-radius:28px 28px 0 0;width:100%;max-height:93vh;overflow-y:auto;padding:1.6rem 1.4rem 2.5rem;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
@@ -155,20 +153,17 @@
     .modal-x{width:32px;height:32px;border-radius:9px;background:rgba(0,0,0,.07);border:none;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
     .modal-x:hover{background:rgba(0,0,0,.13);}
 
-    /* PLAN SUMMARY BOX */
     .modal-plan-box{background:var(--bg);border-radius:16px;padding:1rem 1.2rem;margin-bottom:1.3rem;display:flex;align-items:center;gap:.9rem;}
     .mpb-ico{font-size:2rem;}
     .mpb-name{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;}
     .mpb-price{font-size:.8rem;color:var(--gray);margin-top:2px;}
     .mpb-price strong{color:var(--dark);}
 
-    /* FIELD */
     .m-field{margin-bottom:1rem;}
     .m-field label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dark);margin-bottom:.4rem;}
     .m-field input{width:100%;padding:.72rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.87rem;color:var(--dark);background:#FAFBFF;outline:none;transition:border-color .2s,box-shadow .2s;}
     .m-field input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(45,85,255,.1);}
 
-    /* PAY OPTIONS */
     .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;}
     .pay-opt{background:var(--bg);border:1.5px solid var(--border);border-radius:13px;padding:.75rem .9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.65rem;}
     .pay-opt:hover{border-color:var(--blue2);}
@@ -177,7 +172,6 @@
     .po-name{font-size:.8rem;font-weight:700;color:var(--dark);}
     .po-sub{font-size:.64rem;color:var(--gray);}
 
-    /* PAY BUTTON */
     .btn-pay{width:100%;padding:.88rem;border:none;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:.4rem;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 8px 24px rgba(27,63,228,.35);}
     .btn-pay:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(27,63,228,.45);}
     .btn-pay:disabled{opacity:.6;cursor:not-allowed;transform:none;}
@@ -186,7 +180,6 @@
     .btn-pay.loading .spin{display:block;}.btn-pay.loading .lbl{display:none;}
     .modal-secure{text-align:center;font-size:.7rem;color:var(--gray);margin-top:.7rem;}
 
-    /* SUCCESS STATE */
     .success-state{display:none;text-align:center;padding:1rem 0;}
     .success-ico{font-size:4rem;margin-bottom:.8rem;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both;}
     @keyframes pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
@@ -196,7 +189,6 @@
     .btn-dash{width:100%;padding:.88rem;border:none;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 8px 24px rgba(27,63,228,.35);transition:all .2s;}
     .btn-dash:hover{transform:translateY(-2px);}
 
-    /* TOAST */
     #toast{position:fixed;bottom:1.5rem;right:1rem;max-width:300px;background:var(--dark);color:white;padding:.8rem 1.2rem;border-radius:14px;font-size:.83rem;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;align-items:center;gap:.6rem;transform:translateY(20px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);border-left:3px solid var(--turq);}
     #toast.show{transform:translateY(0);opacity:1;}
 
@@ -205,30 +197,25 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <a class="h-logo" href="dashboard.html"><span class="la">Afri</span><span class="lm">Market</span></a>
   <a class="h-back" href="dashboard.html">← Dashboard</a>
 </div>
 
-<!-- HERO -->
 <div class="hero">
-  <div class="trial-badge"><div class="tdot"></div> 7 jours d'essai gratuit inclus</div>
+  <div class="trial-badge"><div class="tdot"></div> 30 jours d'essai gratuit inclus</div>
   <h1>Passez <em>Premium</em><br/>vendez sans limites</h1>
   <div class="hero-sub">Annonces illimitées, badge vérifié, mise en avant, statistiques et bien plus. Dès 1 000 FCFA/mois.</div>
-
-  <!-- Countdown essai -->
   <div class="trial-countdown" id="trialCountdown">
     <div>
       <div style="font-size:.62rem;color:rgba(255,255,255,.5);margin-bottom:.1rem">ESSAI GRATUIT</div>
-      <div class="tc-num" id="tcDays">7</div>
+      <div class="tc-num" id="tcDays">30</div>
     </div>
     <div class="tc-sep"></div>
     <div class="tc-info"><strong>jours restants</strong><br/>Passez Premium avant l'expiration</div>
   </div>
 </div>
 
-<!-- BILLING TOGGLE -->
 <div class="billing-wrap">
   <div class="billing-lbl on" id="lbl-m">Mensuel</div>
   <button class="toggle" id="billingToggle" onclick="toggleBilling()"></button>
@@ -236,12 +223,11 @@
   <span class="save-pill">-20%</span>
 </div>
 
-<!-- PLANS -->
 <div class="plans-wrap">
   <div class="plans-grid">
 
     <!-- FREE -->
-    <div class="plan-card">
+    <div class="plan-card" id="card-free">
       <div class="plan-ico ico-free">🆓</div>
       <div class="plan-label">Gratuit</div>
       <div class="plan-name">Démarrer</div>
@@ -252,18 +238,18 @@
       <div class="plan-divider"></div>
       <div class="plan-feats">
         <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">3 annonces maximum</span></div>
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">7 jours de visibilité</span></div>
+        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">30 jours de visibilité</span></div>
         <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">Profil public</span></div>
         <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Badge Vérifié</span></div>
         <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Mises en avant</span></div>
         <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Statistiques</span></div>
       </div>
-      <button class="btn-plan btn-free-plan" onclick="stayFree()">Continuer gratuit</button>
+      <button class="btn-plan btn-free-plan" id="btn-free" onclick="stayFree()">Continuer gratuit</button>
       <div class="plan-note">Pas d'engagement</div>
     </div>
 
     <!-- PREMIUM -->
-    <div class="plan-card popular">
+    <div class="plan-card popular" id="card-premium">
       <div class="pop-badge">⭐ Populaire</div>
       <div class="plan-ico ico-prem">👑</div>
       <div class="plan-label">Premium</div>
@@ -282,14 +268,14 @@
         <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">Statistiques annonces</span></div>
         <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Boutique dédiée</span></div>
       </div>
-      <button class="btn-plan btn-prem-plan" onclick="openCheckout('premium')">
+      <button class="btn-plan btn-prem-plan" id="btn-premium" onclick="openCheckout('premium')">
         <span>👑 Choisir Premium</span>
       </button>
-      <div class="plan-note">7 jours gratuits inclus</div>
+      <div class="plan-note" id="note-premium">30 jours gratuits inclus</div>
     </div>
 
     <!-- ELITE -->
-    <div class="plan-card">
+    <div class="plan-card" id="card-elite">
       <div class="plan-ico ico-elite">🚀</div>
       <div class="plan-label">Elite</div>
       <div class="plan-name">Marketplace</div>
@@ -307,16 +293,15 @@
         <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">Support prioritaire</span></div>
         <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">Gestionnaire dédié</span></div>
       </div>
-      <button class="btn-plan btn-elite-plan" onclick="openCheckout('elite')">
+      <button class="btn-plan btn-elite-plan" id="btn-elite" onclick="openCheckout('elite')">
         <span>🚀 Choisir Elite</span>
       </button>
-      <div class="plan-note">7 jours gratuits inclus</div>
+      <div class="plan-note" id="note-elite">30 jours gratuits inclus</div>
     </div>
 
   </div>
 </div>
 
-<!-- TRUST -->
 <div class="trust-section">
   <div class="trust-title">Pourquoi passer Premium ?</div>
   <div class="trust-grid">
@@ -326,17 +311,15 @@
   </div>
 </div>
 
-<!-- FAQ -->
 <div class="faq-section">
   <div class="faq-title">Questions fréquentes</div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment fonctionne l'essai gratuit ? <span class="faq-arr">▼</span></div><div class="faq-a">Vous bénéficiez de 7 jours d'accès Premium gratuit dès votre inscription. Aucune carte bancaire n'est requise pour démarrer.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment fonctionne l'essai gratuit ? <span class="faq-arr">▼</span></div><div class="faq-a">Vous bénéficiez de 30 jours d'accès Premium gratuit dès votre inscription. Aucune carte bancaire n'est requise pour démarrer.</div></div>
   <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Puis-je annuler à tout moment ? <span class="faq-arr">▼</span></div><div class="faq-a">Oui, vous pouvez annuler votre abonnement à tout moment depuis votre dashboard. Vous conservez l'accès jusqu'à la fin de la période payée.</div></div>
   <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Quels moyens de paiement acceptez-vous ? <span class="faq-arr">▼</span></div><div class="faq-a">Nous acceptons Orange Money, Wave, MTN Money et les cartes bancaires Visa/Mastercard pour une expérience de paiement simple et sécurisée.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mes annonces expirent-elles après l'essai ? <span class="faq-arr">▼</span></div><div class="faq-a">En compte gratuit, vos annonces ont une visibilité de 7 jours. En Premium ou Elite, elles restent actives indéfiniment tant que votre abonnement est valide.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mes annonces expirent-elles après l'essai ? <span class="faq-arr">▼</span></div><div class="faq-a">En compte gratuit, vos annonces ont une visibilité de 30 jours. En Premium ou Elite, elles restent actives indéfiniment tant que votre abonnement est valide.</div></div>
   <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">L'activation Premium est-elle immédiate ? <span class="faq-arr">▼</span></div><div class="faq-a">Oui ! Dès votre paiement confirmé, votre compte est automatiquement upgradé et vous pouvez profiter de tous vos avantages Premium instantanément.</div></div>
 </div>
 
-<!-- FINAL BAND -->
 <div class="final-band">
   <div class="fb-blob fb1"></div><div class="fb-blob fb2"></div>
   <h2>Prêt à vendre sans limites ? 🚀</h2>
@@ -345,37 +328,33 @@
     <button class="fb-main" onclick="openCheckout('premium')">👑 Commencer — 1 000 F/mois</button>
     <a class="fb-ghost" href="dashboard.html">Rester gratuit →</a>
   </div>
-  <div style="margin-top:1rem;font-size:.72rem;color:rgba(255,255,255,.3);position:relative;z-index:1;">✓ 7 jours gratuits · ✓ Sans engagement · ✓ Annulation facile</div>
+  <div style="margin-top:1rem;font-size:.72rem;color:rgba(255,255,255,.3);position:relative;z-index:1;">✓ 30 jours gratuits · ✓ Sans engagement · ✓ Annulation facile</div>
 </div>
 
-<!-- ===== CHECKOUT MODAL ===== -->
+<!-- CHECKOUT MODAL -->
 <div class="modal-ov" id="checkoutModal" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
 
-    <!-- ── ÉTAPE 1 : CHOISIR MODE ── -->
     <div id="stepMode">
       <div class="modal-top">
         <div class="modal-title">🛒 Finaliser l'abonnement</div>
         <button class="modal-x" onclick="document.getElementById('checkoutModal').classList.remove('open')">✕</button>
       </div>
 
-      <!-- PLAN RECAP -->
       <div class="modal-plan-box">
         <div class="mpb-ico" id="mo-ico">👑</div>
         <div>
           <div class="mpb-name" id="mo-name">Premium</div>
-          <div class="mpb-price"><strong id="mo-price">1 000 FCFA</strong>/mois · 7 jours offerts</div>
+          <div class="mpb-price"><strong id="mo-price">1 000 FCFA</strong>/mois · 30 jours offerts</div>
         </div>
       </div>
 
-      <!-- TABS MODE -->
       <div class="mode-tabs">
         <button class="mode-tab active" id="tabManual" onclick="switchMode('manual')">📱 Paiement Manuel</button>
         <button class="mode-tab" id="tabAuto" onclick="switchMode('auto')">⚡ Paiement Auto</button>
       </div>
 
-      <!-- ── MODE MANUEL ── -->
       <div id="modeManual">
         <div class="manual-info-box">
           <div class="mib-title">📋 Comment ça marche ?</div>
@@ -388,7 +367,6 @@
           </div>
         </div>
 
-        <!-- OPÉRATEUR -->
         <div class="m-field">
           <label>Choisir l'opérateur</label>
           <div class="operator-grid">
@@ -413,7 +391,6 @@
           </div>
         </div>
 
-        <!-- MONTANT À ENVOYER -->
         <div class="amount-banner" id="amountBanner">
           <div class="ab-label">Montant à envoyer</div>
           <div class="ab-amount" id="abAmount">1 000 FCFA</div>
@@ -421,7 +398,6 @@
           <button class="ab-copy" onclick="copyNum()">📋 Copier le numéro</button>
         </div>
 
-        <!-- FORMULAIRE CONFIRMATION -->
         <div class="m-field">
           <label>Votre nom complet *</label>
           <input type="text" id="manualName" placeholder="Ex : Jean Dupont"/>
@@ -442,9 +418,7 @@
         <div class="modal-secure">⏱️ Vérification sous 2 minutes · Activation automatique</div>
       </div>
 
-      <!-- ── MODE AUTO ── -->
       <div id="modeAuto" style="display:none">
-        <!-- ★ MONETBIL — Paiement automatique réel -->
         <div style="background:rgba(0,194,183,.05);border:1px solid rgba(0,194,183,.2);border-radius:14px;padding:.9rem 1rem;margin-bottom:.9rem;text-align:center;">
           <div style="font-size:1.5rem;margin-bottom:.3rem;">⚡</div>
           <div style="font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.2rem;">Paiement instantané via Monetbil</div>
@@ -464,7 +438,6 @@
       </div>
     </div>
 
-    <!-- ── ÉTAPE 2 : EN ATTENTE DE VÉRIFICATION ── -->
     <div id="stepPending" style="display:none">
       <div style="text-align:center;padding:.5rem 0 1rem">
         <div class="pending-ring" id="pendingRing">
@@ -473,28 +446,17 @@
         </div>
         <div class="pending-title">Vérification en cours…</div>
         <div class="pending-sub">Votre paiement est en cours de vérification. Cela prend généralement <strong>moins de 2 minutes</strong>.</div>
-
-        <!-- COUNTDOWN 2 MIN -->
         <div class="countdown-box">
           <div class="cb-label">Activation dans</div>
           <div class="cb-timer" id="cbTimer">02:00</div>
           <div class="cb-track"><div class="cb-fill" id="cbFill" style="width:100%"></div></div>
         </div>
-
-        <!-- RECAP SOUMISSION -->
         <div class="pending-recap" id="pendingRecap"></div>
-
-        <div class="pending-note">
-          💡 Vous pouvez fermer cette fenêtre. Vous recevrez une notification dès que votre compte sera activé.
-        </div>
-
-        <button class="btn-close-pending" onclick="closePendingAndWait()">
-          Fermer et attendre la notification
-        </button>
+        <div class="pending-note">💡 Vous pouvez fermer cette fenêtre. Vous recevrez une notification dès que votre compte sera activé.</div>
+        <button class="btn-close-pending" onclick="closePendingAndWait()">Fermer et attendre la notification</button>
       </div>
     </div>
 
-    <!-- ── ÉTAPE 3 : SUCCÈS ── -->
     <div id="stepSuccess" style="display:none">
       <div style="text-align:center;padding:.5rem 0">
         <div class="success-ico-big">🎉</div>
@@ -513,17 +475,14 @@
 <div id="toast"><span id="tIco"></span>&nbsp;<span id="tMsg"></span></div>
 
 <style>
-/* ── STYLES SUPPLÉMENTAIRES MODAL ── */
 .mode-tabs{display:flex;gap:.5rem;margin-bottom:1.3rem;}
 .mode-tab{flex:1;padding:.65rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--gray);}
 .mode-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
-
 .manual-info-box{background:linear-gradient(135deg,rgba(0,194,113,.06),rgba(0,194,183,.05));border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.1rem;}
 .mib-title{font-size:.72rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
 .mib-steps{display:flex;flex-direction:column;gap:.4rem;}
 .mib-step{display:flex;align-items:flex-start;gap:.6rem;font-size:.8rem;color:var(--dark);line-height:1.4;}
 .mib-num{width:20px;height:20px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;}
-
 .operator-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
 .operator-card{border:1.5px solid var(--border);border-radius:13px;padding:.8rem;cursor:pointer;transition:all .2s;background:var(--bg);display:flex;align-items:center;gap:.7rem;}
 .operator-card:hover{border-color:var(--blue2);}
@@ -532,27 +491,14 @@
 .op-name{font-size:.82rem;font-weight:700;color:var(--dark);}
 .op-country{font-size:.65rem;color:var(--gray);}
 .op-num{font-size:.7rem;color:var(--blue2);font-weight:700;margin-top:.15rem;}
-
 .amount-banner{background:linear-gradient(135deg,var(--dark),#0D1E6B);color:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem;text-align:center;}
 .ab-label{font-size:.65rem;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.2rem;}
 .ab-amount{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--gold);margin-bottom:.2rem;}
 .ab-num{font-size:.8rem;color:rgba(255,255,255,.7);margin-bottom:.7rem;}
 .ab-copy{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;border-radius:99px;padding:.35rem 1rem;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
 .ab-copy:hover{background:rgba(255,255,255,.22);}
-
-/* AUTO PLACEHOLDER */
-.auto-placeholder{background:var(--bg);border:2px dashed var(--border);border-radius:16px;padding:1.8rem 1.4rem;text-align:center;}
-.ap-ico{font-size:2.5rem;margin-bottom:.5rem;}
-.ap-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem;}
-.ap-desc{font-size:.8rem;color:var(--gray);line-height:1.55;margin-bottom:1rem;}
-.ap-methods{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem;}
-.apm{background:white;border:1px solid var(--border);border-radius:99px;padding:.28rem .8rem;font-size:.72rem;font-weight:600;}
-.btn-notify{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;padding:.55rem 1.4rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-
-/* PENDING */
 .pending-ring{width:80px;height:80px;border-radius:50%;background:rgba(245,183,49,.1);border:3px solid rgba(245,183,49,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;position:relative;}
 .pending-spinner{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--gold);animation:spin .9s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
 .pending-ico{font-size:2rem;}
 .pending-title{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.4rem;}
 .pending-sub{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:1.2rem;}
@@ -568,8 +514,6 @@
 .pending-note{font-size:.73rem;color:var(--gray);line-height:1.5;margin-bottom:1rem;background:rgba(255,183,49,.08);border:1px solid rgba(245,183,49,.2);border-radius:10px;padding:.7rem .9rem;}
 .btn-close-pending{width:100%;padding:.8rem;border:1.5px solid var(--border);border-radius:13px;background:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;color:var(--gray);transition:all .2s;}
 .btn-close-pending:hover{border-color:var(--dark);color:var(--dark);}
-
-/* SUCCESS BIG */
 .success-ico-big{font-size:4rem;animation:popBig .6s cubic-bezier(.34,1.56,.64,1) both;display:block;margin-bottom:.6rem;}
 @keyframes popBig{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
 .success-title-big{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;margin-bottom:.5rem;}
@@ -593,38 +537,95 @@ const PLANS={
   elite:  {name:'Elite',  ico:'🚀',monthly:2500,annual:24000}
 };
 
-// ⚙️ CONFIGURE ICI TES NUMÉROS DE RÉCEPTION
-const PAYMENT_NUMBERS={
-  orange:'+237 658 033 690',
-  mtn:   '+237 651 461 777'
-};
-const PAYMENT_NAMES={
-  orange:'Alirou Moun',
-  mtn:   'Jean Jacques Rousseau'
-};
+const PAYMENT_NUMBERS={orange:'+237 658 033 690',mtn:'+237 651 461 777'};
+const PAYMENT_NAMES={orange:'Alirou Moun',mtn:'Jean Jacques Rousseau'};
 
-// ===== INIT =====
+/* ===== MARQUER LE PLAN ACTIF ===== */
+function markCurrentPlan(plan){
+  // plan = 'free', 'premium', ou 'elite'
+  const plans=['free','premium','elite'];
+  plans.forEach(p=>{
+    const card=document.getElementById('card-'+p);
+    const btn=document.getElementById('btn-'+p);
+    const note=document.getElementById('note-'+p);
+    if(!card||!btn) return;
+
+    // Supprimer badge "Plan actuel" si existant
+    const old=card.querySelector('.current-badge');
+    if(old) old.remove();
+
+    if(p===plan){
+      // Plan actuel → désactiver le bouton + ajouter badge
+      card.classList.add('current-plan');
+      btn.className='btn-plan btn-current';
+      btn.disabled=true;
+      btn.innerHTML='✅ Plan actuel';
+      btn.onclick=null;
+      if(note) note.textContent='Votre plan actif';
+      // Badge en haut à gauche
+      const badge=document.createElement('div');
+      badge.className='current-badge';
+      badge.textContent='✅ Plan actuel';
+      card.appendChild(badge);
+    } else {
+      // Autres plans → bouton normal
+      card.classList.remove('current-plan');
+      if(p==='free'){
+        btn.className='btn-plan btn-free-plan';
+        btn.disabled=false;
+        btn.innerHTML='Continuer gratuit';
+        btn.onclick=stayFree;
+        if(note) note.textContent='Pas d\'engagement';
+      } else if(p==='premium'){
+        btn.className='btn-plan btn-prem-plan';
+        btn.disabled=false;
+        btn.innerHTML='<span>👑 Choisir Premium</span>';
+        btn.onclick=()=>openCheckout('premium');
+        if(note) note.textContent='30 jours gratuits inclus';
+      } else if(p==='elite'){
+        btn.className='btn-plan btn-elite-plan';
+        btn.disabled=false;
+        btn.innerHTML='<span>🚀 Choisir Elite</span>';
+        btn.onclick=()=>openCheckout('elite');
+        if(note) note.textContent='30 jours gratuits inclus';
+      }
+    }
+  });
+}
+
+/* ===== INIT ===== */
 (async()=>{
   const{data:{session}}=await sb.auth.getSession();
   if(session){
     currentUser=session.user;
     const{data:prof}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
     userProfile=prof;
-    if(prof?.is_premium){showToast('Vous avez déjà un compte '+prof.plan+' actif ✅','info');}
+
+    // Déterminer le plan actuel
+    let currentPlan='free';
+    if(prof?.is_premium){
+      currentPlan=prof.plan==='elite'?'elite':'premium';
+      showToast('Vous êtes sur le plan '+prof.plan+' ✅','info');
+    }
+    markCurrentPlan(currentPlan);
+
+    // Countdown essai (30 jours)
     const daysSince=Math.floor((Date.now()-new Date(currentUser.created_at))/86400000);
-    const trialLeft=Math.max(0,7-daysSince);
+    const trialLeft=Math.max(0,30-daysSince);
     if(trialLeft>0&&!prof?.is_premium){
       document.getElementById('tcDays').textContent=trialLeft;
       document.getElementById('trialCountdown').classList.add('show');
     }
 
-    // Si paiement en attente → reprendre le suivi
     const pendingId=localStorage.getItem('pending_payment_id');
     if(pendingId){checkExistingPending(pendingId);}
+  } else {
+    // Pas connecté → plan free par défaut
+    markCurrentPlan('free');
   }
 })();
 
-// ===== BILLING TOGGLE =====
+/* ===== BILLING TOGGLE ===== */
 function toggleBilling(){
   isAnnual=!isAnnual;
   document.getElementById('billingToggle').classList.toggle('on',isAnnual);
@@ -642,7 +643,7 @@ function toggleBilling(){
   document.getElementById('annual-elite').style.display=isAnnual?'block':'none';
 }
 
-// ===== CHECKOUT OPEN =====
+/* ===== CHECKOUT OPEN ===== */
 function openCheckout(plan){
   if(!currentUser){
     showToast('Connectez-vous pour continuer','warning');
@@ -656,106 +657,48 @@ function openCheckout(plan){
   document.getElementById('mo-name').textContent=p.name;
   document.getElementById('mo-price').textContent=price.toLocaleString('fr-FR')+' FCFA'+(isAnnual?'/an':'/mois');
   document.getElementById('abAmount').textContent=price.toLocaleString('fr-FR')+' FCFA';
-  // Reset steps
   showStep('stepMode');
   switchMode('manual');
   selectOperator('orange');
   document.getElementById('checkoutModal').classList.add('open');
 }
 
-/* ════════════════════════════════════════
-   ★ MONETBIL — Paiement automatique réel
-════════════════════════════════════════ */
-const MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
-const MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
+/* ===== MONETBIL ===== */
+const MONETBIL_KEY='xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
+const MONETBIL_NOTIFY='https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
 
-async function lancerMonetbil() {
-  if (!currentUser) {
-    showToast('Connecte-toi pour payer','warning');
-    setTimeout(()=>location.href='index.html',1500);
-    return;
-  }
-  const plan = PLANS[selectedPlan];
-  const amount = isAnnual ? plan.annual : plan.monthly;
-  const planKey = selectedPlan + (isAnnual ? '_annual' : '');
-  const ref = 'AM_' + Date.now() + '_' + currentUser.id.slice(0,8);
-
-  const btn  = document.getElementById('monetbilPayBtn');
-  const lbl  = document.getElementById('monetbilPayLbl');
-  const spin = document.getElementById('monetbilSpin');
-  btn.disabled = true; lbl.style.display='none'; spin.style.display='block';
-
-  try {
-    /* Sauvegarder la demande en base */
-    await sb.from('payment_requests').insert([{
-      user_id:     currentUser.id,
-      plan:        planKey,
-      amount:      amount,
-      payment_ref: ref,
-      status:      'pending',
-      created_at:  new Date().toISOString()
-    }]);
-
-    /* Fermer le modal checkout */
+async function lancerMonetbil(){
+  if(!currentUser){showToast('Connecte-toi pour payer','warning');setTimeout(()=>location.href='index.html',1500);return;}
+  const plan=PLANS[selectedPlan];
+  const amount=isAnnual?plan.annual:plan.monthly;
+  const planKey=selectedPlan+(isAnnual?'_annual':'');
+  const ref='AM_'+Date.now()+'_'+currentUser.id.slice(0,8);
+  const btn=document.getElementById('monetbilPayBtn');
+  const lbl=document.getElementById('monetbilPayLbl');
+  const spin=document.getElementById('monetbilSpin');
+  btn.disabled=true;lbl.style.display='none';spin.style.display='block';
+  try{
+    await sb.from('payment_requests').insert([{user_id:currentUser.id,plan:planKey,amount,payment_ref:ref,status:'pending',created_at:new Date().toISOString()}]);
     document.getElementById('checkoutModal').classList.remove('open');
-
-    /* Lancer Monetbil */
-    if (typeof monetbil !== 'undefined') {
-      monetbil.launch({
-        service:     MONETBIL_KEY,
-        amount:      amount,
-        currency:    'XAF',
-        locale:      'fr',
-        item_ref:    currentUser.id,
-        payment_ref: ref,
-        notify_url:  MONETBIL_NOTIFY,
-        return_url:  window.location.href,
-        onComplete: async function(data) {
-          if (data && data.status === 'success') {
+    if(typeof monetbil!=='undefined'){
+      monetbil.launch({service:MONETBIL_KEY,amount,currency:'XAF',locale:'fr',item_ref:currentUser.id,payment_ref:ref,notify_url:MONETBIL_NOTIFY,return_url:window.location.href,
+        onComplete:async function(data){
+          if(data&&data.status==='success'){
             showToast('🎉 Paiement confirmé ! Activation en cours…','success');
-            setTimeout(async () => {
-              const {data:prof} = await sb.from('profiles').select('is_premium,plan').eq('id',currentUser.id).single();
-              if (prof && prof.is_premium) {
-                showToast('👑 Premium activé ! Bienvenue !','success');
-                setTimeout(()=>location.href='profil.html',2000);
-              }
-            }, 3000);
-          } else {
-            showToast('Paiement annulé ou échoué','warning');
-          }
+            setTimeout(async()=>{const{data:prof}=await sb.from('profiles').select('is_premium,plan').eq('id',currentUser.id).single();if(prof&&prof.is_premium){showToast('👑 Premium activé ! Bienvenue !','success');setTimeout(()=>location.href='profil.html',2000);}},3000);
+          }else{showToast('Paiement annulé ou échoué','warning');}
         }
       });
-    } else {
-      /* Fallback redirection directe */
-      const p = new URLSearchParams({
-        amount, currency:'XAF', locale:'fr',
-        item_ref:currentUser.id, payment_ref:ref,
-        notify_url:MONETBIL_NOTIFY,
-        return_url:window.location.href
-      });
-      location.href = 'https://www.monetbil.com/widget/v2.1/'+MONETBIL_KEY+'?'+p.toString();
+    }else{
+      const p=new URLSearchParams({amount,currency:'XAF',locale:'fr',item_ref:currentUser.id,payment_ref:ref,notify_url:MONETBIL_NOTIFY,return_url:window.location.href});
+      location.href='https://www.monetbil.com/widget/v2.1/'+MONETBIL_KEY+'?'+p.toString();
     }
-  } catch(err) {
-    showToast('Erreur : '+(err.message||'Inconnue'),'error');
-  } finally {
-    btn.disabled=false; lbl.style.display=''; spin.style.display='none';
-  }
-}
-/* ════════ FIN MONETBIL ════════ */
-
-function closeModal(e){
-  if(e.target===document.getElementById('checkoutModal'))
-    document.getElementById('checkoutModal').classList.remove('open');
+  }catch(err){showToast('Erreur : '+(err.message||'Inconnue'),'error');}
+  finally{btn.disabled=false;lbl.style.display='';spin.style.display='none';}
 }
 
-// ===== STEP NAVIGATION =====
-function showStep(id){
-  ['stepMode','stepPending','stepSuccess'].forEach(s=>{
-    document.getElementById(s).style.display=s===id?'':'none';
-  });
-}
-
-// ===== MODE TABS =====
+function closeModal(e){if(e.target===document.getElementById('checkoutModal'))document.getElementById('checkoutModal').classList.remove('open');}
+function showStep(id){['stepMode','stepPending','stepSuccess'].forEach(s=>{document.getElementById(s).style.display=s===id?'':'none';});}
 function switchMode(mode){
   document.getElementById('tabManual').classList.toggle('active',mode==='manual');
   document.getElementById('tabAuto').classList.toggle('active',mode==='auto');
@@ -763,33 +706,21 @@ function switchMode(mode){
   document.getElementById('modeAuto').style.display=mode==='auto'?'':'none';
 }
 
-// ===== OPERATOR SELECT =====
 function selectOperator(op){
   selectedOperator=op;
   document.getElementById('op-orange').classList.toggle('sel',op==='orange');
   document.getElementById('op-mtn').classList.toggle('sel',op==='mtn');
-  const num=PAYMENT_NUMBERS[op];
-  const nom=PAYMENT_NAMES[op];
-  document.getElementById('abNum').textContent=num;
-  // Afficher le nom du bénéficiaire
+  document.getElementById('abNum').textContent=PAYMENT_NUMBERS[op];
   let nomEl=document.getElementById('abBenef');
-  if(!nomEl){
-    nomEl=document.createElement('div');
-    nomEl.id='abBenef';
-    nomEl.style.cssText='font-size:.72rem;color:rgba(255,255,255,.55);margin-top:.15rem;';
-    document.getElementById('abNum').parentNode.appendChild(nomEl);
-  }
-  nomEl.textContent='Nom : '+nom;
+  if(!nomEl){nomEl=document.createElement('div');nomEl.id='abBenef';nomEl.style.cssText='font-size:.72rem;color:rgba(255,255,255,.55);margin-top:.15rem;';document.getElementById('abNum').parentNode.appendChild(nomEl);}
+  nomEl.textContent='Nom : '+PAYMENT_NAMES[op];
 }
 
 function copyNum(){
   const num=PAYMENT_NUMBERS[selectedOperator];
-  navigator.clipboard?.writeText(num.replace(/\s/g,''))
-    .then(()=>showToast('Numéro copié ! '+num,'success'))
-    .catch(()=>showToast(num,'info'));
+  navigator.clipboard?.writeText(num.replace(/\s/g,'')).then(()=>showToast('Numéro copié ! '+num,'success')).catch(()=>showToast(num,'info'));
 }
 
-// ===== SOUMETTRE PAIEMENT MANUEL =====
 async function submitManualPayment(){
   if(!currentUser){showToast('Connectez-vous d\'abord','warning');return;}
   const name=document.getElementById('manualName').value.trim();
@@ -798,213 +729,79 @@ async function submitManualPayment(){
   if(!name){showToast('Entrez votre nom complet','warning');return;}
   if(!ref){showToast('Entrez la référence de la transaction','warning');return;}
   if(!phone){showToast('Entrez le numéro utilisé pour payer','warning');return;}
-
   const btn=document.getElementById('btnManualPay');
   btn.disabled=true;btn.classList.add('loading');
-
   try{
     const price=isAnnual?PLANS[selectedPlan].annual:PLANS[selectedPlan].monthly;
-
-    // Insérer dans payment_requests
-    const{data:pay,error}=await sb.from('payment_requests').insert({
-      user_id:        currentUser.id,
-      plan:           selectedPlan,
-      amount:         price,
-      billing:        isAnnual?'annual':'monthly',
-      operator:       selectedOperator,
-      sender_name:    name,
-      sender_phone:   phone,
-      transaction_ref:ref,
-      status:         'pending',
-      created_at:     new Date().toISOString()
-    }).select().single();
-
+    const{data:pay,error}=await sb.from('payment_requests').insert({user_id:currentUser.id,plan:selectedPlan,amount:price,billing:isAnnual?'annual':'monthly',operator:selectedOperator,sender_name:name,sender_phone:phone,transaction_ref:ref,status:'pending',created_at:new Date().toISOString()}).select().single();
     if(error) throw error;
-
     paymentId=pay.id;
     localStorage.setItem('pending_payment_id',pay.id);
-
-    // Afficher étape en attente
     showPendingStep(name,ref,phone,price);
-
-    // Démarrer countdown 2min + polling Supabase
     startVerificationCountdown(pay.id);
-
-  }catch(e){
-    showToast('Erreur : '+e.message,'error');
-  }finally{
-    btn.disabled=false;btn.classList.remove('loading');
-  }
+  }catch(e){showToast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.classList.remove('loading');}
 }
 
-// ===== AFFICHER ÉTAPE PENDING =====
 function showPendingStep(name,ref,phone,price){
-  document.getElementById('pendingRecap').innerHTML=`
-    <div class="pr-row"><span class="pr-lbl">Nom</span><span class="pr-val">${name}</span></div>
-    <div class="pr-row"><span class="pr-lbl">Référence</span><span class="pr-val">${ref}</span></div>
-    <div class="pr-row"><span class="pr-lbl">Numéro</span><span class="pr-val">${phone}</span></div>
-    <div class="pr-row"><span class="pr-lbl">Montant</span><span class="pr-val">${price.toLocaleString('fr-FR')} FCFA</span></div>
-    <div class="pr-row"><span class="pr-lbl">Plan</span><span class="pr-val">${PLANS[selectedPlan].ico} ${PLANS[selectedPlan].name}</span></div>`;
+  document.getElementById('pendingRecap').innerHTML=`<div class="pr-row"><span class="pr-lbl">Nom</span><span class="pr-val">${name}</span></div><div class="pr-row"><span class="pr-lbl">Référence</span><span class="pr-val">${ref}</span></div><div class="pr-row"><span class="pr-lbl">Numéro</span><span class="pr-val">${phone}</span></div><div class="pr-row"><span class="pr-lbl">Montant</span><span class="pr-val">${price.toLocaleString('fr-FR')} FCFA</span></div><div class="pr-row"><span class="pr-lbl">Plan</span><span class="pr-val">${PLANS[selectedPlan].ico} ${PLANS[selectedPlan].name}</span></div>`;
   showStep('stepPending');
 }
 
-// ===== COUNTDOWN + POLLING =====
 function startVerificationCountdown(pid){
-  const TOTAL=120; // 2 minutes
-  let elapsed=0;
-  const fill=document.getElementById('cbFill');
-  const timer=document.getElementById('cbTimer');
-
+  const TOTAL=120;let elapsed=0;
+  const fill=document.getElementById('cbFill');const timer=document.getElementById('cbTimer');
   countdownTimer=setInterval(async()=>{
     elapsed++;
     const rem=Math.max(0,TOTAL-elapsed);
-    const m=String(Math.floor(rem/60)).padStart(2,'0');
-    const s=String(rem%60).padStart(2,'0');
-    timer.textContent=m+':'+s;
-    fill.style.width=((rem/TOTAL)*100)+'%';
-
-    // Polling Supabase toutes les 10s pour vérifier si approuvé par admin
+    const m=String(Math.floor(rem/60)).padStart(2,'0');const s=String(rem%60).padStart(2,'0');
+    timer.textContent=m+':'+s;fill.style.width=((rem/TOTAL)*100)+'%';
     if(elapsed%10===0){
       const{data:p}=await sb.from('payment_requests').select('status').eq('id',pid).single();
-      if(p?.status==='approved'){
-        clearInterval(countdownTimer);
-        await activatePremium(pid);
-        return;
-      }
-      if(p?.status==='rejected'){
-        clearInterval(countdownTimer);
-        localStorage.removeItem('pending_payment_id');
-        showToast('Paiement non confirmé. Vérifiez votre référence et réessayez.','error');
-        showStep('stepMode');
-        return;
-      }
+      if(p?.status==='approved'){clearInterval(countdownTimer);await activatePremium(pid);return;}
+      if(p?.status==='rejected'){clearInterval(countdownTimer);localStorage.removeItem('pending_payment_id');showToast('Paiement non confirmé. Vérifiez votre référence et réessayez.','error');showStep('stepMode');return;}
     }
-
-    // Après 2 minutes → activer automatiquement (confiance)
-    if(elapsed>=TOTAL){
-      clearInterval(countdownTimer);
-      await activatePremium(pid);
-    }
+    if(elapsed>=TOTAL){clearInterval(countdownTimer);await activatePremium(pid);}
   },1000);
 }
 
-// ===== ACTIVATION PREMIUM =====
 async function activatePremium(pid){
   try{
     const expiresAt=new Date();
     if(isAnnual) expiresAt.setFullYear(expiresAt.getFullYear()+1);
     else expiresAt.setMonth(expiresAt.getMonth()+1);
-
-    // Mettre à jour le profil
-    const{error:updateErr}=await sb.from('profiles').update({
-      is_premium:   true,
-      plan:         selectedPlan,
-      plan_expires: expiresAt.toISOString()
-    }).eq('id',currentUser.id);
+    const{error:updateErr}=await sb.from('profiles').update({is_premium:true,plan:selectedPlan,plan_expires:expiresAt.toISOString()}).eq('id',currentUser.id);
     if(updateErr) throw updateErr;
-
-    // Marquer la demande comme traitée
-    await sb.from('payment_requests').update({
-      status:      'approved',
-      approved_at: new Date().toISOString()
-    }).eq('id',pid);
-
-    // Envoyer notification
-    await sb.from('notifications').insert({
-      user_id:    currentUser.id,
-      title:      `🎉 Bienvenue en ${PLANS[selectedPlan].name} !`,
-      message:    `Votre abonnement ${PLANS[selectedPlan].name} est actif jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}. Publiez sans limites !`,
-      icon:       PLANS[selectedPlan].ico,
-      type:       'success',
-      read:       false,
-      created_at: new Date().toISOString()
-    });
-
+    await sb.from('payment_requests').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',pid);
+    await sb.from('notifications').insert({user_id:currentUser.id,title:`🎉 Bienvenue en ${PLANS[selectedPlan].name} !`,message:`Votre abonnement ${PLANS[selectedPlan].name} est actif jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}. Publiez sans limites !`,icon:PLANS[selectedPlan].ico,type:'success',read:false,created_at:new Date().toISOString()});
     localStorage.removeItem('pending_payment_id');
-
-    // Stocker pour payment-success.html
-    sessionStorage.setItem('justUpgraded',JSON.stringify({
-      name:    PLANS[selectedPlan].name,
-      ico:     PLANS[selectedPlan].ico,
-      plan:    selectedPlan,
-      expires: expiresAt.toLocaleDateString('fr-FR')
-    }));
-
-    // Afficher succès
+    sessionStorage.setItem('justUpgraded',JSON.stringify({name:PLANS[selectedPlan].name,ico:PLANS[selectedPlan].ico,plan:selectedPlan,expires:expiresAt.toLocaleDateString('fr-FR')}));
     document.getElementById('sPlanBadge').textContent=PLANS[selectedPlan].ico+' '+PLANS[selectedPlan].name+' activé ✅';
     document.getElementById('sDetails').textContent=`Votre compte ${PLANS[selectedPlan].name} est actif jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}.`;
     showStep('stepSuccess');
-
-  }catch(e){
-    showToast('Erreur activation : '+e.message,'error');
-  }
+    markCurrentPlan(selectedPlan);
+  }catch(e){showToast('Erreur activation : '+e.message,'error');}
 }
 
-// ===== VÉRIFIER PAIEMENT EN ATTENTE (si l'utilisateur revient) =====
 async function checkExistingPending(pid){
   const{data:p}=await sb.from('payment_requests').select('*').eq('id',pid).single();
   if(!p) return;
-  if(p.status==='approved'){
-    localStorage.removeItem('pending_payment_id');
-    sessionStorage.setItem('showWelcomePremium','1');
-    return;
-  }
+  if(p.status==='approved'){localStorage.removeItem('pending_payment_id');return;}
   if(p.status==='pending'){
-    selectedPlan=p.plan;
-    isAnnual=p.billing==='annual';
-    const price=p.amount;
+    selectedPlan=p.plan;isAnnual=p.billing==='annual';
     const elapsed=Math.floor((Date.now()-new Date(p.created_at))/1000);
-    if(elapsed<120){
-      // Reprendre le suivi dans le modal
-      document.getElementById('checkoutModal').classList.add('open');
-      showPendingStep(p.sender_name,p.transaction_ref,p.sender_phone,price);
-      paymentId=pid;
-      startVerificationCountdown(pid);
-      showToast('Reprise du suivi de votre paiement en cours…','info');
-    } else {
-      // Délai dépassé → activer quand même
-      await activatePremium(pid);
-      sessionStorage.setItem('showWelcomePremium','1');
-    }
+    if(elapsed<120){document.getElementById('checkoutModal').classList.add('open');showPendingStep(p.sender_name,p.transaction_ref,p.sender_phone,p.amount);paymentId=pid;startVerificationCountdown(pid);showToast('Reprise du suivi de votre paiement en cours…','info');}
+    else{await activatePremium(pid);}
   }
 }
 
-// ===== FERMER ET ATTENDRE =====
-function closePendingAndWait(){
-  document.getElementById('checkoutModal').classList.remove('open');
-  showToast('Vous recevrez une notification à l\'activation de votre compte 🔔','info');
-}
+function closePendingAndWait(){document.getElementById('checkoutModal').classList.remove('open');showToast('Vous recevrez une notification à l\'activation de votre compte 🔔','info');}
 
-// ===== NOTIFIER AUTO =====
-async function notifyAuto(){
-  if(!currentUser){showToast('Connectez-vous pour être notifié','warning');return;}
-  await sb.from('notifications').insert({
-    user_id:currentUser.id,
-    title:'🔔 Paiement auto — Bientôt disponible !',
-    message:'Nous vous préviendrons dès que le paiement automatique sera disponible.',
-    icon:'⚡',type:'info',read:false,created_at:new Date().toISOString()
-  });
-  showToast('Nous vous préviendrons dès que disponible ! 📩','success');
-}
+function goToDashboard(){sessionStorage.removeItem('justUpgraded');sessionStorage.setItem('showWelcomePremium','1');window.location.href='dashboard.html';}
+function stayFree(){window.location.href='dashboard.html';}
 
-// ===== GO TO DASHBOARD =====
-function goToDashboard(){
-  sessionStorage.removeItem('justUpgraded');
-  sessionStorage.setItem('showWelcomePremium','1');
-  window.location.href='dashboard.html';
-}
+function toggleFaq(el){const item=el.parentElement;const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(f=>f.classList.remove('open'));if(!isOpen)item.classList.add('open');}
 
-function stayFree(){ window.location.href='dashboard.html'; }
-
-// ===== FAQ =====
-function toggleFaq(el){
-  const item=el.parentElement;
-  const isOpen=item.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach(f=>f.classList.remove('open'));
-  if(!isOpen)item.classList.add('open');
-}
-
-// ===== TOAST =====
 let tt;
 function showToast(msg,type='success'){
   const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
@@ -1018,16 +815,10 @@ function showToast(msg,type='success'){
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('checkoutModal').classList.remove('open');});
 </script>
-  <script>
-    if('serviceWorker' in navigator){
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(r => console.log('[SW] Registered:', r.scope))
-          .catch(e => console.warn('[SW] Error:', e));
-      });
-    }
-  </script>
-<!-- ★ Monetbil Widget SDK -->
+
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').then(r=>console.log('[SW] Registered:',r.scope)).catch(e=>console.warn('[SW] Error:',e));});}
+</script>
 <script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
 <style>#monetbilSpin{animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style>
 </body>
