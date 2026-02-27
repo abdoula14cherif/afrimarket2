@@ -149,7 +149,6 @@
     .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
     .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
 
-    /* FIX: Badge messages non lus */
     .nav-badge{position:absolute;top:4px;right:8px;min-width:18px;height:18px;border-radius:99px;background:var(--red);color:white;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid white;line-height:1;animation:badgePop .3s cubic-bezier(.34,1.56,.64,1);}
     @keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
 
@@ -174,9 +173,7 @@
     .skel{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-    /* ════════════════════════════════════════
-       ★ PATCH 1 CSS — MODAL PAIEMENT MONETBIL
-    ════════════════════════════════════════ */
+    /* ── MODAL PAIEMENT MONETBIL ── */
     .pay-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.8rem;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);overflow-y:auto;max-height:90vh;}
     .modal-ov.open .pay-sheet{transform:translateY(0);}
     .pay-title{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:.25rem;}
@@ -351,7 +348,6 @@
       <div class="pc-feat">❌ Pas de badge vendeur vérifié</div>
     </div>
     <div class="pc-desc" id="planDesc">Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.</div>
-    <!-- ★ PATCH 2 HTML — bouton ouvre le modal Monetbil au lieu de rediriger -->
     <button class="pc-btn pc-btn-upgrade" id="planBtn" onclick="openPayModal()">
       👑 Passer Premium — Mobile Money
     </button>
@@ -395,11 +391,13 @@
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
   </a>
 
-  <a href="/cdn-cgi/l/email-protection#a7c6c5c3c8d2cbc69694c4cfc2d5cec1e7c0cac6cecb89c4c8ca98d4d2c5cdc2c4d39af4d2d7d7c8d5d3829597e6c1d5ceeac6d5ccc2d381c5c8c3de9ae5c8c9cdc8d2d58295e4829597cd829590c6ce829597c5c2d4c8cec9829597c3829590c6cec3c289" style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
+  <a href="mailto:support@afrimarket.app"
+     style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;transition:all .2s;"
+     onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
     <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
     <div>
       <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;"><span class="__cf_email__" data-cfemail="6a0b080e051f060b5b5909020f18030c2a0d070b030644090507">[email&#160;protected]</span></div>
+      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">support@afrimarket.app</div>
     </div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
   </a>
@@ -465,16 +463,13 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════
-     ★ PATCH 2 HTML — MODAL PAIEMENT PREMIUM MONETBIL
-════════════════════════════════════════════════ -->
+<!-- MODAL PAIEMENT PREMIUM MONETBIL -->
 <div class="modal-ov" id="payOv" onclick="if(event.target===this)closePayModal()">
   <div class="pay-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="pay-title">👑 Passer Premium</div>
     <div class="pay-sub">Paie en Mobile Money en quelques secondes, activation immédiate 🚀</div>
 
-    <!-- Sélection du plan -->
     <div class="plan-cards">
       <div class="plan-opt selected" id="optMensuel" onclick="selectPlan('mensuel')">
         <div class="plan-opt-row">
@@ -504,7 +499,6 @@
       </div>
     </div>
 
-    <!-- Opérateurs -->
     <div style="font-size:.7rem;color:var(--gray);font-weight:600;margin-bottom:.35rem;">Opérateurs acceptés :</div>
     <div class="pay-ops">
       <span class="pay-op">📱 MTN MoMo</span>
@@ -513,7 +507,6 @@
       <span class="pay-op">🟡 Wave</span>
     </div>
 
-    <!-- Avantages -->
     <div class="pay-avantages">
       <div class="pay-avantages-ttl">✨ Ce que tu débloques</div>
       <div>✅ Annonces illimitées</div>
@@ -535,11 +528,23 @@
 
 <div id="toast"></div>
 
-<!-- ★ PATCH 3 — Script Monetbil (doit être avant </body>) -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
+<script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
 
 <script>
 'use strict';
+
+/* ===== UTILITAIRE escHtml — manquant dans le code original ===== */
+// BUG CORRIGÉ #2 : escHtml n'était pas déclarée, provoquant un ReferenceError partout
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 var _sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
@@ -547,13 +552,11 @@ var _sb = supabase.createClient(
 
 var U = null, P = null, hasChanges = false;
 
-/* ════════════════════════════════════════
-   ★ PATCH 3 JS — CONFIG ET LOGIQUE MONETBIL
-════════════════════════════════════════ */
+/* ── MONETBIL CONFIG ── */
 var MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
 var MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
 var PLANS = {
-  mensuel: { amount: 2000,  label: '2 000', months: 1,  dbPlan: 'premium' },
+  mensuel: { amount: 2000,  label: '2 000',  months: 1,  dbPlan: 'premium' },
   annuel:  { amount: 20000, label: '20 000', months: 12, dbPlan: 'premium_annual' }
 };
 var _selectedPlan = 'mensuel';
@@ -579,9 +582,7 @@ async function lancerPaiement() {
   var ref  = 'AM_' + Date.now() + '_' + U.id.slice(0, 8);
   var btn  = document.getElementById('payBtn');
   btn.disabled = true; btn.classList.add('loading');
-
   try {
-    /* 1. Sauvegarder la demande en base */
     await _sb.from('payment_requests').insert([{
       user_id:     U.id,
       plan:        plan.dbPlan,
@@ -590,10 +591,7 @@ async function lancerPaiement() {
       status:      'pending',
       created_at:  new Date().toISOString()
     }]);
-
     closePayModal();
-
-    /* 2. Lancer le widget Monetbil */
     if (typeof monetbil !== 'undefined') {
       monetbil.launch({
         service:     MONETBIL_KEY,
@@ -619,7 +617,6 @@ async function lancerPaiement() {
         }
       });
     } else {
-      /* Fallback si le script Monetbil ne charge pas → redirection directe */
       var p = new URLSearchParams({
         amount: plan.amount, currency: 'XAF', locale: 'fr',
         item_ref: U.id, payment_ref: ref,
@@ -634,7 +631,6 @@ async function lancerPaiement() {
     btn.disabled = false; btn.classList.remove('loading');
   }
 }
-/* ════════ FIN PATCH MONETBIL ════════ */
 
 /* ===== INIT ===== */
 (async function() {
@@ -648,7 +644,6 @@ async function lancerPaiement() {
     return;
   }
 
-  /* Afficher immédiatement les données de user_metadata en attendant la DB */
   var meta = (U.user_metadata) || {};
   P = {
     full_name : meta.full_name || meta.name || U.email.split('@')[0],
@@ -658,16 +653,12 @@ async function lancerPaiement() {
   fillForm();
   updateHero();
 
-  /* Charger le profil complet depuis la base */
   try {
     var pr = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
     if (pr.error) throw pr.error;
-
     if (pr.data) {
-      /* Profil existant — fusionner avec les metadata */
       P = Object.assign({}, P, pr.data);
     } else {
-      /* Profil absent → le créer automatiquement */
       var newProf = {
         id        : U.id,
         full_name : meta.full_name || meta.name || U.email.split('@')[0],
@@ -679,7 +670,6 @@ async function lancerPaiement() {
     }
   } catch(e) {
     console.warn('Profile fetch error:', e.message);
-    /* P garde les données user_metadata comme fallback */
   }
 
   fillForm();
@@ -694,6 +684,8 @@ async function lancerPaiement() {
 })();
 
 /* ===== REMPLIR LE FORMULAIRE ===== */
+// BUG CORRIGÉ #1 : la fonction était déclarée deux fois avec le corps
+// du 2e bloc orphelin hors de toute fonction → SyntaxError silencieuse
 function fillForm() {
   if (!P) return;
   document.getElementById('fName').value  = P.full_name  || '';
@@ -702,23 +694,27 @@ function fillForm() {
   document.getElementById('fVille').value = P.ville      || '';
   document.getElementById('fBio').value   = P.bio        || '';
 }
-  document.getElementById('fPays').value  = P.pays       || '';
-  document.getElementById('fVille').value = P.ville      || '';
-  document.getElementById('fBio').value   = P.bio        || '';
-}
 
 /* ===== HERO ===== */
+// BUG CORRIGÉ #3 : après innerHTML = '...', getElementById('avatarInitial')
+// retournait null car l'élément avait été remplacé → crash TypeError
 function updateHero() {
   var name = P.full_name || (U && U.email ? U.email.split('@')[0] : 'Utilisateur');
   document.getElementById('heroName').textContent  = name;
   document.getElementById('heroEmail').textContent = (U && U.email) || '';
+
   var avEl = document.getElementById('avatarEl');
   if (P.avatar_url && P.avatar_url.startsWith('http')) {
-    avEl.innerHTML = '<img src="' + escHtml(P.avatar_url) + '" alt="avatar" onerror="this.style.display=\'none\';document.getElementById(\'avatarInitial\').style.display=\'block\'"/>';
-    document.getElementById('avatarInitial').style.display = 'none';
+    // On reconstruit tout le contenu en une fois — plus de getElementById après
+    avEl.innerHTML =
+      '<img src="' + escHtml(P.avatar_url) + '" alt="avatar" ' +
+      'style="width:100%;height:100%;object-fit:cover;border-radius:50%;" ' +
+      'onerror="this.style.display=\'none\';"/>';
   } else {
+    // Initiale : on remet le span avec le bon id
     avEl.innerHTML = '<span id="avatarInitial">' + escHtml((name[0] || '?').toUpperCase()) + '</span>';
   }
+
   var planEl = document.getElementById('heroPlan');
   if (P.is_premium) {
     planEl.className = 'hero-plan ' + (P.plan === 'elite' ? 'elite' : 'premium');
@@ -789,7 +785,8 @@ async function loadStats() {
     var earnRes = await _sb.from('referral_earnings').select('amount, status').eq('user_id', U.id);
     var solde = 0;
     if (earnRes.data) {
-      solde = earnRes.data.filter(function(e){ return e.status === 'available'; }).reduce(function(s, e){ return s + (e.amount || 0); }, 0);
+      solde = earnRes.data.filter(function(e){ return e.status === 'available'; })
+                          .reduce(function(s, e){ return s + (e.amount || 0); }, 0);
     }
     var days = P.created_at ? Math.floor((Date.now() - new Date(P.created_at).getTime()) / 86400000) : 0;
     document.getElementById('statAds').textContent   = adsRes.count || 0;
@@ -849,7 +846,8 @@ async function deleteAd(id) {
 /* ===== MES AVIS REÇUS ===== */
 async function loadMyAvis(uid) {
   try {
-    var res = await _sb.from('avis').select('note, commentaire, created_at, reviewer_id').eq('seller_id', uid).order('created_at', { ascending: false }).limit(20);
+    var res = await _sb.from('avis').select('note, commentaire, created_at, reviewer_id')
+      .eq('seller_id', uid).order('created_at', { ascending: false }).limit(20);
     var sec = document.getElementById('avisSection');
     if (!res.data || !res.data.length) {
       sec.innerHTML = '<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem">🌟</div><div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l\'instant.<br>Les acheteurs pourront te noter après un échange.</div></div>';
@@ -893,7 +891,8 @@ async function loadUnreadMessages() {
   } catch(e) { console.warn('loadUnreadMessages:', e); }
 }
 function updateMessageBadge(count) {
-  var el = document.getElementById('navMessages'), ex = el.querySelector('.nav-badge'); if (ex) ex.remove();
+  var el = document.getElementById('navMessages'), ex = el.querySelector('.nav-badge');
+  if (ex) ex.remove();
   if (count > 0) { var b = document.createElement('span'); b.className = 'nav-badge'; b.textContent = count > 99 ? '99+' : String(count); el.appendChild(b); }
 }
 
@@ -908,7 +907,9 @@ async function uploadAvatar(input) {
   var file = input.files[0]; if (!file) return;
   if (file.size > 3 * 1024 * 1024) { showToast('Image trop grande (max 3 Mo)', 'warning'); return; }
   var reader = new FileReader();
-  reader.onload = function(e) { document.getElementById('avatarEl').innerHTML = '<img src="' + e.target.result + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;"/>'; };
+  reader.onload = function(e) {
+    document.getElementById('avatarEl').innerHTML = '<img src="' + e.target.result + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';
+  };
   reader.readAsDataURL(file);
   document.getElementById('avatarUploading').classList.add('show');
   try {
@@ -918,12 +919,15 @@ async function uploadAvatar(input) {
     if (upRes.error) { showToast('Photo affichée localement uniquement (storage indisponible)', 'warning'); return; }
     var pubData = _sb.storage.from('avatars').getPublicUrl(path);
     var finalUrl = pubData.data && pubData.data.publicUrl ? pubData.data.publicUrl + '?t=' + Date.now() : null;
-    if (!finalUrl) { var signed = await _sb.storage.from('avatars').createSignedUrl(path, 31536000); finalUrl = signed.data && signed.data.signedUrl ? signed.data.signedUrl : null; }
+    if (!finalUrl) {
+      var signed = await _sb.storage.from('avatars').createSignedUrl(path, 31536000);
+      finalUrl = signed.data && signed.data.signedUrl ? signed.data.signedUrl : null;
+    }
     if (!finalUrl) { showToast('Upload OK mais URL inaccessible', 'warning'); return; }
     var upsertRes = await _sb.from('profiles').upsert({ id: U.id, avatar_url: finalUrl }, { onConflict: 'id' });
     if (upsertRes.error) { showToast('Erreur sauvegarde photo : ' + upsertRes.error.message, 'error'); return; }
     P.avatar_url = finalUrl;
-    document.getElementById('avatarEl').innerHTML = '<img src="' + escHtml(finalUrl) + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"/>';
+    document.getElementById('avatarEl').innerHTML = '<img src="' + escHtml(finalUrl) + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\'"/>';
     updateCompletion(); showToast('Photo de profil mise à jour ! 🎉', 'success');
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
   finally { document.getElementById('avatarUploading').classList.remove('show'); input.value = ''; }
@@ -931,13 +935,21 @@ async function uploadAvatar(input) {
 
 /* ===== SAUVEGARDER ===== */
 async function saveProfile() {
-  var name = document.getElementById('fName').value.trim(), wa = document.getElementById('fWa').value.trim();
-  var pays = document.getElementById('fPays').value, ville = document.getElementById('fVille').value.trim(), bio = document.getElementById('fBio').value.trim();
+  var name  = document.getElementById('fName').value.trim();
+  var wa    = document.getElementById('fWa').value.trim();
+  var pays  = document.getElementById('fPays').value;
+  var ville = document.getElementById('fVille').value.trim();
+  var bio   = document.getElementById('fBio').value.trim();
   if (!name) { showToast('Le nom est obligatoire', 'warning'); return; }
   var btn = document.getElementById('saveBtn'), hBtn = document.getElementById('hSaveBtn');
-  btn.disabled = true; btn.textContent = '⏳ Sauvegarde…'; hBtn.disabled = true; hBtn.textContent = '⏳…';
+  btn.disabled = true; btn.textContent = '⏳ Sauvegarde…';
+  hBtn.disabled = true; hBtn.textContent = '⏳…';
   try {
-    var payload = { id: U.id, full_name: name, whatsapp: wa, pays: pays, ville: ville, bio: bio, updated_at: new Date().toISOString() };
+    var payload = {
+      id: U.id, full_name: name, whatsapp: wa,
+      pays: pays, ville: ville, bio: bio,
+      updated_at: new Date().toISOString()
+    };
     if (P.avatar_url) payload.avatar_url = P.avatar_url;
     var res = await _sb.from('profiles').upsert(payload, { onConflict: 'id' });
     if (res.error) throw res.error;
@@ -946,7 +958,10 @@ async function saveProfile() {
     hasChanges = false; hBtn.classList.remove('show');
     updateHero(); updateCompletion(); showToast('Profil sauvegardé ✅', 'success');
   } catch(e) { showToast('Erreur : ' + (e.message || 'Inconnue'), 'error'); }
-  finally { btn.disabled = false; btn.textContent = '💾 Sauvegarder les modifications'; hBtn.disabled = false; hBtn.textContent = '💾 Sauvegarder'; }
+  finally {
+    btn.disabled = false; btn.textContent = '💾 Sauvegarder les modifications';
+    hBtn.disabled = false; hBtn.textContent = '💾 Sauvegarder';
+  }
 }
 
 /* ===== DÉCONNEXION ===== */
@@ -955,8 +970,12 @@ async function logout() { try { await _sb.auth.signOut(); } catch(e) {} location
 /* ===== SUPPRESSION COMPTE ===== */
 async function deleteAccount() {
   showToast('Suppression en cours…', 'info');
-  try { await _sb.from('annonces').delete().eq('user_id', U.id); await _sb.from('profiles').delete().eq('id', U.id); await _sb.auth.signOut(); location.href = 'index.html'; }
-  catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  try {
+    await _sb.from('annonces').delete().eq('user_id', U.id);
+    await _sb.from('profiles').delete().eq('id', U.id);
+    await _sb.auth.signOut();
+    location.href = 'index.html';
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
 
 /* ===== REALTIME ===== */
@@ -971,7 +990,10 @@ function setupRealtime() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: 'user_id=eq.' + U.id }, function(payload) {
       var n = payload.new; showToast((n.icon || '🔔') + ' ' + (n.title || 'Nouvelle notification'), 'info');
       if (n.title && (n.title.indexOf('Premium') !== -1 || n.title.indexOf('Retrait') !== -1)) {
-        setTimeout(async function() { var fresh = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle(); if (fresh.data) { P = Object.assign({}, P, fresh.data); updateHero(); updatePremiumCard(); } }, 1000);
+        setTimeout(async function() {
+          var fresh = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
+          if (fresh.data) { P = Object.assign({}, P, fresh.data); updateHero(); updatePremiumCard(); }
+        }, 1000);
       }
     }).subscribe();
 
@@ -981,7 +1003,9 @@ function setupRealtime() {
   setInterval(async function() {
     try {
       var fresh = await _sb.from('profiles').select('is_premium, plan, plan_expires, avatar_url').eq('id', U.id).maybeSingle();
-      if (fresh.data && (fresh.data.is_premium !== P.is_premium || fresh.data.plan !== P.plan)) { P = Object.assign({}, P, fresh.data); updateHero(); updatePremiumCard(); showToast('Compte mis à jour', 'info'); }
+      if (fresh.data && (fresh.data.is_premium !== P.is_premium || fresh.data.plan !== P.plan)) {
+        P = Object.assign({}, P, fresh.data); updateHero(); updatePremiumCard(); showToast('Compte mis à jour', 'info');
+      }
       loadUnreadMessages();
     } catch(e) {}
   }, 30000);
@@ -1008,7 +1032,9 @@ function showToast(msg, type) {
   var ic  = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
   var col = { success:'var(--turq)', error:'var(--red)', warning:'var(--orange)', info:'var(--blue2)' };
   var el  = document.getElementById('toast');
-  el.textContent = (ic[type] || '') + ' ' + msg; el.className = 'show'; el.style.borderLeftColor = col[type] || 'var(--blue2)';
+  el.textContent = (ic[type] || '') + ' ' + msg;
+  el.className = 'show';
+  el.style.borderLeftColor = col[type] || 'var(--blue2)';
   clearTimeout(_tt); _tt = setTimeout(function(){ el.className = ''; }, 4000);
 }
 </script>
