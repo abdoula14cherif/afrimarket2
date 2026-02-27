@@ -652,7 +652,8 @@
     <div class="mf"><label>Motif (optionnel)</label><input type="text" id="mRechargeNote" class="fi" placeholder="Ex: Bonus parrainage…"/></div>
     <div class="mbtns">
       <button class="mbtn mbtn-cancel" onclick="closeOv('mRecharge')">Annuler</button>
-      <button class="mbtn mbtn-ok" id="mRechargeBtn" style="background:linear-gradient(135deg,var(--green),#00A878);">💰 Créditer</button>
+      <!-- FIX: onclick appelle doRecharge() directement, uid/name stockés dans variables JS -->
+      <button class="mbtn mbtn-ok" id="mRechargeBtn" onclick="doRecharge()" style="background:linear-gradient(135deg,var(--green),#00A878);">💰 Créditer</button>
     </div>
   </div>
 </div>
@@ -675,6 +676,11 @@ var ADMIN_EMAILS = ['abdoula13cherif@gmail.com'];
 /* ════════ STATE ════════ */
 var allPay = [], allWr = [], allUsers = [], allAds = [];
 var fPay = 'all', fWr = 'all', fUsers = 'all';
+
+/* FIX CRITIQUE — Variables globales pour le modal Recharge
+   (remplace l'usage de dataset sur le bouton pour éviter les conflits) */
+var _rechargeUid  = null;
+var _rechargeName = null;
 
 /* ════════════════════════════════════════════════
    INIT
@@ -734,7 +740,7 @@ async function loadStats() {
     set('s-ads', ads.count || 0);
     set('s-refs', refs.count || 0);
 
-    /* Actions urgentes */
+    /* Actions urgentes — FIX CRITIQUE : plus de querySelector inline cassé */
     var ul = document.getElementById('urgentList');
     ul.innerHTML = '';
     if (ppN > 0 || wpN > 0) {
@@ -747,11 +753,25 @@ async function loadStats() {
   } catch(e) { console.error('loadStats:', e); }
 }
 
+/* FIX CRITIQUE — urgentHTML n'utilise plus querySelector mais goPageByName()
+   qui est une fonction JS simple sans caractères spéciaux dans l'attribut onclick */
 function urgentHTML(ico, color, txt, page) {
   return '<div class="urgent-item ' + color + '" style="margin-bottom:.55rem;">' +
     '<span style="font-size:.82rem;font-weight:600;">' + ico + ' ' + txt + '</span>' +
-    '<button class="ab ab-blue" onclick="goPage(\'' + page + '\',document.querySelector(\'.sb-item[onclick*=\\\\'' + page + '\\\\']\'))">Voir →</button>' +
+    '<button class="ab ab-blue" onclick="goPageByName(\'' + page + '\')">Voir →</button>' +
   '</div>';
+}
+
+/* FIX CRITIQUE — fonction dédiée pour la navigation depuis les boutons urgents
+   Cherche le bon sb-item par data-page au lieu de querySelector avec regex */
+function goPageByName(name) {
+  var items = document.querySelectorAll('.sb-item');
+  var target = null;
+  items.forEach(function(item) {
+    var attr = item.getAttribute('onclick') || '';
+    if (attr.indexOf("'" + name + "'") !== -1) target = item;
+  });
+  goPage(name, target);
 }
 
 /* ════════════════════════════════════════════════
@@ -826,7 +846,6 @@ function renderWr() {
     var name = (w.profiles && w.profiles.full_name) ? w.profiles.full_name : '—';
     var email = (w.profiles && w.profiles.email) ? w.profiles.email : '';
     var op = w.operator === 'orange' ? '🟠 Orange' : w.operator === 'mtn' ? '💛 MTN' : (w.operator || '—');
-    /* BUG CORRIGÉ — badge retrait : statut 'paid' mappé sur b-paid, pas b-approved */
     var badge = w.status === 'pending'
       ? '<span class="b b-pending">⏳ En attente</span>'
       : w.status === 'paid'
@@ -859,14 +878,14 @@ function filterWr(f, btn) {
 }
 
 /* ════════════════════════════════════════════════
-   UTILISATEURS — BUG CORRIGÉ (toggle + toutes infos)
+   UTILISATEURS
 ════════════════════════════════════════════════ */
 async function loadUsers() {
   try {
     var res = await sb.from('profiles')
       .select('id, full_name, email, whatsapp, ville, pays, bio, avatar_url, is_premium, plan, plan_expires, created_at, ref_code')
       .order('created_at', { ascending: false })
-      .limit(500); /* BUG CORRIGÉ — augmenté la limite pour afficher TOUS les utilisateurs */
+      .limit(500);
     allUsers = res.data || [];
     document.getElementById('users-count').textContent = allUsers.length + ' utilisateur(s)';
     renderUsers();
@@ -882,9 +901,7 @@ function renderUsers() {
   if (!list.length) { tbl.innerHTML = emptyRow(8, '👥', 'Aucun utilisateur'); return; }
 
   tbl.innerHTML = list.map(function(u) {
-    var init = (u.full_name || '?')[0].toUpperCase();
     var exp = u.plan_expires ? new Date(u.plan_expires).toLocaleDateString('fr-FR') : '—';
-    /* Vérifier si le plan a expiré */
     var isExpired = u.plan_expires && new Date(u.plan_expires) < new Date();
     var planBadge = u.is_premium
       ? (u.plan === 'elite'
@@ -894,7 +911,6 @@ function renderUsers() {
       : '<span class="b b-free">🆓 Gratuit</span>';
     if (isExpired && u.is_premium) planBadge += ' <span class="b b-rejected" style="font-size:.58rem">Expiré</span>';
 
-    /* Toggle — BUG CORRIGÉ : utilise data-uid + data-premium pour éviter le crash sur les caractères spéciaux */
     var toggleHtml =
       '<label class="tgl" title="' + (u.is_premium ? 'Désactiver Premium' : 'Activer Premium') + '">' +
         '<input type="checkbox" ' + (u.is_premium ? 'checked' : '') + ' data-uid="' + u.id + '" data-name="' + esc(u.full_name || '') + '" onchange="handleToggle(this)"/>' +
@@ -927,18 +943,16 @@ function filterUsers(f, btn) {
   renderUsers();
 }
 
-/* BUG CORRIGÉ — handleToggle via dataset pour éviter injection */
 async function handleToggle(input) {
   var uid  = input.dataset.uid;
   var name = input.dataset.name;
   var activate = input.checked;
-  /* Optimistic UI : mettre à jour l'array local AVANT la requête */
   var idx = allUsers.findIndex(function(u){ return u.id === uid; });
   if (idx > -1) {
     allUsers[idx].is_premium = activate;
     allUsers[idx].plan = activate ? 'premium' : null;
   }
-  renderUsers(); /* re-render pour refléter le changement immédiatement */
+  renderUsers();
   try {
     if (activate) {
       var exp = new Date(); exp.setMonth(exp.getMonth() + 1);
@@ -954,7 +968,6 @@ async function handleToggle(input) {
     }
     loadStats();
   } catch(e) {
-    /* En cas d'erreur, annuler le changement optimiste */
     if (idx > -1) { allUsers[idx].is_premium = !activate; allUsers[idx].plan = !activate ? 'premium' : null; }
     renderUsers();
     toast('Erreur : ' + e.message, 'error');
@@ -962,14 +975,14 @@ async function handleToggle(input) {
 }
 
 /* ════════════════════════════════════════════════
-   ANNONCES — BUG CORRIGÉ (limit augmentée + join profiles)
+   ANNONCES
 ════════════════════════════════════════════════ */
 async function loadAds() {
   try {
     var res = await sb.from('annonces')
       .select('id, titre, categorie, prix, ville, created_at, user_id, profiles(full_name)')
       .order('created_at', { ascending: false })
-      .limit(500); /* BUG CORRIGÉ — toutes les annonces */
+      .limit(500);
     allAds = res.data || [];
     document.getElementById('ads-count').textContent = allAds.length + ' annonce(s)';
     renderAds();
@@ -1035,7 +1048,6 @@ async function doApprovePay(id) {
     else exp.setMonth(exp.getMonth() + 1);
     var cleanPlan = (pay.plan || 'premium').replace('_annual', '');
 
-    /* BUG CORRIGÉ — vérifier l'erreur de la mise à jour profiles */
     var upProf = await sb.from('profiles').update({
       is_premium: true, plan: cleanPlan, plan_expires: exp.toISOString()
     }).eq('id', pay.user_id);
@@ -1049,7 +1061,6 @@ async function doApprovePay(id) {
     await notif(pay.user_id, '👑 Compte Premium activé !',
       'Votre paiement a été validé. Profitez de toutes les fonctionnalités Premium !', '👑', 'success');
 
-    /* Mettre à jour l'array local */
     var idx = allUsers.findIndex(function(u){ return u.id === pay.user_id; });
     if (idx > -1) { allUsers[idx].is_premium = true; allUsers[idx].plan = cleanPlan; allUsers[idx].plan_expires = exp.toISOString(); }
 
@@ -1078,7 +1089,6 @@ async function doRejectPay(id) {
     }).eq('id', id);
     if (up.error) throw up.error;
     if (pr.data) await notif(pr.data.user_id, '❌ Paiement refusé', 'Votre paiement n\'a pas pu être vérifié. Raison : ' + reason, '❌', 'error');
-    /* Mettre à jour l'array local */
     var i = allPay.findIndex(function(p){ return p.id === id; });
     if (i > -1) allPay[i].status = 'rejected';
     renderPay();
@@ -1090,7 +1100,7 @@ async function doRejectPay(id) {
 }
 
 /* ════════════════════════════════════════════════
-   ACTIONS RETRAITS — BUG CORRIGÉ (referral_earnings)
+   ACTIONS RETRAITS
 ════════════════════════════════════════════════ */
 function openPayWr(id, amount, op, phone, benefName, userName) {
   document.getElementById('mPayWrInfo').innerHTML =
@@ -1109,18 +1119,15 @@ async function doPayWr(id, amount, op, phone) {
   var btn  = document.getElementById('mPayWrBtn');
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Traitement…';
   try {
-    /* 1. Charger la demande de retrait */
     var wrRes = await sb.from('withdrawal_requests').select('user_id, amount').eq('id', id).single();
     if (wrRes.error || !wrRes.data) throw new Error('Demande introuvable : ' + (wrRes.error ? wrRes.error.message : ''));
     var wr = wrRes.data;
 
-    /* 2. Mettre à jour le statut du retrait */
     var upWr = await sb.from('withdrawal_requests').update({
       status: 'paid', paid_at: new Date().toISOString(), admin_note: note || null
     }).eq('id', id);
     if (upWr.error) throw new Error('Mise à jour retrait : ' + upWr.error.message);
 
-    /* 3. Déduire du solde — marquer les referral_earnings comme withdrawn */
     var earnsRes = await sb.from('referral_earnings')
       .select('id, amount').eq('user_id', wr.user_id).eq('status', 'available')
       .order('created_at', { ascending: true });
@@ -1138,12 +1145,10 @@ async function doPayWr(id, amount, op, phone) {
       }
     }
 
-    /* 4. Notifier l'utilisateur */
     await notif(wr.user_id, '✅ Retrait effectué !',
       Number(amount).toLocaleString('fr-FR') + ' FCFA envoyés sur votre ' + op + ' (' + phone + '). Merci !',
       '💸', 'success');
 
-    /* 5. Mettre à jour l'array local */
     var idx = allWr.findIndex(function(w){ return w.id === id; });
     if (idx > -1) { allWr[idx].status = 'paid'; allWr[idx].admin_note = note || null; }
     renderWr();
@@ -1176,7 +1181,6 @@ async function doRejectWr(id) {
     if (up.error) throw up.error;
     if (wrRes.data) await notif(wrRes.data.user_id, '❌ Retrait refusé',
       'Votre demande de ' + Number(wrRes.data.amount || 0).toLocaleString('fr-FR') + ' FCFA a été refusée. Raison : ' + reason, '❌', 'error');
-    /* Mettre à jour l'array local */
     var idx = allWr.findIndex(function(w){ return w.id === id; });
     if (idx > -1) { allWr[idx].status = 'rejected'; allWr[idx].admin_note = reason; }
     renderWr();
@@ -1188,7 +1192,7 @@ async function doRejectWr(id) {
 }
 
 /* ════════════════════════════════════════════════
-   PREMIUM MODAL — via dataset (BUG CORRIGÉ)
+   PREMIUM MODAL
 ════════════════════════════════════════════════ */
 function openPremiumModal(btn) {
   var uid    = btn.dataset.uid;
@@ -1234,7 +1238,7 @@ async function doManualPremium(uid, name, wasPremium) {
 }
 
 /* ════════════════════════════════════════════════
-   SUPPRIMER UTILISATEUR — via dataset (BUG CORRIGÉ)
+   SUPPRIMER UTILISATEUR
 ════════════════════════════════════════════════ */
 function openDelUser(btn) {
   var uid  = btn.dataset.uid;
@@ -1266,7 +1270,7 @@ async function doDelUser(uid, name) {
 }
 
 /* ════════════════════════════════════════════════
-   MESSAGE RAPIDE — via dataset (BUG CORRIGÉ)
+   MESSAGE RAPIDE
 ════════════════════════════════════════════════ */
 function openMsgModal(btn) {
   var uid  = btn.dataset.uid;
@@ -1294,38 +1298,35 @@ async function doSendMsgModal(uid, name) {
 }
 
 /* ════════════════════════════════════════════════
-   RECHARGER SOLDE — via dataset (BUG CORRIGÉ)
+   RECHARGER SOLDE — FIX : variables globales _rechargeUid/_rechargeName
 ════════════════════════════════════════════════ */
 function openRechargeModal(btn) {
-  var uid  = btn.dataset.uid;
-  var name = btn.dataset.name;
-  document.getElementById('mRechargeInfo').innerHTML = 'Ajouter du solde au compte de <strong>' + esc(name) + '</strong>.';
+  _rechargeUid  = btn.dataset.uid;
+  _rechargeName = btn.dataset.name;
+  document.getElementById('mRechargeInfo').innerHTML = 'Ajouter du solde au compte de <strong>' + esc(_rechargeName) + '</strong>.';
   document.getElementById('mRechargeAmount').value = '';
   document.getElementById('mRechargeNote').value   = '';
-  document.getElementById('mRechargeBtn').dataset.uid  = uid;
-  document.getElementById('mRechargeBtn').dataset.name = name;
   openOv('mRecharge');
 }
 
 async function doRecharge() {
   var btn    = document.getElementById('mRechargeBtn');
-  var uid    = btn.dataset.uid;
-  var name   = btn.dataset.name;
   var amount = parseInt(document.getElementById('mRechargeAmount').value) || 0;
   var note   = document.getElementById('mRechargeNote').value.trim();
-  if (amount <= 0) { toast('Montant invalide', 'warning'); return; }
+  if (!_rechargeUid) { toast('Erreur : aucun utilisateur sélectionné', 'error'); return; }
+  if (amount <= 0)   { toast('Montant invalide', 'warning'); return; }
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Crédit…';
   try {
     var ins = await sb.from('referral_earnings').insert({
-      user_id: uid, amount: amount, status: 'available',
+      user_id: _rechargeUid, amount: amount, status: 'available',
       type: 'admin_credit', note: note || 'Crédit administrateur',
       created_at: new Date().toISOString()
     });
     if (ins.error) throw ins.error;
-    await notif(uid, '💰 Solde rechargé !',
+    await notif(_rechargeUid, '💰 Solde rechargé !',
       'Un montant de ' + amount.toLocaleString('fr-FR') + ' FCFA a été ajouté à votre solde.' + (note ? ' (' + note + ')' : ''),
       '💰', 'success');
-    toast('✅ ' + amount.toLocaleString('fr-FR') + ' FCFA crédités à ' + name, 'success');
+    toast('✅ ' + amount.toLocaleString('fr-FR') + ' FCFA crédités à ' + _rechargeName, 'success');
     closeOv('mRecharge');
     loadStats();
   } catch(e) { toast('Erreur : ' + e.message, 'error'); }
@@ -1351,8 +1352,8 @@ async function sendMsgToUser() {
   var title = document.getElementById('msgTitle').value.trim();
   var body  = document.getElementById('msgBody').value.trim();
   var icon  = document.getElementById('msgIcon').value;
-  if (!uid)           { toast('Sélectionne un utilisateur', 'warning'); return; }
-  if (!title || !body){ toast('Titre et message obligatoires', 'warning'); return; }
+  if (!uid)            { toast('Sélectionne un utilisateur', 'warning'); return; }
+  if (!title || !body) { toast('Titre et message obligatoires', 'warning'); return; }
   try {
     await notif(uid, title, body, icon, 'info');
     toast('✅ Message envoyé !', 'success');
