@@ -172,6 +172,20 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   </div>
 </div>
 
+<!-- ★ PANNEAU NOTIFICATIONS -->
+<div id="notifPanel" style="display:none;position:fixed;top:62px;right:.8rem;z-index:500;width:320px;max-width:92vw;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(8,14,42,.2);border:1.5px solid var(--border);overflow:hidden;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;border-bottom:1px solid var(--border);">
+    <div style="font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);">🔔 Notifications</div>
+    <div style="display:flex;gap:.5rem;align-items:center;">
+      <button onclick="markAllNotifsRead()" style="font-size:.65rem;color:var(--blue2);background:none;border:none;cursor:pointer;font-weight:700;">✅ Tout marquer lu</button>
+      <button onclick="closeNotifPanel()" style="font-size:.85rem;color:var(--gray);background:none;border:none;cursor:pointer;">✕</button>
+    </div>
+  </div>
+  <div id="notifList" style="max-height:380px;overflow-y:auto;">
+    <div style="padding:2rem;text-align:center;color:var(--gray);font-size:.8rem;">⏳ Chargement…</div>
+  </div>
+</div>
+
 <div class="search-wrap">
   <div class="search-box">
     <span class="search-icon">🔍</span>
@@ -427,6 +441,161 @@ async function loadQuotaMensuel() {
   }
 }
 
+/* ════════════════════════════════════════════════
+   ★ SYSTÈME NOTIFICATIONS — panneau complet
+════════════════════════════════════════════════ */
+var _notifOpen = false;
+var _notifs    = [];
+
+function toggleNotifPanel() {
+  if (_notifOpen) { closeNotifPanel(); return; }
+  _notifOpen = true;
+  document.getElementById('notifPanel').style.display = 'block';
+  loadNotifPanel();
+  /* Fermer si clic en dehors */
+  setTimeout(function() {
+    document.addEventListener('click', _closeNotifOutside);
+  }, 50);
+}
+
+function closeNotifPanel() {
+  _notifOpen = false;
+  document.getElementById('notifPanel').style.display = 'none';
+  document.removeEventListener('click', _closeNotifOutside);
+}
+
+function _closeNotifOutside(e) {
+  var panel = document.getElementById('notifPanel');
+  var btn   = document.getElementById('notifBtn');
+  if (panel && !panel.contains(e.target) && !btn.contains(e.target)) {
+    closeNotifPanel();
+  }
+}
+
+async function loadNotifPanel() {
+  if (!currentUser) return;
+  var list = document.getElementById('notifList');
+  list.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray);font-size:.8rem;">⏳ Chargement…</div>';
+  try {
+    var res = await _sb.from('notifications')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(30);
+
+    _notifs = res.data || [];
+    renderNotifPanel();
+    updateNotifDot(_notifs.filter(function(n){ return !n.read; }).length);
+
+    /* Marquer toutes comme lues après 2s de lecture */
+    if (_notifs.some(function(n){ return !n.read; })) {
+      setTimeout(markAllNotifsRead, 2500);
+    }
+  } catch(e) {
+    list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--red);font-size:.78rem;">Erreur chargement</div>';
+  }
+}
+
+function renderNotifPanel() {
+  var list = document.getElementById('notifList');
+  if (!_notifs.length) {
+    list.innerHTML = '<div style="padding:2.5rem 1rem;text-align:center;"><div style="font-size:2rem;margin-bottom:.5rem">🔕</div><div style="color:var(--gray);font-size:.8rem;">Aucune notification</div></div>';
+    return;
+  }
+  var TYPE_COLOR = { success:'var(--green)', error:'var(--red)', warning:'var(--orange)', info:'var(--blue2)' };
+  list.innerHTML = _notifs.map(function(n) {
+    var ago = timeAgoNotif(n.created_at);
+    var col = TYPE_COLOR[n.type] || 'var(--blue2)';
+    var unread = !n.read;
+    return '<div onclick="clickNotif(\'' + n.id + '\')" style="display:flex;gap:.75rem;padding:.85rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;background:' + (unread ? 'rgba(45,85,255,.03)' : 'white') + ';" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'' + (unread ? 'rgba(45,85,255,.03)' : 'white') + '\'">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:' + col.replace('var(','rgba(').replace(')',', .12)') + ';display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:1.5px solid ' + col.replace('var(','rgba(').replace(')',', .25)') + '">' + (n.icon || '🔔') + '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-size:.78rem;font-weight:' + (unread ? '700' : '600') + ';color:var(--dark);margin-bottom:.15rem;">' + escHtml(n.title || '') + (unread ? ' <span style="width:6px;height:6px;border-radius:50%;background:var(--blue2);display:inline-block;vertical-align:middle;margin-left:3px;"></span>' : '') + '</div>' +
+        '<div style="font-size:.7rem;color:var(--gray);line-height:1.4;">' + escHtml(n.message || '') + '</div>' +
+        '<div style="font-size:.62rem;color:var(--gray);margin-top:.25rem;opacity:.7;">' + ago + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function clickNotif(id) {
+  /* Marquer cette notif comme lue */
+  await _sb.from('notifications').update({ read: true }).eq('id', id);
+  var n = _notifs.find(function(x){ return x.id === id; });
+  if (n) n.read = true;
+  renderNotifPanel();
+  var unread = _notifs.filter(function(x){ return !x.read; }).length;
+  updateNotifDot(unread);
+}
+
+async function markAllNotifsRead() {
+  if (!currentUser) return;
+  await _sb.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false);
+  _notifs.forEach(function(n){ n.read = true; });
+  renderNotifPanel();
+  updateNotifDot(0);
+}
+
+function updateNotifDot(count) {
+  var dot = document.querySelector('.notif-dot');
+  if (!dot) return;
+  dot.style.display = count > 0 ? 'block' : 'none';
+  /* Badge nombre */
+  var badge = document.getElementById('notifCount');
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.id = 'notifCount';
+    badge.style.cssText = 'position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:99px;background:var(--red);color:white;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--dark);';
+    var notifBtnEl = document.getElementById('notifBtn');
+    if (notifBtnEl) { notifBtnEl.style.position = 'relative'; notifBtnEl.appendChild(badge); }
+  }
+  badge.style.display = count > 0 ? 'flex' : 'none';
+  badge.textContent = count > 99 ? '99+' : String(count);
+}
+
+function timeAgoNotif(dateStr) {
+  if (!dateStr) return '';
+  var diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (diff < 60)  return 'À l\'instant';
+  if (diff < 3600) return Math.floor(diff/60) + ' min';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h';
+  if (diff < 604800) return Math.floor(diff/86400) + 'j';
+  return new Date(dateStr).toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+}
+
+/* Charger le badge au démarrage */
+async function initNotifBadge() {
+  if (!currentUser) return;
+  try {
+    var res = await _sb.from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', currentUser.id)
+      .eq('read', false);
+    updateNotifDot(res.count || 0);
+  } catch(e) {}
+}
+
+/* Realtime — nouvelles notifications en temps réel */
+function setupNotifRealtime() {
+  if (!currentUser) return;
+  _sb.channel('notifs-dash-' + currentUser.id)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'notifications',
+      filter: 'user_id=eq.' + currentUser.id
+    }, function(payload) {
+      var n = payload.new;
+      _notifs.unshift(n);
+      updateNotifDot(_notifs.filter(function(x){ return !x.read; }).length);
+      if (_notifOpen) renderNotifPanel();
+      /* Toast rapide */
+      toast((n.icon || '🔔') + ' ' + (n.title || 'Notification'), n.type || 'info');
+    })
+    .subscribe();
+}
+/* ════════ FIN NOTIFICATIONS ════════ */
+
 /* ── TOAST ── */
 var _tt;
 function toast(msg, type) {
@@ -500,6 +669,8 @@ async function init() {
     document.getElementById('avatarBtn').textContent=em2.charAt(0).toUpperCase();
   }
   loadAds();
+  initNotifBadge();
+  setupNotifRealtime();
 }
 
 /* ── CHARGER ANNONCES ── */
@@ -671,7 +842,7 @@ function shareApp(){
 
 /* ── EVENTS ── */
 document.addEventListener('DOMContentLoaded',function(){
-  document.getElementById('notifBtn').addEventListener('click',function(){toast('Aucune nouvelle notification','info');});
+  document.getElementById('notifBtn').addEventListener('click', toggleNotifPanel);
   document.getElementById('avatarBtn').addEventListener('click',function(){location.href='profil.html';});
   document.getElementById('filterBtn').addEventListener('click',function(){toast('Filtres bientôt disponibles','info');});
   document.getElementById('searchInput').addEventListener('input',renderAds);
