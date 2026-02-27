@@ -148,7 +148,6 @@
     .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
     .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
     .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
-
     .nav-badge{position:absolute;top:4px;right:8px;min-width:18px;height:18px;border-radius:99px;background:var(--red);color:white;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid white;line-height:1;animation:badgePop .3s cubic-bezier(.34,1.56,.64,1);}
     @keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
 
@@ -172,35 +171,6 @@
     /* ── SKELETON ── */
     .skel{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-    /* ── MODAL PAIEMENT MONETBIL ── */
-    .pay-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.8rem;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);overflow-y:auto;max-height:90vh;}
-    .modal-ov.open .pay-sheet{transform:translateY(0);}
-    .pay-title{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:.25rem;}
-    .pay-sub{font-size:.78rem;color:var(--gray);margin-bottom:1.2rem;line-height:1.5;}
-    .plan-cards{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem;}
-    .plan-opt{border:2px solid var(--border);border-radius:14px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;position:relative;}
-    .plan-opt.selected{border-color:var(--blue2);background:rgba(45,85,255,.04);}
-    .plan-opt-row{display:flex;align-items:center;justify-content:space-between;}
-    .plan-opt-name{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);}
-    .plan-opt-price{font-family:'Clash Display',sans-serif;font-size:.98rem;font-weight:700;color:var(--blue2);}
-    .plan-opt-desc{font-size:.7rem;color:var(--gray);margin-top:.2rem;}
-    .plan-eco{position:absolute;top:-9px;right:10px;background:var(--green);color:white;font-size:.58rem;font-weight:800;padding:.15rem .55rem;border-radius:99px;}
-    .plan-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;margin-left:.6rem;}
-    .plan-opt.selected .plan-radio{border-color:var(--blue2);background:var(--blue2);}
-    .plan-opt.selected .plan-radio::after{content:'';width:7px;height:7px;border-radius:50%;background:white;display:block;}
-    .pay-ops{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem;}
-    .pay-op{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);}
-    .pay-avantages{background:rgba(245,183,49,.05);border:1px solid rgba(245,183,49,.2);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;}
-    .pay-avantages-ttl{font-size:.74rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;}
-    .pay-avantages div{font-size:.7rem;color:var(--gray);line-height:1.8;}
-    .pay-btn{width:100%;padding:.82rem;border-radius:14px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(27,63,228,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
-    .pay-btn:disabled{opacity:.5;cursor:not-allowed;}
-    .pay-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:pspin .6s linear infinite;display:none;}
-    .pay-btn.loading .pay-spin{display:block;}
-    .pay-btn.loading .pay-lbl{display:none;}
-    @keyframes pspin{to{transform:rotate(360deg)}}
-    .pay-secure{text-align:center;font-size:.63rem;color:var(--gray);margin-top:.5rem;}
   </style>
 </head>
 <body>
@@ -348,8 +318,9 @@
       <div class="pc-feat">❌ Pas de badge vendeur vérifié</div>
     </div>
     <div class="pc-desc" id="planDesc">Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.</div>
-    <button class="pc-btn pc-btn-upgrade" id="planBtn" onclick="openPayModal()">
-      👑 Passer Premium — Mobile Money
+    <!-- FIX : redirige vers pricing.html au lieu d'ouvrir le modal Monetbil -->
+    <button class="pc-btn pc-btn-upgrade" id="planBtn" onclick="location.href='pricing.html'">
+      👑 Passer Premium — Voir les offres
     </button>
   </div>
 </div>
@@ -463,78 +434,11 @@
   </div>
 </div>
 
-<!-- MODAL PAIEMENT PREMIUM MONETBIL -->
-<div class="modal-ov" id="payOv" onclick="if(event.target===this)closePayModal()">
-  <div class="pay-sheet" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="pay-title">👑 Passer Premium</div>
-    <div class="pay-sub">Paie en Mobile Money en quelques secondes, activation immédiate 🚀</div>
-
-    <div class="plan-cards">
-      <div class="plan-opt selected" id="optMensuel" onclick="selectPlan('mensuel')">
-        <div class="plan-opt-row">
-          <div>
-            <div class="plan-opt-name">📅 Mensuel</div>
-            <div class="plan-opt-desc">Accès Premium 30 jours</div>
-          </div>
-          <div style="display:flex;align-items:center;">
-            <div class="plan-opt-price">2 000 FCFA</div>
-            <div class="plan-radio"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="plan-opt" id="optAnnuel" onclick="selectPlan('annuel')">
-        <div class="plan-eco">🎉 −17%</div>
-        <div class="plan-opt-row">
-          <div>
-            <div class="plan-opt-name">📆 Annuel</div>
-            <div class="plan-opt-desc">Accès Premium 12 mois</div>
-          </div>
-          <div style="display:flex;align-items:center;">
-            <div class="plan-opt-price">20 000 FCFA</div>
-            <div class="plan-radio"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div style="font-size:.7rem;color:var(--gray);font-weight:600;margin-bottom:.35rem;">Opérateurs acceptés :</div>
-    <div class="pay-ops">
-      <span class="pay-op">📱 MTN MoMo</span>
-      <span class="pay-op">🟠 Orange Money</span>
-      <span class="pay-op">🔵 Moov Money</span>
-      <span class="pay-op">🟡 Wave</span>
-    </div>
-
-    <div class="pay-avantages">
-      <div class="pay-avantages-ttl">✨ Ce que tu débloques</div>
-      <div>✅ Annonces illimitées</div>
-      <div>✅ Mise en avant prioritaire</div>
-      <div>✅ Badge vendeur vérifié 👑</div>
-      <div>✅ Statistiques avancées</div>
-    </div>
-
-    <button class="pay-btn" id="payBtn" onclick="lancerPaiement()">
-      <div class="pay-spin"></div>
-      <span class="pay-lbl">💳 Payer 2 000 FCFA</span>
-    </button>
-    <div class="pay-secure">🔒 Paiement sécurisé par Monetbil · Aucune carte bancaire requise</div>
-    <div style="text-align:center;margin-top:.8rem;">
-      <button onclick="closePayModal()" style="background:none;border:none;color:var(--gray);font-size:.78rem;cursor:pointer;">Fermer ✕</button>
-    </div>
-  </div>
-</div>
-
 <div id="toast"></div>
-
-<script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
 
 <script>
 'use strict';
 
-/* ===== UTILITAIRE escHtml — manquant dans le code original ===== */
-// BUG CORRIGÉ #2 : escHtml n'était pas déclarée, provoquant un ReferenceError partout
 function escHtml(str) {
   if (str == null) return '';
   return String(str)
@@ -551,86 +455,6 @@ var _sb = supabase.createClient(
 );
 
 var U = null, P = null, hasChanges = false;
-
-/* ── MONETBIL CONFIG ── */
-var MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
-var MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
-var PLANS = {
-  mensuel: { amount: 2000,  label: '2 000',  months: 1,  dbPlan: 'premium' },
-  annuel:  { amount: 20000, label: '20 000', months: 12, dbPlan: 'premium_annual' }
-};
-var _selectedPlan = 'mensuel';
-
-function openPayModal() {
-  if (P && P.is_premium) { showToast('👑 Ton compte est déjà Premium !', 'info'); return; }
-  selectPlan('mensuel');
-  document.getElementById('payOv').classList.add('open');
-}
-function closePayModal() { document.getElementById('payOv').classList.remove('open'); }
-
-function selectPlan(key) {
-  _selectedPlan = key;
-  document.getElementById('optMensuel').classList.toggle('selected', key === 'mensuel');
-  document.getElementById('optAnnuel').classList.toggle('selected', key === 'annuel');
-  var lbl = PLANS[key].label;
-  document.querySelector('#payBtn .pay-lbl').textContent = '💳 Payer ' + lbl + ' FCFA';
-}
-
-async function lancerPaiement() {
-  if (!U) { showToast('Connecte-toi pour payer', 'warning'); return; }
-  var plan = PLANS[_selectedPlan];
-  var ref  = 'AM_' + Date.now() + '_' + U.id.slice(0, 8);
-  var btn  = document.getElementById('payBtn');
-  btn.disabled = true; btn.classList.add('loading');
-  try {
-    await _sb.from('payment_requests').insert([{
-      user_id:     U.id,
-      plan:        plan.dbPlan,
-      amount:      plan.amount,
-      payment_ref: ref,
-      status:      'pending',
-      created_at:  new Date().toISOString()
-    }]);
-    closePayModal();
-    if (typeof monetbil !== 'undefined') {
-      monetbil.launch({
-        service:     MONETBIL_KEY,
-        amount:      plan.amount,
-        currency:    'XAF',
-        locale:      'fr',
-        phone:       (P && P.whatsapp) ? P.whatsapp.replace(/\D/g, '') : '',
-        item_ref:    U.id,
-        payment_ref: ref,
-        notify_url:  MONETBIL_NOTIFY,
-        return_url:  window.location.href,
-        onComplete:  function(data) {
-          if (data && data.status === 'success') {
-            showToast('🎉 Paiement confirmé ! Activation en cours…', 'success');
-            setTimeout(async function() {
-              var fr = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
-              if (fr.data) { P = Object.assign({}, P, fr.data); updateHero(); updatePremiumCard(); }
-              if (P.is_premium) showToast('👑 Premium activé ! Bienvenue !', 'success');
-            }, 3500);
-          } else {
-            showToast('Paiement annulé ou échoué', 'warning');
-          }
-        }
-      });
-    } else {
-      var p = new URLSearchParams({
-        amount: plan.amount, currency: 'XAF', locale: 'fr',
-        item_ref: U.id, payment_ref: ref,
-        notify_url: MONETBIL_NOTIFY,
-        return_url: window.location.href
-      });
-      window.location.href = 'https://www.monetbil.com/widget/v2.1/' + MONETBIL_KEY + '?' + p.toString();
-    }
-  } catch(err) {
-    showToast('Erreur : ' + (err.message || 'Inconnue'), 'error');
-  } finally {
-    btn.disabled = false; btn.classList.remove('loading');
-  }
-}
 
 /* ===== INIT ===== */
 (async function() {
@@ -683,9 +507,7 @@ async function lancerPaiement() {
   setupRealtime();
 })();
 
-/* ===== REMPLIR LE FORMULAIRE ===== */
-// BUG CORRIGÉ #1 : la fonction était déclarée deux fois avec le corps
-// du 2e bloc orphelin hors de toute fonction → SyntaxError silencieuse
+/* ===== FORMULAIRE ===== */
 function fillForm() {
   if (!P) return;
   document.getElementById('fName').value  = P.full_name  || '';
@@ -696,8 +518,6 @@ function fillForm() {
 }
 
 /* ===== HERO ===== */
-// BUG CORRIGÉ #3 : après innerHTML = '...', getElementById('avatarInitial')
-// retournait null car l'élément avait été remplacé → crash TypeError
 function updateHero() {
   var name = P.full_name || (U && U.email ? U.email.split('@')[0] : 'Utilisateur');
   document.getElementById('heroName').textContent  = name;
@@ -705,13 +525,8 @@ function updateHero() {
 
   var avEl = document.getElementById('avatarEl');
   if (P.avatar_url && P.avatar_url.startsWith('http')) {
-    // On reconstruit tout le contenu en une fois — plus de getElementById après
-    avEl.innerHTML =
-      '<img src="' + escHtml(P.avatar_url) + '" alt="avatar" ' +
-      'style="width:100%;height:100%;object-fit:cover;border-radius:50%;" ' +
-      'onerror="this.style.display=\'none\';"/>';
+    avEl.innerHTML = '<img src="' + escHtml(P.avatar_url) + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\';"/>';
   } else {
-    // Initiale : on remet le span avec le bon id
     avEl.innerHTML = '<span id="avatarInitial">' + escHtml((name[0] || '?').toUpperCase()) + '</span>';
   }
 
@@ -771,8 +586,13 @@ function updatePremiumCard() {
     desc.innerHTML = '<div class="pc-expires">⏰ Expire le ' + escHtml(exp) + '</div>';
     btn.className   = 'pc-btn pc-btn-manage';
     btn.textContent = '⚙️ Gérer mon abonnement';
-    btn.onclick     = function(){ showToast('Gestion abonnement disponible bientôt', 'info'); };
+    btn.onclick     = function(){ location.href = 'pricing.html'; };
     card.querySelector('.pc-top').children[0].textContent = '👑';
+  } else {
+    /* Compte gratuit — bouton redirige vers pricing.html */
+    btn.className = 'pc-btn pc-btn-upgrade';
+    btn.textContent = '👑 Passer Premium — Voir les offres';
+    btn.onclick = function(){ location.href = 'pricing.html'; };
   }
 }
 
@@ -843,7 +663,7 @@ async function deleteAd(id) {
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
 
-/* ===== MES AVIS REÇUS ===== */
+/* ===== MES AVIS ===== */
 async function loadMyAvis(uid) {
   try {
     var res = await _sb.from('avis').select('note, commentaire, created_at, reviewer_id')
