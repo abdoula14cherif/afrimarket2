@@ -7,253 +7,282 @@
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
-    :root{--dark:#080E2A;--darker:#040916;--gold:#F5B731;--gold2:#FFD166;--gold3:#E8960A;--orange:#FF6B1A;--turq:#00C2B7;--green:#00C271;--blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--accent:#F5B731;--nav-h:72px;}
+    :root{--nav-h:72px;--c:#E8960A;--a:#F5B731;}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{scroll-behavior:smooth;}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--darker);color:white;min-height:100vh;padding-bottom:calc(var(--nav-h)+40px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% -5%,#F5B73122 0%,transparent 65%),radial-gradient(ellipse 40% 30% at 90% 85%,rgba(245,183,49,.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#040916;color:white;min-height:100vh;padding-bottom:calc(var(--nav-h)+50px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 40% at 50% 0%,#E8960A1A 0%,transparent 60%);pointer-events:none;z-index:0;}
     /* HEADER */
-    .header{position:sticky;top:0;z-index:100;background:rgba(4,9,22,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08);padding:0 1.2rem;height:60px;display:flex;align-items:center;gap:.8rem;}
-    .h-back{color:rgba(255,255,255,.6);font-size:1.1rem;border:none;background:none;cursor:pointer;padding:.3rem;}
-    .h-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:white;flex:1;}
-    .h-ico{width:36px;height:36px;border-radius:12px;background:#F5B73122;border:1px solid #F5B73144;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
-    /* HERO */
-    .hero{position:relative;z-index:1;padding:0 1.2rem 2rem;}
-    .hero-inner{background:linear-gradient(135deg,#F5B73118,#F5B73108);border:1px solid #F5B73130;border-radius:24px;padding:1.8rem 1.4rem;margin-top:1rem;text-align:center;position:relative;overflow:hidden;}
-    .hero-inner::before{content:'🎯';position:absolute;right:-10px;bottom:-15px;font-size:6rem;opacity:.08;}
-    .hero-tag{display:inline-flex;align-items:center;gap:.4rem;background:#F5B73120;border:1px solid #F5B73140;border-radius:99px;padding:.25rem .75rem;font-size:.65rem;font-weight:700;color:var(--accent);margin-bottom:.8rem;letter-spacing:.5px;text-transform:uppercase;}
-    .hero h1{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;letter-spacing:-1px;line-height:1.2;margin-bottom:.6rem;}
-    .hero h1 em{font-style:normal;color:var(--accent);}
-    .hero-desc{font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.6;max-width:300px;margin:0 auto;}
+    .hdr{position:sticky;top:0;z-index:100;background:rgba(4,9,22,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);padding:0 1.2rem;height:60px;display:flex;align-items:center;gap:.7rem;}
+    .hdr-back{background:none;border:none;color:rgba(255,255,255,.55);font-size:1.15rem;cursor:pointer;padding:.3rem;border-radius:8px;transition:color .2s;}
+    .hdr-back:hover{color:white;}
+    .hdr-title{font-family:'Clash Display',sans-serif;font-size:.98rem;font-weight:700;color:white;flex:1;}
+    .hdr-ico{width:34px;height:34px;border-radius:11px;background:#E8960A20;border:1px solid #E8960A35;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+    /* HERO BANNER */
+    .hero-banner{position:relative;z-index:1;margin:1rem 1.2rem;background:linear-gradient(135deg,#E8960A20,#E8960A0D);border:1px solid #E8960A35;border-radius:22px;padding:1.6rem 1.3rem;overflow:hidden;text-align:center;}
+    .hero-banner::after{content:'🎯';position:absolute;right:-5px;bottom:-10px;font-size:5.5rem;opacity:.07;pointer-events:none;}
+    .hero-tag{display:inline-flex;align-items:center;gap:.35rem;background:#E8960A20;border:1px solid #E8960A40;border-radius:99px;padding:.22rem .7rem;font-size:.62rem;font-weight:700;color:#F5B731;margin-bottom:.7rem;letter-spacing:.4px;text-transform:uppercase;}
+    .hero-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:-1px;line-height:1.2;margin-bottom:.55rem;}
+    .hero-title em{font-style:normal;color:#F5B731;}
+    .hero-desc{font-size:.8rem;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto;}
+    /* KEY NUMBERS */
+    .keynums{position:relative;z-index:1;display:flex;margin:1rem 1.2rem 0;gap:.6rem;}
+    .kn{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:.8rem .5rem;text-align:center;}
+    .kn-val{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:#F5B731;margin-bottom:.2rem;}
+    .kn-lbl{font-size:.58rem;color:rgba(255,255,255,.35);font-weight:600;line-height:1.3;}
     /* SECTIONS */
-    .section{position:relative;z-index:1;margin:1.2rem 1.2rem 0;}
-    .section-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.2rem;}
-    .sec-head{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;}
-    .sec-ico{width:32px;height:32px;border-radius:10px;background:#F5B73120;border:1px solid #F5B73130;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
-    .sec-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:white;}
+    .sec{position:relative;z-index:1;margin:1rem 1.2rem 0;}
+    .sec-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:1.1rem;}
+    .sec-hdr{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem;}
+    .sec-hdr-ico{width:30px;height:30px;border-radius:9px;background:#E8960A1A;border:1px solid #E8960A30;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+    .sec-hdr-title{font-family:'Clash Display',sans-serif;font-size:.92rem;font-weight:700;color:white;}
     /* STEPS */
-    .step{display:flex;gap:.8rem;margin-bottom:.9rem;align-items:flex-start;}
+    .step{display:flex;gap:.75rem;margin-bottom:.85rem;align-items:flex-start;}
     .step:last-child{margin-bottom:0;}
-    .step-num{width:26px;height:26px;border-radius:50%;background:#F5B73125;border:1.5px solid #F5B73150;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--accent);flex-shrink:0;margin-top:2px;}
-    .step-title{font-size:.82rem;font-weight:700;color:white;margin-bottom:.2rem;}
-    .step-desc{font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.5;}
+    .step-num{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;margin-top:2px;}
+    .step-title{font-size:.8rem;font-weight:700;color:white;margin-bottom:.15rem;}
+    .step-desc{font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.5;}
     /* GAINS */
-    .gain-row{display:flex;align-items:center;gap:.75rem;padding:.7rem;background:rgba(255,255,255,.03);border-radius:12px;margin-bottom:.5rem;border:1px solid rgba(255,255,255,.05);}
+    .gain-row{display:flex;align-items:center;gap:.7rem;padding:.65rem .8rem;background:rgba(255,255,255,.03);border-radius:11px;margin-bottom:.45rem;border:1px solid rgba(255,255,255,.05);}
     .gain-row:last-child{margin-bottom:0;}
-    .gain-ico{font-size:1.2rem;width:36px;text-align:center;flex-shrink:0;}
-    .gain-label{font-size:.74rem;color:rgba(255,255,255,.5);margin-bottom:.1rem;}
-    .gain-val{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--accent);}
-    /* PROMOTEUR CARD */
-    .promo-card{background:linear-gradient(135deg,rgba(245,183,49,.1),rgba(255,107,26,.06));border:1px solid rgba(245,183,49,.25);border-radius:20px;padding:1.2rem;position:relative;overflow:hidden;}
-    .promo-card::before{content:'👑';position:absolute;right:.8rem;top:.8rem;font-size:2.5rem;opacity:.15;}
-    .promo-badge{font-size:.6rem;font-weight:800;color:var(--gold);letter-spacing:.8px;text-transform:uppercase;margin-bottom:.3rem;}
-    .promo-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.6rem;}
-    .promo-row{display:flex;align-items:center;gap:.7rem;padding:.55rem .7rem;background:rgba(255,255,255,.04);border-radius:10px;margin-bottom:.4rem;}
-    .promo-row:last-child{margin-bottom:0;}
-    .promo-pct{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--gold);min-width:60px;}
-    .promo-desc{font-size:.73rem;color:rgba(255,255,255,.55);line-height:1.4;}
-    .promo-total{margin-top:.8rem;padding:.6rem .7rem;background:rgba(245,183,49,.1);border-radius:10px;border:1px dashed rgba(245,183,49,.3);}
-    .promo-total-lbl{font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;}
-    .promo-total-val{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);}
+    .gain-ico{font-size:1.15rem;width:32px;text-align:center;flex-shrink:0;}
+    .gain-lbl{font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:.1rem;}
+    .gain-val{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;}
+    /* PAYMENT MODEL */
+    .pay-section{position:relative;z-index:1;margin:1rem 1.2rem 0;}
+    .pay-card{background:linear-gradient(135deg,rgba(0,194,113,.1),rgba(0,194,113,.04));border:1px solid rgba(0,194,113,.25);border-radius:18px;padding:1.1rem;}
+    .pay-badge{font-size:.6rem;font-weight:800;color:#00C271;letter-spacing:.7px;text-transform:uppercase;margin-bottom:.35rem;}
+    .pay-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:white;margin-bottom:.7rem;}
+    .pay-row{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.55rem;}
+    .pay-row:last-child{margin-bottom:0;}
+    .pay-ico{font-size:1rem;width:28px;text-align:center;flex-shrink:0;margin-top:1px;}
+    .pay-text{font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5;}
+    /* CONDITIONS */
+    .cond-sec{position:relative;z-index:1;margin:1rem 1.2rem 0;}
+    .cond-title{font-size:.75rem;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.5px;}
+    .cond-row{display:flex;align-items:flex-start;gap:.55rem;margin-bottom:.45rem;font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.5;}
+    .cond-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
     /* FAQ */
-    .faq-item{margin-bottom:.5rem;border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;}
-    .faq-q{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;font-size:.8rem;font-weight:600;color:white;cursor:pointer;gap:.5rem;}
-    .faq-chevron{font-size:.7rem;color:rgba(255,255,255,.4);transition:transform .2s;flex-shrink:0;}
-    .faq-item.open .faq-chevron{transform:rotate(180deg);}
-    .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.6;padding:0 1rem;}
-    .faq-item.open .faq-a{max-height:200px;padding:.1rem 1rem .9rem;}
+    .faq-item{border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:.45rem;overflow:hidden;}
+    .faq-q{display:flex;justify-content:space-between;align-items:center;padding:.75rem .9rem;font-size:.78rem;font-weight:600;color:white;cursor:pointer;gap:.4rem;}
+    .faq-arr{font-size:.65rem;color:rgba(255,255,255,.35);transition:transform .2s;flex-shrink:0;}
+    .faq-item.open .faq-arr{transform:rotate(180deg);}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;font-size:.74rem;color:rgba(255,255,255,.45);line-height:1.6;padding:0 .9rem;}
+    .faq-item.open .faq-a{max-height:200px;padding:.1rem .9rem .85rem;}
     /* CTA */
-    .cta-section{position:relative;z-index:1;margin:1.2rem 1.2rem 0;}
-    .cta-btn{width:100%;padding:.9rem;background:linear-gradient(135deg,#F5B731,#F5B731cc);border:none;border-radius:16px;color:white;font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .2s;box-shadow:0 8px 24px #F5B73140;}
-    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px #F5B73155;}
+    .cta-wrap{position:relative;z-index:1;margin:1.2rem 1.2rem 0;}
+    .cta-btn{width:100%;padding:.88rem;background:linear-gradient(135deg,#E8960A,#E8960Acc);border:none;border-radius:16px;color:white;font-family:'Clash Display',sans-serif;font-size:.98rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 8px 24px #E8960A35;transition:all .2s;}
+    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px #E8960A50;}
     .cta-btn:active{transform:scale(.97);}
-    .cta-sub{text-align:center;font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.6rem;}
+    .cta-note{text-align:center;font-size:.68rem;color:rgba(255,255,255,.3);margin-top:.55rem;}
     /* MODAL */
-    .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:flex-end;}
+    .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:flex-end;backdrop-filter:blur(4px);}
     .modal-ov.open{display:flex;}
-    .modal-sheet{background:#0D1530;border-radius:24px 24px 0 0;width:100%;max-height:85vh;overflow-y:auto;padding:1.5rem 1.2rem;border-top:1px solid rgba(255,255,255,.1);animation:slideUp .3s ease;}
+    .modal-sheet{background:#0C1428;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:1.4rem 1.2rem 2rem;border-top:1px solid rgba(255,255,255,.1);animation:slideUp .3s ease;}
     @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
     .modal-handle{width:36px;height:4px;border-radius:99px;background:rgba(255,255,255,.15);margin:0 auto 1.2rem;}
-    .modal-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:white;margin-bottom:1rem;}
-    .form-field{margin-bottom:.9rem;}
-    .form-label{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:.4rem;display:block;}
-    .form-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.7rem .9rem;color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s;}
-    .form-input:focus{border-color:#F5B73180;}
-    .form-input::placeholder{color:rgba(255,255,255,.25);}
-    select.form-input option{background:#0D1530;}
-    .form-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#F5B731,#F5B731cc);border:none;border-radius:12px;color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:.3rem;}
+    .modal-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.25rem;}
+    .modal-sub{font-size:.74rem;color:rgba(255,255,255,.4);margin-bottom:1.2rem;}
+    .f-lbl{font-size:.73rem;font-weight:600;color:rgba(255,255,255,.55);margin-bottom:.38rem;display:block;}
+    .f-inp{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;padding:.7rem .9rem;color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s;margin-bottom:.8rem;}
+    .f-inp:focus{border-color:#E8960A80;background:rgba(255,255,255,.08);}
+    .f-inp::placeholder{color:rgba(255,255,255,.22);}
+    select.f-inp option{background:#0C1428;}
+    .f-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#E8960A,#E8960Acc);border:none;border-radius:14px;color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:.2rem;transition:opacity .2s;}
+    .f-btn:disabled{opacity:.5;cursor:not-allowed;}
     /* BOTTOM NAV */
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,9,22,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));z-index:99;}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,9,22,.97);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));z-index:99;}
     .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;}
     .nav-ico{font-size:1.25rem;line-height:1;}
     .nav-lbl{font-size:.58rem;font-weight:600;color:rgba(255,255,255,.4);}
-    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;}
-    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:#0D1530;color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:600;border-left:3px solid var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:88vw;text-align:center;}
+    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1B3FE4,#2D55FF);color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
+    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:#0C1428;color:white;padding:.65rem 1.1rem;border-radius:14px;font-size:.8rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:600;border-left:3px solid #F5B731;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:88vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   </style>
 </head>
 <body>
 
-<div class="header">
-  <button class="h-back" onclick="history.back()">←</button>
-  <div class="h-title">Chasseur de Vendeurs</div>
-  <div class="h-ico">🎯</div>
+<div class="hdr">
+  <button class="hdr-back" onclick="history.back()">←</button>
+  <div class="hdr-title">Chasseur de Vendeurs</div>
+  <div class="hdr-ico">🎯</div>
 </div>
 
-<div class="hero">
-  <div class="hero-inner">
-    <div class="hero-tag">⚡ Démarrage immédiat</div>
-    <h1>Recrute des vendeurs,
-<em>touche des primes</em></h1>
-    <p class="hero-desc">Parcours les marchés et quartiers. Pour chaque commerçant actif que tu amènes sur AfriMarket, tu encaisses une prime immédiate.</p>
-  </div>
+<div class="hero-banner">
+  <div class="hero-tag">⚡ Sans investissement</div>
+  <div class="hero-title">Recrute des vendeurs,
+<em>encaisse une prime</em></div>
+  <div class="hero-desc">Tu parcours les marchés et quartiers. Chaque commerçant que tu inscris sur AfriMarket te génère une prime automatique dès sa première annonce active.</div>
+</div>
+
+<div class="keynums">
+  <div class="kn"><div class="kn-val">500 F</div><div class="kn-lbl">Prime par vendeur actif</div></div><div class="kn"><div class="kn-val">0 F</div><div class="kn-lbl">Investissement requis</div></div><div class="kn"><div class="kn-val">Illimité</div><div class="kn-lbl">Nombre de recrutements</div></div>
 </div>
 
 <!-- COMMENT ÇA MARCHE -->
-<div class="section">
-  <div class="section-card">
-    <div class="sec-head"><div class="sec-ico">📋</div><div class="sec-title">Comment ça marche</div></div>
-    <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Rejoins comme Agent Chasseur</div><div class="step-desc">Tu t'inscris gratuitement et tu reçois ta carte d'agent officielle AfriMarket avec ton code unique.</div></div></div><div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Prospecte autour de toi</div><div class="step-desc">Tu repères des vendeurs (boutiques, marchés, revendeurs) qui n'ont pas encore de compte AfriMarket.</div></div></div><div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Aide-les à s'inscrire</div><div class="step-desc">Tu les accompagnes à créer leur compte. Ton code de parrainage est automatiquement lié à eux.</div></div></div><div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Encaisse ta prime</div><div class="step-desc">Dès que ce vendeur publie sa première annonce active, 500 FCFA sont crédités sur ton compte AfriMarket.</div></div></div>
+<div class="sec">
+  <div class="sec-card">
+    <div class="sec-hdr"><div class="sec-hdr-ico">📋</div><div class="sec-hdr-title">Comment ça marche</div></div>
+    <div class="step">
+          <div class="step-num" style="background:#E8960A22;border-color:#E8960A55;color:#F5B731;">1</div>
+          <div class="step-body"><div class="step-title">Inscris-toi comme Agent Chasseur</div><div class="step-desc">Tu remplis le formulaire ci-dessous. Tu reçois ton code agent personnel et une carte digitale officielle AfriMarket.</div></div>
+        </div><div class="step">
+          <div class="step-num" style="background:#E8960A22;border-color:#E8960A55;color:#F5B731;">2</div>
+          <div class="step-body"><div class="step-title">Repère des commerçants sans compte</div><div class="step-desc">Boutiques, marchés, revendeurs, artisans — tous ceux qui vendent sans être sur AfriMarket sont tes cibles.</div></div>
+        </div><div class="step">
+          <div class="step-num" style="background:#E8960A22;border-color:#E8960A55;color:#F5B731;">3</div>
+          <div class="step-body"><div class="step-title">Aide-les à créer leur compte</div><div class="step-desc">Tu les assistes pour l'inscription. Ton code agent est automatiquement lié à leur profil.</div></div>
+        </div><div class="step">
+          <div class="step-num" style="background:#E8960A22;border-color:#E8960A55;color:#F5B731;">4</div>
+          <div class="step-body"><div class="step-title">Encaisse ta prime automatiquement</div><div class="step-desc">Dès qu'ils publient leur première annonce active, 500 FCFA arrivent sur ton solde. Bonus +1 000 F s'ils passent Premium.</div></div>
+        </div>
   </div>
 </div>
 
-<!-- TES GAINS -->
-<div class="section">
-  <div class="section-card">
-    <div class="sec-head"><div class="sec-ico">💰</div><div class="sec-title">Ce que tu peux gagner</div></div>
-    <div class="gain-row"><div class="gain-ico">💵</div><div class="gain-body"><div class="gain-label">Prime par vendeur actif recruté</div><div class="gain-val">500 FCFA</div></div></div><div class="gain-row"><div class="gain-ico">📈</div><div class="gain-body"><div class="gain-label">20 vendeurs/mois = revenu mensuel</div><div class="gain-val">10 000 FCFA</div></div></div><div class="gain-row"><div class="gain-ico">🚀</div><div class="gain-body"><div class="gain-label">50 vendeurs/mois = revenu mensuel</div><div class="gain-val">25 000 FCFA</div></div></div><div class="gain-row"><div class="gain-ico">👑</div><div class="gain-body"><div class="gain-label">Bonus si vendeur passe Premium</div><div class="gain-val">+1 000 FCFA supplémentaire</div></div></div><div class="gain-row"><div class="gain-ico">🎯</div><div class="gain-body"><div class="gain-label">Objectif Top Agent du mois</div><div class="gain-val">Bonus 10 000 FCFA + badge spécial</div></div></div>
+<!-- GAINS -->
+<div class="sec">
+  <div class="sec-card">
+    <div class="sec-hdr"><div class="sec-hdr-ico">💰</div><div class="sec-hdr-title">Ce que tu peux gagner</div></div>
+    <div class="gain-row">
+          <div class="gain-ico">💵</div>
+          <div class="gain-body"><div class="gain-lbl">Prime par vendeur actif inscrit</div><div class="gain-val" style="color:#F5B731;">500 FCFA</div></div>
+        </div><div class="gain-row">
+          <div class="gain-ico">👑</div>
+          <div class="gain-body"><div class="gain-lbl">Bonus si le vendeur active Premium</div><div class="gain-val" style="color:#F5B731;">+ 1 000 FCFA</div></div>
+        </div><div class="gain-row">
+          <div class="gain-ico">📈</div>
+          <div class="gain-body"><div class="gain-lbl">Pour 50 vendeurs recrutés / mois</div><div class="gain-val" style="color:#F5B731;">25 000 – 75 000 FCFA</div></div>
+        </div><div class="gain-row">
+          <div class="gain-ico">🏆</div>
+          <div class="gain-body"><div class="gain-lbl">Bonus Top Agent du mois</div><div class="gain-val" style="color:#F5B731;">+ 10 000 FCFA</div></div>
+        </div><div class="gain-row">
+          <div class="gain-ico">♾️</div>
+          <div class="gain-body"><div class="gain-lbl">Cumul illimité — pas de plafond</div><div class="gain-val" style="color:#F5B731;">Autant que tu travailles</div></div>
+        </div>
   </div>
 </div>
 
-<!-- PROMOTEUR -->
-<div class="section">
-  <div class="promo-card">
-    <div class="promo-badge">👑 Comment le Promoteur gagne</div>
-    <div class="promo-title">Les revenus d'AfriMarket</div>
-    <div class="promo-row"><span class="promo-pct">2 000 F</span><span class="promo-desc">Sur chaque vendeur Premium qu'un agent t'amène (tu gardes 1 500 F, agent reçoit 500 F)</span></div><div class="promo-row"><span class="promo-pct">500 F/an</span><span class="promo-desc">Abonnement annuel de chaque vendeur actif dans le réseau de l'agent</span></div><div class="promo-row"><span class="promo-pct">5%</span><span class="promo-desc">Commission sur les annonces boostées par les vendeurs recrutés via les agents</span></div><div class="promo-row"><span class="promo-pct">∞</span><span class="promo-desc">Le réseau d'agents grandit seul — revenu passif automatique</span></div>
-    <div class="promo-total">
-      <div class="promo-total-lbl">Revenu passif par mois estimé</div>
-      <div class="promo-total-val" id="promoEst">Calcul en cours…</div>
-    </div>
+<!-- COMMENT TU ES PAYÉ -->
+<div class="pay-section">
+  <div class="pay-card">
+    <div class="pay-badge">💸 Système de paiement</div>
+    <div class="pay-title">Comment tu reçois ton argent</div>
+    <div class="pay-row">
+          <div class="pay-ico">🏦</div>
+          <div class="pay-text">Les primes sont créditées automatiquement sur ton solde AfriMarket dès validation de chaque recrutement.</div>
+        </div><div class="pay-row">
+          <div class="pay-ico">📱</div>
+          <div class="pay-text">Tu peux retirer vers ton Mobile Money (MTN, Orange, Wave…) à partir de 5 000 FCFA accumulés.</div>
+        </div><div class="pay-row">
+          <div class="pay-ico">⚡</div>
+          <div class="pay-text">Le retrait est traité sous 24h ouvrées directement sur ton numéro enregistré dans ton profil.</div>
+        </div><div class="pay-row">
+          <div class="pay-ico">🔒</div>
+          <div class="pay-text">Chaque prime est traçable dans ton historique — tu vois en temps réel combien tu as gagné.</div>
+        </div>
   </div>
+</div>
+
+<!-- CONDITIONS -->
+<div class="cond-sec">
+  <div class="cond-title">✅ Ce qu'il te faut</div>
+  <div class="cond-row"><span class="cond-dot" style="background:#F5B731;"></span>Avoir un compte AfriMarket actif et vérifié</div><div class="cond-row"><span class="cond-dot" style="background:#F5B731;"></span>Résider dans une ville où AfriMarket est opérationnel</div><div class="cond-row"><span class="cond-dot" style="background:#F5B731;"></span>Un téléphone avec accès internet suffit — pas de matériel spécial</div><div class="cond-row"><span class="cond-dot" style="background:#F5B731;"></span>Disponibilité partielle acceptée — travail à ton rythme</div>
 </div>
 
 <!-- FAQ -->
-<div class="section">
-  <div class="section-card">
-    <div class="sec-head"><div class="sec-ico">❓</div><div class="sec-title">Questions fréquentes</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Dois-je investir quelque chose ? <span class="faq-chevron">▾</span></div><div class="faq-a">Absolument rien. Tu as juste besoin de tes pieds et de ton téléphone.</div></div><div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Comment je reçois mon argent ? <span class="faq-chevron">▾</span></div><div class="faq-a">Les primes s'accumulent dans ton solde AfriMarket. Tu peux retirer via Mobile Money dès 5 000 FCFA.</div></div><div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Y a-t-il une limite de recrutement ? <span class="faq-chevron">▾</span></div><div class="faq-a">Aucune limite. Plus tu recrutes, plus tu gagnes. Les meilleurs agents gagnent plus de 100 000 FCFA/mois.</div></div><div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Puis-je recruter dans d'autres villes ? <span class="faq-chevron">▾</span></div><div class="faq-a">Oui ! Tu peux même recruter à distance via WhatsApp. Ton code de parrainage fonctionne partout.</div></div>
+<div class="sec" style="margin-bottom:0;">
+  <div class="sec-card">
+    <div class="sec-hdr"><div class="sec-hdr-ico">❓</div><div class="sec-hdr-title">Questions fréquentes</div></div>
+    <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Comment je prouve que j'ai recruté quelqu'un ?<span class="faq-arr">▾</span></div>
+          <div class="faq-a">Ton code agent est automatiquement enregistré lors de l'inscription du vendeur. Aucune preuve manuelle nécessaire.</div>
+        </div><div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Y a-t-il un minimum de recrutements ?<span class="faq-arr">▾</span></div>
+          <div class="faq-a">Non. Même un seul vendeur recruté te rapporte 500 FCFA. Il n'y a aucun quota minimum.</div>
+        </div><div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Puis-je recruter dans d'autres villes ?<span class="faq-arr">▾</span></div>
+          <div class="faq-a">Oui, ton code fonctionne partout. Tu peux même recruter à distance via WhatsApp ou Facebook.</div>
+        </div><div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Que se passe-t-il si le vendeur supprime son compte ?<span class="faq-arr">▾</span></div>
+          <div class="faq-a">La prime est conservée dès validation initiale. Elle ne t'est pas retirée.</div>
+        </div>
   </div>
 </div>
 
 <!-- CTA -->
-<div class="cta-section">
+<div class="cta-wrap">
   <button class="cta-btn" onclick="openModal()">🎯 Devenir Agent Chasseur</button>
-  <div class="cta-sub">100% gratuit • Sans investissement • Commence aujourd'hui</div>
+  <div class="cta-note">Inscription gratuite • Paiement à chaque mission réussie</div>
 </div>
-<div style="height:.5rem"></div>
+<div style="height:.4rem;position:relative;z-index:1;"></div>
 
-<!-- MODAL INSCRIPTION -->
-<div class="modal-ov" id="modal" onclick="if(event.target===this)closeModal()">
+<!-- MODAL -->
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">🎯 S'inscrire — Chasseur de Vendeurs</div>
-    <div class="form-field">
-      <label class="form-label">Ton nom complet</label>
-      <input class="form-input" type="text" id="regName" placeholder="Ex: Abdoulaye Diallo"/>
-    </div>
-    <div class="form-field">
-      <label class="form-label">Ton WhatsApp</label>
-      <input class="form-input" type="tel" id="regWa" placeholder="+237 6XX XXX XXX"/>
-    </div>
-    <div class="form-field">
-      <label class="form-label">Ta ville</label>
-      <input class="form-input" type="text" id="regVille" placeholder="Ex: Douala, Yaoundé, Abidjan…"/>
-    </div>
-    <div class="form-field">
-      <label class="form-label">Pourquoi tu veux rejoindre ?</label>
-      <textarea class="form-input" id="regMotiv" rows="3" placeholder="Décris ta motivation en quelques mots…" style="resize:none;"></textarea>
-    </div>
-    <button class="form-btn" onclick="submitRegistration()">✅ Envoyer ma candidature</button>
+    <div class="modal-title">🎯 Rejoindre — Chasseur de Vendeurs</div>
+    <div class="modal-sub">Remplis ce formulaire, on te contacte dans 24h pour te donner accès aux missions.</div>
+    <label class="f-lbl">Ton nom complet *</label>
+    <input class="f-inp" type="text" id="rName" placeholder="Ex: Fatou Diallo"/>
+    <label class="f-lbl">WhatsApp *</label>
+    <input class="f-inp" type="tel" id="rWa" placeholder="+237 6XX XXX XXX"/>
+    <label class="f-lbl">Ta ville *</label>
+    <input class="f-inp" type="text" id="rVille" placeholder="Ex: Douala, Abidjan, Dakar…"/>
+    <label class="f-lbl">Dis-nous en plus sur toi (optionnel)</label>
+    <textarea class="f-inp" id="rMotiv" rows="3" placeholder="Expérience, disponibilité, moyen de transport…" style="resize:none;"></textarea>
+    <button class="f-btn" id="fBtn" onclick="submitForm()">✅ Envoyer ma candidature</button>
   </div>
 </div>
 
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
   <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
-  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--gold);font-weight:700">Publier</span></div>
-  <button class="nav-item" onclick="location.href='gagner.html'"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--gold);font-weight:700">Gagner</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:#F5B731;font-weight:700">Publier</span></div>
+  <button class="nav-item" onclick="location.href='gagner.html'"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:#F5B731;font-weight:700">Gagner</span></button>
   <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
 </nav>
 <div id="toast"></div>
 
 <script>
-const sb = supabase.createClient(
+const _sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
+function openModal()  { document.getElementById('modalOv').classList.add('open'); }
+function closeModal() { document.getElementById('modalOv').classList.remove('open'); }
 
-function openModal(){ document.getElementById('modal').classList.add('open'); }
-function closeModal(){ document.getElementById('modal').classList.remove('open'); }
-
-async function submitRegistration() {
-  const name  = document.getElementById('regName').value.trim();
-  const wa    = document.getElementById('regWa').value.trim();
-  const ville = document.getElementById('regVille').value.trim();
-  const motiv = document.getElementById('regMotiv').value.trim();
-  if (!name || !wa || !ville) { showToast('Remplis tous les champs obligatoires', 'warning'); return; }
-
-  const btn = document.querySelector('.form-btn');
-  btn.disabled = true; btn.textContent = '⏳ Envoi…';
-
+async function submitForm() {
+  const name  = document.getElementById('rName').value.trim();
+  const wa    = document.getElementById('rWa').value.trim();
+  const ville = document.getElementById('rVille').value.trim();
+  const motiv = document.getElementById('rMotiv').value.trim();
+  if (!name || !wa || !ville) { toast('Remplis les champs obligatoires *', 'warn'); return; }
+  const btn = document.getElementById('fBtn');
+  btn.disabled = true; btn.textContent = '⏳ Envoi en cours…';
   try {
-    const { data: { session } } = await sb.auth.getSession();
-    const userId = session?.user?.id || null;
-
-    await sb.from('service_registrations').insert({
-      user_id   : userId,
-      service   : 'gagner-chasseur',
+    const { data:{ session } } = await _sb.auth.getSession();
+    await _sb.from('service_registrations').insert({
+      user_id: session?.user?.id || null,
+      service: 'gagner-chasseur',
       name, whatsapp: wa, ville, motivation: motiv,
       created_at: new Date().toISOString()
     });
-
-    // Notif admin
-    await sb.from('notifications').insert({
-      user_id: (await sb.from('profiles').select('id').eq('email','abdoula13cherif@gmail.com').maybeSingle()).data?.id,
-      title  : '📋 Nouvelle candidature — Chasseur de Vendeurs',
-      message: `${name} (${ville}) veut rejoindre comme Chasseur de Vendeurs`,
-      icon: '🎯', type: 'info', read: false
-    });
-
     closeModal();
-    showToast('✅ Candidature envoyée ! On te contacte bientôt.', 'success');
+    toast('✅ Candidature envoyée ! On te contacte très bientôt.', 'ok');
     btn.textContent = '✅ Candidature envoyée';
   } catch(e) {
-    btn.disabled = false; btn.textContent = '✅ Envoyer ma candidature';
-    showToast('Erreur : ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '✅ Envoyer ma candidature';
+    toast('Erreur : ' + e.message, 'err');
   }
 }
 
-// Calcul revenu promoteur dynamique
-(async () => {
-  try {
-    const { count } = await sb.from('service_registrations')
-      .select('id', {count:'exact', head:true}).eq('service','gagner-chasseur');
-    const members = count || 0;
-    const est = Math.round(members * 2500);
-    document.getElementById('promoEst').textContent =
-      est > 0 ? est.toLocaleString('fr-FR') + ' FCFA / mois' : 'Croît avec chaque membre actif';
-  } catch(e) {
-    document.getElementById('promoEst').textContent = 'Croît avec chaque membre actif';
-  }
-})();
-
 let _tt;
-function showToast(msg, type) {
-  const col = {success:'var(--turq)',error:'var(--red)',warning:'var(--gold)',info:'var(--blue2)'};
+function toast(msg, t) {
+  const c = {ok:'#00C271',err:'#E83030',warn:'#F5B731'};
   const el = document.getElementById('toast');
-  el.textContent = msg; el.className = 'show'; el.style.borderLeftColor = col[type]||'var(--accent)';
-  clearTimeout(_tt); _tt = setTimeout(()=>{ el.className=''; }, 4500);
+  el.textContent = msg; el.className='show'; el.style.borderLeftColor = c[t]||'#F5B731';
+  clearTimeout(_tt); _tt = setTimeout(()=>el.className='', 4500);
 }
 </script>
 </body>
