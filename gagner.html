@@ -2,348 +2,119 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AfriMarket — Gagner de l'argent</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AfriMarket — Gagner</title>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    :root{
-      --dark:#080E2A; --darker:#040916;
-      --gold:#F5B731; --gold2:#FFD166; --gold3:#E8960A;
-      --orange:#FF6B1A; --turq:#00C2B7; --green:#00C271;
-      --blue:#1B3FE4; --blue2:#2D55FF;
-      --red:#E83030; --border:rgba(245,183,49,.15);
-      --nav-h:72px;
-    }
+    :root{--dark:#080E2A;--darker:#040916;--gold:#F5B731;--gold2:#FFD166;--gold3:#E8960A;--orange:#FF6B1A;--turq:#00C2B7;--green:#00C271;--blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--nav-h:72px;}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{scroll-behavior:smooth;}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--darker);color:white;min-height:100vh;
-      padding-bottom:calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
-
-    /* BG texture */
-    body::before{content:'';position:fixed;inset:0;
-      background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(245,183,49,.12) 0%,transparent 70%),
-                 radial-gradient(ellipse 50% 30% at 90% 80%,rgba(255,107,26,.08) 0%,transparent 60%);
-      pointer-events:none;z-index:0;}
-
-    /* HEADER */
-    .header{position:sticky;top:0;z-index:100;background:rgba(4,9,22,.9);
-      backdrop-filter:blur(20px);border-bottom:1px solid var(--border);
-      padding:0 1.2rem;height:60px;display:flex;align-items:center;justify-content:space-between;}
-    .h-back{color:rgba(255,255,255,.6);font-size:.8rem;font-weight:600;border:1px solid rgba(255,255,255,.15);
-      padding:.35rem .8rem;border-radius:99px;text-decoration:none;transition:all .2s;}
-    .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--darker);color:white;min-height:100vh;padding-bottom:calc(var(--nav-h)+50px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(245,183,49,.13) 0%,transparent 65%),radial-gradient(ellipse 50% 30% at 90% 80%,rgba(255,107,26,.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+    .header{position:sticky;top:0;z-index:100;background:rgba(4,9,22,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(245,183,49,.12);padding:0 1.2rem;height:60px;display:flex;align-items:center;justify-content:space-between;}
+    .h-back{color:rgba(255,255,255,.6);font-size:.8rem;font-weight:600;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;text-decoration:none;}
     .h-logo{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-1px;}
     .h-logo .la{color:var(--turq);}.h-logo .lm{color:var(--orange);}
-    .h-badge{background:linear-gradient(135deg,var(--gold3),var(--gold));color:var(--dark);
-      font-size:.62rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;letter-spacing:.5px;}
-
+    .h-badge{background:linear-gradient(135deg,var(--gold3),var(--gold));color:var(--dark);font-size:.62rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;}
     /* HERO */
-    .hero{position:relative;z-index:1;padding:2.5rem 1.2rem 2rem;text-align:center;}
-    .hero-tag{display:inline-flex;align-items:center;gap:.4rem;background:rgba(245,183,49,.12);
-      border:1px solid rgba(245,183,49,.3);border-radius:99px;padding:.3rem .8rem;
-      font-size:.72rem;font-weight:700;color:var(--gold);margin-bottom:1rem;letter-spacing:.5px;}
-    .hero h1{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;line-height:1.15;
-      letter-spacing:-1.5px;margin-bottom:.7rem;}
-    .hero h1 span{background:linear-gradient(135deg,var(--gold),var(--gold2),var(--orange));
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-    .hero-sub{font-size:.88rem;color:rgba(255,255,255,.55);line-height:1.6;max-width:320px;margin:0 auto 1.5rem;}
-    .hero-stats{display:flex;justify-content:center;gap:1.5rem;}
-    .hs{text-align:center;}
-    .hs-num{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;
-      background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;background-clip:text;}
-    .hs-lbl{font-size:.6rem;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
-
-    /* SECTION TITLE */
-    .sec-title{position:relative;z-index:1;padding:1.5rem 1.2rem .8rem;}
-    .sec-title h2{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:white;}
-    .sec-title p{font-size:.75rem;color:rgba(255,255,255,.45);margin-top:.2rem;}
-
-    /* CARDS GRID */
-    .cards-grid{position:relative;z-index:1;padding:0 1.2rem;display:flex;flex-direction:column;gap:1rem;}
-
-    /* OPPORTUNITY CARD */
-    .opp-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-      border-radius:20px;overflow:hidden;cursor:pointer;
-      transition:transform .25s,border-color .25s,box-shadow .25s;
-      text-decoration:none;color:white;display:block;
-      animation:cardIn .5s ease both;}
-    @keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .opp-card:nth-child(1){animation-delay:.05s}
-    .opp-card:nth-child(2){animation-delay:.1s}
-    .opp-card:nth-child(3){animation-delay:.15s}
-    .opp-card:nth-child(4){animation-delay:.2s}
-    .opp-card:nth-child(5){animation-delay:.25s}
-    .opp-card:nth-child(6){animation-delay:.3s}
-    .opp-card:nth-child(7){animation-delay:.35s}
-    .opp-card:hover{transform:translateY(-3px);border-color:rgba(245,183,49,.3);
-      box-shadow:0 12px 40px rgba(0,0,0,.3),0 0 0 1px rgba(245,183,49,.1);}
-    .opp-card:active{transform:scale(.98);}
-
-    .card-top{display:flex;align-items:flex-start;gap:1rem;padding:1.2rem 1.2rem .8rem;}
-    .card-ico{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;
-      justify-content:center;font-size:1.5rem;flex-shrink:0;}
-    .card-meta{flex:1;min-width:0;}
-    .card-name{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;
-      color:white;margin-bottom:.2rem;}
-    .card-desc{font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.5;}
-
-    .card-bottom{display:flex;align-items:center;justify-content:space-between;
-      padding:.8rem 1.2rem 1rem;border-top:1px solid rgba(255,255,255,.06);}
-    .card-gain{display:flex;flex-direction:column;gap:.1rem;}
-    .card-gain-lbl{font-size:.58rem;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
-    .card-gain-val{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;}
-    .card-arrow{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
-      justify-content:center;font-size:.9rem;transition:transform .2s;}
-    .opp-card:hover .card-arrow{transform:translateX(4px);}
-
-    .card-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;
-      border-radius:99px;font-size:.6rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
-      margin-bottom:.5rem;}
-
-    /* COLOR VARIANTS */
-    .c-gold .card-ico{background:rgba(245,183,49,.15);border:1px solid rgba(245,183,49,.2);}
-    .c-gold .card-gain-val{color:var(--gold);}
-    .c-gold .card-arrow{background:rgba(245,183,49,.15);color:var(--gold);}
-    .c-gold .card-tag{background:rgba(245,183,49,.12);color:var(--gold);}
-
-    .c-turq .card-ico{background:rgba(0,194,183,.15);border:1px solid rgba(0,194,183,.2);}
-    .c-turq .card-gain-val{color:var(--turq);}
-    .c-turq .card-arrow{background:rgba(0,194,183,.15);color:var(--turq);}
-    .c-turq .card-tag{background:rgba(0,194,183,.12);color:var(--turq);}
-
-    .c-orange .card-ico{background:rgba(255,107,26,.15);border:1px solid rgba(255,107,26,.2);}
-    .c-orange .card-gain-val{color:var(--orange);}
-    .c-orange .card-arrow{background:rgba(255,107,26,.15);color:var(--orange);}
-    .c-orange .card-tag{background:rgba(255,107,26,.12);color:var(--orange);}
-
-    .c-green .card-ico{background:rgba(0,194,113,.15);border:1px solid rgba(0,194,113,.2);}
-    .c-green .card-gain-val{color:var(--green);}
-    .c-green .card-arrow{background:rgba(0,194,113,.15);color:var(--green);}
-    .c-green .card-tag{background:rgba(0,194,113,.12);color:var(--green);}
-
-    .c-blue .card-ico{background:rgba(45,85,255,.15);border:1px solid rgba(45,85,255,.2);}
-    .c-blue .card-gain-val{color:#7B9FFF}
-    .c-blue .card-arrow{background:rgba(45,85,255,.15);color:#7B9FFF;}
-    .c-blue .card-tag{background:rgba(45,85,255,.12);color:#7B9FFF;}
-
-    .c-red .card-ico{background:rgba(232,48,48,.15);border:1px solid rgba(232,48,48,.2);}
-    .c-red .card-gain-val{color:#FF7B7B;}
-    .c-red .card-arrow{background:rgba(232,48,48,.15);color:#FF7B7B;}
-    .c-red .card-tag{background:rgba(232,48,48,.12);color:#FF7B7B;}
-
-    .c-purple .card-ico{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.2);}
-    .c-purple .card-gain-val{color:#C084FC;}
-    .c-purple .card-arrow{background:rgba(168,85,247,.15);color:#C084FC;}
-    .c-purple .card-tag{background:rgba(168,85,247,.12);color:#C084FC;}
-
-    /* PROMOTER BANNER */
-    .promo-banner{position:relative;z-index:1;margin:1.5rem 1.2rem 0;
-      background:linear-gradient(135deg,rgba(245,183,49,.12),rgba(255,107,26,.08));
-      border:1px solid rgba(245,183,49,.25);border-radius:20px;padding:1.2rem;overflow:hidden;}
-    .promo-banner::before{content:'👑';position:absolute;right:1rem;top:50%;transform:translateY(-50%);
-      font-size:4rem;opacity:.08;}
-    .pb-tag{font-size:.6rem;font-weight:800;color:var(--gold);letter-spacing:.8px;
-      text-transform:uppercase;margin-bottom:.4rem;}
-    .pb-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;
-      color:white;margin-bottom:.4rem;}
-    .pb-desc{font-size:.74rem;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.8rem;}
-    .pb-btn{display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,var(--gold3),var(--gold));
-      color:var(--dark);font-size:.78rem;font-weight:800;padding:.5rem 1rem;border-radius:10px;
-      text-decoration:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-
+    .hero{position:relative;z-index:1;padding:2rem 1.2rem 1.5rem;text-align:center;}
+    .hero-tag{display:inline-flex;align-items:center;gap:.4rem;background:rgba(245,183,49,.12);border:1px solid rgba(245,183,49,.3);border-radius:99px;padding:.3rem .8rem;font-size:.7rem;font-weight:700;color:var(--gold);margin-bottom:1rem;letter-spacing:.4px;}
+    .hero h1{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;line-height:1.15;letter-spacing:-1.2px;margin-bottom:.6rem;}
+    .hero h1 span{background:linear-gradient(135deg,var(--gold),var(--gold2),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-sub{font-size:.84rem;color:rgba(255,255,255,.5);line-height:1.6;max-width:300px;margin:0 auto 1.5rem;}
+    .hero-pills{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;}
+    .pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:.3rem .7rem;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);}
+    /* SECTION LABEL */
+    .sec-label{position:relative;z-index:1;padding:1.5rem 1.2rem .7rem;display:flex;align-items:center;gap:.5rem;}
+    .sec-label-line{flex:1;height:1px;background:linear-gradient(to right,rgba(255,255,255,.1),transparent);}
+    .sec-label-txt{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;white-space:nowrap;}
+    /* CARDS */
+    .cards{position:relative;z-index:1;padding:0 1.2rem;display:flex;flex-direction:column;gap:.85rem;}
+    .card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:20px;overflow:hidden;text-decoration:none;color:white;display:block;transition:transform .2s,border-color .25s,box-shadow .25s;animation:up .5s ease both;}
+    @keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    .card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.09s}.card:nth-child(3){animation-delay:.14s}.card:nth-child(4){animation-delay:.19s}.card:nth-child(5){animation-delay:.24s}.card:nth-child(6){animation-delay:.29s}.card:nth-child(7){animation-delay:.34s}
+    .card:active{transform:scale(.975);}
+    .card-body{display:flex;align-items:flex-start;gap:.9rem;padding:1.1rem;}
+    .card-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+    .card-info{flex:1;min-width:0;}
+    .card-badge{font-size:.58rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:.15rem .5rem;border-radius:99px;display:inline-block;margin-bottom:.35rem;}
+    .card-title{font-family:'Clash Display',sans-serif;font-size:.98rem;font-weight:700;margin-bottom:.2rem;}
+    .card-desc{font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.5;}
+    .card-foot{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem .9rem;border-top:1px solid rgba(255,255,255,.05);}
+    .card-earn{display:flex;flex-direction:column;}
+    .card-earn-lbl{font-size:.56rem;color:rgba(255,255,255,.3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+    .card-earn-val{font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;}
+    .card-chevron{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:transform .2s;}
+    .card:hover .card-chevron{transform:translateX(3px);}
+    /* colors */
+    .gold  .card-ico{background:rgba(245,183,49,.15);border:1px solid rgba(245,183,49,.2);} .gold  .card-badge{background:rgba(245,183,49,.12);color:#F5B731;} .gold  .card-earn-val{color:#F5B731;} .gold  .card-chevron{background:rgba(245,183,49,.12);color:#F5B731;} .gold:hover{border-color:rgba(245,183,49,.25);box-shadow:0 8px 30px rgba(245,183,49,.08);}
+    .turq  .card-ico{background:rgba(0,194,183,.15);border:1px solid rgba(0,194,183,.2);} .turq  .card-badge{background:rgba(0,194,183,.12);color:#00C2B7;} .turq  .card-earn-val{color:#00C2B7;} .turq  .card-chevron{background:rgba(0,194,183,.12);color:#00C2B7;} .turq:hover{border-color:rgba(0,194,183,.25);box-shadow:0 8px 30px rgba(0,194,183,.08);}
+    .orange .card-ico{background:rgba(255,107,26,.15);border:1px solid rgba(255,107,26,.2);} .orange .card-badge{background:rgba(255,107,26,.12);color:#FF6B1A;} .orange .card-earn-val{color:#FF6B1A;} .orange .card-chevron{background:rgba(255,107,26,.12);color:#FF6B1A;} .orange:hover{border-color:rgba(255,107,26,.25);box-shadow:0 8px 30px rgba(255,107,26,.08);}
+    .green  .card-ico{background:rgba(0,194,113,.15);border:1px solid rgba(0,194,113,.2);} .green  .card-badge{background:rgba(0,194,113,.12);color:#00C271;} .green  .card-earn-val{color:#00C271;} .green  .card-chevron{background:rgba(0,194,113,.12);color:#00C271;} .green:hover{border-color:rgba(0,194,113,.25);box-shadow:0 8px 30px rgba(0,194,113,.08);}
+    .blue   .card-ico{background:rgba(45,85,255,.15);border:1px solid rgba(45,85,255,.2);} .blue   .card-badge{background:rgba(45,85,255,.12);color:#7B9FFF;} .blue   .card-earn-val{color:#7B9FFF;} .blue   .card-chevron{background:rgba(45,85,255,.12);color:#7B9FFF;} .blue:hover{border-color:rgba(45,85,255,.25);box-shadow:0 8px 30px rgba(45,85,255,.08);}
+    .purple .card-ico{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.2);} .purple .card-badge{background:rgba(168,85,247,.12);color:#C084FC;} .purple .card-earn-val{color:#C084FC;} .purple .card-chevron{background:rgba(168,85,247,.12);color:#C084FC;} .purple:hover{border-color:rgba(168,85,247,.25);box-shadow:0 8px 30px rgba(168,85,247,.08);}
+    .redx   .card-ico{background:rgba(232,48,48,.15);border:1px solid rgba(232,48,48,.2);} .redx   .card-badge{background:rgba(232,48,48,.12);color:#FF7B7B;} .redx   .card-earn-val{color:#FF7B7B;} .redx   .card-chevron{background:rgba(232,48,48,.12);color:#FF7B7B;} .redx:hover{border-color:rgba(232,48,48,.25);box-shadow:0 8px 30px rgba(232,48,48,.08);}
     /* BOTTOM NAV */
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,9,22,.95);
-      backdrop-filter:blur(20px);border-top:1px solid var(--border);
-      display:flex;align-items:center;justify-content:space-around;
-      padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);
-      height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));z-index:99;}
-    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;
-      padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,9,22,.97);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));z-index:99;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;}
     .nav-ico{font-size:1.25rem;line-height:1;}
     .nav-lbl{font-size:.58rem;font-weight:600;color:rgba(255,255,255,.4);}
-    .nav-item.active .nav-lbl{color:var(--gold);font-weight:700;}
-    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));
-      color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;
-      border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
+    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
   </style>
 </head>
 <body>
-
 <div class="header">
   <a class="h-back" href="dashboard.html">← Accueil</a>
   <div class="h-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
   <div class="h-badge">💰 GAGNER</div>
 </div>
-
 <div class="hero">
-  <div class="hero-tag">🌍 7 Opportunités de revenus</div>
-  <h1>Gagne de l'argent<br><span>sans investir</span></h1>
-  <p class="hero-sub">Transforme tes compétences et ton réseau en revenus réels grâce à AfriMarket.</p>
-  <div class="hero-stats">
-    <div class="hs"><div class="hs-num">7</div><div class="hs-lbl">Opportunités</div></div>
-    <div class="hs"><div class="hs-num">0 F</div><div class="hs-lbl">Investissement</div></div>
-    <div class="hs"><div class="hs-num">∞</div><div class="hs-lbl">Potentiel</div></div>
+  <div class="hero-tag">🌍 7 sources de revenus</div>
+  <h1>Transforme ton temps<br>en <span>argent réel</span></h1>
+  <p class="hero-sub">Tu travailles, tu es payé directement. Aucun investissement requis, aucune avance de fonds.</p>
+  <div class="hero-pills">
+    <div class="pill">✅ 0 F d'investissement</div>
+    <div class="pill">💸 Paiement Mobile Money</div>
+    <div class="pill">🛡️ Revenus sécurisés</div>
   </div>
 </div>
-
-<div class="sec-title">
-  <h2>Choisis ton opportunité</h2>
-  <p>Clique sur une carte pour voir comment démarrer</p>
+<div class="sec-label"><div class="sec-label-line"></div><div class="sec-label-txt">Choisis ton activité</div><div class="sec-label-line"></div></div>
+<div class="cards">
+  <a href="gagner-chasseur.html" class="card gold">
+    <div class="card-body"><div class="card-ico">🎯</div><div class="card-info"><div class="card-badge">⚡ Démarrage immédiat</div><div class="card-title">Chasseur de Vendeurs</div><div class="card-desc">Recrute des commerçants autour de toi. Chaque vendeur actif que tu amènes te rapporte une prime directe.</div></div></div>
+    <div class="card-foot"><div class="card-earn"><div class="card-earn-lbl">Revenus estimés / mois</div><div class="card-earn-val">5 000 – 50 000 F</div></div><div class="card-chevron">→</div></div>
+  </a>
+  <a href="gagner-verificateur.html" class="card turq">
+    <div class="card-body"><div class="card-ico">🕵️</div><div class="card-info"><div class="card-badge">🔥 Très demandé</div><div class="card-title">Vérificateur de Produits</div><div class="card-desc">Inspecte des biens physiquement pour les acheteurs. Voiture, maison, électronique — tu es payé par l'acheteur.</div></div></div>
+    <div class="card-foot"><div class="card-earn"><div class="card-earn-lbl">Revenus par vérification</div><div class="card-earn-val">3 000 – 15 000 F</div></div><div class="card-chevron">→</div></div>
+  </a>
+  <a href="gagner-negociateur.html" class="card orange">
+    <div class="card-body"><div class="card-ico">🗣️</div><div class="card-info"><div class="card-badge">💬 Payé sur résultats</div><div class="card-title">Négociateur Pro</div><div class="card-desc">Négocie à la place des acheteurs. Tu encaisses un % de chaque franc que tu leur économises.</div></div></div>
+    <div class="card-foot"><div class="card-earn"><div class="card-earn-lbl">% sur la réduction obtenue</div><div class="card-earn-val">15 – 20%</div></div><div class="card-chevron">→</div></div>
+  </a>
+  <a href="gagner-livreur.html" class="card green">
+    <div class="card-body"><div class="card-ico">📦</div><div class="card-info"><div class="card-badge">🛵 Ton quartier = bureau</div><div class="card-title">Livreur Indépendant</div><div class="card-desc">Livre les commandes des vendeurs dans ta zone. Chaque livraison est payée immédiatement à ta confirmation.</div></div></div>
+    <div class="card-foot"><div class="card-earn"><div class="card-earn-lbl">Revenus par livraison</div><div class="card-earn-val">500 – 2 000 F</div></div><div class="card-chevron">→</div></div>
+  </a>
+  <a href="gagner-formateur.html" class="card blue">
+    <div class="card-body"><div class="card-ico">🎓</div><div class="card-info"><div class="card-badge">📜 Certification gratuite</div><div class="card-title">Formateur Certifié</div><div class="card-desc">Forme les commerçants à utiliser AfriMarket. Tu gardes 100% de ce que paient tes participants.</div></div></div>
+    <div class="card-foot"><div class="card-earn"><div class="card-earn-lbl">Revenus par formation</div><div class="card-earn-val">5 000 – 30 000 F</div></div><div class="card-chevron">→</div></div>
+  </a>
+  <a href="gagner-courtier.html" class="card purple">
+    <div class="card-body"><div class="card-ico">🌍</div><div class="card-info"><div class="card-badge">💎 Gros potentiel</div><div class="card-title">Courtier Import-Export</div><div class="card-desc">Connecte acheteurs et vendeurs entre pays africains. Ta commission est prélevée automatiquement sur le deal.</div></div></div>
+    <div class="card-foot"><div class="card-earn"><div class="card-earn-lbl">Commission par deal</div><div class="card-earn-val">5 – 12%</div></div><div class="card-chevron">→</div></div>
+  </a>
+  <a href="gagner-encheres.html" class="card redx">
+    <div class="card-body"><div class="card-ico">🎰</div><div class="card-info"><div class="card-badge">🆕 Unique en Afrique</div><div class="card-title">Enchères Inversées</div><div class="card-desc">Les acheteurs publient ce qu'ils veulent avec leur budget. Toi le vendeur, tu fais la meilleure offre et tu vends.</div></div></div>
+    <div class="card-foot"><div class="card-earn"><div class="card-earn-lbl">Avantage principal</div><div class="card-earn-val">Client prêt à acheter</div></div><div class="card-chevron">→</div></div>
+  </a>
 </div>
-
-<div class="cards-grid">
-
-  <!-- 1. Chasseur -->
-  <a href="gagner-chasseur.html" class="opp-card c-gold">
-    <div class="card-top">
-      <div class="card-ico">🎯</div>
-      <div class="card-meta">
-        <div class="card-tag">⚡ Démarrage immédiat</div>
-        <div class="card-name">Chasseur de Vendeurs</div>
-        <div class="card-desc">Recrute des commerçants autour de toi et touche une prime pour chaque vendeur actif que tu amènes sur la plateforme.</div>
-      </div>
-    </div>
-    <div class="card-bottom">
-      <div class="card-gain">
-        <div class="card-gain-lbl">Gain estimé / mois</div>
-        <div class="card-gain-val">5 000 – 50 000 F</div>
-      </div>
-      <div class="card-arrow">→</div>
-    </div>
-  </a>
-
-  <!-- 3. Vérificateur -->
-  <a href="gagner-verificateur.html" class="opp-card c-turq">
-    <div class="card-top">
-      <div class="card-ico">🕵️</div>
-      <div class="card-meta">
-        <div class="card-tag">🔥 Très demandé</div>
-        <div class="card-name">Vérificateur de Produits</div>
-        <div class="card-desc">Les acheteurs te paient pour inspecter physiquement un bien avant qu'ils l'achètent. Voiture, maison, électronique…</div>
-      </div>
-    </div>
-    <div class="card-bottom">
-      <div class="card-gain">
-        <div class="card-gain-lbl">Gain estimé / vérif</div>
-        <div class="card-gain-val">3 000 – 15 000 F</div>
-      </div>
-      <div class="card-arrow">→</div>
-    </div>
-  </a>
-
-  <!-- 4. Négociateur -->
-  <a href="gagner-negociateur.html" class="opp-card c-orange">
-    <div class="card-top">
-      <div class="card-ico">🗣️</div>
-      <div class="card-meta">
-        <div class="card-tag">💬 Juste de la tchatche</div>
-        <div class="card-name">Négociateur Pro</div>
-        <div class="card-desc">Tu négocies à la place des acheteurs et tu encaisses un % de la somme que tu leur fais économiser. Zéro risque.</div>
-      </div>
-    </div>
-    <div class="card-bottom">
-      <div class="card-gain">
-        <div class="card-gain-lbl">Commission sur réduction</div>
-        <div class="card-gain-val">10 – 20%</div>
-      </div>
-      <div class="card-arrow">→</div>
-    </div>
-  </a>
-
-  <!-- 5. Livreur -->
-  <a href="gagner-livreur.html" class="opp-card c-green">
-    <div class="card-top">
-      <div class="card-ico">📦</div>
-      <div class="card-meta">
-        <div class="card-tag">🛵 Ton quartier = ton bureau</div>
-        <div class="card-name">Livreur Indépendant</div>
-        <div class="card-desc">Livre les colis de vendeurs dans ta zone. À pied, en moto ou en vélo. Tu choisis tes horaires, tu es ton propre patron.</div>
-      </div>
-    </div>
-    <div class="card-bottom">
-      <div class="card-gain">
-        <div class="card-gain-lbl">Gain estimé / livraison</div>
-        <div class="card-gain-val">500 – 2 000 F</div>
-      </div>
-      <div class="card-arrow">→</div>
-    </div>
-  </a>
-
-  <!-- 6. Formateur -->
-  <a href="gagner-formateur.html" class="opp-card c-blue">
-    <div class="card-top">
-      <div class="card-ico">🎓</div>
-      <div class="card-meta">
-        <div class="card-tag">📜 Certifié par AfriMarket</div>
-        <div class="card-name">Formateur Certifié</div>
-        <div class="card-desc">Forme les commerçants à utiliser AfriMarket. Tu reçois une certification officielle et tu vends tes formations librement.</div>
-      </div>
-    </div>
-    <div class="card-bottom">
-      <div class="card-gain">
-        <div class="card-gain-lbl">Gain estimé / formation</div>
-        <div class="card-gain-val">5 000 – 30 000 F</div>
-      </div>
-      <div class="card-arrow">→</div>
-    </div>
-  </a>
-
-  <!-- 8. Courtier -->
-  <a href="gagner-courtier.html" class="opp-card c-purple">
-    <div class="card-top">
-      <div class="card-ico">🌍</div>
-      <div class="card-meta">
-        <div class="card-tag">💎 Gros potentiel</div>
-        <div class="card-name">Courtier Import-Export</div>
-        <div class="card-desc">Connecte des acheteurs et vendeurs entre pays africains. Tu prends une commission sur des transactions qui peuvent valoir des millions.</div>
-      </div>
-    </div>
-    <div class="card-bottom">
-      <div class="card-gain">
-        <div class="card-gain-lbl">Commission par deal</div>
-        <div class="card-gain-val">5 – 15%</div>
-      </div>
-      <div class="card-arrow">→</div>
-    </div>
-  </a>
-
-  <!-- 10. Enchères -->
-  <a href="gagner-encheres.html" class="opp-card c-red">
-    <div class="card-top">
-      <div class="card-ico">🎰</div>
-      <div class="card-meta">
-        <div class="card-tag">🆕 Révolutionnaire</div>
-        <div class="card-name">Enchères Inversées</div>
-        <div class="card-desc">Les acheteurs annoncent ce qu'ils veulent. Toi tu fais la meilleure offre et tu remportes la vente. Les prix baissent au lieu de monter.</div>
-      </div>
-    </div>
-    <div class="card-bottom">
-      <div class="card-gain">
-        <div class="card-gain-lbl">Accès à</div>
-        <div class="card-gain-val">Clients garantis</div>
-      </div>
-      <div class="card-arrow">→</div>
-    </div>
-  </a>
-
-</div>
-
-<!-- PROMOTER BANNER -->
-<div class="promo-banner">
-  <div class="pb-tag">👑 Tu es le Promoteur ?</div>
-  <div class="pb-title">Voir comment tu gagnes</div>
-  <div class="pb-desc">Chaque service génère des commissions automatiques pour la plateforme. Consulte le tableau de bord admin pour le détail.</div>
-  <a href="admin.html" class="pb-btn">📊 Dashboard Admin →</a>
-</div>
-
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
   <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
   <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--gold);font-weight:700">Publier</span></div>
-  <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--gold);font-weight:700">Gagner</span></button>
+  <button class="nav-item"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--gold);font-weight:700">Gagner</span></button>
   <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
 </nav>
-
 </body>
 </html>
