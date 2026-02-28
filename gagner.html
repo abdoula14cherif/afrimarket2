@@ -3,200 +3,169 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AfriMarket — Gagner</title>
-  <link rel="manifest" href="/manifest.json"/>
-  <meta name="theme-color" content="#080E2A"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
-  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <title>AfriMarket — Gagner de l'argent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     :root{
-      --blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;
-      --turq:#00C2B7;--bg:#F2F5FF;--card:#FFF;
-      --dark:#080E2A;--gray:#8892A8;--border:#E4E9F8;--gold:#F5B731;--green:#00C271;
+      --dark:#080E2A; --darker:#040916;
+      --gold:#F5B731; --gold2:#FFD166; --gold3:#E8960A;
+      --orange:#FF6B1A; --turq:#00C2B7; --green:#00C271;
+      --blue:#1B3FE4; --blue2:#2D55FF;
+      --red:#E83030; --border:rgba(245,183,49,.15);
       --nav-h:72px;
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h)+24px);overflow-x:hidden;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--darker);color:white;min-height:100vh;
+      padding-bottom:calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
 
-    /* ── HEADER ── */
-    .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
-    .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;}
-    .h-back:hover{color:white;}
-    .h-logo{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-1px;}
+    /* BG texture */
+    body::before{content:'';position:fixed;inset:0;
+      background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(245,183,49,.12) 0%,transparent 70%),
+                 radial-gradient(ellipse 50% 30% at 90% 80%,rgba(255,107,26,.08) 0%,transparent 60%);
+      pointer-events:none;z-index:0;}
+
+    /* HEADER */
+    .header{position:sticky;top:0;z-index:100;background:rgba(4,9,22,.9);
+      backdrop-filter:blur(20px);border-bottom:1px solid var(--border);
+      padding:0 1.2rem;height:60px;display:flex;align-items:center;justify-content:space-between;}
+    .h-back{color:rgba(255,255,255,.6);font-size:.8rem;font-weight:600;border:1px solid rgba(255,255,255,.15);
+      padding:.35rem .8rem;border-radius:99px;text-decoration:none;transition:all .2s;}
+    .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
+    .h-logo{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-1px;}
     .h-logo .la{color:var(--turq);}.h-logo .lm{color:var(--orange);}
-    .h-bal{display:flex;align-items:center;gap:.35rem;background:rgba(245,183,49,.15);border:1px solid rgba(245,183,49,.3);border-radius:99px;padding:.28rem .75rem;cursor:pointer;}
-    .h-bal span{font-size:.8rem;font-weight:800;color:var(--gold);}
+    .h-badge{background:linear-gradient(135deg,var(--gold3),var(--gold));color:var(--dark);
+      font-size:.62rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;letter-spacing:.5px;}
 
-    /* ── HERO ── */
-    .hero{background:linear-gradient(135deg,#080E2A 0%,#0D1E6B 60%,#1B3FE4 100%);margin:.8rem 1.2rem;border-radius:22px;padding:1.6rem 1.3rem;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(27,63,228,.3);}
-    .hero::before{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(0,194,183,.1);right:-70px;top:-80px;}
-    .hero::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,107,26,.08);left:-50px;bottom:-60px;}
-    .hz{position:relative;z-index:1;}
-    .hero-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.9rem;}
-    .hero-tag{background:rgba(245,183,49,.18);border:1px solid rgba(245,183,49,.3);color:var(--gold);font-size:.62rem;font-weight:800;letter-spacing:.6px;padding:.25rem .7rem;border-radius:99px;text-transform:uppercase;}
-    .hero-emoji{font-size:2.8rem;animation:float 3s ease-in-out infinite;}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-    .hero h1{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:white;letter-spacing:-.8px;line-height:1.15;margin-bottom:.4rem;}
-    .hero h1 em{font-style:normal;color:var(--gold);}
-    .hero-sub{font-size:.77rem;color:rgba(255,255,255,.5);line-height:1.55;}
+    /* HERO */
+    .hero{position:relative;z-index:1;padding:2.5rem 1.2rem 2rem;text-align:center;}
+    .hero-tag{display:inline-flex;align-items:center;gap:.4rem;background:rgba(245,183,49,.12);
+      border:1px solid rgba(245,183,49,.3);border-radius:99px;padding:.3rem .8rem;
+      font-size:.72rem;font-weight:700;color:var(--gold);margin-bottom:1rem;letter-spacing:.5px;}
+    .hero h1{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;line-height:1.15;
+      letter-spacing:-1.5px;margin-bottom:.7rem;}
+    .hero h1 span{background:linear-gradient(135deg,var(--gold),var(--gold2),var(--orange));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-sub{font-size:.88rem;color:rgba(255,255,255,.55);line-height:1.6;max-width:320px;margin:0 auto 1.5rem;}
+    .hero-stats{display:flex;justify-content:center;gap:1.5rem;}
+    .hs{text-align:center;}
+    .hs-num{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;
+      background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;background-clip:text;}
+    .hs-lbl{font-size:.6rem;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
 
-    /* ── SOLDE ── */
-    .solde{margin:.8rem 1.2rem 0;background:white;border-radius:20px;border:1.5px solid var(--border);box-shadow:0 4px 20px rgba(27,63,228,.07);padding:1.2rem;}
-    .solde-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
-    .solde-lbl{font-size:.7rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
-    .solde-badge{font-size:.63rem;font-weight:700;padding:.2rem .6rem;border-radius:99px;}
-    .badge-lock{background:rgba(136,146,168,.1);color:var(--gray);border:1px solid rgba(136,146,168,.2);}
-    .badge-ok{background:rgba(0,194,113,.08);color:var(--green);border:1px solid rgba(0,194,113,.2);}
-    .badge-cond{background:rgba(245,183,49,.1);color:#B8860B;border:1px solid rgba(245,183,49,.3);}
-    .solde-amount{font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);letter-spacing:-1.5px;margin-bottom:.15rem;}
-    .solde-amount small{font-size:1rem;color:var(--gray);}
-    .solde-note{font-size:.72rem;color:var(--gray);margin-bottom:.9rem;line-height:1.55;}
-    .solde-btns{display:flex;gap:.6rem;}
-    .sbtn{flex:1;padding:.65rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.79rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.35rem;}
-    .sbtn-main{background:linear-gradient(135deg,var(--green),#00A860);color:white;box-shadow:0 4px 14px rgba(0,194,113,.25);}
-    .sbtn-main:disabled{opacity:.4;cursor:not-allowed;}
-    .sbtn-sec{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
+    /* SECTION TITLE */
+    .sec-title{position:relative;z-index:1;padding:1.5rem 1.2rem .8rem;}
+    .sec-title h2{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:white;}
+    .sec-title p{font-size:.75rem;color:rgba(255,255,255,.45);margin-top:.2rem;}
 
-    /* ── RETRAIT CONDITIONS INFO ── */
-    .retrait-info{margin:.6rem 1.2rem 0;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 8px rgba(27,63,228,.04);}
-    .ri-title{font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.65rem;}
-    .ri-row{display:flex;align-items:flex-start;gap:.7rem;margin-bottom:.5rem;}
-    .ri-row:last-child{margin-bottom:0;}
-    .ri-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;flex-shrink:0;margin-top:1px;}
-    .ri-num-1{background:rgba(0,194,113,.12);color:var(--green);}
-    .ri-num-2{background:rgba(245,183,49,.15);color:#B8860B;}
-    .ri-text{font-size:.74rem;color:var(--gray);line-height:1.5;}
-    .ri-text strong{color:var(--dark);}
+    /* CARDS GRID */
+    .cards-grid{position:relative;z-index:1;padding:0 1.2rem;display:flex;flex-direction:column;gap:1rem;}
 
-    /* ── TABS ── */
-    .earn-tabs{display:flex;gap:.5rem;padding:0 1.2rem .8rem;overflow-x:auto;scrollbar-width:none;margin-top:1.1rem;}
-    .earn-tabs::-webkit-scrollbar{display:none;}
-    .etab{padding:.4rem .9rem;border-radius:99px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:600;transition:all .2s;white-space:nowrap;flex-shrink:0;}
-    .etab.active{background:var(--blue2);color:white;box-shadow:0 4px 12px rgba(45,85,255,.35);}
-    .etab:not(.active){background:white;color:var(--gray);border:1px solid var(--border);}
-    .earn-section{display:none;}
-    .earn-section.show{display:block;}
+    /* OPPORTUNITY CARD */
+    .opp-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;overflow:hidden;cursor:pointer;
+      transition:transform .25s,border-color .25s,box-shadow .25s;
+      text-decoration:none;color:white;display:block;
+      animation:cardIn .5s ease both;}
+    @keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .opp-card:nth-child(1){animation-delay:.05s}
+    .opp-card:nth-child(2){animation-delay:.1s}
+    .opp-card:nth-child(3){animation-delay:.15s}
+    .opp-card:nth-child(4){animation-delay:.2s}
+    .opp-card:nth-child(5){animation-delay:.25s}
+    .opp-card:nth-child(6){animation-delay:.3s}
+    .opp-card:nth-child(7){animation-delay:.35s}
+    .opp-card:hover{transform:translateY(-3px);border-color:rgba(245,183,49,.3);
+      box-shadow:0 12px 40px rgba(0,0,0,.3),0 0 0 1px rgba(245,183,49,.1);}
+    .opp-card:active{transform:scale(.98);}
 
-    /* ── MISSIONS ── */
-    .missions{display:flex;flex-direction:column;gap:.65rem;padding:0 1.2rem;}
-    .mission{background:white;border-radius:18px;border:1.5px solid var(--border);padding:1rem 1.1rem;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 10px rgba(27,63,228,.04);transition:all .25s;cursor:pointer;position:relative;overflow:hidden;}
-    .mission::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
-    .m-blue::before{background:var(--blue2);}
-    .m-orange::before{background:var(--orange);}
-    .m-turq::before{background:var(--turq);}
-    .m-gold::before{background:var(--gold);}
-    .m-green::before{background:var(--green);}
-    .m-red::before{background:var(--red);}
-    .m-purple::before{background:#8B5CF6;}
-    .mission.done{background:rgba(0,194,113,.03);border-color:rgba(0,194,113,.25);}
-    .mission.done::before{background:var(--green);}
-    .mission:active{transform:scale(.98);}
-    .mission-ico{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;}
-    .ic-blue{background:rgba(27,63,228,.08);}
-    .ic-orange{background:rgba(255,107,26,.08);}
-    .ic-turq{background:rgba(0,194,183,.08);}
-    .ic-gold{background:rgba(245,183,49,.1);}
-    .ic-green{background:rgba(0,194,113,.08);}
-    .ic-purple{background:rgba(139,92,246,.08);}
-    .mission-body{flex:1;min-width:0;}
-    .mission-title{font-size:.85rem;font-weight:700;color:var(--dark);margin-bottom:.1rem;}
-    .mission-desc{font-size:.7rem;color:var(--gray);line-height:1.4;}
-    .mission-reward{font-size:.7rem;font-weight:800;color:var(--green);margin-top:.2rem;}
-    .mission-right{display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;flex-shrink:0;}
-    .mission-pts{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);}
-    .mission-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .3s;}
-    .mission.done .mission-check{background:var(--green);border-color:var(--green);color:white;font-size:.7rem;}
-    .mp{margin-top:.4rem;}
-    .mp-bar{height:4px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
-    .mp-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
-    .mp-lbl{font-size:.6rem;color:var(--gray);margin-top:.2rem;}
+    .card-top{display:flex;align-items:flex-start;gap:1rem;padding:1.2rem 1.2rem .8rem;}
+    .card-ico{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;
+      justify-content:center;font-size:1.5rem;flex-shrink:0;}
+    .card-meta{flex:1;min-width:0;}
+    .card-name{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;
+      color:white;margin-bottom:.2rem;}
+    .card-desc{font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.5;}
 
-    /* ── STREAK ── */
-    .streak-card{margin:0 1.2rem;background:linear-gradient(135deg,#080E2A,#1B3FE4);border-radius:20px;padding:1.3rem;position:relative;overflow:hidden;box-shadow:0 6px 24px rgba(27,63,228,.25);}
-    .streak-card::before{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(0,194,183,.1);right:-40px;top:-60px;}
-    .sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;position:relative;z-index:1;}
-    .sc-left h3{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.15rem;}
-    .sc-left p{font-size:.71rem;color:rgba(255,255,255,.45);}
-    .sc-flame{font-size:2.5rem;animation:float 2s ease-in-out infinite;}
-    .streak-days{display:flex;gap:.35rem;position:relative;z-index:1;}
-    .sd{flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem;}
-    .sd-circle{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.85rem;background:rgba(255,255,255,.05);}
-    .sd-circle.done{background:var(--gold);border-color:var(--gold);}
-    .sd-circle.today{border-color:var(--turq);background:rgba(0,194,183,.15);animation:pulse 2s infinite;}
-    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,194,183,.4)}50%{box-shadow:0 0 0 6px rgba(0,194,183,0)}}
-    .sd-lbl{font-size:.52rem;color:rgba(255,255,255,.35);font-weight:600;text-align:center;line-height:1.3;}
-    .sd.done .sd-lbl{color:rgba(245,183,49,.8);}
-    .streak-btn{width:100%;margin-top:.85rem;padding:.75rem;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.1);color:white;font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;position:relative;z-index:1;}
-    .streak-btn.claimed{background:rgba(0,194,113,.2);border-color:rgba(0,194,113,.35);color:var(--green);}
-    .streak-btn:hover:not(.claimed){background:rgba(255,255,255,.18);}
-    .streak-btn:disabled{cursor:not-allowed;}
+    .card-bottom{display:flex;align-items:center;justify-content:space-between;
+      padding:.8rem 1.2rem 1rem;border-top:1px solid rgba(255,255,255,.06);}
+    .card-gain{display:flex;flex-direction:column;gap:.1rem;}
+    .card-gain-lbl{font-size:.58rem;color:rgba(255,255,255,.35);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+    .card-gain-val{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;}
+    .card-arrow{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-size:.9rem;transition:transform .2s;}
+    .opp-card:hover .card-arrow{transform:translateX(4px);}
 
-    /* ── PARRAINAGE ── */
-    .ref-card{background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.04);}
-    .ref-top{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;}
-    .ref-ico{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--gold),#C8901A);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-    .ref-info-title{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);}
-    .ref-info-sub{font-size:.7rem;color:var(--gray);margin-top:.1rem;}
-    .ref-link{background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:.65rem .9rem;display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem;}
-    .ref-url{flex:1;font-size:.74rem;color:var(--blue2);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .ref-copy{background:var(--dark);color:white;border:none;border-radius:8px;padding:.38rem .75rem;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-    .ref-copy:hover{background:var(--blue2);}
-    .ref-btns{display:flex;gap:.5rem;margin-bottom:.8rem;}
-    .ref-btn{flex:1;padding:.58rem;border-radius:10px;border:none;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-    .rb-wa{background:#25D366;color:white;}
-    .rb-share{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
-    .ref-stats{display:flex;gap:.5rem;}
-    .rs{flex:1;background:var(--bg);border-radius:10px;padding:.55rem;text-align:center;}
-    .rs-num{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--dark);}
-    .rs-lbl{font-size:.6rem;color:var(--gray);}
+    .card-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;
+      border-radius:99px;font-size:.6rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+      margin-bottom:.5rem;}
 
-    /* ── LEADERBOARD ── */
-    .lboard{display:flex;flex-direction:column;gap:.5rem;padding:0 1.2rem;}
-    .lb-item{background:white;border-radius:14px;border:1.5px solid var(--border);padding:.8rem 1rem;display:flex;align-items:center;gap:.75rem;}
-    .lb-item.me{border-color:rgba(27,63,228,.25);background:rgba(27,63,228,.03);}
-    .lb-rank{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--gray);width:26px;text-align:center;flex-shrink:0;}
-    .lb-ava{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:white;flex-shrink:0;overflow:hidden;}
-    .lb-ava img{width:100%;height:100%;object-fit:cover;}
-    .lb-name{flex:1;font-size:.82rem;font-weight:700;color:var(--dark);}
-    .lb-right{display:flex;flex-direction:column;align-items:flex-end;gap:.2rem;}
-    .lb-pts{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--gold);}
-    .lb-prize{font-size:.6rem;font-weight:700;padding:.15rem .5rem;border-radius:99px;}
-    .lp1{background:rgba(212,170,80,.15);color:#A07820;border:1px solid rgba(212,170,80,.2);}
-    .lp2{background:rgba(160,168,184,.12);color:#606870;border:1px solid rgba(160,168,184,.2);}
-    .lp3{background:rgba(205,127,50,.12);color:#8B5010;border:1px solid rgba(205,127,50,.2);}
+    /* COLOR VARIANTS */
+    .c-gold .card-ico{background:rgba(245,183,49,.15);border:1px solid rgba(245,183,49,.2);}
+    .c-gold .card-gain-val{color:var(--gold);}
+    .c-gold .card-arrow{background:rgba(245,183,49,.15);color:var(--gold);}
+    .c-gold .card-tag{background:rgba(245,183,49,.12);color:var(--gold);}
 
-    /* ── BOTTOM NAV ── */
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;border-radius:24px 24px 0 0;}
-    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;position:relative;}
-    .nav-item:hover{background:var(--bg);}
+    .c-turq .card-ico{background:rgba(0,194,183,.15);border:1px solid rgba(0,194,183,.2);}
+    .c-turq .card-gain-val{color:var(--turq);}
+    .c-turq .card-arrow{background:rgba(0,194,183,.15);color:var(--turq);}
+    .c-turq .card-tag{background:rgba(0,194,183,.12);color:var(--turq);}
+
+    .c-orange .card-ico{background:rgba(255,107,26,.15);border:1px solid rgba(255,107,26,.2);}
+    .c-orange .card-gain-val{color:var(--orange);}
+    .c-orange .card-arrow{background:rgba(255,107,26,.15);color:var(--orange);}
+    .c-orange .card-tag{background:rgba(255,107,26,.12);color:var(--orange);}
+
+    .c-green .card-ico{background:rgba(0,194,113,.15);border:1px solid rgba(0,194,113,.2);}
+    .c-green .card-gain-val{color:var(--green);}
+    .c-green .card-arrow{background:rgba(0,194,113,.15);color:var(--green);}
+    .c-green .card-tag{background:rgba(0,194,113,.12);color:var(--green);}
+
+    .c-blue .card-ico{background:rgba(45,85,255,.15);border:1px solid rgba(45,85,255,.2);}
+    .c-blue .card-gain-val{color:#7B9FFF}
+    .c-blue .card-arrow{background:rgba(45,85,255,.15);color:#7B9FFF;}
+    .c-blue .card-tag{background:rgba(45,85,255,.12);color:#7B9FFF;}
+
+    .c-red .card-ico{background:rgba(232,48,48,.15);border:1px solid rgba(232,48,48,.2);}
+    .c-red .card-gain-val{color:#FF7B7B;}
+    .c-red .card-arrow{background:rgba(232,48,48,.15);color:#FF7B7B;}
+    .c-red .card-tag{background:rgba(232,48,48,.12);color:#FF7B7B;}
+
+    .c-purple .card-ico{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.2);}
+    .c-purple .card-gain-val{color:#C084FC;}
+    .c-purple .card-arrow{background:rgba(168,85,247,.15);color:#C084FC;}
+    .c-purple .card-tag{background:rgba(168,85,247,.12);color:#C084FC;}
+
+    /* PROMOTER BANNER */
+    .promo-banner{position:relative;z-index:1;margin:1.5rem 1.2rem 0;
+      background:linear-gradient(135deg,rgba(245,183,49,.12),rgba(255,107,26,.08));
+      border:1px solid rgba(245,183,49,.25);border-radius:20px;padding:1.2rem;overflow:hidden;}
+    .promo-banner::before{content:'👑';position:absolute;right:1rem;top:50%;transform:translateY(-50%);
+      font-size:4rem;opacity:.08;}
+    .pb-tag{font-size:.6rem;font-weight:800;color:var(--gold);letter-spacing:.8px;
+      text-transform:uppercase;margin-bottom:.4rem;}
+    .pb-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;
+      color:white;margin-bottom:.4rem;}
+    .pb-desc{font-size:.74rem;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.8rem;}
+    .pb-btn{display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,var(--gold3),var(--gold));
+      color:var(--dark);font-size:.78rem;font-weight:800;padding:.5rem 1rem;border-radius:10px;
+      text-decoration:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+
+    /* BOTTOM NAV */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,9,22,.95);
+      backdrop-filter:blur(20px);border-top:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-around;
+      padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);
+      height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));z-index:99;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;
+      padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;}
     .nav-ico{font-size:1.25rem;line-height:1;}
-    .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
-    .nav-plus-btn{width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(27,63,228,.4);}
-
-    /* ── MODAL RETRAIT ── */
-    .ov{position:fixed;inset:0;background:rgba(8,14,42,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
-    .ov.open{opacity:1;pointer-events:all;}
-    .modal{background:white;border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
-    .ov.open .modal{transform:translateY(0);}
-    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.2rem;}
-    .modal-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:1rem;}
-    .modal-cond{background:rgba(245,183,49,.07);border:1px solid rgba(245,183,49,.2);border-radius:12px;padding:.75rem;margin-bottom:1rem;font-size:.74rem;color:var(--gray);line-height:1.55;}
-    .modal-cond strong{color:var(--dark);}
-    .mf{margin-bottom:.85rem;}
-    .mf label{font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.35rem;}
-    .mf input,.mf select{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:.7rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;color:var(--dark);outline:none;transition:border-color .2s;background:var(--bg);}
-    .mf input:focus,.mf select:focus{border-color:var(--blue2);}
-    .btn-submit{width:100%;padding:.85rem;border-radius:14px;border:none;background:linear-gradient(135deg,var(--green),#00A860);color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;}
-    .btn-submit:disabled{opacity:.5;cursor:not-allowed;}
-
-    /* ── TOAST ── */
-    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:300;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-    @keyframes cFall{from{opacity:1;transform:translateY(-10px) rotate(0)}to{opacity:0;transform:translateY(110vh) rotate(720deg)}}
+    .nav-lbl{font-size:.58rem;font-weight:600;color:rgba(255,255,255,.4);}
+    .nav-item.active .nav-lbl{color:var(--gold);font-weight:700;}
+    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;
+      border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
   </style>
 </head>
 <body>
@@ -204,773 +173,177 @@
 <div class="header">
   <a class="h-back" href="dashboard.html">← Accueil</a>
   <div class="h-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
-  <div class="h-bal" onclick="openRetrait()"><span>💰</span><span id="hBal">0 F</span></div>
+  <div class="h-badge">💰 GAGNER</div>
 </div>
 
-<!-- HERO -->
 <div class="hero">
-  <div class="hz">
-    <div class="hero-top">
-      <div class="hero-tag">💸 Programme de gains</div>
-      <div class="hero-emoji">🤑</div>
-    </div>
-    <h1>Gagne de l'argent<br>réel en <em>FCFA</em></h1>
-    <p class="hero-sub">Missions, connexion quotidienne, parrainage… chaque action compte. Retire sur Mobile Money dès 500 FCFA.</p>
+  <div class="hero-tag">🌍 7 Opportunités de revenus</div>
+  <h1>Gagne de l'argent<br><span>sans investir</span></h1>
+  <p class="hero-sub">Transforme tes compétences et ton réseau en revenus réels grâce à AfriMarket.</p>
+  <div class="hero-stats">
+    <div class="hs"><div class="hs-num">7</div><div class="hs-lbl">Opportunités</div></div>
+    <div class="hs"><div class="hs-num">0 F</div><div class="hs-lbl">Investissement</div></div>
+    <div class="hs"><div class="hs-num">∞</div><div class="hs-lbl">Potentiel</div></div>
   </div>
 </div>
 
-<!-- SOLDE -->
-<div class="solde">
-  <div class="solde-top">
-    <div class="solde-lbl">Mon solde disponible</div>
-    <div class="solde-badge badge-lock" id="soldeBadge">🔒 Verrouillé</div>
-  </div>
-  <div class="solde-amount"><span id="soldeAmt">0</span> <small>FCFA</small></div>
-  <div class="solde-note" id="soldeNote">Complète des missions pour accumuler des FCFA.</div>
-  <div class="solde-btns">
-    <button class="sbtn sbtn-main" id="btnRetrait" onclick="openRetrait()" disabled>💸 Retirer sur Mobile Money</button>
-    <button class="sbtn sbtn-sec" onclick="showToast('Historique bientôt disponible','info')">📋 Historique</button>
-  </div>
+<div class="sec-title">
+  <h2>Choisis ton opportunité</h2>
+  <p>Clique sur une carte pour voir comment démarrer</p>
 </div>
 
-<!-- CONDITIONS DE RETRAIT -->
-<div class="retrait-info">
-  <div class="ri-title">🔐 Conditions de retrait</div>
-  <div class="ri-row">
-    <div class="ri-num ri-num-1">1</div>
-    <div class="ri-text"><strong>1er retrait (Gratuit) :</strong> Avoir minimum 500 FCFA sur ton solde. Aucune autre condition.</div>
-  </div>
-  <div class="ri-row">
-    <div class="ri-num ri-num-2">2</div>
-    <div class="ri-text"><strong>2e retrait et plus :</strong> Minimum <strong>2 000 FCFA</strong> ET au moins <strong>1 de tes filleuls doit être passé Premium</strong>. Cela nous permet de continuer à te payer 💪</div>
-  </div>
+<div class="cards-grid">
+
+  <!-- 1. Chasseur -->
+  <a href="gagner-chasseur.html" class="opp-card c-gold">
+    <div class="card-top">
+      <div class="card-ico">🎯</div>
+      <div class="card-meta">
+        <div class="card-tag">⚡ Démarrage immédiat</div>
+        <div class="card-name">Chasseur de Vendeurs</div>
+        <div class="card-desc">Recrute des commerçants autour de toi et touche une prime pour chaque vendeur actif que tu amènes sur la plateforme.</div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="card-gain">
+        <div class="card-gain-lbl">Gain estimé / mois</div>
+        <div class="card-gain-val">5 000 – 50 000 F</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 3. Vérificateur -->
+  <a href="gagner-verificateur.html" class="opp-card c-turq">
+    <div class="card-top">
+      <div class="card-ico">🕵️</div>
+      <div class="card-meta">
+        <div class="card-tag">🔥 Très demandé</div>
+        <div class="card-name">Vérificateur de Produits</div>
+        <div class="card-desc">Les acheteurs te paient pour inspecter physiquement un bien avant qu'ils l'achètent. Voiture, maison, électronique…</div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="card-gain">
+        <div class="card-gain-lbl">Gain estimé / vérif</div>
+        <div class="card-gain-val">3 000 – 15 000 F</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 4. Négociateur -->
+  <a href="gagner-negociateur.html" class="opp-card c-orange">
+    <div class="card-top">
+      <div class="card-ico">🗣️</div>
+      <div class="card-meta">
+        <div class="card-tag">💬 Juste de la tchatche</div>
+        <div class="card-name">Négociateur Pro</div>
+        <div class="card-desc">Tu négocies à la place des acheteurs et tu encaisses un % de la somme que tu leur fais économiser. Zéro risque.</div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="card-gain">
+        <div class="card-gain-lbl">Commission sur réduction</div>
+        <div class="card-gain-val">10 – 20%</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 5. Livreur -->
+  <a href="gagner-livreur.html" class="opp-card c-green">
+    <div class="card-top">
+      <div class="card-ico">📦</div>
+      <div class="card-meta">
+        <div class="card-tag">🛵 Ton quartier = ton bureau</div>
+        <div class="card-name">Livreur Indépendant</div>
+        <div class="card-desc">Livre les colis de vendeurs dans ta zone. À pied, en moto ou en vélo. Tu choisis tes horaires, tu es ton propre patron.</div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="card-gain">
+        <div class="card-gain-lbl">Gain estimé / livraison</div>
+        <div class="card-gain-val">500 – 2 000 F</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 6. Formateur -->
+  <a href="gagner-formateur.html" class="opp-card c-blue">
+    <div class="card-top">
+      <div class="card-ico">🎓</div>
+      <div class="card-meta">
+        <div class="card-tag">📜 Certifié par AfriMarket</div>
+        <div class="card-name">Formateur Certifié</div>
+        <div class="card-desc">Forme les commerçants à utiliser AfriMarket. Tu reçois une certification officielle et tu vends tes formations librement.</div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="card-gain">
+        <div class="card-gain-lbl">Gain estimé / formation</div>
+        <div class="card-gain-val">5 000 – 30 000 F</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 8. Courtier -->
+  <a href="gagner-courtier.html" class="opp-card c-purple">
+    <div class="card-top">
+      <div class="card-ico">🌍</div>
+      <div class="card-meta">
+        <div class="card-tag">💎 Gros potentiel</div>
+        <div class="card-name">Courtier Import-Export</div>
+        <div class="card-desc">Connecte des acheteurs et vendeurs entre pays africains. Tu prends une commission sur des transactions qui peuvent valoir des millions.</div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="card-gain">
+        <div class="card-gain-lbl">Commission par deal</div>
+        <div class="card-gain-val">5 – 15%</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 10. Enchères -->
+  <a href="gagner-encheres.html" class="opp-card c-red">
+    <div class="card-top">
+      <div class="card-ico">🎰</div>
+      <div class="card-meta">
+        <div class="card-tag">🆕 Révolutionnaire</div>
+        <div class="card-name">Enchères Inversées</div>
+        <div class="card-desc">Les acheteurs annoncent ce qu'ils veulent. Toi tu fais la meilleure offre et tu remportes la vente. Les prix baissent au lieu de monter.</div>
+      </div>
+    </div>
+    <div class="card-bottom">
+      <div class="card-gain">
+        <div class="card-gain-lbl">Accès à</div>
+        <div class="card-gain-val">Clients garantis</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </a>
+
 </div>
 
-<!-- TABS -->
-<div class="earn-tabs">
-  <button class="etab active" onclick="switchTab('missions',this)">📋 Missions</button>
-  <button class="etab" onclick="switchTab('streak',this)">🔥 Connexion</button>
-  <button class="etab" onclick="switchTab('parrainage',this)">🤝 Parrainage</button>
-  <button class="etab" onclick="switchTab('classement',this)">🏆 Classement</button>
+<!-- PROMOTER BANNER -->
+<div class="promo-banner">
+  <div class="pb-tag">👑 Tu es le Promoteur ?</div>
+  <div class="pb-title">Voir comment tu gagnes</div>
+  <div class="pb-desc">Chaque service génère des commissions automatiques pour la plateforme. Consulte le tableau de bord admin pour le détail.</div>
+  <a href="admin.html" class="pb-btn">📊 Dashboard Admin →</a>
 </div>
 
-<!-- ══ MISSIONS ══ -->
-<div class="earn-section show" id="sec-missions">
-  <div class="missions">
-
-    <!-- Bienvenue -->
-    <div class="mission m-green done" id="m-welcome">
-      <div class="mission-ico ic-green">👋</div>
-      <div class="mission-body">
-        <div class="mission-title">Créer son compte</div>
-        <div class="mission-desc">Tu as créé ton compte AfriMarket — c'est fait !</div>
-        <div class="mission-reward">+50 FCFA · Automatique</div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts">50F</div>
-        <div class="mission-check">✅</div>
-      </div>
-    </div>
-
-    <!-- Profil complet -->
-    <div class="mission m-blue" id="m-profil" onclick="location.href='profil.html'">
-      <div class="mission-ico ic-blue">👤</div>
-      <div class="mission-body">
-        <div class="mission-title">Profil 100% complet</div>
-        <div class="mission-desc">Photo · WhatsApp · Ville · Pays · Bio</div>
-        <div class="mission-reward">+100 FCFA</div>
-        <div class="mp">
-          <div class="mp-bar"><div class="mp-fill" id="fp-profil" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--blue2))"></div></div>
-          <div class="mp-lbl" id="lp-profil">0 / 5 infos</div>
-        </div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts">100F</div>
-        <div class="mission-check" id="chk-profil">○</div>
-      </div>
-    </div>
-
-    <!-- 1ère annonce -->
-    <div class="mission m-orange" id="m-annonce1" onclick="location.href='dashboard.html'">
-      <div class="mission-ico ic-orange">📢</div>
-      <div class="mission-body">
-        <div class="mission-title">Publier ta 1ère annonce</div>
-        <div class="mission-desc">Mets ton premier produit ou service en vente</div>
-        <div class="mission-reward">+100 FCFA</div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts">100F</div>
-        <div class="mission-check" id="chk-annonce1">○</div>
-      </div>
-    </div>
-
-    <!-- 5 annonces -->
-    <div class="mission m-orange" id="m-annonce5" onclick="location.href='dashboard.html'">
-      <div class="mission-ico ic-orange">🚀</div>
-      <div class="mission-body">
-        <div class="mission-title">Publier 5 annonces</div>
-        <div class="mission-desc">Deviens un vendeur actif sur AfriMarket</div>
-        <div class="mission-reward">+300 FCFA</div>
-        <div class="mp">
-          <div class="mp-bar"><div class="mp-fill" id="fp-annonce5" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
-          <div class="mp-lbl" id="lp-annonce5">0 / 5 annonces</div>
-        </div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts">300F</div>
-        <div class="mission-check" id="chk-annonce5">○</div>
-      </div>
-    </div>
-
-    <!-- Partager une annonce -->
-    <div class="mission m-turq" id="m-sharead" onclick="shareAnAd()">
-      <div class="mission-ico ic-turq">🌍</div>
-      <div class="mission-body">
-        <div class="mission-title">Partager une annonce</div>
-        <div class="mission-desc">Partage n'importe quelle annonce AfriMarket sur WhatsApp</div>
-        <div class="mission-reward">+30 FCFA · Répétable chaque semaine</div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts">30F</div>
-        <div class="mission-check" id="chk-sharead">○</div>
-      </div>
-    </div>
-
-    <!-- Laisser un avis -->
-    <div class="mission m-turq" id="m-avis" onclick="showToast('Fais un achat puis note le vendeur depuis son profil','info')">
-      <div class="mission-ico ic-turq">⭐</div>
-      <div class="mission-body">
-        <div class="mission-title">Laisser un avis vendeur</div>
-        <div class="mission-desc">Note un vendeur après un échange · Répétable</div>
-        <div class="mission-reward">+25 FCFA par avis</div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts">25F</div>
-        <div class="mission-check" id="chk-avis">○</div>
-      </div>
-    </div>
-
-    <!-- 3 amis actifs -->
-    <div class="mission m-gold" id="m-ref3" onclick="switchTab('parrainage',document.querySelectorAll('.etab')[2])">
-      <div class="mission-ico ic-gold">🤝</div>
-      <div class="mission-body">
-        <div class="mission-title">3 amis actifs parrainés</div>
-        <div class="mission-desc">Tes 3 filleuls doivent chacun publier 1 annonce</div>
-        <div class="mission-reward">+400 FCFA · Badge 🏅 Ambassadeur</div>
-        <div class="mp">
-          <div class="mp-bar"><div class="mp-fill" id="fp-ref3" style="width:0%;background:linear-gradient(90deg,var(--gold),#C8901A)"></div></div>
-          <div class="mp-lbl" id="lp-ref3">0 / 3 filleuls actifs</div>
-        </div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts">400F</div>
-        <div class="mission-check" id="chk-ref3">○</div>
-      </div>
-    </div>
-
-    <!-- Compte Premium -->
-    <div class="mission m-purple" id="m-premium" onclick="location.href='pricing.html'" style="background:linear-gradient(135deg,rgba(245,183,49,.04),rgba(200,144,26,.03));border-color:rgba(245,183,49,.3);">
-      <div class="mission-ico" style="background:rgba(245,183,49,.12);width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;">👑</div>
-      <div class="mission-body">
-        <div class="mission-title">Passer en Premium</div>
-        <div class="mission-desc">Annonces illimitées + priorité + badge vérifié</div>
-        <div class="mission-reward" style="color:var(--gold)">+250 FCFA · Annonces illimitées</div>
-      </div>
-      <div class="mission-right">
-        <div class="mission-pts" style="color:var(--gold)">250F</div>
-        <div class="mission-check" id="chk-premium">○</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- RÉCAP GAINS -->
-  <div style="margin:1rem 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.04);">
-    <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--dark);margin-bottom:.75rem;">💰 Total disponible si tout complété</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
-      <div style="background:var(--bg);border-radius:10px;padding:.6rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--green)">1 255F</div>
-        <div style="font-size:.62rem;color:var(--gray);margin-top:2px">Missions fixes</div>
-      </div>
-      <div style="background:var(--bg);border-radius:10px;padding:.6rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--blue2)" id="totalRefDisp">+150F×?</div>
-        <div style="font-size:.62rem;color:var(--gray);margin-top:2px">Parrainage illimité</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ CONNEXION QUOTIDIENNE ══ -->
-<div class="earn-section" id="sec-streak">
-  <div style="padding:0 1.2rem;">
-    <div class="streak-card">
-      <div class="sc-top">
-        <div class="sc-left">
-          <h3>🔥 Connexion quotidienne</h3>
-          <p>Connecte-toi chaque jour — 25 FCFA garanti. Bonus +200F au 7e jour consécutif !</p>
-        </div>
-        <div class="sc-flame">🔥</div>
-      </div>
-      <div class="streak-days" id="streakDays"></div>
-      <button class="streak-btn" id="streakBtn" onclick="claimStreak()">🎁 Réclamer mes 25 FCFA du jour</button>
-    </div>
-
-    <!-- Tableau des récompenses -->
-    <div style="margin-top:1rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.04);">
-      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;">📅 Récompenses de la semaine</div>
-      <div id="streakTable" style="display:flex;flex-direction:column;gap:.45rem;"></div>
-    </div>
-
-    <div style="margin-top:.75rem;background:rgba(27,63,228,.04);border:1px solid rgba(27,63,228,.12);border-radius:14px;padding:.85rem 1rem;">
-      <div style="font-size:.74rem;color:var(--dark);line-height:1.6;"><strong>⚠️ Attention :</strong> Si tu rates un jour, ton compteur repart à zéro. Reviens chaque jour pour ne pas perdre ton bonus de 200 FCFA du 7e jour !</div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ PARRAINAGE ══ -->
-<div class="earn-section" id="sec-parrainage">
-  <div style="padding:0 1.2rem;">
-    <!-- Explication -->
-    <div style="background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.04);margin-bottom:.8rem;">
-      <div style="font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;">💡 Comment fonctionne le parrainage ?</div>
-      <div style="display:flex;flex-direction:column;gap:.65rem;">
-        <div style="display:flex;align-items:center;gap:.7rem;">
-          <div style="width:30px;height:30px;border-radius:50%;background:rgba(27,63,228,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--blue2);flex-shrink:0;">1</div>
-          <span style="font-size:.78rem;color:var(--dark);">Copie ton lien unique et envoie-le à un ami</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:.7rem;">
-          <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,107,26,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--orange);flex-shrink:0;">2</div>
-          <span style="font-size:.78rem;color:var(--dark);">Il s'inscrit via ton lien et publie <strong>au moins 1 annonce</strong></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:.7rem;">
-          <div style="width:30px;height:30px;border-radius:50%;background:rgba(0,194,113,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--green);flex-shrink:0;">3</div>
-          <span style="font-size:.78rem;color:var(--dark);"><strong style="color:var(--green)">+150 FCFA</strong> ajoutés automatiquement à ton solde !</span>
-        </div>
-        <div style="background:rgba(245,183,49,.07);border:1px solid rgba(245,183,49,.2);border-radius:10px;padding:.6rem .8rem;margin-top:.2rem;">
-          <div style="font-size:.72rem;color:var(--gray);line-height:1.5;">🔐 <strong style="color:var(--dark)">Pour le 2e retrait :</strong> l'un de tes filleuls doit avoir activé un compte Premium. C'est notre seule façon de financer les gains !</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Lien parrainage -->
-    <div class="ref-card">
-      <div class="ref-top">
-        <div class="ref-ico">🎁</div>
-        <div>
-          <div class="ref-info-title">Ton lien unique</div>
-          <div class="ref-info-sub">+150 FCFA par ami actif · Illimité · Sans plafond</div>
-        </div>
-      </div>
-      <div class="ref-link">
-        <div class="ref-url" id="refUrl">Chargement…</div>
-        <button class="ref-copy" onclick="copyLink()">📋 Copier</button>
-      </div>
-      <div class="ref-btns">
-        <button class="ref-btn rb-wa" onclick="shareWA()">💬 WhatsApp</button>
-        <button class="ref-btn rb-share" onclick="shareGen()">📤 Partager</button>
-      </div>
-      <div class="ref-stats">
-        <div class="rs"><div class="rs-num" id="sRefs">0</div><div class="rs-lbl">Filleuls</div></div>
-        <div class="rs"><div class="rs-num" id="sEarned">0F</div><div class="rs-lbl">Total gagné</div></div>
-        <div class="rs"><div class="rs-num" id="sDispo">0F</div><div class="rs-lbl">Disponible</div></div>
-        <div class="rs"><div class="rs-num" id="sRefPrem">0</div><div class="rs-lbl">Premium 👑</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ CLASSEMENT ══ -->
-<div class="earn-section" id="sec-classement">
-  <div style="padding:0 1.2rem;margin-bottom:.8rem;">
-    <!-- Podium récompenses -->
-    <div style="background:linear-gradient(135deg,#080E2A,#1B3FE4);border-radius:18px;padding:1.1rem;display:flex;gap:.6rem;margin-bottom:.65rem;">
-      <div style="flex:1;background:rgba(212,170,80,.15);border:1px solid rgba(212,170,80,.25);border-radius:12px;padding:.7rem .5rem;text-align:center;">
-        <div style="font-size:1.3rem">🥇</div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#D4AA50;margin-top:.2rem">2 000F</div>
-        <div style="font-size:.58rem;color:rgba(255,255,255,.4);margin-top:1px">1er vendeur</div>
-      </div>
-      <div style="flex:1;background:rgba(160,168,184,.1);border:1px solid rgba(160,168,184,.18);border-radius:12px;padding:.7rem .5rem;text-align:center;">
-        <div style="font-size:1.3rem">🥈</div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#A8B0C0;margin-top:.2rem">1 000F</div>
-        <div style="font-size:.58rem;color:rgba(255,255,255,.4);margin-top:1px">2ème vendeur</div>
-      </div>
-      <div style="flex:1;background:rgba(205,127,50,.1);border:1px solid rgba(205,127,50,.18);border-radius:12px;padding:.7rem .5rem;text-align:center;">
-        <div style="font-size:1.3rem">🥉</div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#CD7F32;margin-top:.2rem">500F</div>
-        <div style="font-size:.58rem;color:rgba(255,255,255,.4);margin-top:1px">3ème vendeur</div>
-      </div>
-    </div>
-    <div style="text-align:center;font-size:.67rem;color:var(--gray);margin-bottom:.8rem;">🏆 Remis à zéro chaque mois · Critère : nombre d'annonces publiées</div>
-  </div>
-  <div class="lboard" id="leaderboard">
-    <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem">⏳ Chargement…</div>
-  </div>
-</div>
-
-<div style="height:1rem"></div>
-
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
   <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
-  <button class="nav-item" style="pointer-events:none;">
-    <div class="nav-plus-btn" onclick="location.href='dashboard.html';event.stopPropagation()" style="pointer-events:all">➕</div>
-    <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
-  </button>
-  <button class="nav-item" onclick="location.href='favoris.html'"><span class="nav-ico">❤️</span><span class="nav-lbl">Favoris</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--gold);font-weight:700">Publier</span></div>
+  <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--gold);font-weight:700">Gagner</span></button>
   <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
 </nav>
 
-<!-- MODAL RETRAIT -->
-<div class="ov" id="retraitOv" onclick="if(event.target===this)closeRetrait()">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">💸 Demander un retrait</div>
-    <div class="modal-cond" id="modalCond"></div>
-    <div class="mf"><label>Montant (FCFA)</label><input type="number" id="rMontant" placeholder="Montant à retirer"/></div>
-    <div class="mf">
-      <label>Opérateur Mobile Money</label>
-      <select id="rMode">
-        <option value="orange">🟠 Orange Money — 658 033 690</option>
-        <option value="mtn">💛 MTN MoMo — 651 461 777</option>
-      </select>
-    </div>
-    <div class="mf"><label>Ton numéro Mobile Money</label><input type="tel" id="rPhone" placeholder="+237 6XX XXX XXX"/></div>
-    <div class="mf"><label>Ton nom complet</label><input type="text" id="rNom" placeholder="Ex: Jean Dupont"/></div>
-    <button class="btn-submit" id="btnSubmit" onclick="submitRetrait()">✅ Confirmer le retrait</button>
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<script>
-const { createClient } = supabase;
-const sb = createClient(
-  'https://elgbvitijyjriozvzqpf.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
-);
-const BASE = 'https://afrimarket2.vercel.app';
-
-// ── Constantes ──
-const STREAK_DAYS    = 7;
-const STREAK_DAILY   = 25;   // FCFA par jour
-const STREAK_BONUS   = 200;  // FCFA au 7e jour
-const REF_REWARD     = 150;  // FCFA par filleul actif
-const MIN_RETRAIT_1  = 500;  // 1er retrait
-const MIN_RETRAIT_2  = 2000; // 2e retrait+
-
-let U = null, P = null, solde = 0, refCode = '', refUrl = '';
-let totalRetraits = 0, refsCount = 0, refsPremium = 0;
-
-// ── INIT ──
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if(!session) { location.href = 'index.html'; return; }
-  U = session.user;
-  const { data: p } = await sb.from('profiles').select('*').eq('id', U.id).single();
-  P = p || {};
-  refCode = P.ref_code || U.id.substring(0, 8).toUpperCase();
-  refUrl  = BASE + '?ref=' + refCode;
-  document.getElementById('refUrl').textContent = refUrl;
-
-  // Mission "bienvenue" auto-créditée si jamais faite
-  await grantWelcomeBonus();
-
-  await Promise.all([loadSolde(), loadMissions(), loadStreak(), loadLeaderboard()]);
-  buildStreakTable();
-})();
-
-// ── TABS ──
-function switchTab(name, btn) {
-  document.querySelectorAll('.earn-section').forEach(s => s.classList.remove('show'));
-  document.querySelectorAll('.etab').forEach(b => b.classList.remove('active'));
-  document.getElementById('sec-' + name).classList.add('show');
-  btn.classList.add('active');
-}
-
-// ── SOLDE + STATUT RETRAIT ──
-async function loadSolde() {
-  try {
-    const [earnRes, retraitRes] = await Promise.all([
-      sb.from('referral_earnings').select('amount,status').eq('user_id', U.id),
-      sb.from('withdrawal_requests').select('id,status').eq('user_id', U.id)
-    ]);
-    const earn = earnRes.data || [];
-    solde = earn.filter(e => e.status === 'available').reduce((s, e) => s + (e.amount || 0), 0);
-    totalRetraits = (retraitRes.data || []).filter(r => r.status !== 'rejected').length;
-
-    document.getElementById('soldeAmt').textContent = solde.toLocaleString('fr-FR');
-    document.getElementById('hBal').textContent     = solde.toLocaleString('fr-FR') + ' F';
-
-    const badge = document.getElementById('soldeBadge');
-    const btn   = document.getElementById('btnRetrait');
-    const note  = document.getElementById('soldeNote');
-
-    const isFirst  = totalRetraits === 0;
-    const minNeeded = isFirst ? MIN_RETRAIT_1 : MIN_RETRAIT_2;
-
-    if(isFirst && solde >= MIN_RETRAIT_1) {
-      badge.className = 'solde-badge badge-ok'; badge.textContent = '✅ Retrait disponible';
-      btn.disabled = false;
-      note.innerHTML = `🎉 Tu peux faire ton <strong>1er retrait gratuit</strong> dès maintenant !`;
-    } else if(!isFirst && solde >= MIN_RETRAIT_2 && refsPremium >= 1) {
-      badge.className = 'solde-badge badge-ok'; badge.textContent = '✅ Retrait disponible';
-      btn.disabled = false;
-      note.innerHTML = `Tu remplis toutes les conditions pour retirer tes gains. 💪`;
-    } else if(!isFirst && solde >= MIN_RETRAIT_2 && refsPremium === 0) {
-      badge.className = 'solde-badge badge-cond'; badge.textContent = '⚠️ Filleul Premium requis';
-      btn.disabled = false;
-      note.innerHTML = `Tu as ${solde.toLocaleString('fr-FR')} FCFA mais il te faut <strong>1 filleul Premium</strong> pour ton ${totalRetraits + 1}e retrait.`;
-    } else {
-      badge.className = 'solde-badge badge-lock'; badge.textContent = '🔒 Insuffisant';
-      btn.disabled = true;
-      note.innerHTML = `Il te faut <strong>${minNeeded.toLocaleString('fr-FR')} FCFA</strong> minimum pour retirer.${!isFirst ? ' + 1 filleul Premium.' : ''} Continue les missions !`;
-    }
-  } catch(e) { console.warn('loadSolde:', e); }
-}
-
-// ── MISSIONS ──
-async function loadMissions() {
-  try {
-    const { count: adsCount } = await sb.from('annonces').select('*', { count:'exact', head:true }).eq('user_id', U.id);
-
-    // Filleuls actifs (ont publié ≥1 annonce)
-    const { data: filleuls } = await sb.from('profiles').select('id').eq('referred_by', refCode);
-    const filleulIds = (filleuls || []).map(f => f.id);
-    let activeRefs = 0, premRefs = 0;
-    for(const fid of filleulIds) {
-      const { count: fc } = await sb.from('annonces').select('*', { count:'exact', head:true }).eq('user_id', fid);
-      if(fc >= 1) activeRefs++;
-      const { data: fp } = await sb.from('profiles').select('is_premium').eq('id', fid).single();
-      if(fp?.is_premium) premRefs++;
-    }
-    refsCount  = filleulIds.length;
-    refsPremium = premRefs;
-
-    // Profil
-    const profilFields = [P.full_name, P.whatsapp, P.ville, P.pays, P.bio].filter(Boolean).length;
-    setProgress('profil', profilFields, 5, profilFields >= 5);
-    setDone('annonce1', adsCount >= 1);
-    setProgress('annonce5', Math.min(adsCount, 5), 5, adsCount >= 5);
-    setProgress('ref3', Math.min(activeRefs, 3), 3, activeRefs >= 3);
-    setDone('premium', P.is_premium === true);
-
-    // Partage annonce (semaine)
-    const weekKey = 'sharead_w' + getWeekKey() + '_' + U.id;
-    setDone('sharead', !!localStorage.getItem(weekKey));
-
-    // Avis
-    const { data: myAvis } = await sb.from('avis').select('id').eq('reviewer_id', U.id).limit(1);
-    setDone('avis', myAvis?.length > 0);
-
-    // Stats parrainage
-    const { data: earn } = await sb.from('referral_earnings').select('amount,type').eq('user_id', U.id);
-    const refEarned = (earn || []).filter(e => e.type === 'referral').reduce((s, e) => s + (e.amount || 0), 0);
-    document.getElementById('sRefs').textContent    = filleulIds.length;
-    document.getElementById('sEarned').textContent  = refEarned.toLocaleString('fr-FR') + 'F';
-    document.getElementById('sDispo').textContent   = solde.toLocaleString('fr-FR') + 'F';
-    document.getElementById('sRefPrem').textContent = premRefs;
-    document.getElementById('totalRefDisp').textContent = '+150F×' + filleulIds.length;
-
-    // Reload solde avec refsPremium à jour
-    await loadSolde();
-  } catch(e) { console.warn('loadMissions:', e); }
-}
-
-function setDone(key, done) {
-  const el  = document.getElementById('m-' + key);
-  const chk = document.getElementById('chk-' + key);
-  if(!el) return;
-  if(done) { el.classList.add('done'); if(chk) chk.textContent = '✅'; }
-  else      { el.classList.remove('done'); if(chk) chk.textContent = '○'; }
-}
-
-function setProgress(key, val, max, done) {
-  setDone(key, done);
-  const fill = document.getElementById('fp-' + key);
-  const lbl  = document.getElementById('lp-' + key);
-  if(fill) fill.style.width = Math.min(val / max * 100, 100) + '%';
-  if(lbl)  lbl.textContent  = val + ' / ' + max;
-}
-
-// ── BIENVENUE BONUS ──
-async function grantWelcomeBonus() {
-  const key = 'welcome_granted_' + U.id;
-  if(localStorage.getItem(key)) return;
-  try {
-    const { data: ex } = await sb.from('referral_earnings')
-      .select('id').eq('user_id', U.id).eq('type', 'welcome').limit(1);
-    if(ex?.length) { localStorage.setItem(key, '1'); return; }
-    await sb.from('referral_earnings').insert({
-      user_id: U.id, amount: 50, type: 'welcome',
-      description: 'Bienvenue sur AfriMarket !',
-      status: 'available', created_at: new Date().toISOString()
-    });
-    await sb.from('notifications').insert({
-      user_id: U.id, title: '🎉 +50 FCFA de bienvenue !',
-      message: 'Bienvenue sur AfriMarket ! 50 FCFA ont été ajoutés à ton solde.',
-      icon: '👋', type: 'success', read: false, created_at: new Date().toISOString()
-    });
-    localStorage.setItem(key, '1');
-  } catch(e) { console.warn('welcome bonus:', e); }
-}
-
-// ── STREAK ──
-function getWeekKey() {
-  const d = new Date();
-  const start = new Date(d.getFullYear(), 0, 1);
-  return d.getFullYear() + '_' + Math.ceil(((d - start) / 86400000 + start.getDay() + 1) / 7);
-}
-
-function buildStreakTable() {
-  const el = document.getElementById('streakTable');
-  if(!el) return;
-  const rows = [];
-  for(let i = 0; i < STREAK_DAYS; i++) {
-    const isBonus = i === STREAK_DAYS - 1;
-    const reward  = isBonus ? STREAK_DAILY + STREAK_BONUS : STREAK_DAILY;
-    rows.push(`<div style="display:flex;align-items:center;justify-content:space-between;${isBonus?'background:rgba(245,183,49,.07);border:1px solid rgba(245,183,49,.2);border-radius:10px;padding:.4rem .6rem;':''}" >
-      <span style="font-size:.78rem;color:${isBonus?'var(--gold)':'var(--gray)'};">${isBonus?'🏆 ':'📅 '}Jour ${i + 1}${isBonus?' (Bonus)':''}</span>
-      <span style="font-size:.78rem;font-weight:800;color:${isBonus?'var(--gold)':'var(--green)'};">+${reward} FCFA</span>
-    </div>`);
-  }
-  el.innerHTML = rows.join('');
-}
-
-async function loadStreak() {
-  const todayStr   = new Date().toDateString();
-  const streakKey  = 'streak_' + U.id;
-  const lastKey    = 'streakLast_' + U.id;
-  const claimedKey = 'streakClaimed_' + U.id;
-  let streakDay    = parseInt(localStorage.getItem(streakKey) || '0');
-  const lastDate   = localStorage.getItem(lastKey);
-  const todayClaimed = localStorage.getItem(claimedKey) === todayStr;
-
-  if(lastDate) {
-    const diff = Math.floor((new Date() - new Date(lastDate)) / 86400000);
-    if(diff > 1) { streakDay = 0; localStorage.setItem(streakKey, '0'); }
-  }
-
-  const container = document.getElementById('streakDays');
-  container.innerHTML = '';
-  for(let i = 0; i < STREAK_DAYS; i++) {
-    const done  = i < streakDay;
-    const today = (i === streakDay) && !todayClaimed;
-    const isBonus = i === STREAK_DAYS - 1;
-    container.innerHTML += `
-      <div class="sd ${done ? 'done' : ''}">
-        <div class="sd-circle ${done ? 'done' : ''} ${today ? 'today' : ''}">${done ? '✅' : isBonus ? '🏆' : '🔥'}</div>
-        <div class="sd-lbl">J${i + 1}<br>+${i === STREAK_DAYS - 1 ? (STREAK_DAILY + STREAK_BONUS) : STREAK_DAILY}F</div>
-      </div>`;
-  }
-
-  const btn = document.getElementById('streakBtn');
-  if(todayClaimed) {
-    btn.textContent = '✅ Réclamé · Reviens demain !';
-    btn.classList.add('claimed'); btn.disabled = true;
-  } else {
-    const isBonus   = streakDay === STREAK_DAYS - 1;
-    const nextReward = isBonus ? STREAK_DAILY + STREAK_BONUS : STREAK_DAILY;
-    btn.textContent = `🎁 Réclamer +${nextReward} FCFA (Jour ${streakDay + 1}${isBonus ? ' 🏆' : ''})`;
-    btn.classList.remove('claimed'); btn.disabled = false;
-  }
-}
-
-async function claimStreak() {
-  const todayStr   = new Date().toDateString();
-  const claimedKey = 'streakClaimed_' + U.id;
-  const streakKey  = 'streak_' + U.id;
-  const lastKey    = 'streakLast_' + U.id;
-  if(localStorage.getItem(claimedKey) === todayStr) { showToast('Déjà réclamé aujourd\'hui !', 'info'); return; }
-
-  let streakDay    = parseInt(localStorage.getItem(streakKey) || '0');
-  const isBonus    = streakDay === STREAK_DAYS - 1;
-  const reward     = isBonus ? STREAK_DAILY + STREAK_BONUS : STREAK_DAILY;
-  const btn        = document.getElementById('streakBtn');
-  btn.disabled = true; btn.textContent = '⏳…';
-
-  try {
-    await sb.from('referral_earnings').insert({
-      user_id: U.id, amount: reward, type: 'streak',
-      description: `Connexion quotidienne · Jour ${streakDay + 1}${isBonus ? ' (Bonus 🏆)' : ''}`,
-      status: 'available', created_at: new Date().toISOString()
-    });
-    await sb.from('notifications').insert({
-      user_id: U.id,
-      title: `🔥 +${reward} FCFA !`,
-      message: `Connexion jour ${streakDay + 1} validée${isBonus ? ' — Bonus 7 jours consécutifs ! 🏆' : ''}. Reviens demain pour continuer !`,
-      icon: '🔥', type: 'success', read: false, created_at: new Date().toISOString()
-    });
-    const nextDay = (streakDay + 1) % STREAK_DAYS;
-    localStorage.setItem(streakKey, nextDay);
-    localStorage.setItem(lastKey, todayStr);
-    localStorage.setItem(claimedKey, todayStr);
-    spawnConfetti();
-    showToast(`🔥 +${reward} FCFA ! ${isBonus ? 'Bonus 7 jours 🏆' : 'Reviens demain !'}`, 'success');
-    await loadSolde();
-    await loadStreak();
-  } catch(e) {
-    showToast('Erreur : ' + e.message, 'error');
-    btn.disabled = false;
-    await loadStreak();
-  }
-}
-
-// ── PARTAGE ANNONCE ──
-function shareAnAd() {
-  const weekKey = 'sharead_w' + getWeekKey() + '_' + U.id;
-  const msg = encodeURIComponent('🛒 Découvre cette annonce sur AfriMarket !\n' + BASE + '/dashboard.html');
-  if(navigator.share) {
-    navigator.share({ title: 'AfriMarket', url: BASE + '/dashboard.html' }).then(() => {
-      creditShareAd(weekKey);
-    }).catch(() => {});
-  } else {
-    window.open('https://wa.me/?text=' + msg, '_blank');
-    creditShareAd(weekKey);
-  }
-}
-
-async function creditShareAd(weekKey) {
-  if(localStorage.getItem(weekKey)) { showToast('Partage déjà effectué cette semaine', 'info'); return; }
-  try {
-    await sb.from('referral_earnings').insert({
-      user_id: U.id, amount: 30, type: 'share',
-      description: 'Partage d\'annonce — semaine ' + getWeekKey(),
-      status: 'available', created_at: new Date().toISOString()
-    });
-    localStorage.setItem(weekKey, '1');
-    setDone('sharead', true);
-    showToast('✅ +30 FCFA ! Mission partage validée.', 'success');
-    await loadSolde();
-  } catch(e) { console.warn('shareAd:', e); }
-}
-
-// ── PARRAINAGE ──
-function doShare() {
-  const msg = encodeURIComponent('🚀 Rejoins AfriMarket ! La marketplace N°1 en Afrique 🌍\nAchète et vends facilement, c\'est 100% gratuit 👇\n\n' + refUrl);
-  if(navigator.share) navigator.share({ title: 'AfriMarket', text: 'Rejoins AfriMarket !', url: refUrl }).catch(() => {});
-  else window.open('https://wa.me/?text=' + msg, '_blank');
-}
-function copyLink() { navigator.clipboard?.writeText(refUrl).then(() => showToast('Lien copié ! 🔗', 'success')).catch(() => showToast(refUrl, 'info')); }
-function shareWA()  { doShare(); }
-function shareGen() { doShare(); }
-
-// ── LEADERBOARD ──
-async function loadLeaderboard() {
-  try {
-    const { data: top } = await sb.from('profiles').select('id,full_name,avatar_url').limit(12);
-    const counts = await Promise.all((top || []).map(async p => {
-      const { count } = await sb.from('annonces').select('*', { count:'exact', head:true }).eq('user_id', p.id).eq('actif', true);
-      return { ...p, count: count || 0 };
-    }));
-    counts.sort((a, b) => b.count - a.count);
-    const prizes  = ['2 000F 🥇', '1 000F 🥈', '500F 🥉'];
-    const pClass  = ['lp1', 'lp2', 'lp3'];
-    const medals  = ['🥇', '🥈', '🥉'];
-    document.getElementById('leaderboard').innerHTML = counts.slice(0, 8).map((p, i) => {
-      const isMe  = p.id === U?.id;
-      const name  = p.full_name || 'Anonyme';
-      const ava   = p.avatar_url ? `<img src="${p.avatar_url}" alt="${name[0]}"/>` : name[0].toUpperCase();
-      const prize = i < 3 ? `<span class="lb-prize ${pClass[i]}">${prizes[i]}</span>` : '';
-      return `<div class="lb-item${isMe ? ' me' : ''}">
-        <div class="lb-rank">${i < 3 ? medals[i] : (i + 1)}</div>
-        <div class="lb-ava">${ava}</div>
-        <div class="lb-name">${name}${isMe ? ' <span style="font-size:.6rem;color:var(--blue2)">(moi)</span>' : ''}</div>
-        <div class="lb-right">${prize}<div class="lb-pts">${p.count} ann.</div></div>
-      </div>`;
-    }).join('');
-  } catch(e) { console.warn('leaderboard:', e); }
-}
-
-// ── RETRAIT ──
-function openRetrait() {
-  const isFirst   = totalRetraits === 0;
-  const minNeeded = isFirst ? MIN_RETRAIT_1 : MIN_RETRAIT_2;
-  const cond = document.getElementById('modalCond');
-
-  if(!isFirst && refsPremium === 0) {
-    showToast('Il te faut 1 filleul Premium pour ce retrait', 'warning'); return;
-  }
-  if(solde < minNeeded) {
-    showToast(`Minimum ${minNeeded.toLocaleString('fr-FR')} FCFA requis`, 'warning'); return;
-  }
-
-  if(isFirst) {
-    cond.innerHTML = `🎁 <strong>1er retrait gratuit !</strong> Minimum ${MIN_RETRAIT_1} FCFA. Traitement sous 24-48h.`;
-  } else {
-    cond.innerHTML = `🔐 <strong>Retrait n°${totalRetraits + 1}</strong> — Minimum ${MIN_RETRAIT_2.toLocaleString('fr-FR')} FCFA + 1 filleul Premium (✅ validé). Traitement 24-48h.`;
-  }
-
-  document.getElementById('rMontant').value = Math.min(solde, minNeeded);
-  document.getElementById('retraitOv').classList.add('open');
-}
-
-function closeRetrait() { document.getElementById('retraitOv').classList.remove('open'); }
-
-async function submitRetrait() {
-  const m   = parseInt(document.getElementById('rMontant').value) || 0;
-  const op  = document.getElementById('rMode').value;
-  const ph  = document.getElementById('rPhone').value.trim();
-  const nm  = document.getElementById('rNom').value.trim();
-  const min = totalRetraits === 0 ? MIN_RETRAIT_1 : MIN_RETRAIT_2;
-
-  if(m < min)  { showToast(`Minimum ${min.toLocaleString('fr-FR')} FCFA`, 'warning'); return; }
-  if(m > solde){ showToast(`Solde insuffisant (${solde.toLocaleString('fr-FR')} F dispo)`, 'warning'); return; }
-  if(!ph)      { showToast('Entre ton numéro', 'warning'); return; }
-  if(!nm)      { showToast('Entre ton nom complet', 'warning'); return; }
-
-  const btn = document.getElementById('btnSubmit');
-  btn.disabled = true; btn.textContent = '⏳ Envoi…';
-  try {
-    await sb.from('withdrawal_requests').insert({
-      user_id: U.id, amount: m, operator: op, phone: ph, name: nm,
-      is_first: totalRetraits === 0,
-      status: 'pending', created_at: new Date().toISOString()
-    });
-    await sb.from('notifications').insert({
-      user_id: U.id, title: '💸 Retrait en cours',
-      message: `Ta demande de ${m.toLocaleString('fr-FR')} FCFA via ${op} est en cours. Traitement sous 24-48h.`,
-      icon: '💸', type: 'info', read: false, created_at: new Date().toISOString()
-    });
-    closeRetrait();
-    spawnConfetti();
-    showToast('🎉 Demande envoyée ! Traitement 24-48h.', 'success');
-    totalRetraits++;
-    await loadSolde();
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
-  finally { btn.disabled = false; btn.textContent = '✅ Confirmer le retrait'; }
-}
-
-// ── CONFETTI ──
-function spawnConfetti() {
-  const cols = ['#1B3FE4','#00C2B7','#FF6B1A','#F5B731','#00C271'];
-  for(let i = 0; i < 60; i++) {
-    const el = document.createElement('div');
-    el.style.cssText = `position:fixed;z-index:9999;pointer-events:none;top:-10px;left:${Math.random()*100}vw;width:${Math.random()*9+4}px;height:${Math.random()*9+4}px;border-radius:${Math.random()>.5?'50%':'3px'};background:${cols[Math.floor(Math.random()*cols.length)]};animation:cFall ${Math.random()*3+2}s linear ${Math.random()*1.5}s forwards`;
-    document.body.appendChild(el); setTimeout(() => el.remove(), 5500);
-  }
-}
-
-// ── TOAST ──
-let tt;
-function showToast(msg, type = 'success') {
-  const ic = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
-  const el = document.getElementById('toast');
-  el.textContent = (ic[type] || '') + '  ' + msg;
-  el.className = 'show';
-  el.style.borderLeftColor = type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
-  clearTimeout(tt); tt = setTimeout(() => el.className = '', 4000);
-}
-</script>
-
-<script>
-  if('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(r => console.log('[SW] Registered:', r.scope))
-        .catch(e => console.warn('[SW] Error:', e));
-    });
-  }
-</script>
 </body>
 </html>
