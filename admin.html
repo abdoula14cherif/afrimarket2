@@ -1090,6 +1090,7 @@ function goPage(name,btn){
   };
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='messages') populateMsgSelect();
+  if(name==='candidatures') loadCandidatures();
 }
 
 /* ══════════════════════════════════════════════════
@@ -1254,120 +1255,167 @@ function toast(msg,type='success'){
 
 
 /* ════════ CANDIDATURES ════════ */
-var _allCand = [];
+var _allCand    = [];
 var _candFilter = 'all';
 
+var SVC_LABELS = {
+  'gagner-chasseur'    : '🎯 Chasseur de Vendeurs',
+  'gagner-verificateur': '🕵️ Vérificateur de Produits',
+  'gagner-negociateur' : '🗣️ Négociateur Pro',
+  'gagner-livreur'     : '📦 Livreur Indépendant',
+  'gagner-formateur'   : '🎓 Formateur Certifié',
+  'gagner-courtier'    : '🌍 Courtier Import-Export',
+  'gagner-encheres'    : '🎰 Enchères Inversées'
+};
+
+function fmtCandDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+}
+
 async function loadCandidatures() {
-  const list = document.getElementById('cand-list');
+  var list = document.getElementById('cand-list');
+  if (!list) return;
   list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">⏳ Chargement…</div>';
   try {
-    const { data, error } = await _sb
+    var res = await sb
       .from('service_registrations')
       .select('*')
       .order('created_at', { ascending: false });
-    if (error) throw error;
-    _allCand = data || [];
+    if (res.error) throw res.error;
+    _allCand = res.data || [];
     renderCand();
-    // Badge
-    const pending = _allCand.filter(r => r.status === 'pending').length;
-    const badge = document.getElementById('nb-cand');
-    if (pending > 0) { badge.textContent = pending; badge.style.display = ''; }
-    else badge.style.display = 'none';
+    /* badge sidebar */
+    var pending = _allCand.filter(function(r){ return r.status === 'pending'; }).length;
+    var badge   = document.getElementById('nb-cand');
+    if (badge) {
+      if (pending > 0) { badge.textContent = pending; badge.style.display = ''; }
+      else { badge.style.display = 'none'; }
+    }
   } catch(e) {
     list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);font-size:.83rem;">Erreur : ' + e.message + '</div>';
   }
 }
 
 function filterCand(btn, status) {
-  document.querySelectorAll('.cand-filter').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cand-filter').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   _candFilter = status;
   renderCand();
 }
 
-const SERVICE_LABELS = {"gagner-chasseur": "🎯 Chasseur", "gagner-verificateur": "🕵️ Vérificateur", "gagner-negociateur": "🗣️ Négociateur", "gagner-livreur": "📦 Livreur", "gagner-formateur": "🎓 Formateur", "gagner-courtier": "🌍 Courtier", "gagner-encheres": "🎰 Enchères"};
-
-function fmtDate(d) {
-  if (!d) return '';
-  const dt = new Date(d);
-  return dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-}
-
 function renderCand() {
-  const list = document.getElementById('cand-list');
-  const filtered = _candFilter === 'all' ? _allCand : _allCand.filter(r => r.status === _candFilter);
+  var list     = document.getElementById('cand-list');
+  if (!list) return;
+  var filtered = _candFilter === 'all'
+    ? _allCand
+    : _allCand.filter(function(r){ return r.status === _candFilter; });
+
   if (!filtered.length) {
-    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">Aucune candidature</div>';
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">Aucune candidature trouvée</div>';
     return;
   }
-  list.innerHTML = filtered.map(r => {
-    const svcLabel = SERVICE_LABELS[r.service] || r.service;
-    const statusLabel = { pending: '⏳ En attente', approved: '✅ Approuvée', rejected: '❌ Rejetée' }[r.status] || r.status;
-    const btns = r.status === 'pending'
-      ? `<button class="cand-btn approve" onclick="setCandStatus('${r.id}','approved',this)">✅ Approuver</button>
-         <button class="cand-btn reject"  onclick="setCandStatus('${r.id}','rejected',this)">❌ Rejeter</button>`
-      : `<button class="cand-btn" style="background:#f5f5f5;color:#888;flex:none;padding:.4rem .9rem;" onclick="setCandStatus('${r.id}','pending',this)">↩ Remettre en attente</button>`;
-    return `<div class="cand-card ${r.status}" id="cand-${r.id}">
-      <div class="cand-top">
-        <div>
-          <div class="cand-name">${r.name || '—'}</div>
-          <div style="margin-top:.2rem;"><span class="cand-service">${svcLabel}</span></div>
-        </div>
-        <span class="cand-status ${r.status}">${statusLabel}</span>
-      </div>
-      <div class="cand-meta">
-        <span>📞 ${r.whatsapp || '—'}</span>
-        <span>📍 ${r.ville || '—'}</span>
-        <span>🕐 ${fmtDate(r.created_at)}</span>
-      </div>
-      ${r.motivation ? `<div class="cand-motiv">"${r.motivation}"</div>` : ''}
-      <div class="cand-actions">${btns}</div>
-    </div>`;
-  }).join('');
+
+  var html = '';
+  filtered.forEach(function(r) {
+    var svcLabel    = SVC_LABELS[r.service] || r.service;
+    var statusLabel = { pending:'⏳ En attente', approved:'✅ Approuvée', rejected:'❌ Rejetée' }[r.status] || r.status;
+    var motiv       = r.motivation
+      ? '<div class="cand-motiv">' + r.motivation + '</div>'
+      : '';
+    var actionBtns  = '';
+    if (r.status === 'pending') {
+      actionBtns =
+        '<button class="cand-btn approve" onclick="setCandStatus(\'' + r.id + '\',\'approved\',this)">✅ Approuver</button>' +
+        '<button class="cand-btn reject"  onclick="setCandStatus(\'' + r.id + '\',\'rejected\',this)">❌ Rejeter</button>';
+    } else {
+      actionBtns =
+        '<button class="cand-btn" style="background:#f5f5f5;color:#888;flex:none;padding:.4rem .9rem;" ' +
+        'onclick="setCandStatus(\'' + r.id + '\',\'pending\',this)">↩ Remettre en attente</button>';
+    }
+    html +=
+      '<div class="cand-card ' + r.status + '" id="cand-' + r.id + '">' +
+        '<div class="cand-top">' +
+          '<div>' +
+            '<div class="cand-name">' + (r.name || '—') + '</div>' +
+            '<div style="margin-top:.2rem;"><span class="cand-service">' + svcLabel + '</span></div>' +
+          '</div>' +
+          '<span class="cand-status ' + r.status + '">' + statusLabel + '</span>' +
+        '</div>' +
+        '<div class="cand-meta">' +
+          '<span>📞 ' + (r.whatsapp || '—') + '</span>' +
+          '<span>📍 ' + (r.ville || '—') + '</span>' +
+          '<span>🕐 ' + fmtCandDate(r.created_at) + '</span>' +
+        '</div>' +
+        motiv +
+        '<div class="cand-actions">' + actionBtns + '</div>' +
+      '</div>';
+  });
+  list.innerHTML = html;
 }
 
 async function setCandStatus(id, newStatus, btn) {
-  const card = document.getElementById('cand-' + id);
-  btn.disabled = true;
-  btn.textContent = '⏳…';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
   try {
-    const { error } = await _sb
+    var res = await sb
       .from('service_registrations')
       .update({ status: newStatus })
       .eq('id', id);
-    if (error) throw error;
+    if (res.error) throw res.error;
 
-    // Update local data
-    const rec = _allCand.find(r => r.id === id);
+    /* Mise à jour locale */
+    var rec = null;
+    for (var i = 0; i < _allCand.length; i++) {
+      if (_allCand[i].id === id) { rec = _allCand[i]; break; }
+    }
     if (rec) {
       rec.status = newStatus;
-      // Send notification to user if approved/rejected
+      /* Notifier l'utilisateur si approuvé ou rejeté */
       if (rec.user_id && (newStatus === 'approved' || newStatus === 'rejected')) {
-        const svcLabel = SERVICE_LABELS[rec.service] || rec.service;
-        const notifTitle = newStatus === 'approved'
+        var svcLabel = SVC_LABELS[rec.service] || rec.service;
+        var nTitle   = newStatus === 'approved'
           ? '✅ Candidature approuvée — ' + svcLabel
           : '❌ Candidature non retenue — ' + svcLabel;
-        const notifMsg = newStatus === 'approved'
-          ? 'Félicitations ! Tu es maintenant officiellement ' + svcLabel + '. Rends-toi sur la page Gagner pour voir tes missions.'
-          : 'Ta candidature pour ' + svcLabel + ' n\'a pas été retenue cette fois. Tu peux soumettre une nouvelle candidature.';
-        await _sb.from('notifications').insert({
+        var nMsg     = newStatus === 'approved'
+          ? 'Félicitations ! Tu es maintenant ' + svcLabel + '. Va dans ton profil pour voir tes missions.'
+          : 'Ta candidature pour ' + svcLabel + " n'a pas été retenue. Tu peux recandidater quand tu veux.";
+        await sb.from('notifications').insert({
           user_id: rec.user_id,
-          title: notifTitle,
-          message: notifMsg,
-          icon: '📋',
-          type: newStatus === 'approved' ? 'success' : 'info',
-          read: false
+          title  : nTitle,
+          message: nMsg,
+          icon   : '📋',
+          type   : newStatus === 'approved' ? 'success' : 'info',
+          read   : false
         });
       }
     }
+
     renderCand();
-    showToast(newStatus === 'approved' ? '✅ Candidature approuvée' : newStatus === 'rejected' ? '❌ Candidature rejetée' : 'Statut mis à jour', 'success');
+    /* Met à jour le badge en attente */
+    var pendingCount = _allCand.filter(function(r){ return r.status === 'pending'; }).length;
+    var badge = document.getElementById('nb-cand');
+    if (badge) {
+      if (pendingCount > 0) { badge.textContent = pendingCount; badge.style.display = ''; }
+      else badge.style.display = 'none';
+    }
+
+    var msg = newStatus === 'approved' ? '✅ Candidature approuvée !'
+            : newStatus === 'rejected' ? '❌ Candidature rejetée'
+            : '↩ Remis en attente';
+    toast(msg);
   } catch(e) {
-    btn.disabled = false;
-    btn.textContent = newStatus === 'approved' ? '✅ Approuver' : '❌ Rejeter';
-    showToast('Erreur : ' + e.message, 'error');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = newStatus === 'approved' ? '✅ Approuver'
+                      : newStatus === 'rejected' ? '❌ Rejeter' : '↩';
+    }
+    toast('Erreur : ' + e.message, 'error');
   }
 }
+
 </script>
 
 <!-- MODAL RECHARGE SOLDE -->
