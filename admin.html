@@ -214,6 +214,19 @@
       <span class="sb-ico">📋</span><span>Candidatures</span>
       <span class="sb-badge gold" id="nb-cand" style="display:none">0</span>
     </div>
+    <div class="sb-item" onclick="goPage('missions',this)">
+      <span class="sb-ico">🎯</span><span>Missions & Preuves</span>
+      <span class="sb-badge red" id="nb-miss" style="display:none">0</span>
+    </div>
+    <div class="sb-group">Transactions</div>
+    <div class="sb-item" onclick="goPage('transactions',this)">
+      <span class="sb-ico">🛒</span><span>Toutes les ventes</span>
+      <span class="sb-badge blue" id="nb-tx" style="display:none">0</span>
+    </div>
+    <div class="sb-item" onclick="goPage('litiges',this)">
+      <span class="sb-ico">⚖️</span><span>Litiges</span>
+      <span class="sb-badge red" id="nb-lit" style="display:none">0</span>
+    </div>
   </nav>
   <div class="sb-footer">
     <div class="sb-user-info" id="adminEmail">—</div>
@@ -652,6 +665,81 @@
 </div>
 
 </div></div>
+
+
+<!-- ══════════ PAGE: MISSIONS & PREUVES ══════════ -->
+<div id="page-missions" class="page">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">🎯 Missions & Validation des Preuves</div>
+      <button class="sec-action" onclick="loadMissions()">🔄 Actualiser</button>
+    </div>
+    <div style="display:flex;gap:.45rem;flex-wrap:wrap;margin:.6rem 0;">
+      <button class="cand-filter active" onclick="filterMiss(this,'all')">Toutes</button>
+      <button class="cand-filter" onclick="filterMiss(this,'pending_user')">⏳ En attente validation</button>
+      <button class="cand-filter" onclick="filterMiss(this,'validated')">✅ Validées</button>
+      <button class="cand-filter" onclick="filterMiss(this,'rejected')">❌ Rejetées</button>
+      <button class="cand-filter" onclick="filterMiss(this,'inprogress')">🔄 En cours</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
+      <div style="background:#FFF8E0;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:#8A5A00;" id="miss-stat-pending">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">A VALIDER</div>
+      </div>
+      <div style="background:#E8FFF5;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:#007A46;" id="miss-stat-validated">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">VALIDEES</div>
+      </div>
+      <div style="background:#F0F4FF;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--blue2);" id="miss-stat-gains">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">TOTAL FCFA PAYES</div>
+      </div>
+    </div>
+    <div id="miss-list" style="display:flex;flex-direction:column;gap:.7rem;">
+      <div style="text-align:center;padding:2rem;color:var(--gray);">⏳ Chargement…</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VALIDER MISSION -->
+<div class="overlay" id="missValOv">
+  <div class="modal" style="max-height:85vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✅ Valider la mission</div>
+    <div style="font-size:.78rem;color:var(--gray);margin-bottom:.6rem;" id="missValDesc">—</div>
+    <div style="background:#F8F9FF;border-radius:12px;padding:.8rem;margin-bottom:.7rem;">
+      <div style="font-size:.7rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;">📝 Rapport de l'agent :</div>
+      <div style="font-size:.76rem;color:var(--dark);line-height:1.6;" id="missValReport">—</div>
+    </div>
+    <div style="margin-bottom:.6rem;" id="missValProofWrap"></div>
+    <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">💰 Montant à créditer (FCFA) *</label>
+    <input type="number" id="missValGain" min="0" placeholder="Ex: 5000"
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.9rem;color:var(--dark);outline:none;margin-bottom:.6rem;font-family:'Clash Display',sans-serif;font-weight:700;"/>
+    <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">📋 Note admin (optionnel)</label>
+    <textarea id="missValNote" rows="2" placeholder="Feedback pour l'agent…"
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:'Plus Jakarta Sans',sans-serif;"></textarea>
+    <div style="display:flex;gap:.5rem;">
+      <button onclick="closeOv('missValOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="missValBtn" onclick="doValidateMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✅ Valider & Créditer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REJETER MISSION -->
+<div class="overlay" id="missRejOv">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">❌ Rejeter la mission</div>
+    <div style="font-size:.78rem;color:var(--gray);margin-bottom:.8rem;" id="missRejDesc">—</div>
+    <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Raison du rejet *</label>
+    <textarea id="missRejNote" rows="3" placeholder="Explique pourquoi la mission est rejetée…"
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:'Plus Jakarta Sans',sans-serif;"></textarea>
+    <div style="display:flex;gap:.5rem;">
+      <button onclick="closeOv('missRejOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="missRejBtn" onclick="doRejectMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--red),#B02020);color:white;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">❌ Rejeter</button>
+    </div>
+  </div>
+</div>
 
 <div id="toast"></div>
 
@@ -1170,16 +1258,23 @@ function goPage(name,btn){
   if(btn) btn.classList.add('active');
   const titles={
     stats:'📊 Tableau de bord',
+    missions:'🎯 Missions & Preuves',
+    transactions:'🛒 Toutes les ventes',
+    litiges:'⚖️ Litiges',
     payments:'💳 Paiements Premium',
     withdrawals:'💸 Retraits',
     users:'👥 Utilisateurs',
     ads:'📢 Annonces',
     messages:'✉️ Messages & Notifications',
-    candidatures:'📋 Candidatures Services'
+    candidatures:'📋 Candidatures Services',
+    missions:'🎯 Missions & Preuves',
+    transactions:'🛒 Toutes les ventes',
+    litiges:'⚖️ Litiges'
   };
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='messages') populateMsgSelect();
   if(name==='candidatures') loadCandidatures();
+  if(name==='missions') loadMissions();
   if(name==='transactions') loadTransactions();
   if(name==='litiges') { loadLitiges(); loadTransactions(); }
 }
@@ -1735,6 +1830,305 @@ async function loadLitiges(){
     }).join('');
   } catch(e){
     list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--red);font-size:.83rem;">Erreur : '+e.message+'</div>';
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   MISSIONS & PREUVES — Validation avec crédit wallet
+════════════════════════════════════════════════════════════ */
+var _allMissions = [], _missFilter = 'all', _pendingMissId = null;
+
+async function loadMissions() {
+  var list = document.getElementById('miss-list');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);">⏳ Chargement…</div>';
+
+  try {
+    var res = await sb.from('user_missions')
+      .select('*')
+      .order('submitted_at', { ascending: false, nullsFirst: false });
+    if (res.error) throw res.error;
+    _allMissions = res.data || [];
+
+    // Charger les profils des agents
+    var ids = [...new Set(_allMissions.map(function(m){ return m.user_id; }).filter(Boolean))];
+    var profils = {};
+    if (ids.length) {
+      var pr = await sb.from('profiles').select('id,full_name,whatsapp,avatar_url').in('id', ids);
+      (pr.data || []).forEach(function(p){ profils[p.id] = p; });
+    }
+    _allMissions.forEach(function(m){ m._agent = profils[m.user_id] || {}; });
+
+    // Stats
+    var pending   = _allMissions.filter(function(m){ return m.status === 'pending_user'; }).length;
+    var validated = _allMissions.filter(function(m){ return m.status === 'validated'; }).length;
+    var totalGains= _allMissions.filter(function(m){ return m.status === 'validated'; })
+                                .reduce(function(s,m){ return s + (m.gain || 0); }, 0);
+
+    var elP = document.getElementById('miss-stat-pending');
+    var elV = document.getElementById('miss-stat-validated');
+    var elG = document.getElementById('miss-stat-gains');
+    if (elP) elP.textContent = pending;
+    if (elV) elV.textContent = validated;
+    if (elG) elG.textContent = fmtF(totalGains);
+
+    // Badge sidebar
+    var nb = document.getElementById('nb-miss');
+    if (nb) { nb.textContent = pending; nb.style.display = pending > 0 ? '' : 'none'; }
+
+    renderMissions();
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);">Erreur : ' + e.message + '</div>';
+  }
+}
+
+function filterMiss(btn, status) {
+  document.querySelectorAll('.cand-filter').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  _missFilter = status;
+  renderMissions();
+}
+
+function renderMissions() {
+  var list = document.getElementById('miss-list');
+  if (!list) return;
+
+  var data = _missFilter === 'all' ? _allMissions
+    : _allMissions.filter(function(m){ return m.status === _missFilter; });
+
+  if (!data.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);">Aucune mission dans cette catégorie.</div>';
+    return;
+  }
+
+  var STATUS_LABEL = {
+    inprogress: '🔄 En cours',
+    pending_user: '⏳ Preuve envoyée',
+    validated: '✅ Validée',
+    rejected: '❌ Rejetée'
+  };
+  var STATUS_BG = {
+    inprogress: '#F0F4FF',
+    pending_user: '#FFF8E0',
+    validated: '#E8FFF5',
+    rejected: '#FFF0F0'
+  };
+  var SERVICE_ICONS = {
+    chasseur:'🎯', verificateur:'🕵️', negociateur:'🗣️',
+    livreur:'📦', formateur:'🎓', courtier:'🌍', encheres:'🎰'
+  };
+
+  list.innerHTML = data.map(function(m) {
+    var agentName = m._agent.full_name || 'Agent inconnu';
+    var agentWA   = m._agent.whatsapp ? 'https://wa.me/' + (m._agent.whatsapp).replace(/\D/g,'') + '?text=Bonjour%20' + encodeURIComponent(agentName) : '#';
+    var sl  = STATUS_LABEL[m.status] || m.status;
+    var bg  = STATUS_BG[m.status] || '#F8F9FF';
+    var ico = SERVICE_ICONS[m.service] || '🎯';
+    var d   = m.submitted_at ? new Date(m.submitted_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+
+    // Boutons action
+    var actions = '';
+    if (m.status === 'pending_user') {
+      actions += '<button onclick="openMissVal('' + m.id + '')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Valider</button>';
+      actions += '<button onclick="openMissRej('' + m.id + '')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:rgba(232,48,48,.12);color:var(--red);border:1px solid rgba(232,48,48,.2);font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">❌ Rejeter</button>';
+    }
+    actions += '<a href="' + agentWA + '" target="_blank" style="padding:.38rem .7rem;border-radius:8px;background:rgba(37,211,102,.1);color:#00A878;font-size:.7rem;font-weight:700;text-decoration:none;border:1px solid rgba(37,211,102,.25);">💬 WA</a>';
+
+    // Proof
+    var proofHtml = '';
+    if (m.report_proof) {
+      var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
+      proofHtml = isImg
+        ? '<div style="margin:.4rem 0;"><img src="' + m.report_proof + '" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" onerror="this.style.display='none'"/></div>'
+        : '<a href="' + m.report_proof + '" target="_blank" style="font-size:.7rem;color:var(--blue2);font-weight:600;">🔗 Voir la preuve</a>';
+    }
+
+    return '<div style="background:' + bg + ';border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;">'
+      + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">'
+      +   '<div style="display:flex;gap:.6rem;align-items:flex-start;">'
+      +     '<div style="font-size:1.4rem;">' + ico + '</div>'
+      +     '<div>'
+      +       '<div style="font-size:.82rem;font-weight:700;color:var(--dark);">' + esc(m.title || m.service) + '</div>'
+      +       '<div style="font-size:.68rem;color:var(--gray);margin-top:.1rem;">👤 ' + esc(agentName) + ' · 📅 ' + d + '</div>'
+      +     '</div>'
+      +   '</div>'
+      +   '<span style="font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:99px;background:rgba(0,0,0,.07);color:var(--dark);white-space:nowrap;">' + sl + '</span>'
+      + '</div>'
+      + (m.report_desc ? '<div style="background:white;border-radius:10px;padding:.6rem .75rem;font-size:.74rem;color:var(--dark);line-height:1.55;margin-bottom:.4rem;border:1px solid var(--border);">' + esc(m.report_desc) + '</div>' : '')
+      + proofHtml
+      + (m.gain && m.status === 'validated' ? '<div style="font-size:.72rem;font-weight:700;color:#007A46;margin:.3rem 0;">💰 ' + fmtF(m.gain) + ' FCFA crédités</div>' : '')
+      + (m.admin_note ? '<div style="font-size:.7rem;color:var(--gray);font-style:italic;">Note admin : ' + esc(m.admin_note) + '</div>' : '')
+      + '<div style="display:flex;gap:.4rem;margin-top:.5rem;flex-wrap:wrap;">' + actions + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* ── Ouvrir modal validation ── */
+function openMissVal(missId) {
+  var m = _allMissions.find(function(x){ return x.id === missId; });
+  if (!m) return;
+  _pendingMissId = missId;
+
+  var agentName = m._agent.full_name || 'Agent';
+  document.getElementById('missValDesc').textContent =
+    'Mission : ' + (m.title || m.service) + ' · Agent : ' + agentName;
+
+  document.getElementById('missValReport').textContent = m.report_desc || '(aucun rapport)';
+  document.getElementById('missValGain').value = m.gain || '';
+  document.getElementById('missValNote').value = '';
+
+  // Preuve
+  var proofWrap = document.getElementById('missValProofWrap');
+  if (m.report_proof) {
+    var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
+    proofWrap.innerHTML = isImg
+      ? '<img src="' + m.report_proof + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:.6rem;" onerror="this.style.display='none'"/>'
+      : '<a href="' + m.report_proof + '" target="_blank" style="display:block;margin-bottom:.6rem;padding:.5rem .9rem;background:#F0F4FF;border-radius:10px;font-size:.78rem;color:var(--blue2);font-weight:600;text-decoration:none;">🔗 Voir la preuve</a>';
+  } else {
+    proofWrap.innerHTML = '<div style="font-size:.72rem;color:var(--gray);margin-bottom:.6rem;">Aucune preuve soumise</div>';
+  }
+  openOv('missValOv');
+}
+
+/* ── Valider & créditer le wallet ── */
+async function doValidateMission() {
+  if (!_pendingMissId) return;
+  var gain = parseInt(document.getElementById('missValGain').value) || 0;
+  var note = document.getElementById('missValNote').value.trim();
+  if (gain < 0) { toast('Le montant ne peut pas être négatif', 'error'); return; }
+
+  var btn = document.getElementById('missValBtn');
+  btn.disabled = true; btn.textContent = '⏳ Traitement…';
+
+  try {
+    var m = _allMissions.find(function(x){ return x.id === _pendingMissId; });
+    if (!m) throw new Error('Mission introuvable localement');
+
+    // 1. Mettre à jour la mission
+    var r1 = await sb.from('user_missions').update({
+      status: 'validated',
+      gain: gain,
+      admin_note: note || null,
+      validated_at: new Date().toISOString()
+    }).eq('id', _pendingMissId);
+    if (r1.error) throw r1.error;
+
+    // 2. Créer l'enregistrement de gain
+    if (gain > 0) {
+      var r2 = await sb.from('mission_gains').insert({
+        user_id: m.user_id,
+        mission_id: _pendingMissId,
+        service: m.service,
+        description: note || ('Mission validee : ' + (m.title || m.service)),
+        amount: gain
+      });
+      if (r2.error) throw r2.error;
+
+      // 3. Créditer le wallet (upsert)
+      var r3 = await sb.rpc('credit_agent_wallet', {
+        p_user_id: m.user_id,
+        p_amount: gain,
+        p_description: 'Mission validee : ' + (m.title || m.service)
+      });
+      // Si la fonction RPC n'existe pas encore, fallback direct
+      if (r3.error) {
+        // Fallback: mise à jour directe du wallet
+        var walletRes = await sb.from('user_wallets').select('id,solde,total_gagne').eq('user_id', m.user_id).maybeSingle();
+        if (walletRes.data) {
+          await sb.from('user_wallets').update({
+            solde: (walletRes.data.solde || 0) + gain,
+            total_gagne: (walletRes.data.total_gagne || 0) + gain,
+            updated_at: new Date().toISOString()
+          }).eq('user_id', m.user_id);
+        } else {
+          await sb.from('user_wallets').insert({
+            user_id: m.user_id,
+            solde: gain,
+            total_gagne: gain
+          });
+        }
+        // Mouvement wallet
+        await sb.from('wallet_movements').insert({
+          user_id: m.user_id,
+          type: 'credit',
+          amount: gain,
+          description: 'Mission validee : ' + (m.title || m.service)
+        });
+      }
+    }
+
+    // 4. Notifier l'agent
+    var notifMsg = gain > 0
+      ? fmtF(gain) + ' FCFA credites pour ta mission : ' + (m.title || m.service) + (note ? '. Note : ' + note : '')
+      : 'Ta mission a ete validee' + (note ? '. Note : ' + note : '');
+    await sb.from('notifications').insert({
+      user_id: m.user_id,
+      title: gain > 0 ? 'Mission validee - ' + fmtF(gain) + ' FCFA' : 'Mission validee',
+      message: notifMsg,
+      icon: 'check',
+      type: 'success',
+      read: false
+    });
+
+    closeOv('missValOv');
+    toast('✅ Mission validée' + (gain > 0 ? ' — ' + fmtF(gain) + ' FCFA crédités !' : ' !'), 'success');
+    await loadMissions();
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ Valider & Créditer';
+  }
+}
+
+/* ── Ouvrir modal rejet ── */
+function openMissRej(missId) {
+  var m = _allMissions.find(function(x){ return x.id === missId; });
+  if (!m) return;
+  _pendingMissId = missId;
+  var agentName = m._agent.full_name || 'Agent';
+  document.getElementById('missRejDesc').textContent =
+    'Mission : ' + (m.title || m.service) + ' · Agent : ' + agentName;
+  document.getElementById('missRejNote').value = '';
+  openOv('missRejOv');
+}
+
+/* ── Rejeter la mission ── */
+async function doRejectMission() {
+  if (!_pendingMissId) return;
+  var note = document.getElementById('missRejNote').value.trim();
+  if (!note) { toast('Explique la raison du rejet', 'error'); return; }
+
+  var btn = document.getElementById('missRejBtn');
+  btn.disabled = true; btn.textContent = '⏳…';
+
+  try {
+    var m = _allMissions.find(function(x){ return x.id === _pendingMissId; });
+    if (!m) throw new Error('Mission introuvable');
+
+    var r1 = await sb.from('user_missions').update({
+      status: 'rejected',
+      admin_note: note,
+      rejected_at: new Date().toISOString()
+    }).eq('id', _pendingMissId);
+    if (r1.error) throw r1.error;
+
+    await sb.from('notifications').insert({
+      user_id: m.user_id,
+      title: 'Mission rejetee',
+      message: 'Ta mission "' + (m.title || m.service) + '" a ete rejetee. Raison : ' + note,
+      icon: 'alert',
+      type: 'error',
+      read: false
+    });
+
+    closeOv('missRejOv');
+    toast('Mission rejetée — agent notifié', 'info');
+    await loadMissions();
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '❌ Rejeter';
   }
 }
 
