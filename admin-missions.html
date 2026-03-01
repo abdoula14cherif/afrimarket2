@@ -14,7 +14,6 @@
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;}
 
-    /* HEADER */
     .header{background:linear-gradient(135deg,var(--dark),#0D1E6B);padding:1rem 1.5rem;
       display:flex;align-items:center;gap:1rem;box-shadow:0 4px 20px rgba(8,14,42,.3);}
     .h-logo{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:white;}
@@ -24,10 +23,8 @@
       border-radius:8px;padding:.35rem .8rem;font-size:.75rem;font-weight:600;cursor:pointer;
       font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;}
 
-    /* LAYOUT */
     .container{max-width:1100px;margin:0 auto;padding:1.5rem;}
 
-    /* STATS */
     .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem;}
     @media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr;}}
     .stat-card{background:white;border-radius:16px;border:1.5px solid var(--border);
@@ -35,7 +32,6 @@
     .sc-val{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:var(--dark);}
     .sc-lbl{font-size:.68rem;color:var(--gray);font-weight:600;margin-top:.2rem;text-transform:uppercase;letter-spacing:.4px;}
 
-    /* FILTERS */
     .filter-bar{background:white;border-radius:14px;border:1.5px solid var(--border);
       padding:.75rem 1rem;margin-bottom:1rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
     .f-btn{border:1.5px solid var(--border);background:var(--bg);color:var(--gray);border-radius:8px;
@@ -44,7 +40,6 @@
     .f-btn.active{border-color:var(--blue2);background:rgba(27,63,228,.07);color:var(--blue2);}
     .f-count{margin-left:auto;font-size:.73rem;color:var(--gray);font-weight:600;}
 
-    /* MISSION CARDS */
     .mission-card{background:white;border-radius:18px;border:1.5px solid var(--border);
       overflow:hidden;box-shadow:0 2px 12px rgba(27,63,228,.06);margin-bottom:.8rem;transition:box-shadow .2s;}
     .mission-card:hover{box-shadow:0 6px 24px rgba(27,63,228,.1);}
@@ -78,7 +73,6 @@
     .mc-foot{border-top:1px solid var(--border);padding:.65rem 1.1rem;display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;}
     .mc-date{font-size:.65rem;color:var(--gray);margin-right:auto;}
 
-    /* BUTTONS */
     .btn{border:none;border-radius:9px;padding:.42rem .9rem;font-size:.73rem;font-weight:700;
       cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
     .btn:hover{opacity:.85;}
@@ -86,7 +80,6 @@
     .btn-rej{background:rgba(232,48,48,.1);color:var(--red);border:1px solid rgba(232,48,48,.2);}
     .btn-wa{background:rgba(37,211,102,.1);color:#00A878;border:1px solid rgba(37,211,102,.25);text-decoration:none;padding:.42rem .9rem;border-radius:9px;font-size:.73rem;font-weight:700;}
 
-    /* MODAL */
     .overlay{position:fixed;inset:0;background:rgba(8,14,42,.6);backdrop-filter:blur(4px);
       z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem;
       opacity:0;pointer-events:none;transition:opacity .3s;}
@@ -114,12 +107,10 @@
     .mbtn-rej{background:linear-gradient(135deg,var(--red),#B02020);color:white;}
     .mbtn:disabled{opacity:.4;cursor:not-allowed;}
 
-    /* EMPTY */
     .empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
     .empty-ico{font-size:2.5rem;margin-bottom:.6rem;}
     .empty-title{font-size:.9rem;font-weight:700;color:var(--dark);}
 
-    /* TOAST */
     #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
       background:var(--dark);color:white;padding:.65rem 1.2rem;border-radius:14px;
       font-size:.8rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;
@@ -137,7 +128,6 @@
 
 <div class="container">
 
-  <!-- STATS -->
   <div class="stats-row">
     <div class="stat-card">
       <div class="sc-val" id="sTotal">—</div>
@@ -157,7 +147,6 @@
     </div>
   </div>
 
-  <!-- FILTERS -->
   <div class="filter-bar">
     <button class="f-btn active" onclick="setFilter(this,'all')">Toutes</button>
     <button class="f-btn" onclick="setFilter(this,'pending_user')">⏳ À valider</button>
@@ -168,7 +157,6 @@
     <button onclick="loadAll()" style="margin-left:.5rem;background:none;border:none;font-size:1.1rem;cursor:pointer;" title="Actualiser">🔄</button>
   </div>
 
-  <!-- LIST -->
   <div id="missionList">
     <div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Chargement…</div></div>
   </div>
@@ -179,21 +167,16 @@
   <div class="modal" onclick="event.stopPropagation()">
     <div class="m-title">✅ Valider la mission</div>
     <div class="m-sub" id="valDesc">—</div>
-
     <div style="font-size:.72rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;">📝 Rapport de l'agent :</div>
     <div class="m-report-box" id="valReport">—</div>
-
     <div class="m-proof-box" id="valProof"></div>
-
     <label class="m-label">💰 Montant à créditer (FCFA)</label>
     <input class="m-inp" type="number" id="valGain" placeholder="Ex: 5000" min="0" style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;"/>
-
     <label class="m-label">📋 Note admin (optionnel)</label>
     <textarea class="m-inp" id="valNote" rows="2" placeholder="Feedback pour l'agent…" style="resize:none;"></textarea>
-
     <div class="m-btns">
       <button class="mbtn mbtn-cancel" onclick="closeOv('valOv')">Annuler</button>
-      <button class="mbtn mbtn-ok" id="valBtn" onclick="doValidate()">✅ Valider & Créditer</button>
+      <button class="mbtn mbtn-ok" id="valBtn" onclick="doValidate()">✅ Valider &amp; Créditer</button>
     </div>
   </div>
 </div>
@@ -229,7 +212,7 @@ var SERVICE_BG    = {chasseur:'#EEF2FF',verificateur:'#FFF0F5',negociateur:'#F0F
 var STATUS_LABEL  = {inprogress:'🔄 En cours',pending_user:'⏳ Preuve envoyée',validated:'✅ Validée',rejected:'❌ Rejetée'};
 
 function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ── INIT ── */
 (async function(){
@@ -239,7 +222,6 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
   if (email !== ADMIN_EMAIL){ location.href='dashboard.html'; return; }
   await loadAll();
 
-  // Realtime
   sb.channel('admin-missions')
     .on('postgres_changes',{event:'*',schema:'public',table:'user_missions'}, function(){
       loadAll();
@@ -253,14 +235,18 @@ async function loadAll(){
     if (res.error) throw res.error;
     _all = res.data || [];
 
-    // Profils agents
-    var ids = [...new Set(_all.map(function(m){return m.user_id;}).filter(Boolean))];
+    var ids = [];
+    var seen = {};
+    _all.forEach(function(m){
+      if (m.user_id && !seen[m.user_id]){ seen[m.user_id]=true; ids.push(m.user_id); }
+    });
+
     var profils = {};
     if (ids.length){
       var pr = await sb.from('profiles').select('id,full_name,whatsapp,avatar_url').in('id',ids);
-      (pr.data||[]).forEach(function(p){profils[p.id]=p;});
+      (pr.data||[]).forEach(function(p){ profils[p.id]=p; });
     }
-    _all.forEach(function(m){m._agent=profils[m.user_id]||{};});
+    _all.forEach(function(m){ m._agent = profils[m.user_id] || {}; });
 
     updateStats();
     render();
@@ -269,9 +255,10 @@ async function loadAll(){
 
 /* ── STATS ── */
 function updateStats(){
-  var pending   = _all.filter(function(m){return m.status==='pending_user';}).length;
-  var validated = _all.filter(function(m){return m.status==='validated';}).length;
-  var totalGains= _all.filter(function(m){return m.status==='validated';}).reduce(function(s,m){return s+(m.gain||0);},0);
+  var pending    = _all.filter(function(m){ return m.status==='pending_user'; }).length;
+  var validated  = _all.filter(function(m){ return m.status==='validated'; }).length;
+  var totalGains = _all.filter(function(m){ return m.status==='validated'; })
+                       .reduce(function(s,m){ return s+(m.gain||0); }, 0);
   document.getElementById('sTotal').textContent     = _all.length;
   document.getElementById('sPending').textContent   = pending;
   document.getElementById('sValidated').textContent = validated;
@@ -280,7 +267,7 @@ function updateStats(){
 
 /* ── FILTRE ── */
 function setFilter(btn, f){
-  document.querySelectorAll('.f-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.f-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   _filter = f;
   render();
@@ -288,7 +275,7 @@ function setFilter(btn, f){
 
 /* ── RENDER ── */
 function render(){
-  var data = _filter === 'all' ? _all : _all.filter(function(m){return m.status===_filter;});
+  var data = _filter === 'all' ? _all : _all.filter(function(m){ return m.status===_filter; });
   document.getElementById('fCount').textContent = data.length + ' mission' + (data.length>1?'s':'');
   var list = document.getElementById('missionList');
 
@@ -297,33 +284,44 @@ function render(){
     return;
   }
 
-  list.innerHTML = data.map(function(m){
-    var agentName = m._agent.full_name || 'Agent inconnu';
-    var agentWA   = m._agent.whatsapp ? 'https://wa.me/'+(m._agent.whatsapp).replace(/[^0-9]/g,'')+'?text=Bonjour+'+encodeURIComponent(agentName) : null;
-    var ico  = SERVICE_ICONS[m.service] || '🎯';
-    var bg   = SERVICE_BG[m.service] || '#F0F4FF';
-    var sl   = STATUS_LABEL[m.status] || m.status;
-    var d    = m.submitted_at ? new Date(m.submitted_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    var dc   = m.created_at  ? new Date(m.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+  /* ── BUG FIX 4 : on stocke les IDs dans un tableau indexé et on passe
+     l'index numérique en onclick, évitant tout problème de guillemets dans
+     des attributs HTML avec des UUIDs qui pourraient contenir des tirets. ── */
+  var indexedData = data; // référence directe
 
-    // Preuve
+  list.innerHTML = data.map(function(m, idx){
+    var agentName = m._agent.full_name || 'Agent inconnu';
+    var agentWA   = m._agent.whatsapp
+      ? 'https://wa.me/'+String(m._agent.whatsapp).replace(/[^0-9]/g,'')+'?text=Bonjour+'+encodeURIComponent(agentName)
+      : null;
+    var ico = SERVICE_ICONS[m.service] || '🎯';
+    var bg  = SERVICE_BG[m.service]   || '#F0F4FF';
+    var sl  = STATUS_LABEL[m.status]  || m.status;
+    var d   = m.submitted_at
+      ? new Date(m.submitted_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+      : '—';
+    var dc  = m.created_at
+      ? new Date(m.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})
+      : '—';
+
     var proofHtml = '';
     if (m.report_proof){
       var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
       proofHtml = '<div class="mc-proof">'
-        + (isImg ? '<img src="'+esc(m.report_proof)+'" alt="Preuve" onerror="this.parentNode.innerHTML=\'Image invalide\'">'
-                 : '<a href="'+esc(m.report_proof)+'" target="_blank">🔗 Voir la preuve</a>')
+        + (isImg
+            ? '<img src="'+esc(m.report_proof)+'" alt="Preuve" onerror="this.parentNode.innerHTML=\'Image invalide\'">'
+            : '<a href="'+esc(m.report_proof)+'" target="_blank">🔗 Voir la preuve</a>')
         + '</div>';
     }
 
-    // Actions
+    /* BUG FIX 4 : index numérique dans onclick, pas de guillemets imbriqués */
     var actions = '';
-    if (m.status==='pending_user'){
-      actions += '<button class="btn btn-val" onclick="openVal(\''+m.id+'\')">✅ Valider</button>';
-      actions += '<button class="btn btn-rej" onclick="openRej(\''+m.id+'\')">❌ Rejeter</button>';
+    if (m.status === 'pending_user'){
+      actions += '<button class="btn btn-val" onclick="openVal('+idx+')">✅ Valider</button>';
+      actions += '<button class="btn btn-rej" onclick="openRej('+idx+')">❌ Rejeter</button>';
     }
     if (agentWA){
-      actions += '<a class="btn-wa" href="'+agentWA+'" target="_blank">💬 Contacter</a>';
+      actions += '<a class="btn-wa" href="'+esc(agentWA)+'" target="_blank">💬 Contacter</a>';
     }
 
     return '<div class="mission-card '+m.status+'">'
@@ -343,15 +341,19 @@ function render(){
       +'<div class="mc-foot"><span class="mc-date">ID : '+m.id.slice(0,8)+'…</span>'+actions+'</div>'
       +'</div>';
   }).join('');
+
+  /* Stocker les données filtrées pour que openVal/openRej retrouvent le bon index */
+  window._renderedData = indexedData;
 }
 
 /* ── MODAL VALIDER ── */
-function openVal(id){
-  var m = _all.find(function(x){return x.id===id;});
+/* BUG FIX 1 & 4 : reçoit un index numérique, plus de double recherche ni d'opérateur ?. */
+function openVal(idx){
+  var m = window._renderedData && window._renderedData[idx];
   if (!m) return;
-  _pendingId = id;
+  _pendingId = m.id;
 
-  document.getElementById('valDesc').textContent   = (m.title||m.service)+' — '+(_all.find(function(x){return x.id===id;})?._agent.full_name||'Agent');
+  document.getElementById('valDesc').textContent   = (m.title||m.service)+' — '+(m._agent.full_name||'Agent');
   document.getElementById('valReport').textContent = m.report_desc || '(aucun rapport écrit)';
   document.getElementById('valGain').value  = m.gain || '';
   document.getElementById('valNote').value  = '';
@@ -378,10 +380,10 @@ async function doValidate(){
   btn.disabled=true; btn.textContent='⏳ Traitement…';
 
   try {
-    var m = _all.find(function(x){return x.id===_pendingId;});
+    var m = _all.find(function(x){ return x.id===_pendingId; });
     if (!m) throw new Error('Mission introuvable');
 
-    // 1. Mettre à jour la mission
+    /* 1. Mettre à jour la mission */
     var r1 = await sb.from('user_missions').update({
       status:'validated', gain:gain,
       admin_note:note||null,
@@ -389,7 +391,7 @@ async function doValidate(){
     }).eq('id',_pendingId);
     if (r1.error) throw r1.error;
 
-    // 2. Créer le gain si montant > 0
+    /* 2. Créer le gain si montant > 0 */
     if (gain > 0){
       var r2 = await sb.from('mission_gains').insert({
         user_id:m.user_id, mission_id:_pendingId,
@@ -399,14 +401,16 @@ async function doValidate(){
       });
       if (r2.error) throw r2.error;
 
-      // 3. Créditer le wallet via RPC
+      /* 3. Créditer le wallet via RPC
+         BUG FIX 3 : on vérifie que rpc et rpc.error existent avant d'accéder à .error */
       var rpc = await sb.rpc('credit_agent_wallet',{
         p_user_id:m.user_id, p_amount:gain,
         p_description:'Mission validee : '+(m.title||m.service)
       });
 
-      // Fallback si RPC absent
-      if (rpc.error){
+      var rpcFailed = !rpc || rpc.error;
+      if (rpcFailed){
+        /* Fallback : mise à jour directe du wallet */
         var wr = await sb.from('user_wallets').select('solde,total_gagne').eq('user_id',m.user_id).maybeSingle();
         if (wr.data){
           await sb.from('user_wallets').update({
@@ -424,10 +428,10 @@ async function doValidate(){
       }
     }
 
-    // 4. Notifier l'agent
+    /* 4. Notifier l'agent */
     await sb.from('notifications').insert({
       user_id:m.user_id,
-      title: gain>0 ? 'Mission validee - '+fmt(gain)+' FCFA' : 'Mission validee',
+      title  : gain>0 ? 'Mission validee - '+fmt(gain)+' FCFA' : 'Mission validee',
       message: gain>0
         ? fmt(gain)+' FCFA credites sur ton portefeuille pour la mission : '+(m.title||m.service)+(note?' Note : '+note:'')
         : 'Ta mission a ete validee.'+(note?' Note : '+note:''),
@@ -435,17 +439,19 @@ async function doValidate(){
     });
 
     closeOv('valOv');
-    toast('✅ Mission validée'+(gain>0?' — '+fmt(gain)+' FCFA crédités !'),'success');
+    /* BUG FIX 2 : ternaire correctement formé avec cas false explicite */
+    toast('✅ Mission validée' + (gain>0 ? ' — '+fmt(gain)+' FCFA crédités !' : ''), 'success');
     await loadAll();
   } catch(e){ toast('Erreur : '+e.message,'error'); }
   finally { btn.disabled=false; btn.textContent='✅ Valider & Créditer'; }
 }
 
 /* ── MODAL REJETER ── */
-function openRej(id){
-  var m = _all.find(function(x){return x.id===id;});
+/* BUG FIX 4 : reçoit un index numérique */
+function openRej(idx){
+  var m = window._renderedData && window._renderedData[idx];
   if (!m) return;
-  _pendingId = id;
+  _pendingId = m.id;
   document.getElementById('rejDesc').textContent = (m.title||m.service)+' — '+(m._agent.full_name||'Agent');
   document.getElementById('rejNote').value = '';
   openOv('rejOv');
@@ -460,7 +466,7 @@ async function doReject(){
   btn.disabled=true; btn.textContent='⏳…';
 
   try {
-    var m = _all.find(function(x){return x.id===_pendingId;});
+    var m = _all.find(function(x){ return x.id===_pendingId; });
     if (!m) throw new Error('Mission introuvable');
 
     var r1 = await sb.from('user_missions').update({
@@ -471,7 +477,7 @@ async function doReject(){
 
     await sb.from('notifications').insert({
       user_id:m.user_id,
-      title:'Mission rejetee',
+      title  :'Mission rejetee',
       message:'Ta mission "'+(m.title||m.service)+'" a ete rejetee. Raison : '+note,
       icon:'alert', type:'error', read:false
     });
@@ -485,15 +491,18 @@ async function doReject(){
 
 /* ── HELPERS ── */
 function openOv(id){ document.getElementById(id).classList.add('open'); }
-function closeOv(id){ document.getElementById(id).classList.remove('open'); }
+/* BUG FIX 5 : reset _pendingId à la fermeture pour éviter les actions résiduelles */
+function closeOv(id){ document.getElementById(id).classList.remove('open'); _pendingId=null; }
 
 var _tt;
 function toast(msg,type){
-  var col={success:'var(--green)',error:'var(--red)',warning:'var(--gold)',info:'var(--blue2)'};
-  var el=document.getElementById('toast');
-  el.textContent=msg; el.className='show';
-  el.style.borderLeftColor=col[type]||'var(--green)';
-  clearTimeout(_tt); _tt=setTimeout(function(){el.className='';},4500);
+  var col = {success:'var(--green)',error:'var(--red)',warning:'var(--gold)',info:'var(--blue2)'};
+  var el  = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show';
+  el.style.borderLeftColor = col[type]||'var(--green)';
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ el.className=''; }, 4500);
 }
 </script>
 </body>
