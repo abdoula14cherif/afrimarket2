@@ -603,7 +603,11 @@ function renderGains() {
   html = '<div style="background:linear-gradient(135deg,var(--green),#00A878);border-radius:16px;padding:1rem 1.2rem;margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center;">'
     + '<div style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.8);">Total gagné</div>'
     + '<div style="font-family:\'Clash Display\',sans-serif;font-size:1.3rem;font-weight:700;color:white;">'+total.toLocaleString('fr-FR')+' F</div>'
-    + '</div>' + html;
+    + '</div>'
+    + '<div style="margin:0 0 .8rem;text-align:center;">'
+    + '<a href="portefeuille.html" style="display:inline-block;padding:.55rem 1.4rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:12px;color:white;font-size:.78rem;font-weight:700;text-decoration:none;">💰 Voir mon portefeuille →</a>'
+    + '</div>'
+    + html;
   document.getElementById('mainContent').innerHTML = html;
 }
 
@@ -683,6 +687,15 @@ async function submitReport() {
       submitted_at: new Date().toISOString()
     }).eq('id', _reportMission);
     if (error) throw error;
+
+    // Notifier l'admin
+    var mData = _missions.find(function(x){ return x.id === _reportMission; });
+    await _sb.from('notifications').insert({
+      user_id: currentUser.id,
+      title: 'Preuve soumise en attente de validation',
+      message: 'Ta preuve pour la mission "' + (mData ? (mData.title||mData.service) : '') + '" a ete envoyee. L\'admin va la verifier sous 24h.',
+      icon: 'clock', type: 'info', read: false
+    });
 
     // Update local state
     var m = _missions.find(function(m){ return m.id === _reportMission; });
