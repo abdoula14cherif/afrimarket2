@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin — Missions & Preuves</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root{
+      --dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--green:#00C271;
+      --gold:#F5B731;--red:#E83030;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;}
+
+    /* HEADER */
+    .header{background:linear-gradient(135deg,var(--dark),#0D1E6B);padding:1rem 1.5rem;
+      display:flex;align-items:center;gap:1rem;box-shadow:0 4px 20px rgba(8,14,42,.3);}
+    .h-logo{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:white;}
+    .h-logo span{color:var(--gold);}
+    .h-title{font-size:.85rem;color:rgba(255,255,255,.5);margin-left:auto;}
+    .h-back{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;
+      border-radius:8px;padding:.35rem .8rem;font-size:.75rem;font-weight:600;cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;}
+
+    /* LAYOUT */
+    .container{max-width:1100px;margin:0 auto;padding:1.5rem;}
+
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem;}
+    @media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr;}}
+    .stat-card{background:white;border-radius:16px;border:1.5px solid var(--border);
+      padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
+    .sc-val{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:var(--dark);}
+    .sc-lbl{font-size:.68rem;color:var(--gray);font-weight:600;margin-top:.2rem;text-transform:uppercase;letter-spacing:.4px;}
+
+    /* FILTERS */
+    .filter-bar{background:white;border-radius:14px;border:1.5px solid var(--border);
+      padding:.75rem 1rem;margin-bottom:1rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+    .f-btn{border:1.5px solid var(--border);background:var(--bg);color:var(--gray);border-radius:8px;
+      padding:.38rem .85rem;font-size:.74rem;font-weight:700;cursor:pointer;transition:all .2s;
+      font-family:'Plus Jakarta Sans',sans-serif;}
+    .f-btn.active{border-color:var(--blue2);background:rgba(27,63,228,.07);color:var(--blue2);}
+    .f-count{margin-left:auto;font-size:.73rem;color:var(--gray);font-weight:600;}
+
+    /* MISSION CARDS */
+    .mission-card{background:white;border-radius:18px;border:1.5px solid var(--border);
+      overflow:hidden;box-shadow:0 2px 12px rgba(27,63,228,.06);margin-bottom:.8rem;transition:box-shadow .2s;}
+    .mission-card:hover{box-shadow:0 6px 24px rgba(27,63,228,.1);}
+    .mission-card.pending_user{border-left:4px solid var(--gold);}
+    .mission-card.validated{border-left:4px solid var(--green);}
+    .mission-card.rejected{border-left:4px solid var(--red);opacity:.8;}
+    .mission-card.inprogress{border-left:4px solid var(--blue2);}
+
+    .mc-head{padding:.9rem 1.1rem;display:flex;gap:.9rem;align-items:flex-start;}
+    .mc-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;
+      justify-content:center;font-size:1.3rem;flex-shrink:0;}
+    .mc-body{flex:1;min-width:0;}
+    .mc-title{font-size:.88rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;}
+    .mc-agent{font-size:.72rem;color:var(--gray);}
+    .mc-status{font-size:.63rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;
+      letter-spacing:.3px;white-space:nowrap;}
+    .mc-status.pending_user{background:rgba(245,183,49,.15);color:#8A5A00;}
+    .mc-status.validated{background:rgba(0,194,113,.12);color:#007A46;}
+    .mc-status.rejected{background:rgba(232,48,48,.1);color:var(--red);}
+    .mc-status.inprogress{background:rgba(27,63,228,.08);color:var(--blue2);}
+
+    .mc-report{margin:0 1.1rem .75rem;background:#F8F9FF;border-radius:10px;
+      padding:.7rem .85rem;font-size:.78rem;color:var(--dark);line-height:1.6;border:1px solid var(--border);}
+    .mc-proof{margin:0 1.1rem .75rem;}
+    .mc-proof img{width:100%;max-height:200px;object-fit:cover;border-radius:12px;border:1px solid var(--border);}
+    .mc-proof a{display:inline-block;padding:.4rem .9rem;background:#EEF2FF;border-radius:8px;
+      font-size:.76rem;font-weight:700;color:var(--blue2);text-decoration:none;}
+    .mc-gain-badge{display:inline-block;background:rgba(0,194,113,.1);border:1px solid rgba(0,194,113,.25);
+      color:#007A46;border-radius:8px;padding:.25rem .7rem;font-size:.72rem;font-weight:700;margin:0 1.1rem .5rem;}
+    .mc-note{margin:0 1.1rem .5rem;font-size:.7rem;color:var(--gray);font-style:italic;}
+    .mc-foot{border-top:1px solid var(--border);padding:.65rem 1.1rem;display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;}
+    .mc-date{font-size:.65rem;color:var(--gray);margin-right:auto;}
+
+    /* BUTTONS */
+    .btn{border:none;border-radius:9px;padding:.42rem .9rem;font-size:.73rem;font-weight:700;
+      cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
+    .btn:hover{opacity:.85;}
+    .btn-val{background:linear-gradient(135deg,var(--green),#00A878);color:white;}
+    .btn-rej{background:rgba(232,48,48,.1);color:var(--red);border:1px solid rgba(232,48,48,.2);}
+    .btn-wa{background:rgba(37,211,102,.1);color:#00A878;border:1px solid rgba(37,211,102,.25);text-decoration:none;padding:.42rem .9rem;border-radius:9px;font-size:.73rem;font-weight:700;}
+
+    /* MODAL */
+    .overlay{position:fixed;inset:0;background:rgba(8,14,42,.6);backdrop-filter:blur(4px);
+      z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem;
+      opacity:0;pointer-events:none;transition:opacity .3s;}
+    .overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:white;border-radius:20px;width:100%;max-width:480px;
+      padding:1.5rem;max-height:90vh;overflow-y:auto;
+      transform:scale(.95);transition:transform .3s;}
+    .overlay.open .modal{transform:scale(1);}
+    .m-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;}
+    .m-sub{font-size:.78rem;color:var(--gray);margin-bottom:1rem;line-height:1.5;}
+    .m-label{font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;}
+    .m-inp{width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:11px;
+      padding:.65rem .9rem;font-size:.88rem;color:var(--dark);outline:none;
+      font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .2s;margin-bottom:.75rem;}
+    .m-inp:focus{border-color:var(--blue2);}
+    .m-report-box{background:#F0F4FF;border-radius:12px;padding:.75rem .9rem;
+      font-size:.76rem;color:var(--dark);line-height:1.6;margin-bottom:.8rem;border:1px solid var(--border);}
+    .m-proof-box{margin-bottom:.8rem;}
+    .m-proof-box img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;border:1px solid var(--border);}
+    .m-btns{display:flex;gap:.6rem;margin-top:.2rem;}
+    .mbtn{flex:1;padding:.75rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;
+      font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
+    .mbtn-ok{background:linear-gradient(135deg,var(--green),#00A878);color:white;}
+    .mbtn-rej{background:linear-gradient(135deg,var(--red),#B02020);color:white;}
+    .mbtn:disabled{opacity:.4;cursor:not-allowed;}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
+    .empty-ico{font-size:2.5rem;margin-bottom:.6rem;}
+    .empty-title{font-size:.9rem;font-weight:700;color:var(--dark);}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
+      background:var(--dark);color:white;padding:.65rem 1.2rem;border-radius:14px;
+      font-size:.8rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;
+      z-index:600;border-left:3px solid var(--green);max-width:90vw;text-align:center;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-logo">Afri<span>Market</span></div>
+  <div class="h-title">Administration</div>
+  <a class="h-back" href="admin.html">← Admin</a>
+</div>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="sc-val" id="sTotal">—</div>
+      <div class="sc-lbl">Total missions</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--gold);">
+      <div class="sc-val" style="color:#8A5A00;" id="sPending">—</div>
+      <div class="sc-lbl">À valider</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--green);">
+      <div class="sc-val" style="color:#007A46;" id="sValidated">—</div>
+      <div class="sc-lbl">Validées</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--blue2);">
+      <div class="sc-val" style="color:var(--blue2);" id="sGains">—</div>
+      <div class="sc-lbl">FCFA versés</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <button class="f-btn active" onclick="setFilter(this,'all')">Toutes</button>
+    <button class="f-btn" onclick="setFilter(this,'pending_user')">⏳ À valider</button>
+    <button class="f-btn" onclick="setFilter(this,'validated')">✅ Validées</button>
+    <button class="f-btn" onclick="setFilter(this,'rejected')">❌ Rejetées</button>
+    <button class="f-btn" onclick="setFilter(this,'inprogress')">🔄 En cours</button>
+    <span class="f-count" id="fCount">0 missions</span>
+    <button onclick="loadAll()" style="margin-left:.5rem;background:none;border:none;font-size:1.1rem;cursor:pointer;" title="Actualiser">🔄</button>
+  </div>
+
+  <!-- LIST -->
+  <div id="missionList">
+    <div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Chargement…</div></div>
+  </div>
+</div>
+
+<!-- MODAL VALIDER -->
+<div class="overlay" id="valOv" onclick="if(event.target===this)closeOv('valOv')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="m-title">✅ Valider la mission</div>
+    <div class="m-sub" id="valDesc">—</div>
+
+    <div style="font-size:.72rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;">📝 Rapport de l'agent :</div>
+    <div class="m-report-box" id="valReport">—</div>
+
+    <div class="m-proof-box" id="valProof"></div>
+
+    <label class="m-label">💰 Montant à créditer (FCFA)</label>
+    <input class="m-inp" type="number" id="valGain" placeholder="Ex: 5000" min="0" style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;"/>
+
+    <label class="m-label">📋 Note admin (optionnel)</label>
+    <textarea class="m-inp" id="valNote" rows="2" placeholder="Feedback pour l'agent…" style="resize:none;"></textarea>
+
+    <div class="m-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('valOv')">Annuler</button>
+      <button class="mbtn mbtn-ok" id="valBtn" onclick="doValidate()">✅ Valider & Créditer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REJETER -->
+<div class="overlay" id="rejOv" onclick="if(event.target===this)closeOv('rejOv')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="m-title">❌ Rejeter la mission</div>
+    <div class="m-sub" id="rejDesc">—</div>
+    <label class="m-label">Raison du rejet *</label>
+    <textarea class="m-inp" id="rejNote" rows="3" placeholder="Explique pourquoi la preuve n'est pas acceptée…" style="resize:none;"></textarea>
+    <div class="m-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('rejOv')">Annuler</button>
+      <button class="mbtn mbtn-rej" id="rejBtn" onclick="doReject()">❌ Rejeter</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+var sb = supabase.createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+var ADMIN_EMAIL = 'abdoula13cherif@gmail.com';
+var _all = [], _filter = 'all', _pendingId = null;
+
+var SERVICE_ICONS = {chasseur:'🎯',verificateur:'🕵️',negociateur:'🗣️',livreur:'📦',formateur:'🎓',courtier:'🌍',encheres:'🎰'};
+var SERVICE_BG    = {chasseur:'#EEF2FF',verificateur:'#FFF0F5',negociateur:'#F0FFF8',livreur:'#FFF8E0',formateur:'#F0FAFF',courtier:'#F5F0FF',encheres:'#FFF0E8'};
+var STATUS_LABEL  = {inprogress:'🔄 En cours',pending_user:'⏳ Preuve envoyée',validated:'✅ Validée',rejected:'❌ Rejetée'};
+
+function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── INIT ── */
+(async function(){
+  var sess = await sb.auth.getSession();
+  if (!sess.data.session){ location.href='admin-login.html'; return; }
+  var email = sess.data.session.user.email;
+  if (email !== ADMIN_EMAIL){ location.href='dashboard.html'; return; }
+  await loadAll();
+
+  // Realtime
+  sb.channel('admin-missions')
+    .on('postgres_changes',{event:'*',schema:'public',table:'user_missions'}, function(){
+      loadAll();
+    }).subscribe();
+})();
+
+/* ── CHARGER TOUT ── */
+async function loadAll(){
+  try {
+    var res = await sb.from('user_missions').select('*').order('submitted_at',{ascending:false,nullsFirst:false});
+    if (res.error) throw res.error;
+    _all = res.data || [];
+
+    // Profils agents
+    var ids = [...new Set(_all.map(function(m){return m.user_id;}).filter(Boolean))];
+    var profils = {};
+    if (ids.length){
+      var pr = await sb.from('profiles').select('id,full_name,whatsapp,avatar_url').in('id',ids);
+      (pr.data||[]).forEach(function(p){profils[p.id]=p;});
+    }
+    _all.forEach(function(m){m._agent=profils[m.user_id]||{};});
+
+    updateStats();
+    render();
+  } catch(e){ toast('Erreur chargement : '+e.message,'error'); }
+}
+
+/* ── STATS ── */
+function updateStats(){
+  var pending   = _all.filter(function(m){return m.status==='pending_user';}).length;
+  var validated = _all.filter(function(m){return m.status==='validated';}).length;
+  var totalGains= _all.filter(function(m){return m.status==='validated';}).reduce(function(s,m){return s+(m.gain||0);},0);
+  document.getElementById('sTotal').textContent     = _all.length;
+  document.getElementById('sPending').textContent   = pending;
+  document.getElementById('sValidated').textContent = validated;
+  document.getElementById('sGains').textContent     = fmt(totalGains);
+}
+
+/* ── FILTRE ── */
+function setFilter(btn, f){
+  document.querySelectorAll('.f-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  _filter = f;
+  render();
+}
+
+/* ── RENDER ── */
+function render(){
+  var data = _filter === 'all' ? _all : _all.filter(function(m){return m.status===_filter;});
+  document.getElementById('fCount').textContent = data.length + ' mission' + (data.length>1?'s':'');
+  var list = document.getElementById('missionList');
+
+  if (!data.length){
+    list.innerHTML = '<div class="empty"><div class="empty-ico">🎯</div><div class="empty-title">Aucune mission dans cette catégorie</div></div>';
+    return;
+  }
+
+  list.innerHTML = data.map(function(m){
+    var agentName = m._agent.full_name || 'Agent inconnu';
+    var agentWA   = m._agent.whatsapp ? 'https://wa.me/'+(m._agent.whatsapp).replace(/[^0-9]/g,'')+'?text=Bonjour+'+encodeURIComponent(agentName) : null;
+    var ico  = SERVICE_ICONS[m.service] || '🎯';
+    var bg   = SERVICE_BG[m.service] || '#F0F4FF';
+    var sl   = STATUS_LABEL[m.status] || m.status;
+    var d    = m.submitted_at ? new Date(m.submitted_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    var dc   = m.created_at  ? new Date(m.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+
+    // Preuve
+    var proofHtml = '';
+    if (m.report_proof){
+      var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
+      proofHtml = '<div class="mc-proof">'
+        + (isImg ? '<img src="'+esc(m.report_proof)+'" alt="Preuve" onerror="this.parentNode.innerHTML=\'Image invalide\'">'
+                 : '<a href="'+esc(m.report_proof)+'" target="_blank">🔗 Voir la preuve</a>')
+        + '</div>';
+    }
+
+    // Actions
+    var actions = '';
+    if (m.status==='pending_user'){
+      actions += '<button class="btn btn-val" onclick="openVal(\''+m.id+'\')">✅ Valider</button>';
+      actions += '<button class="btn btn-rej" onclick="openRej(\''+m.id+'\')">❌ Rejeter</button>';
+    }
+    if (agentWA){
+      actions += '<a class="btn-wa" href="'+agentWA+'" target="_blank">💬 Contacter</a>';
+    }
+
+    return '<div class="mission-card '+m.status+'">'
+      +'<div class="mc-head">'
+      +  '<div class="mc-ico" style="background:'+bg+';">'+ico+'</div>'
+      +  '<div class="mc-body">'
+      +    '<div class="mc-title">'+esc(m.title||m.service)+'</div>'
+      +    '<div class="mc-agent">👤 '+esc(agentName)
+      +      (m.status==='pending_user' ? ' · 📅 Envoyé le '+d : ' · Créé le '+dc)+'</div>'
+      +  '</div>'
+      +  '<span class="mc-status '+m.status+'">'+sl+'</span>'
+      +'</div>'
+      +(m.report_desc ? '<div class="mc-report">'+esc(m.report_desc)+'</div>' : '')
+      +proofHtml
+      +(m.gain && m.status==='validated' ? '<div class="mc-gain-badge">💰 '+fmt(m.gain)+' FCFA crédités</div>' : '')
+      +(m.admin_note ? '<div class="mc-note">Note admin : '+esc(m.admin_note)+'</div>' : '')
+      +'<div class="mc-foot"><span class="mc-date">ID : '+m.id.slice(0,8)+'…</span>'+actions+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── MODAL VALIDER ── */
+function openVal(id){
+  var m = _all.find(function(x){return x.id===id;});
+  if (!m) return;
+  _pendingId = id;
+
+  document.getElementById('valDesc').textContent   = (m.title||m.service)+' — '+(_all.find(function(x){return x.id===id;})?._agent.full_name||'Agent');
+  document.getElementById('valReport').textContent = m.report_desc || '(aucun rapport écrit)';
+  document.getElementById('valGain').value  = m.gain || '';
+  document.getElementById('valNote').value  = '';
+
+  var proofBox = document.getElementById('valProof');
+  if (m.report_proof){
+    var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
+    proofBox.innerHTML = isImg
+      ? '<img src="'+esc(m.report_proof)+'" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:.6rem;" onerror="this.style.display=\'none\'">'
+      : '<a href="'+esc(m.report_proof)+'" target="_blank" style="display:inline-block;margin-bottom:.6rem;padding:.45rem .9rem;background:#EEF2FF;border-radius:8px;font-size:.78rem;font-weight:700;color:var(--blue2);text-decoration:none;">🔗 Voir la preuve</a>';
+  } else {
+    proofBox.innerHTML = '<div style="font-size:.72rem;color:var(--gray);margin-bottom:.5rem;">📎 Aucune preuve fournie</div>';
+  }
+  openOv('valOv');
+}
+
+async function doValidate(){
+  if (!_pendingId) return;
+  var gain = parseInt(document.getElementById('valGain').value)||0;
+  var note = document.getElementById('valNote').value.trim();
+  if (gain < 0){ toast('Montant invalide','error'); return; }
+
+  var btn = document.getElementById('valBtn');
+  btn.disabled=true; btn.textContent='⏳ Traitement…';
+
+  try {
+    var m = _all.find(function(x){return x.id===_pendingId;});
+    if (!m) throw new Error('Mission introuvable');
+
+    // 1. Mettre à jour la mission
+    var r1 = await sb.from('user_missions').update({
+      status:'validated', gain:gain,
+      admin_note:note||null,
+      validated_at:new Date().toISOString()
+    }).eq('id',_pendingId);
+    if (r1.error) throw r1.error;
+
+    // 2. Créer le gain si montant > 0
+    if (gain > 0){
+      var r2 = await sb.from('mission_gains').insert({
+        user_id:m.user_id, mission_id:_pendingId,
+        service:m.service,
+        description:note||('Mission validee : '+(m.title||m.service)),
+        amount:gain
+      });
+      if (r2.error) throw r2.error;
+
+      // 3. Créditer le wallet via RPC
+      var rpc = await sb.rpc('credit_agent_wallet',{
+        p_user_id:m.user_id, p_amount:gain,
+        p_description:'Mission validee : '+(m.title||m.service)
+      });
+
+      // Fallback si RPC absent
+      if (rpc.error){
+        var wr = await sb.from('user_wallets').select('solde,total_gagne').eq('user_id',m.user_id).maybeSingle();
+        if (wr.data){
+          await sb.from('user_wallets').update({
+            solde      : (wr.data.solde||0)+gain,
+            total_gagne: (wr.data.total_gagne||0)+gain,
+            updated_at : new Date().toISOString()
+          }).eq('user_id',m.user_id);
+        } else {
+          await sb.from('user_wallets').insert({user_id:m.user_id,solde:gain,total_gagne:gain});
+        }
+        await sb.from('wallet_movements').insert({
+          user_id:m.user_id, type:'credit', amount:gain,
+          description:'Mission validee : '+(m.title||m.service)
+        });
+      }
+    }
+
+    // 4. Notifier l'agent
+    await sb.from('notifications').insert({
+      user_id:m.user_id,
+      title: gain>0 ? 'Mission validee - '+fmt(gain)+' FCFA' : 'Mission validee',
+      message: gain>0
+        ? fmt(gain)+' FCFA credites sur ton portefeuille pour la mission : '+(m.title||m.service)+(note?' Note : '+note:'')
+        : 'Ta mission a ete validee.'+(note?' Note : '+note:''),
+      icon:'check', type:'success', read:false
+    });
+
+    closeOv('valOv');
+    toast('✅ Mission validée'+(gain>0?' — '+fmt(gain)+' FCFA crédités !'),'success');
+    await loadAll();
+  } catch(e){ toast('Erreur : '+e.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='✅ Valider & Créditer'; }
+}
+
+/* ── MODAL REJETER ── */
+function openRej(id){
+  var m = _all.find(function(x){return x.id===id;});
+  if (!m) return;
+  _pendingId = id;
+  document.getElementById('rejDesc').textContent = (m.title||m.service)+' — '+(m._agent.full_name||'Agent');
+  document.getElementById('rejNote').value = '';
+  openOv('rejOv');
+}
+
+async function doReject(){
+  if (!_pendingId) return;
+  var note = document.getElementById('rejNote').value.trim();
+  if (!note){ toast('Écris la raison du rejet','error'); return; }
+
+  var btn = document.getElementById('rejBtn');
+  btn.disabled=true; btn.textContent='⏳…';
+
+  try {
+    var m = _all.find(function(x){return x.id===_pendingId;});
+    if (!m) throw new Error('Mission introuvable');
+
+    var r1 = await sb.from('user_missions').update({
+      status:'rejected', admin_note:note,
+      rejected_at:new Date().toISOString()
+    }).eq('id',_pendingId);
+    if (r1.error) throw r1.error;
+
+    await sb.from('notifications').insert({
+      user_id:m.user_id,
+      title:'Mission rejetee',
+      message:'Ta mission "'+(m.title||m.service)+'" a ete rejetee. Raison : '+note,
+      icon:'alert', type:'error', read:false
+    });
+
+    closeOv('rejOv');
+    toast('Mission rejetée — agent notifié','info');
+    await loadAll();
+  } catch(e){ toast('Erreur : '+e.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='❌ Rejeter'; }
+}
+
+/* ── HELPERS ── */
+function openOv(id){ document.getElementById(id).classList.add('open'); }
+function closeOv(id){ document.getElementById(id).classList.remove('open'); }
+
+var _tt;
+function toast(msg,type){
+  var col={success:'var(--green)',error:'var(--red)',warning:'var(--gold)',info:'var(--blue2)'};
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.className='show';
+  el.style.borderLeftColor=col[type]||'var(--green)';
+  clearTimeout(_tt); _tt=setTimeout(function(){el.className='';},4500);
+}
+</script>
+</body>
+</html>
