@@ -13,12 +13,12 @@
       --border:#E4E9F8;--gold:#F5B731;--green:#00C271;
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;}
+    body{font-family:sans-serif;background:var(--bg);min-height:100vh;display:flex;}
 
     /* SIDEBAR */
     .sidebar{width:230px;background:var(--dark);min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
     .sb-logo{padding:1.3rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.07);}
-    .sb-brand{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-.5px;}
+    .sb-brand{font-family:monospace;font-size:1.3rem;font-weight:700;letter-spacing:-.5px;}
     .sb-brand .la{color:var(--turq);}.sb-brand .lm{color:var(--orange);}
     .sb-tag{font-size:.58rem;color:rgba(255,255,255,.28);letter-spacing:.5px;text-transform:uppercase;margin-top:.15rem;}
     .sb-nav{flex:1;padding:.6rem 0;}
@@ -37,9 +37,9 @@
     /* MAIN */
     .main{flex:1;overflow-x:hidden;min-width:0;}
     .topbar{background:white;border-bottom:1px solid var(--border);padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(27,63,228,.06);}
-    .topbar-title{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:var(--dark);}
+    .topbar-title{font-family:monospace;font-size:1.05rem;font-weight:700;color:var(--dark);}
     .topbar-right{display:flex;gap:.6rem;}
-    .tbtn{border-radius:10px;padding:.4rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);}
+    .tbtn{border-radius:10px;padding:.4rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:sans-serif;transition:all .2s;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);}
     .tbtn:hover{border-color:var(--blue2);color:var(--blue2);}
     .tbtn.danger{background:rgba(232,48,48,.06);border-color:rgba(232,48,48,.2);color:var(--red);}
 
@@ -49,7 +49,7 @@
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.9rem;margin-bottom:1.4rem;}
     .sc{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.04);}
     .sc-ico{font-size:1.3rem;margin-bottom:.4rem;}
-    .sc-num{font-family:'Clash Display',sans-serif;font-size:1.75rem;font-weight:700;color:var(--dark);letter-spacing:-1px;}
+    .sc-num{font-family:monospace;font-size:1.75rem;font-weight:700;color:var(--dark);letter-spacing:-1px;}
     .sc-lbl{font-size:.65rem;color:var(--gray);margin-top:.08rem;font-weight:600;}
     .sc.blue .sc-num{color:var(--blue2);}
     .sc.gold .sc-num{color:var(--gold);}
@@ -60,10 +60,10 @@
     /* SECTION */
     .sec{background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.04);margin-bottom:1.4rem;overflow:hidden;}
     .sec-head{padding:.9rem 1.3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
-    .sec-title{font-family:'Clash Display',sans-serif;font-size:.92rem;font-weight:700;color:var(--dark);}
+    .sec-title{font-family:monospace;font-size:.92rem;font-weight:700;color:var(--dark);}
     .sec-count{font-size:.7rem;color:var(--gray);font-weight:600;}
     .filter-row{display:flex;gap:.45rem;padding:.75rem 1.3rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-    .fb{padding:.32rem .75rem;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);font-size:.7rem;font-weight:700;cursor:pointer;color:var(--gray);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;}
+    .fb{padding:.32rem .75rem;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);font-size:.7rem;font-weight:700;cursor:pointer;color:var(--gray);font-family:sans-serif;transition:all .2s;}
     .fb.active{background:var(--blue2);border-color:var(--blue2);color:white;}
     .fb.or.active{background:var(--orange);border-color:var(--orange);}
     .fb.gr.active{background:var(--green);border-color:var(--green);}
@@ -88,7 +88,7 @@
 
     /* ACTION BUTTONS */
     .arow{display:flex;gap:.35rem;flex-wrap:wrap;}
-    .ab{padding:.3rem .7rem;border-radius:8px;border:none;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;white-space:nowrap;}
+    .ab{padding:.3rem .7rem;border-radius:8px;border:none;font-size:.68rem;font-weight:700;cursor:pointer;font-family:sans-serif;transition:all .2s;white-space:nowrap;}
     .ab:hover{transform:translateY(-1px);}
     .ab-approve{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.25);}
     .ab-approve:hover{background:var(--green);color:white;}
@@ -114,7 +114,7 @@
     .tgl-lbl{font-size:.7rem;font-weight:700;}
 
     /* AVATAR */
-    .uav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:inline-flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:white;flex-shrink:0;margin-right:.45rem;}
+    .uav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:inline-flex;align-items:center;justify-content:center;font-family:monospace;font-size:.75rem;font-weight:700;color:white;flex-shrink:0;margin-right:.45rem;}
     .uname{display:flex;align-items:center;}
 
     /* EMPTY */
@@ -152,16 +152,16 @@
     .ov.open{opacity:1;pointer-events:all;}
     .modal{background:white;border-radius:20px;width:100%;max-width:440px;padding:1.5rem;box-shadow:0 24px 60px rgba(8,14,42,.2);transform:scale(.95) translateY(10px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
     .ov.open .modal{transform:scale(1) translateY(0);}
-    .modal-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;}
+    .modal-title{font-family:monospace;font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;}
     .modal-info{background:var(--bg);border-radius:12px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--dark);line-height:1.6;border:1px solid var(--border);}
     .modal-info strong{color:var(--blue2);}
     .mf{margin-bottom:.8rem;}
     .mf label{font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;}
-    .mf input,.mf select,.mf textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;color:var(--dark);outline:none;transition:border-color .2s;background:var(--bg);}
+    .mf input,.mf select,.mf textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-family:sans-serif;font-size:.82rem;color:var(--dark);outline:none;transition:border-color .2s;background:var(--bg);}
     .mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--blue2);}
     .mf textarea{resize:vertical;min-height:70px;}
     .mbtns{display:flex;gap:.6rem;margin-top:1rem;}
-    .mbtn{flex:1;padding:.7rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .mbtn{flex:1;padding:.7rem;border-radius:12px;border:none;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
     .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
     .mbtn-ok{background:var(--green);color:white;box-shadow:0 4px 14px rgba(0,194,113,.2);}
     .mbtn-ok.danger{background:var(--red);box-shadow:0 4px 14px rgba(232,48,48,.2);}
@@ -359,13 +359,13 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem;">
             <div>
               <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Destinataire</label>
-              <select id="msgUserId" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+              <select id="msgUserId" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
                 <option value="">-- Choisir un utilisateur --</option>
               </select>
             </div>
             <div>
               <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Icône</label>
-              <select id="msgIcon" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+              <select id="msgIcon" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
                 <option value="📢">📢 Annonce</option>
                 <option value="👑">👑 Premium</option>
                 <option value="✅">✅ Succès</option>
@@ -379,13 +379,13 @@
           </div>
           <div style="margin-bottom:.9rem;">
             <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Titre *</label>
-            <input type="text" id="msgTitle" placeholder="Ex : Votre commande est confirmée" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);"/>
+            <input type="text" id="msgTitle" placeholder="Ex : Votre commande est confirmée" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);"/>
           </div>
           <div style="margin-bottom:1rem;">
             <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Message *</label>
-            <textarea id="msgBody" placeholder="Contenu du message…" rows="3" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);resize:none;"></textarea>
+            <textarea id="msgBody" placeholder="Contenu du message…" rows="3" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);resize:none;"></textarea>
           </div>
-          <button onclick="sendMsgToUser()" style="background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:10px;padding:.7rem 1.4rem;font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;">✉️ Envoyer</button>
+          <button onclick="sendMsgToUser()" style="background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:10px;padding:.7rem 1.4rem;font-family:monospace;font-size:.88rem;font-weight:700;cursor:pointer;">✉️ Envoyer</button>
         </div>
       </div>
 
@@ -401,7 +401,7 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem;">
             <div>
               <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Cibler</label>
-              <select id="bcTarget" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+              <select id="bcTarget" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
                 <option value="all">🌍 Tous les utilisateurs</option>
                 <option value="premium">👑 Premium seulement</option>
                 <option value="free">🆓 Gratuits seulement</option>
@@ -409,7 +409,7 @@
             </div>
             <div>
               <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Icône</label>
-              <select id="bcIcon" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+              <select id="bcIcon" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
                 <option value="📢">📢 Annonce</option>
                 <option value="🎉">🎉 Félicitation</option>
                 <option value="👑">👑 Premium</option>
@@ -421,13 +421,13 @@
           </div>
           <div style="margin-bottom:.9rem;">
             <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Titre *</label>
-            <input type="text" id="bcTitle" placeholder="Ex : Nouvelle fonctionnalité disponible !" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);"/>
+            <input type="text" id="bcTitle" placeholder="Ex : Nouvelle fonctionnalité disponible !" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);"/>
           </div>
           <div style="margin-bottom:1rem;">
             <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Message *</label>
-            <textarea id="bcBody" placeholder="Contenu du broadcast…" rows="3" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);resize:none;"></textarea>
+            <textarea id="bcBody" placeholder="Contenu du broadcast…" rows="3" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);resize:none;"></textarea>
           </div>
-          <button onclick="sendBroadcast()" id="bcBtn" style="background:linear-gradient(135deg,var(--orange),#FF9340);color:white;border:none;border-radius:10px;padding:.7rem 1.4rem;font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;">📢 Envoyer le broadcast</button>
+          <button onclick="sendBroadcast()" id="bcBtn" style="background:linear-gradient(135deg,var(--orange),#FF9340);color:white;border:none;border-radius:10px;padding:.7rem 1.4rem;font-family:monospace;font-size:.88rem;font-weight:700;cursor:pointer;">📢 Envoyer le broadcast</button>
           <div id="bcResult" style="margin-top:.7rem;font-size:.78rem;color:var(--gray);"></div>
         </div>
       </div>
@@ -556,7 +556,7 @@
   <div class="modal-info" id="mMsgInfo">—</div>
   <div class="mf">
     <label>Icône</label>
-    <select id="mMsgIcon" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;outline:none;background:var(--bg);margin-bottom:.6rem;">
+    <select id="mMsgIcon" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:sans-serif;font-size:.84rem;outline:none;background:var(--bg);margin-bottom:.6rem;">
       <option value="📢">📢 Annonce</option>
       <option value="👑">👑 Premium</option>
       <option value="✅">✅ Succès</option>
@@ -566,9 +566,9 @@
       <option value="🔔">🔔 Notification</option>
     </select>
     <label>Titre *</label>
-    <input type="text" id="mMsgTitle" placeholder="Titre du message" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;outline:none;background:var(--bg);margin-bottom:.6rem;"/>
+    <input type="text" id="mMsgTitle" placeholder="Titre du message" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:sans-serif;font-size:.84rem;outline:none;background:var(--bg);margin-bottom:.6rem;"/>
     <label>Message *</label>
-    <textarea id="mMsgBody" rows="3" placeholder="Contenu…" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;outline:none;background:var(--bg);resize:none;"></textarea>
+    <textarea id="mMsgBody" rows="3" placeholder="Contenu…" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:sans-serif;font-size:.84rem;outline:none;background:var(--bg);resize:none;"></textarea>
   </div>
   <div class="mbtns">
     <button class="mbtn mbtn-cancel" onclick="closeOv('mMsg')">Annuler</button>
@@ -594,15 +594,15 @@
     <!-- Stats rapides -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
       <div style="background:#F0F4FF;border-radius:12px;padding:.7rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);" id="tx-stat-total">—</div>
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--dark);" id="tx-stat-total">—</div>
         <div style="font-size:.6rem;color:var(--gray);font-weight:600;">TOTAL</div>
       </div>
       <div style="background:#FFF8E0;border-radius:12px;padding:.7rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:#8A5A00;" id="tx-stat-escrow">—</div>
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#8A5A00;" id="tx-stat-escrow">—</div>
         <div style="font-size:.6rem;color:var(--gray);font-weight:600;">ESCROW F</div>
       </div>
       <div style="background:#E8FFF5;border-radius:12px;padding:.7rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:#007A46;" id="tx-stat-commission">—</div>
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#007A46;" id="tx-stat-commission">—</div>
         <div style="font-size:.6rem;color:var(--gray);font-weight:600;">COMMISSION F</div>
       </div>
     </div>
@@ -636,14 +636,14 @@
     <div style="background:#FFF3F3;border-radius:10px;padding:.7rem;font-size:.76rem;color:var(--red);margin-bottom:.9rem;line-height:1.5;" id="resolveReason">—</div>
     <div style="font-size:.72rem;font-weight:700;color:var(--dark);margin-bottom:.5rem;">Décision :</div>
     <div style="display:flex;gap:.5rem;margin-bottom:.9rem;">
-      <button onclick="resolveDispute('buyer')" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">
+      <button onclick="resolveDispute('buyer')" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:monospace;font-size:.82rem;font-weight:700;cursor:pointer;">
         ↩ Rembourser l'acheteur
       </button>
-      <button onclick="resolveDispute('seller')" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">
+      <button onclick="resolveDispute('seller')" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:monospace;font-size:.82rem;font-weight:700;cursor:pointer;">
         💰 Payer le vendeur
       </button>
     </div>
-    <button onclick="closeOv('resolveOv')" style="width:100%;padding:.65rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--gray);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;">Annuler</button>
+    <button onclick="closeOv('resolveOv')" style="width:100%;padding:.65rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--gray);font-family:sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;">Annuler</button>
   </div>
 </div>
 
@@ -657,8 +657,8 @@
       ⚠️ L'argent sera immédiatement crédité au vendeur. Action irréversible.
     </div>
     <div style="display:flex;gap:.6rem;">
-      <button onclick="closeOv('releaseOv')" style="flex:1;padding:.72rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
-      <button id="releaseConfirmBtn" onclick="doManualRelease()" style="flex:1;padding:.72rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✅ Libérer</button>
+      <button onclick="closeOv('releaseOv')" style="flex:1;padding:.72rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="releaseConfirmBtn" onclick="doManualRelease()" style="flex:1;padding:.72rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">✅ Libérer</button>
     </div>
   </div>
 </div>
@@ -682,15 +682,15 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
       <div style="background:#FFF8E0;border-radius:12px;padding:.7rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:#8A5A00;" id="miss-stat-pending">—</div>
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#8A5A00;" id="miss-stat-pending">—</div>
         <div style="font-size:.6rem;color:var(--gray);font-weight:600;">A VALIDER</div>
       </div>
       <div style="background:#E8FFF5;border-radius:12px;padding:.7rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:#007A46;" id="miss-stat-validated">—</div>
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#007A46;" id="miss-stat-validated">—</div>
         <div style="font-size:.6rem;color:var(--gray);font-weight:600;">VALIDEES</div>
       </div>
       <div style="background:#F0F4FF;border-radius:12px;padding:.7rem;text-align:center;">
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--blue2);" id="miss-stat-gains">—</div>
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--blue2);" id="miss-stat-gains">—</div>
         <div style="font-size:.6rem;color:var(--gray);font-weight:600;">TOTAL FCFA PAYES</div>
       </div>
     </div>
@@ -713,13 +713,13 @@
     <div style="margin-bottom:.6rem;" id="missValProofWrap"></div>
     <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">💰 Montant à créditer (FCFA) *</label>
     <input type="number" id="missValGain" min="0" placeholder="Ex: 5000"
-      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.9rem;color:var(--dark);outline:none;margin-bottom:.6rem;font-family:'Clash Display',sans-serif;font-weight:700;"/>
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.9rem;color:var(--dark);outline:none;margin-bottom:.6rem;font-family:monospace;font-weight:700;"/>
     <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">📋 Note admin (optionnel)</label>
     <textarea id="missValNote" rows="2" placeholder="Feedback pour l'agent…"
-      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:'Plus Jakarta Sans',sans-serif;"></textarea>
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:sans-serif;"></textarea>
     <div style="display:flex;gap:.5rem;">
-      <button onclick="closeOv('missValOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
-      <button id="missValBtn" onclick="doValidateMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">✅ Valider & Créditer</button>
+      <button onclick="closeOv('missValOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="missValBtn" onclick="doValidateMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">✅ Valider & Créditer</button>
     </div>
   </div>
 </div>
@@ -732,10 +732,10 @@
     <div style="font-size:.78rem;color:var(--gray);margin-bottom:.8rem;" id="missRejDesc">—</div>
     <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Raison du rejet *</label>
     <textarea id="missRejNote" rows="3" placeholder="Explique pourquoi la mission est rejetée…"
-      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:'Plus Jakarta Sans',sans-serif;"></textarea>
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:sans-serif;"></textarea>
     <div style="display:flex;gap:.5rem;">
-      <button onclick="closeOv('missRejOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
-      <button id="missRejBtn" onclick="doRejectMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--red),#B02020);color:white;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">❌ Rejeter</button>
+      <button onclick="closeOv('missRejOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="missRejBtn" onclick="doRejectMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--red),#B02020);color:white;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">❌ Rejeter</button>
     </div>
   </div>
 </div>
@@ -1514,7 +1514,7 @@ function renderCand() {
 
     // Code agent badge
     var codeBadge = r.agent_code
-      ? '<span style="font-family:'Clash Display',sans-serif;font-size:.68rem;font-weight:700;color:var(--blue2);background:rgba(27,63,228,.08);padding:.18rem .55rem;border-radius:8px;letter-spacing:.5px;">🔑 ' + r.agent_code + '</span>'
+      ? '<span style="font-family:monospace;font-size:.68rem;font-weight:700;color:var(--blue2);background:rgba(27,63,228,.08);padding:.18rem .55rem;border-radius:8px;letter-spacing:.5px;">🔑 ' + r.agent_code + '</span>'
       : '';
 
     // Formation status
@@ -1622,6 +1622,7 @@ async function setCandStatus(id, newStatus, btn) {
    TRANSACTIONS
 ════════════════════════════════════════ */
 var _allTx = [], _txFilter = 'all', _pendingResolveId = null, _pendingReleaseId = null;
+var _txCache = {}; // id -> {buyerName, sellerName, amount, reasonEncoded}
 
 function fmtF(n){ return Number(n||0).toLocaleString('fr-FR'); }
 
@@ -1692,10 +1693,10 @@ function renderTx(){
     var d = new Date(tx.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
     var actions = '';
     if (tx.status==='in_escrow') {
-      actions = '<button onclick="openRelease(''+tx.id+'',''+buyerName+'',''+sellerName+'','+tx.montant_total+')" style="background:linear-gradient(135deg,var(--green),#00A878);color:white;border:none;border-radius:8px;padding:.35rem .75rem;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🔓 Libérer</button>';
+      actions = '<button onclick="openReleaseCached(\'' + tx.id + '\')" style="background:linear-gradient(135deg,var(--green),#00A878);color:white;border:none;border-radius:8px;padding:.35rem .75rem;font-size:.7rem;font-weight:700;cursor:pointer;">🔓 Libérer</button>';
     }
     if (tx.status==='disputed') {
-      actions += '<button onclick="openResolve(''+tx.id+'',''+buyerName+'',''+sellerName+'',''+encodeURIComponent(tx.dispute_reason||'')+'','+tx.montant_total+')" style="background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:8px;padding:.35rem .75rem;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚖️ Trancher</button>';
+      actions += '<button onclick="openResolveCached(\'' + tx.id + '\')" style="background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:8px;padding:.35rem .75rem;font-size:.7rem;font-weight:700;cursor:pointer;">⚖️ Trancher</button>';
     }
     return '<div style="background:'+bg+';border-radius:14px;padding:.9rem 1rem;border:1px solid var(--border);">'
       +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">'
@@ -1705,7 +1706,7 @@ function renderTx(){
       +'</div>'
       +'<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem;">'
       +'<div style="display:flex;gap:.7rem;flex-wrap:wrap;">'
-      +'<span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--dark);">'+fmtF(tx.montant_total)+' F</span>'
+      +'<span style="font-family:monospace;font-size:.85rem;font-weight:700;color:var(--dark);">'+fmtF(tx.montant_total)+' F</span>'
       +'<span style="font-size:.68rem;color:var(--gray);">Commission : '+fmtF(tx.commission_amt)+' F</span>'
       +'<span style="font-size:.65rem;color:var(--gray);">🕐 '+d+'</span>'
       +'</div>'
@@ -1771,14 +1772,14 @@ async function resolveDispute(winner){
       await sb.from('notifications').insert({user_id:tx.buyer_id,
         title: winner==='buyer' ? '↩ Litige résolu — Remboursement en cours' : '⚖️ Litige résolu — En faveur du vendeur',
         message: winner==='buyer' ? 'Ton litige a été tranché en ta faveur. Ton remboursement de '+fmtF(tx.montant_total)+' FCFA est en cours.'
-                                  : 'Après examen, le litige a été tranché en faveur du vendeur. L'argent lui a été libéré.',
+                                  : "Après examen, le litige a été tranché en faveur du vendeur. L'argent lui a été libéré.",
         icon: winner==='buyer'?'↩':'⚖️', type: winner==='buyer'?'success':'info', read:false
       });
       /* Notif vendeur */
       await sb.from('notifications').insert({user_id:tx.seller_id,
-        title: winner==='seller' ? '💰 Litige résolu — Paiement reçu !' : '⚖️ Litige résolu — Remboursement à l'acheteur',
+        title: winner==='seller' ? '💰 Litige résolu — Paiement reçu !' : '⚖️ Litige résolu — Remboursement acheteur',
         message: winner==='seller' ? 'Félicitations ! Le litige a été tranché en ta faveur. '+fmtF(tx.montant_vendeur)+' FCFA crédités à ton portefeuille.'
-                                   : 'Après examen, le litige a été tranché en faveur de l'acheteur. Aucun montant ne te sera versé.',
+                                   : "Après examen, le litige a été tranché en faveur de l'acheteur. Aucun montant ne te sera versé.",
         icon: winner==='seller'?'💰':'⚖️', type: winner==='seller'?'success':'warning', read:false
       });
     }
@@ -1837,8 +1838,8 @@ async function loadLitiges(){
         +(tx.dispute_reason?'<div style="background:#FFF0F0;border-radius:8px;padding:.5rem .7rem;font-size:.72rem;color:var(--red);margin-bottom:.6rem;line-height:1.4;">📌 '+tx.dispute_reason+'</div>':'')
         +(tx.dispute_winner?'<div style="font-size:.7rem;font-weight:700;color:#007A46;margin-bottom:.5rem;">⚖️ Décision : '+(tx.dispute_winner==='buyer'?'Remboursement acheteur':'Paiement vendeur')+'</div>':'')
         +'<div style="display:flex;gap:.4rem;flex-wrap:wrap;">'
-        +(isOpen?'<button onclick="openResolve(''+tx.id+'',''+buyerName+'',''+sellerName+'',''+encodeURIComponent(tx.dispute_reason||'')+'','+tx.montant_total+')" style="padding:.4rem .85rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚖️ Trancher</button>'
-        +'<button onclick="openRelease(''+tx.id+'',''+buyerName+'',''+sellerName+'','+tx.montant_total+')" style="padding:.4rem .85rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🔓 Libérer au vendeur</button>':'')
+        +(isOpen?'<button onclick="openResolveCached(\'' + tx.id + '\')" style="padding:.4rem .85rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:.7rem;font-weight:700;cursor:pointer;">⚖️ Trancher</button>\''
+        +'<button onclick="openReleaseCached(\'' + tx.id + '\')" style="padding:.4rem .85rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:sans-serif;">🔓 Libérer au vendeur</button>':'')
         +'<a href="'+wa_buyer+'" target="_blank" style="padding:.4rem .7rem;border-radius:8px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.08);color:#00A878;font-size:.7rem;font-weight:700;text-decoration:none;">💬 Acheteur</a>'
         +'<a href="'+wa_seller+'" target="_blank" style="padding:.4rem .7rem;border-radius:8px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.08);color:#00A878;font-size:.7rem;font-weight:700;text-decoration:none;">💬 Vendeur</a>'
         +'</div></div>';
@@ -1945,8 +1946,8 @@ function renderMissions() {
     // Boutons action
     var actions = '';
     if (m.status === 'pending_user') {
-      actions += '<button onclick="openMissVal('' + m.id + '')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Valider</button>';
-      actions += '<button onclick="openMissRej('' + m.id + '')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:rgba(232,48,48,.12);color:var(--red);border:1px solid rgba(232,48,48,.2);font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">❌ Rejeter</button>';
+      actions += '<button onclick="openMissVal('+m.id+')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:sans-serif;">✅ Valider</button>';
+      actions += '<button onclick="openMissRej('+m.id+')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:rgba(232,48,48,.12);color:var(--red);border:1px solid rgba(232,48,48,.2);font-size:.7rem;font-weight:700;cursor:pointer;font-family:sans-serif;">❌ Rejeter</button>';
     }
     actions += '<a href="' + agentWA + '" target="_blank" style="padding:.38rem .7rem;border-radius:8px;background:rgba(37,211,102,.1);color:#00A878;font-size:.7rem;font-weight:700;text-decoration:none;border:1px solid rgba(37,211,102,.25);">💬 WA</a>';
 
@@ -1955,7 +1956,7 @@ function renderMissions() {
     if (m.report_proof) {
       var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
       proofHtml = isImg
-        ? '<div style="margin:.4rem 0;"><img src="' + m.report_proof + '" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" onerror="this.style.display='none'"/></div>'
+        ? '<div style="margin:.4rem 0;"><img src="' + m.report_proof + '" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" onerror="this.style.display=\'none\'"/></div>'
         : '<a href="' + m.report_proof + '" target="_blank" style="font-size:.7rem;color:var(--blue2);font-weight:600;">🔗 Voir la preuve</a>';
     }
 
@@ -1998,7 +1999,7 @@ function openMissVal(missId) {
   if (m.report_proof) {
     var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
     proofWrap.innerHTML = isImg
-      ? '<img src="' + m.report_proof + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:.6rem;" onerror="this.style.display='none'"/>'
+      ? '<img src="' + m.report_proof + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:.6rem;" onerror="this.style.display=\'none\'"/>'
       : '<a href="' + m.report_proof + '" target="_blank" style="display:block;margin-bottom:.6rem;padding:.5rem .9rem;background:#F0F4FF;border-radius:10px;font-size:.78rem;color:var(--blue2);font-weight:600;text-decoration:none;">🔗 Voir la preuve</a>';
   } else {
     proofWrap.innerHTML = '<div style="font-size:.72rem;color:var(--gray);margin-bottom:.6rem;">Aucune preuve soumise</div>';
@@ -2173,7 +2174,7 @@ function showWorkSubsModal(subs, agentCode) {
       var statusColor = s.status==='validated'?'var(--green)':s.status==='rejected'?'var(--red)':'var(--gold)';
       var statusLbl   = s.status==='validated'?'✅ Validé':s.status==='rejected'?'❌ Rejeté':'⏳ En attente';
       var gainHtml    = s.status==='validated'
-        ? '<div style="font-family:'Clash Display',sans-serif;color:var(--green);font-weight:700;font-size:.9rem;">+' + s.actual_gain + ' FCFA</div>'
+        ? '<div style="font-family:monospace;color:var(--green);font-weight:700;font-size:.9rem;">+' + s.actual_gain + ' FCFA</div>'
         : s.status==='pending'
           ? '<div style="display:flex;gap:.4rem;margin-top:.5rem;">' +
             '<input id="gain-'+s.id+'" type="number" placeholder="Montant FCFA" style="flex:1;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:10px;font-size:.8rem;"/>' +
@@ -2206,8 +2207,8 @@ function showWorkSubsModal(subs, agentCode) {
     '<div style="background:white;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:1.4rem 1.2rem 2rem;animation:slideUp .3s ease;">' +
       '<div style="width:36px;height:4px;border-radius:99px;background:var(--border);margin:0 auto .9rem;"></div>' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">' +
-        '<div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);">📋 Travaux soumis' + (agentCode?' — <span style="color:var(--blue2);">'+agentCode+'</span>':'') + '</div>' +
-        '<button onclick="document.getElementById('workSubsModal').remove()" style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:.3rem .7rem;font-size:.8rem;cursor:pointer;">✕</button>' +
+        '<div style="font-family:monospace;font-size:1rem;font-weight:700;color:var(--dark);">📋 Travaux soumis' + (agentCode?' — <span style="color:var(--blue2);">'+agentCode+'</span>':'') + '</div>' +
+        '<button onclick="document.getElementById(\'workSubsModal\').remove()" style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:.3rem .7rem;font-size:.8rem;cursor:pointer;">✕</button>' +
       '</div>' +
       subsHtml +
     '</div>';
@@ -2238,6 +2239,18 @@ async function rejectWork(subId) {
     document.getElementById('workSubsModal')?.remove();
   } catch(e) { toast('Erreur : ' + e.message, 'error'); }
 }
+
+/* ── Cached wrappers for openRelease/openResolve ── */
+function openReleaseCached(id) {
+  var t = _txCache[id];
+  if (!t) { toast('Transaction introuvable', 'error'); return; }
+  openRelease(id, t.buyerName, t.sellerName, t.amount);
+}
+function openResolveCached(id) {
+  var t = _txCache[id];
+  if (!t) { toast('Transaction introuvable', 'error'); return; }
+  openResolve(id, t.buyerName, t.sellerName, t.reasonEncoded, t.amount);
+}
 </script>
 
 <!-- MODAL RECHARGE SOLDE -->
@@ -2248,9 +2261,9 @@ async function rejectWork(subId) {
     <div class="modal-desc" id="mRechargeInfo">—</div>
     <div style="display:flex;flex-direction:column;gap:.7rem;margin-bottom:1rem;">
       <label style="font-size:.78rem;font-weight:700;color:var(--dark);">Montant à ajouter (FCFA)</label>
-      <input type="number" id="mRechargeAmount" placeholder="Ex: 500" min="0" step="100" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"/>
+      <input type="number" id="mRechargeAmount" placeholder="Ex: 500" min="0" step="100" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:sans-serif;outline:none;"/>
       <label style="font-size:.78rem;font-weight:700;color:var(--dark);">Motif (optionnel)</label>
-      <input type="text" id="mRechargeNote" placeholder="Ex: Bonus parrainage, correction erreur…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"/>
+      <input type="text" id="mRechargeNote" placeholder="Ex: Bonus parrainage, correction erreur…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:sans-serif;outline:none;"/>
     </div>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closeOv('mRecharge')">Annuler</button>
