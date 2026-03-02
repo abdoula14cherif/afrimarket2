@@ -204,14 +204,27 @@ const SVC_NEEDS_FORMATION = true;
 var U = null, _reg = null;
 
 (async function(){
-  var sess = await _sb.auth.getSession();
-  if(!sess.data.session){ renderForm(null); return; }
-  U = sess.data.session.user;
-  var res = await _sb.from('service_registrations').select('*')
-    .eq('user_id',U.id).eq('service',SVC_ID).maybeSingle();
-  _reg = res.data;
-  renderStatus(_reg);
-  renderForm(_reg);
+  try {
+    var sess = await _sb.auth.getSession();
+    if(!sess.data.session){ renderForm(null); return; }
+    U = sess.data.session.user;
+    var res = await _sb.from('service_registrations')
+      .select('id,user_id,service,name,whatsapp,ville,motivation,status,agent_code,needs_formation,formation_done,admin_note,zone_couverture,experience,created_at')
+      .eq('user_id',U.id).eq('service',SVC_ID).maybeSingle();
+    // Ignore column errors - use basic query as fallback
+    if(res.error && res.error.code === '42703'){
+      var res2 = await _sb.from('service_registrations').select('*')
+        .eq('user_id',U.id).eq('service',SVC_ID).maybeSingle();
+      _reg = res2.data;
+    } else {
+      _reg = res.data;
+    }
+    renderStatus(_reg);
+    renderForm(_reg);
+  } catch(e) {
+    console.error('Init error:', e);
+    renderForm(null); // Show form even if error
+  }
 })();
 
 function renderStatus(reg){
