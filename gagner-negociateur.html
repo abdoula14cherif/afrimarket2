@@ -2,243 +2,193 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <title>AfriMarket — Négociateur Pro</title>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
-    :root{--nav-h:72px;--c:#D4561A;--a:#FF6B1A;}
+    :root{--dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;
+      --green:#00C271;--gold:#F5B731;--red:#E83030;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--nav-h:72px;}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    html{scroll-behavior:smooth;}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:#040916;color:white;min-height:100vh;padding-bottom:calc(var(--nav-h)+50px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 40% at 50% 0%,#D4561A1A 0%,transparent 60%);pointer-events:none;z-index:0;}
-    /* HEADER */
-    .hdr{position:sticky;top:0;z-index:100;background:rgba(4,9,22,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);padding:0 1.2rem;height:60px;display:flex;align-items:center;gap:.7rem;}
-    .hdr-back{background:none;border:none;color:rgba(255,255,255,.55);font-size:1.15rem;cursor:pointer;padding:.3rem;border-radius:8px;transition:color .2s;}
-    .hdr-back:hover{color:white;}
-    .hdr-title{font-family:'Clash Display',sans-serif;font-size:.98rem;font-weight:700;color:white;flex:1;}
-    .hdr-ico{width:34px;height:34px;border-radius:11px;background:#D4561A20;border:1px solid #D4561A35;display:flex;align-items:center;justify-content:center;font-size:1rem;}
-    /* HERO BANNER */
-    .hero-banner{position:relative;z-index:1;margin:1rem 1.2rem;background:linear-gradient(135deg,#D4561A20,#D4561A0D);border:1px solid #D4561A35;border-radius:22px;padding:1.6rem 1.3rem;overflow:hidden;text-align:center;}
-    .hero-banner::after{content:'🗣️';position:absolute;right:-5px;bottom:-10px;font-size:5.5rem;opacity:.07;pointer-events:none;}
-    .hero-tag{display:inline-flex;align-items:center;gap:.35rem;background:#D4561A20;border:1px solid #D4561A40;border-radius:99px;padding:.22rem .7rem;font-size:.62rem;font-weight:700;color:#FF6B1A;margin-bottom:.7rem;letter-spacing:.4px;text-transform:uppercase;}
-    .hero-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:-1px;line-height:1.2;margin-bottom:.55rem;}
-    .hero-title em{font-style:normal;color:#FF6B1A;}
-    .hero-desc{font-size:.8rem;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto;}
-    /* KEY NUMBERS */
-    .keynums{position:relative;z-index:1;display:flex;margin:1rem 1.2rem 0;gap:.6rem;}
-    .kn{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:.8rem .5rem;text-align:center;}
-    .kn-val{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:#FF6B1A;margin-bottom:.2rem;}
-    .kn-lbl{font-size:.58rem;color:rgba(255,255,255,.35);font-weight:600;line-height:1.3;}
-    /* SECTIONS */
-    .sec{position:relative;z-index:1;margin:1rem 1.2rem 0;}
-    .sec-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:1.1rem;}
-    .sec-hdr{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem;}
-    .sec-hdr-ico{width:30px;height:30px;border-radius:9px;background:#D4561A1A;border:1px solid #D4561A30;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
-    .sec-hdr-title{font-family:'Clash Display',sans-serif;font-size:.92rem;font-weight:700;color:white;}
-    /* STEPS */
-    .step{display:flex;gap:.75rem;margin-bottom:.85rem;align-items:flex-start;}
-    .step:last-child{margin-bottom:0;}
-    .step-num{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;margin-top:2px;}
-    .step-title{font-size:.8rem;font-weight:700;color:white;margin-bottom:.15rem;}
-    .step-desc{font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.5;}
-    /* GAINS */
-    .gain-row{display:flex;align-items:center;gap:.7rem;padding:.65rem .8rem;background:rgba(255,255,255,.03);border-radius:11px;margin-bottom:.45rem;border:1px solid rgba(255,255,255,.05);}
-    .gain-row:last-child{margin-bottom:0;}
-    .gain-ico{font-size:1.15rem;width:32px;text-align:center;flex-shrink:0;}
-    .gain-lbl{font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:.1rem;}
-    .gain-val{font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;}
-    /* PAYMENT MODEL */
-    .pay-section{position:relative;z-index:1;margin:1rem 1.2rem 0;}
-    .pay-card{background:linear-gradient(135deg,rgba(0,194,113,.1),rgba(0,194,113,.04));border:1px solid rgba(0,194,113,.25);border-radius:18px;padding:1.1rem;}
-    .pay-badge{font-size:.6rem;font-weight:800;color:#00C271;letter-spacing:.7px;text-transform:uppercase;margin-bottom:.35rem;}
-    .pay-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:white;margin-bottom:.7rem;}
-    .pay-row{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.55rem;}
-    .pay-row:last-child{margin-bottom:0;}
-    .pay-ico{font-size:1rem;width:28px;text-align:center;flex-shrink:0;margin-top:1px;}
-    .pay-text{font-size:.75rem;color:rgba(255,255,255,.55);line-height:1.5;}
-    /* CONDITIONS */
-    .cond-sec{position:relative;z-index:1;margin:1rem 1.2rem 0;}
-    .cond-title{font-size:.75rem;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.5px;}
-    .cond-row{display:flex;align-items:flex-start;gap:.55rem;margin-bottom:.45rem;font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.5;}
-    .cond-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-    /* FAQ */
-    .faq-item{border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:.45rem;overflow:hidden;}
-    .faq-q{display:flex;justify-content:space-between;align-items:center;padding:.75rem .9rem;font-size:.78rem;font-weight:600;color:white;cursor:pointer;gap:.4rem;}
-    .faq-arr{font-size:.65rem;color:rgba(255,255,255,.35);transition:transform .2s;flex-shrink:0;}
-    .faq-item.open .faq-arr{transform:rotate(180deg);}
-    .faq-a{max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;font-size:.74rem;color:rgba(255,255,255,.45);line-height:1.6;padding:0 .9rem;}
-    .faq-item.open .faq-a{max-height:200px;padding:.1rem .9rem .85rem;}
-    /* CTA */
-    .cta-wrap{position:relative;z-index:1;margin:1.2rem 1.2rem 0;}
-    .cta-btn{width:100%;padding:.88rem;background:linear-gradient(135deg,#D4561A,#D4561Acc);border:none;border-radius:16px;color:white;font-family:'Clash Display',sans-serif;font-size:.98rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 8px 24px #D4561A35;transition:all .2s;}
-    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px #D4561A50;}
-    .cta-btn:active{transform:scale(.97);}
-    .cta-note{text-align:center;font-size:.68rem;color:rgba(255,255,255,.3);margin-top:.55rem;}
-    /* MODAL */
-    .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:flex-end;backdrop-filter:blur(4px);}
-    .modal-ov.open{display:flex;}
-    .modal-sheet{background:#0C1428;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:1.4rem 1.2rem 2rem;border-top:1px solid rgba(255,255,255,.1);animation:slideUp .3s ease;}
-    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    .modal-handle{width:36px;height:4px;border-radius:99px;background:rgba(255,255,255,.15);margin:0 auto 1.2rem;}
-    .modal-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.25rem;}
-    .modal-sub{font-size:.74rem;color:rgba(255,255,255,.4);margin-bottom:1.2rem;}
-    .f-lbl{font-size:.73rem;font-weight:600;color:rgba(255,255,255,.55);margin-bottom:.38rem;display:block;}
-    .f-inp{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;padding:.7rem .9rem;color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s;margin-bottom:.8rem;}
-    .f-inp:focus{border-color:#D4561A80;background:rgba(255,255,255,.08);}
-    .f-inp::placeholder{color:rgba(255,255,255,.22);}
-    select.f-inp option{background:#0C1428;}
-    .f-btn{width:100%;padding:.85rem;background:linear-gradient(135deg,#D4561A,#D4561Acc);border:none;border-radius:14px;color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:.2rem;transition:opacity .2s;}
-    .f-btn:disabled{opacity:.5;cursor:not-allowed;}
-    /* BOTTOM NAV */
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,9,22,.97);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));z-index:99;}
-    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);
+      padding-bottom:calc(var(--nav-h)+24px+env(safe-area-inset-bottom,0px));overflow-x:hidden;}
+    .hdr{background:linear-gradient(135deg,var(--dark),#0D1E6B);
+      padding:calc(env(safe-area-inset-top,0px)+.8rem) 1.2rem 0;
+      display:flex;align-items:center;gap:.8rem;}
+    .h-back{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+      color:white;border-radius:10px;padding:.38rem .8rem;font-size:.78rem;font-weight:600;
+      cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;}
+    .hero{background:linear-gradient(135deg,var(--dark),#0D1E6B);padding:1rem 1.2rem 2rem;text-align:center;}
+    .hero-ico{width:72px;height:72px;border-radius:20px;
+      background:#D4561A25;border:2px solid #D4561A50;
+      display:flex;align-items:center;justify-content:center;font-size:2rem;
+      margin:0 auto .8rem;}
+    .hero-name{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:white;margin-bottom:.3rem;}
+    .hero-tag{font-size:.78rem;color:rgba(255,255,255,.65);margin-bottom:.8rem;}
+    .earn-pill{display:inline-flex;align-items:center;gap:.4rem;
+      background:rgba(0,194,113,.2);border:1px solid rgba(0,194,113,.35);
+      border-radius:99px;padding:.38rem 1rem;color:#00E584;font-size:.8rem;font-weight:700;}
+    .content{padding:1rem 1.2rem;}
+    .card{background:white;border-radius:16px;border:1.5px solid var(--border);
+      padding:1rem 1.1rem;margin-bottom:.8rem;box-shadow:0 2px 8px rgba(27,63,228,.05);}
+    .card-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;
+      color:var(--dark);margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+    .desc-text{font-size:.82rem;color:#444;line-height:1.7;}
+    .what-counts{background:#FFF2EC;border:1.5px solid #D4561A30;
+      border-radius:12px;padding:.75rem .9rem;font-size:.76rem;color:var(--dark);
+      line-height:1.6;margin-top:.5rem;}
+    .what-counts strong{color:#D4561A;}
+    .sec{margin-top:.3rem;}
+    .f-lbl{font-size:.73rem;font-weight:700;color:var(--dark);margin-bottom:.38rem;display:block;margin-top:.7rem;}
+    .f-inp{width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;
+      padding:.7rem .9rem;color:var(--dark);font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.84rem;outline:none;transition:border-color .2s;resize:none;}
+    .f-inp:focus{border-color:var(--blue2);background:white;}
+    .f-inp::placeholder{color:var(--gray);}
+    .submit-btn{width:100%;padding:.9rem;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      border:none;border-radius:14px;color:white;
+      font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;
+      cursor:pointer;margin-top:1rem;box-shadow:0 4px 14px rgba(27,63,228,.3);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .already-applied{background:linear-gradient(135deg,var(--green),#00A878);
+      border-radius:16px;padding:1.2rem;text-align:center;color:white;margin-bottom:1rem;}
+    .already-applied h3{font-family:'Clash Display',sans-serif;font-size:1rem;margin-bottom:.3rem;}
+    .already-applied p{font-size:.78rem;opacity:.9;}
+    .already-btn{display:inline-block;margin-top:.7rem;background:white;
+      color:var(--green);border:none;border-radius:10px;padding:.5rem 1.2rem;
+      font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;
+      border-top:1px solid var(--border);display:flex;align-items:center;
+      justify-content:space-around;padding:0 .5rem;
+      padding-bottom:env(safe-area-inset-bottom,0px);
+      height:calc(var(--nav-h)+env(safe-area-inset-bottom,0px));
+      box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;
+      padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;}
     .nav-ico{font-size:1.25rem;line-height:1;}
-    .nav-lbl{font-size:.58rem;font-weight:600;color:rgba(255,255,255,.4);}
-    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1B3FE4,#2D55FF);color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
-    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:#0C1428;color:white;padding:.65rem 1.1rem;border-radius:14px;font-size:.8rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:600;border-left:3px solid #FF6B1A;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:88vw;text-align:center;}
+    .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
+    .nav-plus-btn{width:44px;height:44px;border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;
+      border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
+    #toast{position:fixed;bottom:calc(var(--nav-h)+12px+env(safe-area-inset-bottom,0px));
+      left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;
+      padding:.65rem 1.1rem;border-radius:14px;font-size:.8rem;font-weight:600;
+      opacity:0;transition:all .35s;pointer-events:none;z-index:600;
+      border-left:3px solid var(--turq);max-width:88vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .loading{text-align:center;padding:2rem;color:var(--gray);}
+    .spin{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--blue2);
+      border-radius:50%;animation:spin .7s linear infinite;margin:0 auto .6rem;}
+    @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
 
 <div class="hdr">
-  <button class="hdr-back" onclick="history.back()">←</button>
-  <div class="hdr-title">Négociateur Pro</div>
-  <div class="hdr-ico">🗣️</div>
+  <button class="h-back" onclick="location.href='gagner.html'">← Retour</button>
 </div>
 
-<div class="hero-banner">
-  <div class="hero-tag">💬 Payé sur résultats uniquement</div>
-  <div class="hero-title">Tu négocies,
-<em>tu encaisses sur l'écart</em></div>
-  <div class="hero-desc">Un acheteur veut un produit mais n'ose pas négocier ou ne sait pas comment. Il te mandate. Tu négocies à sa place et tu gagnes un pourcentage de ce que tu lui économises.</div>
+<div class="hero">
+  <div class="hero-ico">🗣️</div>
+  <div class="hero-name">Négociateur Pro</div>
+  <div class="hero-tag">Négocie pour les autres, encaisse ta part</div>
+  <div class="earn-pill">💰 10-15% de la réduction obtenue</div>
 </div>
 
-<div class="keynums">
-  <div class="kn"><div class="kn-val">0 F</div><div class="kn-lbl">Investissement</div></div><div class="kn"><div class="kn-val">15-20%</div><div class="kn-lbl">Sur chaque réduction</div></div><div class="kn"><div class="kn-val">Illimité</div><div class="kn-lbl">Missions par mois</div></div>
-</div>
+<div class="content">
+  <!-- ÉTAT CANDIDATURE -->
+  <div id="statusSection"></div>
 
-<!-- COMMENT ÇA MARCHE -->
-<div class="sec">
-  <div class="sec-card">
-    <div class="sec-hdr"><div class="sec-hdr-ico">📋</div><div class="sec-hdr-title">Comment ça marche</div></div>
-    <div class="step">
-          <div class="step-num" style="background:#D4561A22;border-color:#D4561A55;color:#FF6B1A;">1</div>
-          <div class="step-body"><div class="step-title">Un acheteur te mandate</div><div class="step-desc">Il décrit le produit qu'il veut, le prix actuel du vendeur et le budget cible. Il te confie la mission.</div></div>
-        </div><div class="step">
-          <div class="step-num" style="background:#D4561A22;border-color:#D4561A55;color:#FF6B1A;">2</div>
-          <div class="step-body"><div class="step-title">Tu analyses et prépares ta stratégie</div><div class="step-desc">Tu vérifies le marché, les prix similaires, et tu prépares tes arguments pour obtenir la meilleure réduction.</div></div>
-        </div><div class="step">
-          <div class="step-num" style="background:#D4561A22;border-color:#D4561A55;color:#FF6B1A;">3</div>
-          <div class="step-body"><div class="step-title">Tu négocies avec le vendeur</div><div class="step-desc">Par message ou par appel, tu représentes l'acheteur et tu mènes la négociation professionnellement.</div></div>
-        </div><div class="step">
-          <div class="step-num" style="background:#D4561A22;border-color:#D4561A55;color:#FF6B1A;">4</div>
-          <div class="step-body"><div class="step-title">Tu es payé sur la différence obtenue</div><div class="step-desc">Si le prix passe de 150 000 à 120 000 FCFA (réduction de 30 000 F), tu encaisses 15 à 20% de cette réduction, soit 4 500 – 6 000 FCFA.</div></div>
-        </div>
+  <!-- DESCRIPTION -->
+  <div class="card">
+    <div class="card-title">🗣️ C'est quoi ce travail ?</div>
+    <div class="desc-text">Des acheteurs te donnent mandat pour négocier le prix d'un produit. Tu contactes le vendeur, tu travailles à obtenir la meilleure réduction possible. Si tu économises 10 000 FCFA à l'acheteur, tu empoche 1 000 à 1 500 FCFA de commission. L'acheteur paie ta commission depuis le montant économisé.</div>
+    <div class="what-counts" style="margin-top:.8rem;">
+      <strong>✅ Ce qui compte :</strong> Le vendeur accepte un prix réduit ET l'acheteur finalise l'achat sur AfriMarket.
+    </div>
   </div>
-</div>
 
-<!-- GAINS -->
-<div class="sec">
-  <div class="sec-card">
-    <div class="sec-hdr"><div class="sec-hdr-ico">💰</div><div class="sec-hdr-title">Ce que tu peux gagner</div></div>
-    <div class="gain-row">
-          <div class="gain-ico">💬</div>
-          <div class="gain-body"><div class="gain-lbl">Commission sur chaque réduction obtenue</div><div class="gain-val" style="color:#FF6B1A;">15 – 20%</div></div>
-        </div><div class="gain-row">
-          <div class="gain-ico">📱</div>
-          <div class="gain-body"><div class="gain-lbl">Exemple — réduction de 20 000 FCFA</div><div class="gain-val" style="color:#FF6B1A;">3 000 – 4 000 FCFA</div></div>
-        </div><div class="gain-row">
-          <div class="gain-ico">🚗</div>
-          <div class="gain-body"><div class="gain-lbl">Exemple véhicule — réduction de 200 000 F</div><div class="gain-val" style="color:#FF6B1A;">30 000 – 40 000 FCFA</div></div>
-        </div><div class="gain-row">
-          <div class="gain-ico">🏠</div>
-          <div class="gain-body"><div class="gain-lbl">Exemple immobilier — réduction de 1 000 000 F</div><div class="gain-val" style="color:#FF6B1A;">150 000 – 200 000 FCFA</div></div>
-        </div><div class="gain-row">
-          <div class="gain-ico">🏆</div>
-          <div class="gain-body"><div class="gain-lbl">Top Négociateur du mois</div><div class="gain-val" style="color:#FF6B1A;">Bonus 15 000 FCFA</div></div>
-        </div>
+  <!-- COMMENT ÇA MARCHE -->
+  <div class="card">
+    <div class="card-title">📋 Comment ça marche ?</div>
+    
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#D4561A15;border:1.5px solid #D4561A30;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📋</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Formation requise</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Formation sur les techniques de négociation, l'éthique (pas de pression abusive) et les procédures AfriMarket.</div></div>
+      </div>
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#D4561A15;border:1.5px solid #D4561A30;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🤝</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Reçois un mandat</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Un acheteur te contacte via l'app et te donne mandat + produit cible + prix maximum qu'il accepte.</div></div>
+      </div>
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#D4561A15;border:1.5px solid #D4561A30;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">💬</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Négocie avec le vendeur</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Tu contactes le vendeur, tu travailles professionnellement pour obtenir un meilleur prix.</div></div>
+      </div>
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#D4561A15;border:1.5px solid #D4561A30;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">✅</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Prouve le résultat</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Capture de la conversation + prix initial vs prix négocié. Si deal conclu, ta commission est automatique.</div></div>
+      </div>
   </div>
-</div>
+  
+    <div style="background:rgba(27,63,228,.06);border:1.5px solid rgba(27,63,228,.2);
+      border-radius:14px;padding:.9rem 1rem;margin-bottom:.8rem;display:flex;gap:.7rem;align-items:flex-start;">
+      <div style="font-size:1.2rem;">📚</div>
+      <div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--blue2);margin-bottom:.2rem;">Formation + Certificat obligatoires</div>
+        <div style="font-size:.74rem;color:#444;line-height:1.5;">Après approbation, tu devras compléter une formation courte et passer un test (score min 70%) avant de commencer à travailler. Gratuit, en ligne, ~30 minutes.</div>
+      </div>
+    </div>
 
-<!-- COMMENT TU ES PAYÉ -->
-<div class="pay-section">
-  <div class="pay-card">
-    <div class="pay-badge">💸 Système de paiement</div>
-    <div class="pay-title">Comment tu reçois ton argent</div>
-    <div class="pay-row">
-          <div class="pay-ico">🔒</div>
-          <div class="pay-text">L'acheteur dépose une caution sur la plateforme avant la mission. Tu es payé uniquement si une réduction est obtenue.</div>
-        </div><div class="pay-row">
-          <div class="pay-ico">📊</div>
-          <div class="pay-text">Le système capture automatiquement les prix avant/après via les messages échangés sur la plateforme.</div>
-        </div><div class="pay-row">
-          <div class="pay-ico">⚡</div>
-          <div class="pay-text">Dès confirmation de la vente, ta commission est libérée instantanément sur ton solde AfriMarket.</div>
-        </div><div class="pay-row">
-          <div class="pay-ico">📱</div>
-          <div class="pay-text">Retrait Mobile Money disponible à partir de 5 000 FCFA cumulés.</div>
+  <!-- TABLEAU DES GAINS -->
+  <div class="card">
+    <div class="card-title">💰 Grille des gains</div>
+    
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">💬</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">Réduction de 5 000 FCFA</span>
         </div>
-  </div>
-</div>
-
-<!-- CONDITIONS -->
-<div class="cond-sec">
-  <div class="cond-title">✅ Ce qu'il te faut</div>
-  <div class="cond-row"><span class="cond-dot" style="background:#FF6B1A;"></span>Maîtrise de la langue locale du marché ciblé</div><div class="cond-row"><span class="cond-dot" style="background:#FF6B1A;"></span>Connaissance générale des prix du marché dans ta ville</div><div class="cond-row"><span class="cond-dot" style="background:#FF6B1A;"></span>Disponibilité pour répondre aux missions sous 2h</div><div class="cond-row"><span class="cond-dot" style="background:#FF6B1A;"></span>Aucun investissement — tu ne mets jamais ton propre argent</div>
-</div>
-
-<!-- FAQ -->
-<div class="sec" style="margin-bottom:0;">
-  <div class="sec-card">
-    <div class="sec-hdr"><div class="sec-hdr-ico">❓</div><div class="sec-hdr-title">Questions fréquentes</div></div>
-    <div class="faq-item">
-          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Que se passe-t-il si la négociation échoue ?<span class="faq-arr">▾</span></div>
-          <div class="faq-a">Tu ne gagnes rien, mais tu ne perds rien non plus. Aucun risque pour toi.</div>
-        </div><div class="faq-item">
-          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Puis-je refuser des missions qui ne m'intéressent pas ?<span class="faq-arr">▾</span></div>
-          <div class="faq-a">Oui, tu choisis tes missions librement. Tu vois le produit, le prix cible et la commission estimée avant d'accepter.</div>
-        </div><div class="faq-item">
-          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Comment prouve-t-on la réduction obtenue ?<span class="faq-arr">▾</span></div>
-          <div class="faq-a">Toutes les conversations passent par la messagerie AfriMarket. Le système enregistre les prix automatiquement.</div>
-        </div><div class="faq-item">
-          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Y a-t-il un montant minimum de transaction ?<span class="faq-arr">▾</span></div>
-          <div class="faq-a">Oui, la réduction minimum pour déclencher une commission est de 5% du prix initial.</div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">500 – 750 FCFA de commission</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">💬</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">Réduction de 20 000 FCFA</span>
         </div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">2 000 – 3 000 FCFA</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">💬</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">Réduction de 100 000 FCFA</span>
+        </div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">10 000 – 15 000 FCFA</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">💬</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">Deal avorté (vendeur refuse)</span>
+        </div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">200 FCFA de frais fixes pour ton temps</span>
+      </div>
+    <div style="font-size:.72rem;color:var(--gray);margin-top:.7rem;line-height:1.5;">
+      💡 Pas de plafond. Tu travailles autant que tu veux. Paiements via Mobile Money sous 48h après validation.
+    </div>
   </div>
-</div>
 
-<!-- CTA -->
-<div class="cta-wrap">
-  <button class="cta-btn" onclick="openModal()">🗣️ Devenir Négociateur Pro</button>
-  <div class="cta-note">Inscription gratuite • Paiement à chaque mission réussie</div>
-</div>
-<div style="height:.4rem;position:relative;z-index:1;"></div>
-
-<!-- MODAL -->
-<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🗣️ Rejoindre — Négociateur Pro</div>
-    <div class="modal-sub">Remplis ce formulaire, on te contacte dans 24h pour te donner accès aux missions.</div>
-    <label class="f-lbl">Ton nom complet *</label>
-    <input class="f-inp" type="text" id="rName" placeholder="Ex: Fatou Diallo"/>
-    <label class="f-lbl">WhatsApp *</label>
-    <input class="f-inp" type="tel" id="rWa" placeholder="+237 6XX XXX XXX"/>
-    <label class="f-lbl">Ta ville *</label>
-    <input class="f-inp" type="text" id="rVille" placeholder="Ex: Douala, Abidjan, Dakar…"/>
-    <label class="f-lbl">Dis-nous en plus sur toi (optionnel)</label>
-    <textarea class="f-inp" id="rMotiv" rows="3" placeholder="Expérience, disponibilité, moyen de transport…" style="resize:none;"></textarea>
-    <button class="f-btn" id="fBtn" onclick="submitForm()">✅ Envoyer ma candidature</button>
+  <!-- FORMULAIRE CANDIDATURE -->
+  <div id="formSection">
+    <div class="loading"><div class="spin"></div>Chargement…</div>
   </div>
 </div>
 
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
   <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
-  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:#F5B731;font-weight:700">Publier</span></div>
-  <button class="nav-item" onclick="location.href='gagner.html'"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:#F5B731;font-weight:700">Gagner</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+  <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Gagner</span></button>
   <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
 </nav>
 <div id="toast"></div>
@@ -248,41 +198,125 @@ const _sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
-function openModal()  { document.getElementById('modalOv').classList.add('open'); }
-function closeModal() { document.getElementById('modalOv').classList.remove('open'); }
+const SVC_ID = 'gagner-negociateur';
+const SVC_NEEDS_FORMATION = true;
 
-async function submitForm() {
-  const name  = document.getElementById('rName').value.trim();
-  const wa    = document.getElementById('rWa').value.trim();
-  const ville = document.getElementById('rVille').value.trim();
-  const motiv = document.getElementById('rMotiv').value.trim();
-  if (!name || !wa || !ville) { toast('Remplis les champs obligatoires *', 'warn'); return; }
-  const btn = document.getElementById('fBtn');
-  btn.disabled = true; btn.textContent = '⏳ Envoi en cours…';
-  try {
-    const { data:{ session } } = await _sb.auth.getSession();
-    await _sb.from('service_registrations').insert({
-      user_id: session?.user?.id || null,
-      service: 'gagner-negociateur',
-      name, whatsapp: wa, ville, motivation: motiv,
-      created_at: new Date().toISOString()
-    });
-    closeModal();
-    toast('✅ Candidature envoyée ! On te contacte très bientôt.', 'ok');
-    btn.textContent = '✅ Candidature envoyée';
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = '✅ Envoyer ma candidature';
-    toast('Erreur : ' + e.message, 'err');
+var U = null, _reg = null;
+
+(async function(){
+  var sess = await _sb.auth.getSession();
+  if(!sess.data.session){ renderForm(null); return; }
+  U = sess.data.session.user;
+  var res = await _sb.from('service_registrations').select('*')
+    .eq('user_id',U.id).eq('service',SVC_ID).maybeSingle();
+  _reg = res.data;
+  renderStatus(_reg);
+  renderForm(_reg);
+})();
+
+function renderStatus(reg){
+  if(!reg) return;
+  var html = '';
+  if(reg.status==='pending'){
+    html = '<div style="background:rgba(245,183,49,.1);border:1.5px solid rgba(245,183,49,.3);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
+      '<div style="font-size:1.5rem;margin-bottom:.3rem;">⏳</div>' +
+      '<div style="font-size:.9rem;font-weight:700;color:var(--dark);">Candidature en cours d'examen</div>' +
+      '<div style="font-size:.75rem;color:var(--gray);margin-top:.3rem;">On revient vers toi sous 24-48h. Vérifie tes notifications.</div>' +
+    '</div>';
+  } else if(reg.status==='approved'){
+    var nextAction = '';
+    if(SVC_NEEDS_FORMATION && !reg.formation_done){
+      nextAction = '<button class="already-btn" onclick="location.href='formation.html?service='+SVC_ID+''">📚 Commencer la formation →</button>';
+    } else {
+      nextAction = '<button class="already-btn" onclick="location.href='mes-candidatures.html'">🚀 Aller travailler →</button>';
+    }
+    html = '<div class="already-applied">' +
+      '<h3>✅ Tu es approuvé(e) !</h3>' +
+      '<p>Ton code agent : <strong>' + (reg.agent_code||'En cours de génération…') + '</strong></p>' +
+      nextAction +
+    '</div>';
+  } else if(reg.status==='rejected'){
+    html = '<div style="background:rgba(232,48,48,.06);border:1.5px solid rgba(232,48,48,.2);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
+      '<div style="font-size:.85rem;font-weight:700;color:var(--red);">❌ Candidature non retenue</div>' +
+      '<div style="font-size:.75rem;color:var(--gray);margin-top:.3rem;">' + (reg.admin_note||'Tu peux recandidater.') + '</div>' +
+    '</div>';
+  }
+  document.getElementById('statusSection').innerHTML = html;
+}
+
+function renderForm(reg){
+  if(reg && reg.status==='approved'){
+    document.getElementById('formSection').innerHTML = '';
+    return;
+  }
+  var isReapply = reg && reg.status==='rejected';
+  document.getElementById('formSection').innerHTML = `
+    <div class="card">
+      <div class="card-title">📝 ${isReapply ? 'Recandidater' : 'Postuler maintenant'}</div>
+      <div style="font-size:.76rem;color:var(--gray);margin-bottom:.8rem;line-height:1.5;">
+        Remplis ce formulaire. On étudie ta candidature sous 24h et on te notifie.
+      </div>
+      <label class="f-lbl">Ton prénom et nom *</label>
+      <input class="f-inp" id="rName" placeholder="Ex: Kouamé Diallo" required/>
+      <label class="f-lbl">Ton numéro WhatsApp *</label>
+      <input class="f-inp" id="rWhatsapp" type="tel" placeholder="+237 6XX XXX XXX" required/>
+      <label class="f-lbl">Ta ville *</label>
+      <input class="f-inp" id="rVille" placeholder="Ex: Douala, Yaoundé, Abidjan…" required/>
+
+    <label class="f-lbl">Catégories de produits *</label>
+    <input class="f-inp" type="text" id="zone_couverture" placeholder="Ex: Électronique, immobilier, véhicules, textile…" required/>
+    <label class="f-lbl">Ton expérience en négociation</label>
+    <textarea class="f-inp" id="experience" rows="3" placeholder="As-tu déjà négocié professionnellement ?"></textarea>
+      <label class="f-lbl">Pourquoi tu veux faire ce travail ? *</label>
+      <textarea class="f-inp" id="rMotiv" rows="3" placeholder="Quelques lignes sur ta motivation et ta disponibilité…" required></textarea>
+      <button class="submit-btn" id="submitBtn" onclick="submitCand()">
+        ${isReapply ? '↩ Recandidater' : '✅ Envoyer ma candidature'}
+      </button>
+    </div>`;
+}
+
+async function submitCand(){
+  var name    = (document.getElementById('rName')||{}).value?.trim();
+  var whatsapp= (document.getElementById('rWhatsapp')||{}).value?.trim();
+  var ville   = (document.getElementById('rVille')||{}).value?.trim();
+  var motiv   = (document.getElementById('rMotiv')||{}).value?.trim();
+  var zone    = (document.getElementById('zone_couverture')||{}).value?.trim()||'';
+  var exp     = (document.getElementById('experience')||{}).value?.trim()||'';
+
+  if(!name||!whatsapp||!ville||!motiv){ toast('Remplis tous les champs obligatoires','warn'); return; }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='⏳ Envoi…';
+
+  if(!U){ toast('Tu dois être connecté pour postuler','err'); btn.disabled=false; btn.textContent='✅ Envoyer ma candidature'; return; }
+
+  try{
+    var payload = {
+      user_id:U.id, service:SVC_ID, name, whatsapp, ville,
+      motivation:motiv, status:'pending',
+      zone_couverture:zone||null, experience:exp||null
+    };
+    // Si recandidature, supprimer l'ancienne
+    if(_reg && _reg.status==='rejected'){
+      await _sb.from('service_registrations').delete().eq('id',_reg.id);
+    }
+    var {error} = await _sb.from('service_registrations').insert(payload);
+    if(error) throw error;
+    toast('✅ Candidature envoyée ! On revient vers toi sous 24h.','ok');
+    btn.textContent='✅ Envoyée !';
+    setTimeout(function(){location.href='gagner.html';},2000);
+  } catch(e){
+    btn.disabled=false; btn.textContent='✅ Envoyer ma candidature';
+    toast('Erreur : '+e.message,'err');
   }
 }
 
-let _tt;
-function toast(msg, t) {
-  const c = {ok:'#00C271',err:'#E83030',warn:'#F5B731'};
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.className='show'; el.style.borderLeftColor = c[t]||'#FF6B1A';
-  clearTimeout(_tt); _tt = setTimeout(()=>el.className='', 4500);
+var _tt;
+function toast(msg,t){
+  var el=document.getElementById('toast');
+  el.textContent=msg;el.className='show';
+  el.style.borderLeftColor=t==='err'?'var(--red)':t==='warn'?'var(--gold)':'var(--turq)';
+  clearTimeout(_tt);_tt=setTimeout(function(){el.className='';},4500);
 }
 </script>
 </body>
