@@ -890,6 +890,16 @@ function updatePremiumCard() {
     btn.className     = 'pc-btn pc-btn-manage';
     btn.textContent   = '⚙️ Gérer mon abonnement';
     btn.onclick       = function(){ openManageModal(); };  /* ← FONCTIONNEL */
+    // Ajouter bouton boutique pour Elite
+    var existBout = document.getElementById('boutiqueCardBtn');
+    if(!existBout) {
+      var boutBtn = document.createElement('button');
+      boutBtn.id = 'boutiqueCardBtn';
+      boutBtn.textContent = '🏪 Gérer ma boutique';
+      boutBtn.style.cssText = 'width:100%;margin-top:.6rem;padding:.55rem;border-radius:11px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;font-size:.75rem;font-weight:700;cursor:pointer;';
+      boutBtn.onclick = function(){ location.href='boutique-manager.html'; };
+      btn.parentNode.appendChild(boutBtn);
+    }
     card.querySelector('.pc-top').children[0].textContent = '👑';
   } else {
     card.className    = 'prem-card free-card';
