@@ -679,8 +679,8 @@ async function init() {
 async function loadAds() {
   try {
     var res=await _sb.from('annonces')
-      .select('id,titre,description,prix,categorie,ville,whatsapp,image_url,urgent,promo,user_id,created_at')
-      .order('created_at',{ascending:false}).limit(80);
+      .select('id,titre,description,prix,categorie,ville,whatsapp,image_url,urgent,promo,user_id,created_at,is_featured')
+      .order('is_featured',{ascending:false}).order('created_at',{ascending:false}).limit(80);
     if (res.error) throw res.error;
     var annonces=res.data||[];
     if (!annonces.length){allAds=[];renderAds();return;}
@@ -767,7 +767,10 @@ function buyAnnonce() {
 /* ── WHATSAPP ── */
 function openWA(num) {
   if (!num){toast('Numéro non disponible','warning');return;}
-  window.open('https://wa.me/'+num.replace(/^\+/,'')+encodeURIComponent('?text=Bonjour, je vous contacte via AfriMarket 🛒'),'_blank');
+  var clean = num.replace(/[^0-9]/g,'');
+  if (!clean){toast('Numéro invalide','warning');return;}
+  var msg = encodeURIComponent('Bonjour, je suis intéressé(e) par votre annonce sur AfriMarket 🛒');
+  window.open('https://wa.me/'+clean+'?text='+msg,'_blank');
 }
 
 /* ── DETAIL MODAL ── */
