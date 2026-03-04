@@ -22,8 +22,9 @@
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{scroll-behavior:smooth;}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h) + 40px + env(safe-area-inset-bottom, 0px));overflow-x:hidden;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
 
+    /* ── HEADER ── */
     .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
     .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;}
     .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
@@ -34,16 +35,71 @@
     .h-save.show{opacity:1;pointer-events:all;}
     .h-save:hover{background:#00A89F;}
     .h-save:disabled{opacity:.4;cursor:not-allowed;}
+    /* ⋮ BOUTON avec badge notif */
+    .h-dots-wrap{position:relative;}
     .h-dots{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:white;font-size:1.3rem;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;letter-spacing:-.5px;flex-shrink:0;}
     .h-dots:hover{background:rgba(255,255,255,.2);}
+    .h-dots-badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:99px;background:var(--red);color:white;font-size:.52rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--dark);line-height:1;}
+    .h-dots-badge.show{display:flex;}
 
-    .dots-menu{position:fixed;top:68px;right:1rem;z-index:500;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(8,14,42,.2);border:1px solid var(--border);min-width:195px;overflow:hidden;transform:scale(.95) translateY(-8px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.56,.64,1);}
+    /* ── MENU ⋮ ── */
+    .dots-menu{position:fixed;top:68px;right:1rem;z-index:500;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(8,14,42,.2);border:1px solid var(--border);min-width:210px;overflow:hidden;transform:scale(.95) translateY(-8px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.56,.64,1);}
     .dots-menu.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all;}
     .dm-item{display:flex;align-items:center;gap:.7rem;padding:.8rem 1rem;cursor:pointer;transition:background .15s;font-size:.84rem;font-weight:600;color:var(--dark);text-decoration:none;border:none;background:none;width:100%;font-family:'Plus Jakarta Sans',sans-serif;text-align:left;}
     .dm-item:not(:last-child){border-bottom:1px solid var(--border);}
     .dm-item:hover{background:var(--bg);}
     .dm-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+    /* Notif row dans menu */
+    .dm-notif-badge{margin-left:auto;min-width:20px;height:20px;border-radius:99px;background:var(--red);color:white;font-size:.6rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;}
+    .dm-notif-badge.show{display:flex;}
 
+    /* ── PANNEAU NOTIFICATIONS ── */
+    .notif-panel{position:fixed;top:0;right:0;bottom:0;width:min(320px,92vw);background:white;z-index:600;box-shadow:-8px 0 32px rgba(8,14,42,.18);transform:translateX(100%);transition:transform .32s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;}
+    .notif-panel.open{transform:translateX(0);}
+    .notif-overlay{position:fixed;inset:0;background:rgba(8,14,42,.4);z-index:599;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .notif-overlay.open{opacity:1;pointer-events:all;}
+    .np-hdr{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--dark),#0D1E6B);}
+    .np-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:white;}
+    .np-close{background:rgba(255,255,255,.12);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
+    .np-actions{display:flex;gap:.5rem;padding:.7rem 1.2rem;border-bottom:1px solid var(--border);}
+    .np-action-btn{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.4rem;font-size:.7rem;font-weight:700;color:var(--dark);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+    .np-list{flex:1;overflow-y:auto;padding:.6rem;}
+    .notif-item{display:flex;gap:.7rem;padding:.8rem .9rem;border-radius:12px;margin-bottom:.4rem;border:1.5px solid var(--border);background:white;cursor:pointer;transition:all .15s;}
+    .notif-item.unread{background:rgba(27,63,228,.04);border-color:rgba(27,63,228,.15);}
+    .notif-item:hover{background:var(--bg);}
+    .ni-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .ni-body{flex:1;min-width:0;}
+    .ni-title{font-size:.78rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;line-height:1.3;}
+    .ni-msg{font-size:.7rem;color:var(--gray);line-height:1.4;margin-bottom:.2rem;}
+    .ni-date{font-size:.6rem;color:var(--gray);font-weight:500;}
+    .ni-dot{width:7px;height:7px;border-radius:50%;background:var(--blue2);flex-shrink:0;margin-top:4px;}
+    .np-empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
+    .np-empty-ico{font-size:2.5rem;margin-bottom:.6rem;}
+    .np-empty-txt{font-size:.8rem;font-weight:600;}
+
+    /* ── MODAL GÉRER ABONNEMENT ── */
+    .manage-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.8rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);overflow-y:auto;max-height:90vh;}
+    .modal-ov.open .manage-sheet{transform:translateY(0);}
+    .ms-hdr{text-align:center;margin-bottom:1.2rem;}
+    .ms-ico{font-size:2.2rem;margin-bottom:.3rem;}
+    .ms-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);}
+    .ms-sub{font-size:.74rem;color:var(--gray);margin-top:.2rem;}
+    .ms-info-card{background:linear-gradient(135deg,var(--dark),#1B3FE4);border-radius:16px;padding:1rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:.8rem;}
+    .ms-plan-ico{font-size:1.6rem;}
+    .ms-plan-name{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:white;}
+    .ms-plan-exp{font-size:.7rem;color:rgba(255,255,255,.55);margin-top:.15rem;}
+    .ms-options{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
+    .ms-opt{display:flex;align-items:center;gap:.9rem;padding:.9rem 1rem;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;transition:all .18s;text-align:left;background:none;width:100%;font-family:'Plus Jakarta Sans',sans-serif;}
+    .ms-opt:hover{border-color:var(--blue2);background:rgba(45,85,255,.04);}
+    .ms-opt.danger:hover{border-color:var(--red);background:rgba(232,48,48,.04);}
+    .ms-opt-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+    .ms-opt-body{flex:1;}
+    .ms-opt-title{font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.1rem;}
+    .ms-opt.danger .ms-opt-title{color:var(--red);}
+    .ms-opt-desc{font-size:.68rem;color:var(--gray);}
+    .ms-close-btn{width:100%;padding:.72rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--dark);cursor:pointer;}
+
+    /* ── HERO ── */
     .hero{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 55%,#1B3FE4 100%);padding:2rem 1.2rem 3.5rem;position:relative;overflow:hidden;}
     .hero::before{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(0,194,183,.08);right:-60px;top:-80px;}
     .hero::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,107,26,.06);left:-50px;bottom:-60px;}
@@ -62,12 +118,14 @@
     .hero-plan.premium{background:rgba(245,183,49,.2);color:var(--gold);border:1px solid rgba(245,183,49,.35);}
     .hero-plan.elite{background:rgba(0,194,183,.2);color:var(--turq);border:1px solid rgba(0,194,183,.35);}
 
+    /* ── STATS ── */
     .stats-float{position:relative;z-index:10;margin:-1.5rem 1.2rem .8rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 8px 24px rgba(27,63,228,.1);padding:1rem;display:flex;gap:.5rem;}
     .sf{flex:1;text-align:center;padding:.4rem 0;}
     .sf+.sf{border-left:1px solid var(--border);}
     .sf-num{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
     .sf-lbl{font-size:.6rem;color:var(--gray);font-weight:600;margin-top:.1rem;letter-spacing:.2px;}
 
+    /* ── COMPLÉTION ── */
     .complet-card{margin:0 1.2rem .8rem;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
     .cc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
     .cc-title{font-size:.82rem;font-weight:700;color:var(--dark);}
@@ -80,9 +138,11 @@
     .cc-dot.ok{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.2);}
     .cc-dot.ko{background:rgba(255,107,26,.08);color:var(--orange);border:1px solid rgba(255,107,26,.15);}
 
+    /* ── SECTION ── */
     .sec{padding:1.1rem 1.2rem .5rem;}
     .sec-ttl{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
 
+    /* ── FORM ── */
     .form-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.05);padding:1.2rem;display:flex;flex-direction:column;gap:.85rem;}
     .field{display:flex;flex-direction:column;gap:.3rem;}
     .field label{font-size:.72rem;font-weight:700;color:var(--dark);letter-spacing:.2px;}
@@ -94,6 +154,7 @@
     .field input.changed,.field select.changed,.field textarea.changed{border-color:var(--orange);}
     .field-hint{font-size:.65rem;color:var(--gray);}
 
+    /* ── PREMIUM CARD ── */
     .prem-card{margin:0 1.2rem;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(27,63,228,.1);}
     .prem-card.free-card{background:linear-gradient(135deg,#F8F9FF,#EEF2FF);border:1.5px solid var(--border);}
     .prem-card.prem-active{background:linear-gradient(135deg,#0D1E6B,#1B3FE4);border:none;}
@@ -118,15 +179,13 @@
     .free-card .pc-feat{color:var(--gray);}
     .prem-active .pc-feat{color:rgba(255,255,255,.75);}
 
+    /* ── ANNONCES ── */
     .ad-mini-card{background:white;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.06);cursor:pointer;transition:transform .2s;}
     .ad-mini-card:hover{transform:translateY(-3px);}
 
     /* ── MES SERVICES ── */
     .services-section{margin:0 1.2rem .4rem;display:flex;flex-direction:column;gap:.6rem;}
     .service-badge-card{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;align-items:center;gap:.9rem;}
-    .service-badge-card.approved-card{border-left:4px solid var(--green);}
-    .service-badge-card.pending-card{border-left:4px solid var(--gold);}
-    .service-badge-card.rejected-card{border-left:4px solid var(--red);}
     .sb-ico-wrap{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
     .sb-info{flex:1;min-width:0;}
     .sb-name{font-size:.85rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;}
@@ -143,11 +202,7 @@
     .es-desc{font-size:.72rem;color:var(--gray);margin-bottom:.7rem;line-height:1.5;}
     .es-btn{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:10px;padding:.5rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 
-    /* Bouton rafraîchir services */
-    .services-refresh{display:flex;align-items:center;justify-content:flex-end;margin:0 1.2rem .3rem;}
-    .svc-refresh-btn{background:none;border:1px solid var(--border);border-radius:99px;padding:.25rem .75rem;font-size:.7rem;color:var(--gray);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all .2s;}
-    .svc-refresh-btn:hover{border-color:var(--blue2);color:var(--blue2);}
-
+    /* ── DANGER ZONE ── */
     .danger-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid rgba(232,48,48,.15);padding:1.2rem;box-shadow:0 2px 10px rgba(232,48,48,.05);}
     .dz-ttl{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--red);margin-bottom:.9rem;}
     .dz-btn{width:100%;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
@@ -156,6 +211,7 @@
     .dz-del{background:rgba(139,0,0,.05);color:#8B0000;border:1.5px solid rgba(139,0,0,.1);}
     .dz-del:hover{background:#8B0000;color:white;}
 
+    /* ── BOTTOM NAV ── */
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));}
     .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;position:relative;}
     .nav-item:hover{background:var(--bg);}
@@ -166,9 +222,11 @@
     .nav-badge{position:absolute;top:4px;right:8px;min-width:18px;height:18px;border-radius:99px;background:var(--red);color:white;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid white;line-height:1;animation:badgePop .3s cubic-bezier(.34,1.56,.64,1);}
     @keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
 
-    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:300;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;}
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:700;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+    /* ── MODAL BASE ── */
     .modal-ov{position:fixed;inset:0;background:rgba(8,14,42,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
     .modal-ov.open{opacity:1;pointer-events:all;}
     .modal{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.4rem 1.3rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
@@ -181,9 +239,11 @@
     .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
     .mbtn-ok{background:var(--red);color:white;}
 
+    /* ── SKELETON ── */
     .skel{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+    /* ── MODAL PAIEMENT ── */
     .pay-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.8rem;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);overflow-y:auto;max-height:90vh;}
     .modal-ov.open .pay-sheet{transform:translateY(0);}
     .pay-title{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:.25rem;}
@@ -215,23 +275,33 @@
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <a class="h-back" href="dashboard.html">← Accueil</a>
   <div class="h-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
   <div class="h-right">
     <button class="h-save" id="hSaveBtn" onclick="saveProfile()">💾 Sauvegarder</button>
-    <button class="h-dots" id="dotsBtn" onclick="toggleDots(event)">⋮</button>
+    <!-- ⋮ avec badge notif -->
+    <div class="h-dots-wrap">
+      <button class="h-dots" id="dotsBtn" onclick="toggleDots(event)">⋮</button>
+      <div class="h-dots-badge" id="hDotsBadge"></div>
+    </div>
   </div>
 </div>
 
+<!-- MENU ⋮ -->
 <div class="dots-menu" id="dotsMenu">
-  <a class="dm-item" href="parametres.html">
+  <button class="dm-item" onclick="closeDots();openNotifPanel()">
+    <div class="dm-ico" style="background:rgba(232,48,48,.1);">🔔</div>Notifications
+    <div class="dm-notif-badge" id="dmNotifBadge"></div>
+  </button>
+  <a class="dm-item" href="parametres.html" onclick="closeDots()">
     <div class="dm-ico" style="background:rgba(27,63,228,.1);">⚙️</div>Paramètres
   </a>
   <button class="dm-item" onclick="shareApp();closeDots()">
     <div class="dm-ico" style="background:rgba(0,194,183,.1);">📤</div>Partager l'app
   </button>
-  <a class="dm-item" href="https://wa.me/237689011185?text=Support AfriMarket" target="_blank">
+  <a class="dm-item" href="https://wa.me/237689011185?text=Support AfriMarket" target="_blank" onclick="closeDots()">
     <div class="dm-ico" style="background:rgba(37,211,102,.1);">💬</div>Aide & Support
   </a>
   <button class="dm-item" onclick="closeDots();logout()" style="color:var(--red);">
@@ -239,12 +309,27 @@
   </button>
 </div>
 
+<!-- PANNEAU NOTIFICATIONS -->
+<div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
+<div class="notif-panel" id="notifPanel">
+  <div class="np-hdr">
+    <div class="np-title">🔔 Notifications</div>
+    <button class="np-close" onclick="closeNotifPanel()">✕</button>
+  </div>
+  <div class="np-actions">
+    <button class="np-action-btn" onclick="markAllNotifRead()">✅ Tout marquer lu</button>
+    <button class="np-action-btn" onclick="loadNotifications()">🔄 Actualiser</button>
+  </div>
+  <div class="np-list" id="notifList">
+    <div class="np-empty"><div class="np-empty-ico">🔔</div><div class="np-empty-txt">Chargement…</div></div>
+  </div>
+</div>
+
+<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
     <div class="avatar-wrap" onclick="document.getElementById('avatarInput').click()">
-      <div class="avatar" id="avatarEl">
-        <span id="avatarInitial">?</span>
-      </div>
+      <div class="avatar" id="avatarEl"><span id="avatarInitial">?</span></div>
       <div class="avatar-edit">✏️</div>
       <div class="avatar-uploading" id="avatarUploading">⏳</div>
     </div>
@@ -255,6 +340,7 @@
   </div>
 </div>
 
+<!-- STATS -->
 <div class="stats-float">
   <div class="sf"><div class="sf-num" id="statAds">—</div><div class="sf-lbl">ANNONCES</div></div>
   <div class="sf"><div class="sf-num" id="statRefs">—</div><div class="sf-lbl">FILLEULS</div></div>
@@ -262,30 +348,23 @@
   <div class="sf"><div class="sf-num" id="statDays">—</div><div class="sf-lbl">JOURS</div></div>
 </div>
 
+<!-- COMPLÉTION -->
 <div class="complet-card" id="completCard">
-  <div class="cc-top">
-    <div class="cc-title">✨ Complétion du profil</div>
-    <div class="cc-pct" id="ccPct">0%</div>
-  </div>
+  <div class="cc-top"><div class="cc-title">✨ Complétion du profil</div><div class="cc-pct" id="ccPct">0%</div></div>
   <div class="cc-bar"><div class="cc-fill" id="ccFill" style="width:0%"></div></div>
   <div class="cc-dots" id="ccDots"></div>
 </div>
 
+<!-- INFOS PERSONNELLES -->
 <div class="sec"><div class="sec-ttl">👤 Informations personnelles</div></div>
 <div class="form-card" id="formCard">
   <div class="field">
     <label>Nom complet</label>
-    <div class="field-wrap">
-      <span class="field-ico">👤</span>
-      <input type="text" id="fName" placeholder="Ton nom complet" oninput="markChanged(this)"/>
-    </div>
+    <div class="field-wrap"><span class="field-ico">👤</span><input type="text" id="fName" placeholder="Ton nom complet" oninput="markChanged(this)"/></div>
   </div>
   <div class="field">
     <label>Numéro WhatsApp</label>
-    <div class="field-wrap">
-      <span class="field-ico">💬</span>
-      <input type="tel" id="fWa" placeholder="+237 6XX XXX XXX" oninput="markChanged(this)"/>
-    </div>
+    <div class="field-wrap"><span class="field-ico">💬</span><input type="tel" id="fWa" placeholder="+237 6XX XXX XXX" oninput="markChanged(this)"/></div>
     <div class="field-hint">Utilisé pour que les acheteurs te contactent</div>
   </div>
   <div class="field">
@@ -313,16 +392,11 @@
   </div>
   <div class="field">
     <label>Ville</label>
-    <div class="field-wrap">
-      <span class="field-ico">📍</span>
-      <input type="text" id="fVille" placeholder="Ex: Yaoundé, Douala…" oninput="markChanged(this)"/>
-    </div>
+    <div class="field-wrap"><span class="field-ico">📍</span><input type="text" id="fVille" placeholder="Ex: Yaoundé, Douala…" oninput="markChanged(this)"/></div>
   </div>
   <div class="field">
     <label>Bio / Description (optionnel)</label>
-    <div class="field-wrap">
-      <textarea id="fBio" placeholder="Parle un peu de toi ou de ce que tu vends…" oninput="markChanged(this)" style="padding-left:.9rem"></textarea>
-    </div>
+    <div class="field-wrap"><textarea id="fBio" placeholder="Parle un peu de toi ou de ce que tu vends…" oninput="markChanged(this)" style="padding-left:.9rem"></textarea></div>
     <div class="field-hint">Visible sur tes annonces</div>
   </div>
   <button onclick="saveProfile()" id="saveBtn" style="width:100%;padding:.78rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.25);">
@@ -330,6 +404,7 @@
   </button>
 </div>
 
+<!-- ABONNEMENT -->
 <div class="sec"><div class="sec-ttl">👑 Mon abonnement</div></div>
 <div class="prem-card free-card" id="premCard">
   <div class="pc-inner">
@@ -350,6 +425,7 @@
   </div>
 </div>
 
+<!-- MES ANNONCES -->
 <div class="sec"><div class="sec-ttl">📋 Mes annonces publiées</div></div>
 <div style="padding:0 1.2rem;margin-bottom:.4rem;">
   <div id="myAdsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
@@ -364,86 +440,63 @@
   </div>
 </div>
 
+<!-- MES AVIS -->
 <div class="sec"><div class="sec-ttl">⭐ Mes avis reçus</div></div>
 <div id="avisSection" style="margin:0 1.2rem .4rem;display:flex;flex-direction:column;gap:.6rem;">
   <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem;">⏳ Chargement…</div>
 </div>
 
-<!-- ══ MES SERVICES ══ -->
-<div class="sec" style="display:flex;align-items:center;justify-content:space-between;">
-  <div class="sec-ttl">💼 Mes services actifs</div>
-  <button class="svc-refresh-btn" onclick="loadMyServices(true)">🔄 Actualiser</button>
-</div>
+<!-- MES SERVICES -->
+<div class="sec"><div class="sec-ttl">💼 Mes services actifs</div></div>
 <div class="services-section" id="servicesSection">
-  <div style="text-align:center;padding:1.5rem;color:var(--gray);font-size:.82rem;">⏳ Chargement…</div>
+  <div class="empty-services">
+    <div class="es-ico">💰</div>
+    <div class="es-title">Commence à gagner</div>
+    <div class="es-desc">Tu n'as pas encore rejoint un service.<br>Rejoins une activité et gagne de l'argent !</div>
+    <button class="es-btn" onclick="location.href='gagner.html'">Voir les opportunités →</button>
+  </div>
 </div>
 
+<!-- SERVICE CLIENT -->
 <div class="sec"><div class="sec-ttl">🎧 Service client</div></div>
 <div style="margin:0 1.2rem .4rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;flex-direction:column;gap:.7rem;">
   <div style="font-size:.78rem;color:var(--gray);line-height:1.6;">Une question ? Un problème ? Notre équipe est disponible pour t'aider 🙌</div>
-  <a href="https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20besoin%20d%27aide%20%F0%9F%91%8B" target="_blank"
-     style="display:flex;align-items:center;gap:.85rem;background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
+  <a href="https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20besoin%20d%27aide%20%F0%9F%91%8B" target="_blank" style="display:flex;align-items:center;gap:.85rem;background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.9rem 1rem;text-decoration:none;" onmouseover="this.style.background='rgba(0,194,113,.12)'" onmouseout="this.style.background='rgba(0,194,113,.06)'">
     <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,194,113,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">💬</div>
-    <div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878;">WhatsApp</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">+237 689 011 185 · Réponse rapide</div>
-    </div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878;">WhatsApp</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">+237 689 011 185 · Réponse rapide</div></div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
   </a>
-  <a href="mailto:support@afrimarket.app"
-     style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
+  <a href="/cdn-cgi/l/email-protection#f685838686998482b69790849f9b97849d9382d8978686" style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;" onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
     <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
-    <div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">support@afrimarket.app</div>
-    </div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;"><span class="__cf_email__" data-cfemail="4f3c3a3f3f203d3b0f2e293d26222e3d242a3b612e3f3f">[email&#160;protected]</span></div></div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
   </a>
-  <a href="telecharger.html"
-     style="display:flex;align-items:center;gap:.85rem;background:linear-gradient(135deg,rgba(0,194,183,.06),rgba(27,63,228,.04));border:1.5px solid rgba(0,194,183,.25);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
+  <a href="telecharger.html" style="display:flex;align-items:center;gap:.85rem;background:linear-gradient(135deg,rgba(0,194,183,.06),rgba(27,63,228,.04));border:1.5px solid rgba(0,194,183,.25);border-radius:14px;padding:.9rem 1rem;text-decoration:none;" onmouseover="this.style.borderColor='rgba(0,194,183,.5)'" onmouseout="this.style.borderColor='rgba(0,194,183,.25)'">
     <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📲</div>
-    <div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq);">Installer l'application</div>
-      <div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Ajouter AfriMarket à l'écran d'accueil</div>
-    </div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq);">Installer l'application</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Ajouter AfriMarket à l'écran d'accueil</div></div>
     <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--turq);">→</div>
   </a>
 </div>
 
+<!-- DANGER ZONE -->
 <div class="sec"><div class="sec-ttl">⚠️ Zone de danger</div></div>
 <div class="danger-card">
   <div class="dz-ttl">Actions irréversibles</div>
-  <button class="dz-btn dz-logout" id="logoutBtn" onclick="logout()">
-    🚪 <span>Se déconnecter</span>
-  </button>
-  <button class="dz-btn dz-del" onclick="document.getElementById('delOv').classList.add('open')">
-    🗑️ <span>Supprimer mon compte</span>
-  </button>
+  <button class="dz-btn dz-logout" id="logoutBtn" onclick="logout()">🚪 <span>Se déconnecter</span></button>
+  <button class="dz-btn dz-del" onclick="document.getElementById('delOv').classList.add('open')">🗑️ <span>Supprimer mon compte</span></button>
 </div>
-
 <div style="height:1rem"></div>
 
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-item" onclick="location.href='dashboard.html'">
-    <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
-  </button>
-  <button class="nav-item" id="navMessages" onclick="location.href='messages.html'">
-    <span class="nav-ico">💬</span>
-    <span class="nav-lbl">Messages</span>
-  </button>
-  <div class="nav-item">
-    <button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button>
-    <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
-  </div>
-  <button class="nav-item" onclick="location.href='gagner.html'">
-    <span class="nav-ico">💰</span><span class="nav-lbl">Gagner</span>
-  </button>
-  <button class="nav-item active">
-    <span class="nav-ico">👤</span>
-    <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Profil</span>
-  </button>
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" id="navMessages" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+  <button class="nav-item" onclick="location.href='gagner.html'"><span class="nav-ico">💰</span><span class="nav-lbl">Gagner</span></button>
+  <button class="nav-item active"><span class="nav-ico">👤</span><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Profil</span></button>
 </nav>
 
+<!-- MODAL SUPPRESSION -->
 <div class="modal-ov" id="delOv" onclick="if(event.target===this)document.getElementById('delOv').classList.remove('open')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
@@ -456,6 +509,49 @@
   </div>
 </div>
 
+<!-- MODAL GÉRER ABONNEMENT -->
+<div class="modal-ov" id="manageOv" onclick="if(event.target===this)closeManageModal()">
+  <div class="manage-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="ms-hdr">
+      <div class="ms-ico">👑</div>
+      <div class="ms-title">Gérer mon abonnement</div>
+      <div class="ms-sub" id="manSubtitle">Compte Premium actif</div>
+    </div>
+    <div class="ms-info-card" id="manInfoCard">
+      <div class="ms-plan-ico">👑</div>
+      <div>
+        <div class="ms-plan-name" id="manPlanName">Premium</div>
+        <div class="ms-plan-exp" id="manPlanExp">Expire le —</div>
+      </div>
+    </div>
+    <div class="ms-options">
+      <button class="ms-opt" onclick="renewPlan()">
+        <div class="ms-opt-ico" style="background:rgba(27,63,228,.1);">🔄</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Renouveler maintenant</div><div class="ms-opt-desc">Prolonge ton abonnement avant expiration</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+      <button class="ms-opt" onclick="upgradePlan()">
+        <div class="ms-opt-ico" style="background:rgba(245,183,49,.12);">⬆️</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Passer à l'annuel</div><div class="ms-opt-desc">Économise 17% avec le plan 12 mois</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+      <button class="ms-opt" onclick="contactSupport()">
+        <div class="ms-opt-ico" style="background:rgba(0,194,113,.1);">💬</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Contacter le support</div><div class="ms-opt-desc">Problème avec ton abonnement ?</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+      <button class="ms-opt danger" onclick="cancelPlan()">
+        <div class="ms-opt-ico" style="background:rgba(232,48,48,.08);">❌</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Annuler l'abonnement</div><div class="ms-opt-desc">Accès maintenu jusqu'à expiration</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+    </div>
+    <button class="ms-close-btn" onclick="closeManageModal()">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL PAIEMENT PREMIUM -->
 <div class="modal-ov" id="payOv" onclick="if(event.target===this)closePayModal()">
   <div class="pay-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
@@ -465,38 +561,29 @@
       <div class="plan-opt selected" id="optMensuel" onclick="selectPlan('mensuel')">
         <div class="plan-opt-row">
           <div><div class="plan-opt-name">📅 Mensuel</div><div class="plan-opt-desc">Accès Premium 30 jours</div></div>
-          <div style="display:flex;align-items:center;">
-            <div class="plan-opt-price">2 000 FCFA</div><div class="plan-radio"></div>
-          </div>
+          <div style="display:flex;align-items:center;"><div class="plan-opt-price">2 000 FCFA</div><div class="plan-radio"></div></div>
         </div>
       </div>
       <div class="plan-opt" id="optAnnuel" onclick="selectPlan('annuel')">
         <div class="plan-eco">🎉 −17%</div>
         <div class="plan-opt-row">
           <div><div class="plan-opt-name">📆 Annuel</div><div class="plan-opt-desc">Accès Premium 12 mois</div></div>
-          <div style="display:flex;align-items:center;">
-            <div class="plan-opt-price">20 000 FCFA</div><div class="plan-radio"></div>
-          </div>
+          <div style="display:flex;align-items:center;"><div class="plan-opt-price">20 000 FCFA</div><div class="plan-radio"></div></div>
         </div>
       </div>
     </div>
     <div style="font-size:.7rem;color:var(--gray);font-weight:600;margin-bottom:.35rem;">Opérateurs acceptés :</div>
     <div class="pay-ops">
-      <span class="pay-op">📱 MTN MoMo</span>
-      <span class="pay-op">🟠 Orange Money</span>
-      <span class="pay-op">🔵 Moov Money</span>
-      <span class="pay-op">🟡 Wave</span>
+      <span class="pay-op">📱 MTN MoMo</span><span class="pay-op">🟠 Orange Money</span>
+      <span class="pay-op">🔵 Moov Money</span><span class="pay-op">🟡 Wave</span>
     </div>
     <div class="pay-avantages">
       <div class="pay-avantages-ttl">✨ Ce que tu débloques</div>
-      <div>✅ Annonces illimitées</div>
-      <div>✅ Mise en avant prioritaire</div>
-      <div>✅ Badge vendeur vérifié 👑</div>
-      <div>✅ Statistiques avancées</div>
+      <div>✅ Annonces illimitées</div><div>✅ Mise en avant prioritaire</div>
+      <div>✅ Badge vendeur vérifié 👑</div><div>✅ Statistiques avancées</div>
     </div>
     <button class="pay-btn" id="payBtn" onclick="lancerPaiement()">
-      <div class="pay-spin"></div>
-      <span class="pay-lbl">💳 Payer 2 000 FCFA</span>
+      <div class="pay-spin"></div><span class="pay-lbl">💳 Payer 2 000 FCFA</span>
     </button>
     <div class="pay-secure">🔒 Paiement sécurisé par Monetbil · Aucune carte bancaire requise</div>
     <div style="text-align:center;margin-top:.8rem;">
@@ -507,13 +594,12 @@
 
 <div id="toast"></div>
 
-<script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
-
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
 <script>
 'use strict';
 
 function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 var _sb = supabase.createClient(
@@ -522,499 +608,21 @@ var _sb = supabase.createClient(
 );
 
 var U = null, P = null, hasChanges = false;
+var _notifData = [];
 
+/* ═══════════════════════════════════════════════
+   MONETBIL
+═══════════════════════════════════════════════ */
 var MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
 var MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
 var PLANS = {
-  mensuel: { amount: 2000,  label: '2 000',  months: 1,  dbPlan: 'premium' },
-  annuel:  { amount: 20000, label: '20 000', months: 12, dbPlan: 'premium_annual' }
+  mensuel: { amount:2000,  label:'2 000',  months:1,  dbPlan:'premium' },
+  annuel:  { amount:20000, label:'20 000', months:12, dbPlan:'premium_annual' }
 };
 var _selectedPlan = 'mensuel';
 
-var SVC_INFO = {
-  "gagner-chasseur":    { label: "Chasseur de Vendeurs",   icon: "🎯", color: "#E8960A" },
-  "gagner-verificateur":{ label: "Vérificateur Certifié",  icon: "🕵️", color: "#00A8A0" },
-  "gagner-negociateur": { label: "Négociateur Pro",        icon: "🗣️", color: "#D4561A" },
-  "gagner-livreur":     { label: "Livreur Indépendant",    icon: "📦", color: "#009958" },
-  "gagner-formateur":   { label: "Formateur Certifié",     icon: "🎓", color: "#1B3FE4" },
-  "gagner-courtier":    { label: "Courtier Import-Export", icon: "🌍", color: "#8B2FD4" },
-  "gagner-encheres":    { label: "Enchères Inversées",     icon: "🎰", color: "#C42020" }
-};
-
-/* ── INIT ── */
-(async function() {
-  try {
-    var res = await _sb.auth.getSession();
-    var session = res.data && res.data.session;
-    if (!session) { location.href = 'index.html'; return; }
-    U = session.user;
-  } catch(e) { showToast('Erreur connexion : ' + e.message, 'error'); return; }
-
-  var meta = U.user_metadata || {};
-  P = {
-    full_name : meta.full_name || meta.name || U.email.split('@')[0],
-    email     : U.email,
-    avatar_url: meta.avatar_url || ''
-  };
-  fillForm(); updateHero();
-
-  try {
-    var pr = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
-    if (pr.error) throw pr.error;
-    if (pr.data) {
-      P = Object.assign({}, P, pr.data);
-    } else {
-      var newProf = { id: U.id, full_name: meta.full_name || meta.name || U.email.split('@')[0], email: U.email, created_at: new Date().toISOString() };
-      var ins = await _sb.from('profiles').upsert(newProf, { onConflict: 'id' }).select().single();
-      if (ins.data) P = Object.assign({}, P, ins.data);
-    }
-  } catch(e) { console.warn('Profile fetch error:', e.message); }
-
-  fillForm(); updateHero(); updateCompletion(); updatePremiumCard();
-  loadStats(); loadMyAds(); loadMyAvis(U.id); loadUnreadMessages();
-  loadMyServices(false); // false = chargement silencieux
-  setupRealtime();
-})();
-
-/* ── FORMULAIRE ── */
-function fillForm() {
-  if (!P) return;
-  document.getElementById('fName').value  = P.full_name || '';
-  document.getElementById('fWa').value    = P.whatsapp  || '';
-  document.getElementById('fPays').value  = P.pays      || '';
-  document.getElementById('fVille').value = P.ville     || '';
-  document.getElementById('fBio').value   = P.bio       || '';
-}
-
-function updateHero() {
-  var name = P.full_name || (U && U.email ? U.email.split('@')[0] : 'Utilisateur');
-  document.getElementById('heroName').textContent  = name;
-  document.getElementById('heroEmail').textContent = (U && U.email) || '';
-  var avEl = document.getElementById('avatarEl');
-  if (P.avatar_url && P.avatar_url.startsWith('http')) {
-    avEl.innerHTML = '<img src="' + escHtml(P.avatar_url) + '" alt="avatar" onerror="this.style.display=\'none\'"/>';
-  } else {
-    avEl.innerHTML = '<span id="avatarInitial">' + escHtml((name[0] || '?').toUpperCase()) + '</span>';
-  }
-  var planEl = document.getElementById('heroPlan');
-  if (P.is_premium) {
-    planEl.className   = 'hero-plan ' + (P.plan === 'elite' ? 'elite' : 'premium');
-    planEl.textContent = P.plan === 'elite' ? '⚡ Compte Elite' : '👑 Compte Premium';
-  } else {
-    planEl.className   = 'hero-plan free';
-    planEl.textContent = '🆓 Compte Gratuit';
-  }
-}
-
-function updateCompletion() {
-  var checks = [
-    { ok: !!(P.full_name),  label: 'Nom' },
-    { ok: !!(P.whatsapp),   label: 'WhatsApp' },
-    { ok: !!(P.ville),      label: 'Ville' },
-    { ok: !!(P.avatar_url && P.avatar_url.startsWith('http')), label: 'Photo' },
-    { ok: !!(P.pays),       label: 'Pays' },
-    { ok: !!(P.bio),        label: 'Bio' }
-  ];
-  var done = checks.filter(function(c){ return c.ok; }).length;
-  var pct  = Math.round(done / checks.length * 100);
-  document.getElementById('ccPct').textContent = pct + '%';
-  var fill = document.getElementById('ccFill');
-  fill.style.width = pct + '%';
-  if (pct >= 100) fill.classList.add('done');
-  document.getElementById('ccDots').innerHTML = checks.map(function(c){
-    return '<span class="cc-dot ' + (c.ok ? 'ok' : 'ko') + '">' + (c.ok ? '✅' : '❌') + ' ' + escHtml(c.label) + '</span>';
-  }).join('');
-}
-
-function updatePremiumCard() {
-  var card  = document.getElementById('premCard');
-  var badge = document.getElementById('planBadge');
-  var title = document.getElementById('planTitle');
-  var feats = document.getElementById('planFeatures');
-  var desc  = document.getElementById('planDesc');
-  var btn   = document.getElementById('planBtn');
-  if (P.is_premium) {
-    card.className  = 'prem-card prem-active';
-    badge.className = 'pc-badge-prem';
-    badge.textContent = P.plan === 'elite' ? '⚡ Elite' : '👑 Premium';
-    title.textContent = P.plan === 'elite' ? 'Compte Elite Actif' : 'Compte Premium Actif';
-    feats.innerHTML =
-      '<div class="pc-feat">✅ Annonces illimitées</div>' +
-      '<div class="pc-feat">✅ Mise en avant prioritaire</div>' +
-      '<div class="pc-feat">✅ Badge vendeur vérifié</div>' +
-      '<div class="pc-feat">✅ Statistiques avancées</div>';
-    var exp = P.plan_expires
-      ? new Date(P.plan_expires).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
-      : '—';
-    desc.innerHTML  = '<div class="pc-expires">⏰ Expire le ' + escHtml(exp) + '</div>';
-    btn.className   = 'pc-btn pc-btn-manage';
-    btn.textContent = '⚙️ Gérer mon abonnement';
-    btn.onclick     = function(){ showToast('Gestion abonnement disponible bientôt', 'info'); };
-    card.querySelector('.pc-top').children[0].textContent = '👑';
-  }
-}
-
-/* ── STATS ── */
-async function loadStats() {
-  try {
-    var adsRes = await _sb.from('annonces').select('id', { count:'exact', head:true }).eq('user_id', U.id);
-    var refCode = P.ref_code || U.id.substring(0, 8);
-    var refsRes = await _sb.from('profiles').select('id', { count:'exact', head:true }).eq('referred_by', refCode);
-    var earnRes = await _sb.from('referral_earnings').select('amount, status').eq('user_id', U.id);
-    var solde = 0;
-    if (earnRes.data) solde = earnRes.data.filter(function(e){ return e.status === 'available'; }).reduce(function(s,e){ return s + (e.amount||0); }, 0);
-    var days = P.created_at ? Math.floor((Date.now() - new Date(P.created_at).getTime()) / 86400000) : 0;
-    document.getElementById('statAds').textContent   = adsRes.count || 0;
-    document.getElementById('statRefs').textContent  = refsRes.count || 0;
-    document.getElementById('statSolde').textContent = solde.toLocaleString('fr-FR');
-    document.getElementById('statDays').textContent  = days;
-  } catch(e) { console.warn('loadStats:', e); }
-}
-
-/* ── MES ANNONCES ── */
-async function loadMyAds() {
-  try {
-    var res = await _sb.from('annonces')
-      .select('id, titre, prix, categorie, ville, image_url, created_at')
-      .eq('user_id', U.id).order('created_at', { ascending: false }).limit(20);
-    var grid  = document.getElementById('myAdsGrid');
-    var empty = document.getElementById('myAdsEmpty');
-    if (!res.data || res.data.length === 0) { grid.style.display = 'none'; empty.style.display = 'block'; return; }
-    var EMAP = { immobilier:'🏠', vehicules:'🚗', electronique:'📱', mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦' };
-    grid.style.display = 'grid'; empty.style.display = 'none';
-    grid.innerHTML = res.data.map(function(ad) {
-      var em   = EMAP[ad.categorie] || '📦';
-      var prix = ad.prix ? Number(ad.prix).toLocaleString('fr-FR') + ' FCFA' : 'Prix libre';
-      var imgHtml = ad.image_url
-        ? '<img src="' + escHtml(ad.image_url) + '" alt="" style="width:100%;height:95px;object-fit:cover;" loading="lazy">'
-        : '<div style="width:100%;height:95px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">' + em + '</div>';
-      return '<div class="ad-mini-card">' + imgHtml +
-        '<div style="padding:.5rem .65rem .6rem;">' +
-          '<div style="font-size:.76rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(ad.titre || 'Sans titre') + '</div>' +
-          '<div style="font-family:\'Clash Display\',sans-serif;font-size:.8rem;font-weight:700;color:var(--blue2);margin-top:1px;">' + escHtml(prix) + '</div>' +
-          '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:.35rem;">' +
-            '<span style="font-size:.6rem;color:var(--gray);">📍 ' + escHtml(ad.ville || '—') + '</span>' +
-            '<button onclick="event.stopPropagation();deleteAd(\'' + ad.id + '\')" style="font-size:.6rem;color:var(--red);background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.12rem .45rem;cursor:pointer;font-weight:700;">🗑️</button>' +
-          '</div>' +
-        '</div></div>';
-    }).join('');
-  } catch(e) { console.warn('loadMyAds:', e); }
-}
-
-async function deleteAd(id) {
-  if (!confirm('Supprimer cette annonce ?')) return;
-  try {
-    var res = await _sb.from('annonces').delete().eq('id', id).eq('user_id', U.id);
-    if (res.error) throw res.error;
-    showToast('Annonce supprimée ✅', 'success'); loadMyAds(); loadStats();
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
-}
-
-/* ── MES AVIS ── */
-async function loadMyAvis(uid) {
-  try {
-    var res = await _sb.from('avis').select('note, commentaire, created_at, reviewer_id').eq('seller_id', uid).order('created_at', { ascending: false }).limit(20);
-    var sec = document.getElementById('avisSection');
-    if (!res.data || !res.data.length) {
-      sec.innerHTML = '<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem">🌟</div><div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l\'instant.<br>Les acheteurs pourront te noter après un échange.</div></div>';
-      return;
-    }
-    var reviewerIds = res.data.map(function(a){ return a.reviewer_id; }).filter(Boolean);
-    var nameMap = {};
-    if (reviewerIds.length) {
-      var prRes = await _sb.from('profiles').select('id, full_name').in('id', reviewerIds);
-      if (prRes.data) prRes.data.forEach(function(p){ nameMap[p.id] = p.full_name || 'Anonyme'; });
-    }
-    var avg    = (res.data.reduce(function(s,a){ return s + a.note; }, 0) / res.data.length).toFixed(1);
-    var filled = Math.round(parseFloat(avg));
-    var stars  = '⭐'.repeat(filled) + '☆'.repeat(Math.max(0, 5 - filled));
-    var barsHtml = [5,4,3,2,1].map(function(n) {
-      var cnt = res.data.filter(function(a){ return a.note === n; }).length;
-      var pct = Math.round(cnt / res.data.length * 100);
-      return '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem"><span style="font-size:.62rem;color:var(--gray);width:12px">' + n + '</span><div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--gold);border-radius:99px"></div></div><span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">' + cnt + '</span></div>';
-    }).join('');
-    var cardsHtml = res.data.slice(0, 5).map(function(a) {
-      var name = nameMap[a.reviewer_id] || 'Anonyme';
-      var init = (name[0] || '?').toUpperCase();
-      var d    = new Date(a.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-      var s2   = '⭐'.repeat(a.note) + '☆'.repeat(Math.max(0, 5 - a.note));
-      var cmt  = a.commentaire ? '<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"' + escHtml(a.commentaire) + '"</div>' : '';
-      return '<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;"><div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;">' + escHtml(init) + '</div><div><div style="font-size:.78rem;font-weight:700;color:var(--dark)">' + escHtml(name) + '</div><div style="font-size:.62rem;color:var(--gray)">' + escHtml(d) + '</div></div><div style="margin-left:auto;font-size:.85rem">' + s2 + '</div></div>' + cmt + '</div>';
-    }).join('');
-    sec.innerHTML = '<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;"><div style="text-align:center;flex-shrink:0"><div style="font-family:\'Clash Display\',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">' + avg + '</div><div style="font-size:1rem;margin:.2rem 0">' + stars + '</div><div style="font-size:.65rem;color:var(--gray)">' + res.data.length + ' avis</div></div><div style="flex:1">' + barsHtml + '</div></div>' + cardsHtml;
-  } catch(e) { console.warn('loadMyAvis:', e); }
-}
-
-/* ══════════════════════════════════════
-   ★ MES SERVICES — VERSION CORRIGÉE
-   Lit DIRECTEMENT depuis la DB à chaque
-   appel, pas de cache local possible.
-══════════════════════════════════════ */
-async function loadMyServices(showFeedback) {
-  if (!U) return;
-  var container = document.getElementById('servicesSection');
-  if (!container) return;
-
-  if (showFeedback) {
-    container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--gray);font-size:.82rem;">⏳ Actualisation…</div>';
-  }
-
-  try {
-    // ── Lecture directe depuis Supabase (pas de cache) ──
-    var res = await _sb
-      .from('service_registrations')
-      .select('id, service, status, created_at, user_id')
-      .eq('user_id', U.id)
-      .order('created_at', { ascending: false });
-
-    if (res.error) throw res.error;
-
-    var records = res.data || [];
-
-    if (!records.length) {
-      container.innerHTML =
-        '<div class="empty-services">' +
-          '<div class="es-ico">💰</div>' +
-          '<div class="es-title">Commence à gagner</div>' +
-          '<div class="es-desc">Tu n\'as pas encore rejoint un service.<br>Rejoins une activité et gagne de l\'argent !</div>' +
-          '<button class="es-btn" onclick="location.href=\'gagner.html\'">Voir les opportunités →</button>' +
-        '</div>';
-      return;
-    }
-
-    // ── Rendu de chaque service avec le VRAI statut DB ──
-    var html = records.map(function(r) {
-      var s = SVC_INFO[r.service] || { label: r.service, icon: '📋', color: '#888' };
-
-      // Statut affiché selon la valeur RÉELLE de la DB
-      var statusLabel, statusClass;
-      switch(r.status) {
-        case 'approved':
-          statusLabel = '✅ Approuvé — Actif';
-          statusClass = 'approved';
-          break;
-        case 'rejected':
-          statusLabel = '❌ Non retenu';
-          statusClass = 'rejected';
-          break;
-        default: // 'pending' ou autre
-          statusLabel = '⏳ En attente de validation';
-          statusClass = 'pending';
-      }
-
-      var actionBtn = '';
-      if (r.status === 'approved') {
-        actionBtn = '<button class="sb-btn" onclick="location.href=\'mes-missions.html?service=' + escHtml(r.service) + '\'">Voir mes missions →</button>';
-      } else if (r.status === 'pending') {
-        actionBtn = '<button class="sb-btn" disabled style="opacity:.5;cursor:default;">En traitement…</button>';
-      } else if (r.status === 'rejected') {
-        actionBtn = '<button class="sb-btn" style="background:rgba(232,48,48,.08);color:var(--red);border:1px solid rgba(232,48,48,.2);" onclick="location.href=\'gagner.html\'">Recandidater</button>';
-      }
-
-      var extraInfo = '';
-      if (r.status === 'pending') {
-        extraInfo = '<div class="sb-pending-info">Réponse sous 24–48h • Vérifie tes notifications</div>';
-      } else if (r.status === 'approved') {
-        extraInfo = '<div style="font-size:.68rem;color:var(--green);margin-top:.1rem;font-weight:600;">🎉 Candidature approuvée !</div>';
-      }
-
-      return '<div class="service-badge-card ' + statusClass + '-card">' +
-        '<div class="sb-ico-wrap" style="background:' + s.color + '20;border:1.5px solid ' + s.color + '40;">' + s.icon + '</div>' +
-        '<div class="sb-info">' +
-          '<div class="sb-name">' + escHtml(s.label) + '</div>' +
-          '<span class="sb-status ' + statusClass + '">' + statusLabel + '</span>' +
-          extraInfo +
-        '</div>' +
-        actionBtn +
-      '</div>';
-    }).join('');
-
-    container.innerHTML = html;
-
-    if (showFeedback) {
-      showToast('Services actualisés ✅', 'success');
-    }
-
-  } catch(e) {
-    console.error('loadMyServices error:', e);
-    container.innerHTML =
-      '<div style="background:rgba(232,48,48,.05);border:1.5px solid rgba(232,48,48,.15);border-radius:14px;padding:1rem;text-align:center;font-size:.8rem;color:var(--red);">' +
-        '❌ Erreur de chargement : ' + escHtml(e.message) +
-        '<br><button onclick="loadMyServices(true)" style="margin-top:.5rem;padding:.3rem .8rem;background:var(--red);color:white;border:none;border-radius:8px;font-size:.75rem;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif;">Réessayer</button>' +
-      '</div>';
-  }
-}
-
-/* ── BADGE MESSAGES ── */
-async function loadUnreadMessages() {
-  if (!U) return;
-  try {
-    var res = await _sb.from('messages').select('id', { count:'exact', head:true }).eq('receiver_id', U.id).eq('read', false);
-    var count = 0;
-    if (!res.error) { count = res.count || 0; }
-    else { var r2 = await _sb.from('messages').select('id', { count:'exact', head:true }).eq('receiver_id', U.id).eq('lu', false); if (!r2.error) count = r2.count || 0; }
-    updateMessageBadge(count);
-  } catch(e) { console.warn('loadUnreadMessages:', e); }
-}
-function updateMessageBadge(count) {
-  var el = document.getElementById('navMessages'), ex = el.querySelector('.nav-badge');
-  if (ex) ex.remove();
-  if (count > 0) { var b = document.createElement('span'); b.className = 'nav-badge'; b.textContent = count > 99 ? '99+' : String(count); el.appendChild(b); }
-}
-
-function markChanged(el) {
-  el.classList.add('changed'); hasChanges = true;
-  document.getElementById('hSaveBtn').classList.add('show');
-}
-
-/* ── UPLOAD AVATAR ── */
-async function uploadAvatar(input) {
-  var file = input.files[0]; if (!file) return;
-  if (file.size > 3 * 1024 * 1024) { showToast('Image trop grande (max 3 Mo)', 'warning'); return; }
-  var reader = new FileReader();
-  reader.onload = function(e) { document.getElementById('avatarEl').innerHTML = '<img src="' + e.target.result + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;"/>'; };
-  reader.readAsDataURL(file);
-  document.getElementById('avatarUploading').classList.add('show');
-  try {
-    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace('jpeg','jpg');
-    var path = 'avatars/' + U.id + '_' + Date.now() + '.' + ext;
-    var upRes = await _sb.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
-    if (upRes.error) { showToast('Photo affichée localement uniquement', 'warning'); return; }
-    var pubData  = _sb.storage.from('avatars').getPublicUrl(path);
-    var finalUrl = pubData.data && pubData.data.publicUrl ? pubData.data.publicUrl + '?t=' + Date.now() : null;
-    if (!finalUrl) { var signed = await _sb.storage.from('avatars').createSignedUrl(path, 31536000); finalUrl = signed.data && signed.data.signedUrl ? signed.data.signedUrl : null; }
-    if (!finalUrl) { showToast('Upload OK mais URL inaccessible', 'warning'); return; }
-    var upsertRes = await _sb.from('profiles').upsert({ id: U.id, avatar_url: finalUrl }, { onConflict: 'id' });
-    if (upsertRes.error) { showToast('Erreur sauvegarde photo : ' + upsertRes.error.message, 'error'); return; }
-    P.avatar_url = finalUrl;
-    document.getElementById('avatarEl').innerHTML = '<img src="' + escHtml(finalUrl) + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"/>';
-    updateCompletion(); showToast('Photo de profil mise à jour ! 🎉', 'success');
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
-  finally { document.getElementById('avatarUploading').classList.remove('show'); input.value = ''; }
-}
-
-/* ── SAUVEGARDER ── */
-async function saveProfile() {
-  var name  = document.getElementById('fName').value.trim();
-  var wa    = document.getElementById('fWa').value.trim();
-  var pays  = document.getElementById('fPays').value;
-  var ville = document.getElementById('fVille').value.trim();
-  var bio   = document.getElementById('fBio').value.trim();
-  if (!name) { showToast('Le nom est obligatoire', 'warning'); return; }
-  var btn = document.getElementById('saveBtn'), hBtn = document.getElementById('hSaveBtn');
-  btn.disabled = true; btn.textContent = '⏳ Sauvegarde…'; hBtn.disabled = true; hBtn.textContent = '⏳…';
-  try {
-    var payload = { id: U.id, full_name: name, whatsapp: wa, pays: pays, ville: ville, bio: bio, updated_at: new Date().toISOString() };
-    if (P.avatar_url) payload.avatar_url = P.avatar_url;
-    var res = await _sb.from('profiles').upsert(payload, { onConflict: 'id' });
-    if (res.error) throw res.error;
-    P = Object.assign({}, P, { full_name: name, whatsapp: wa, pays: pays, ville: ville, bio: bio });
-    document.querySelectorAll('.changed').forEach(function(el){ el.classList.remove('changed'); });
-    hasChanges = false; hBtn.classList.remove('show');
-    updateHero(); updateCompletion(); showToast('Profil sauvegardé ✅', 'success');
-  } catch(e) { showToast('Erreur : ' + (e.message || 'Inconnue'), 'error'); }
-  finally { btn.disabled = false; btn.textContent = '💾 Sauvegarder les modifications'; hBtn.disabled = false; hBtn.textContent = '💾 Sauvegarder'; }
-}
-
-/* ── DÉCONNEXION / SUPPRESSION ── */
-async function logout() { try { await _sb.auth.signOut(); } catch(e) {} location.href = 'index.html'; }
-
-async function deleteAccount() {
-  showToast('Suppression en cours…', 'info');
-  try {
-    await _sb.from('annonces').delete().eq('user_id', U.id);
-    await _sb.from('profiles').delete().eq('id', U.id);
-    await _sb.auth.signOut();
-    location.href = 'index.html';
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
-}
-
-/* ══════════════════════════════════════
-   ★ REALTIME — écoute les changements
-     de service_registrations en temps réel
-══════════════════════════════════════ */
-function setupRealtime() {
-  // ── Profil (premium, plan) ──
-  _sb.channel('profile-' + U.id)
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'profiles', filter:'id=eq.' + U.id }, async function() {
-      var fresh = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
-      if (fresh.data) {
-        P = Object.assign({}, P, fresh.data);
-        updateHero(); updatePremiumCard(); updateCompletion(); loadStats();
-        showToast(P.is_premium ? '👑 Premium activé !' : '🔒 Plan mis à jour', 'info');
-      }
-    }).subscribe();
-
-  // ── Services — écoute UPDATE sur service_registrations ──
-  // Rafraîchit automatiquement quand l'admin change le statut
-  _sb.channel('services-' + U.id)
-    .on('postgres_changes', {
-      event: 'UPDATE',
-      schema: 'public',
-      table: 'service_registrations',
-      filter: 'user_id=eq.' + U.id
-    }, function(payload) {
-      console.log('[Services Realtime] Changement détecté:', payload.new);
-      // Recharger depuis la DB pour avoir le vrai statut
-      loadMyServices(false);
-      // Toast basé sur le nouveau statut
-      if (payload.new && payload.new.status) {
-        var svcLabel = (SVC_INFO[payload.new.service] || {}).label || 'Service';
-        if (payload.new.status === 'approved') {
-          showToast('✅ ' + svcLabel + ' approuvé ! 🎉', 'success');
-        } else if (payload.new.status === 'rejected') {
-          showToast('❌ Candidature ' + svcLabel + ' non retenue', 'warning');
-        }
-      }
-    }).subscribe(function(status) {
-      console.log('[Services Realtime] Status:', status);
-    });
-
-  // ── Notifications ──
-  _sb.channel('notifs-' + U.id)
-    .on('postgres_changes', { event:'INSERT', schema:'public', table:'notifications', filter:'user_id=eq.' + U.id }, function(payload) {
-      var n = payload.new;
-      showToast((n.icon || '🔔') + ' ' + (n.title || 'Nouvelle notification'), 'info');
-      // Si la notif parle d'un service, recharger les services
-      if (n.title && (n.title.indexOf('Candidature') !== -1 || n.title.indexOf('approuv') !== -1 || n.title.indexOf('rejet') !== -1)) {
-        setTimeout(function() { loadMyServices(false); }, 1500);
-      }
-      // Si parle de premium
-      if (n.title && (n.title.indexOf('Premium') !== -1 || n.title.indexOf('Retrait') !== -1)) {
-        setTimeout(async function() {
-          var fresh = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
-          if (fresh.data) { P = Object.assign({}, P, fresh.data); updateHero(); updatePremiumCard(); }
-        }, 1000);
-      }
-    }).subscribe();
-
-  // ── Messages ──
-  _sb.channel('messages-' + U.id)
-    .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages', filter:'receiver_id=eq.' + U.id }, function() {
-      loadUnreadMessages();
-    }).subscribe();
-
-  // ── Polling de secours toutes les 30s ──
-  // (au cas où le Realtime ne se déclenche pas à cause de la RLS)
-  setInterval(async function() {
-    try {
-      // Vérifier le profil
-      var fresh = await _sb.from('profiles').select('is_premium, plan, plan_expires').eq('id', U.id).maybeSingle();
-      if (fresh.data && (fresh.data.is_premium !== P.is_premium || fresh.data.plan !== P.plan)) {
-        P = Object.assign({}, P, fresh.data);
-        updateHero(); updatePremiumCard();
-        showToast('Compte mis à jour', 'info');
-      }
-      // Recharger les services silencieusement
-      loadMyServices(false);
-      loadUnreadMessages();
-    } catch(e) {}
-  }, 30000);
-}
-
-/* ── MONETBIL ── */
 function openPayModal() {
-  if (P && P.is_premium) { showToast('👑 Ton compte est déjà Premium !', 'info'); return; }
+  if (P && P.is_premium) { showToast('👑 Ton compte est déjà Premium !','info'); return; }
   selectPlan('mensuel');
   document.getElementById('payOv').classList.add('open');
 }
@@ -1022,81 +630,591 @@ function closePayModal() { document.getElementById('payOv').classList.remove('op
 
 function selectPlan(key) {
   _selectedPlan = key;
-  document.getElementById('optMensuel').classList.toggle('selected', key === 'mensuel');
-  document.getElementById('optAnnuel').classList.toggle('selected', key === 'annuel');
+  document.getElementById('optMensuel').classList.toggle('selected', key==='mensuel');
+  document.getElementById('optAnnuel').classList.toggle('selected',  key==='annuel');
   document.querySelector('#payBtn .pay-lbl').textContent = '💳 Payer ' + PLANS[key].label + ' FCFA';
 }
 
 async function lancerPaiement() {
-  if (!U) { showToast('Connecte-toi pour payer', 'warning'); return; }
+  if (!U) { showToast('Connecte-toi pour payer','warning'); return; }
   var plan = PLANS[_selectedPlan];
-  var ref  = 'AM_' + Date.now() + '_' + U.id.slice(0, 8);
+  var ref  = 'AM_' + Date.now() + '_' + U.id.slice(0,8);
   var btn  = document.getElementById('payBtn');
   btn.disabled = true; btn.classList.add('loading');
   try {
-    await _sb.from('payment_requests').insert([{
-      user_id: U.id, plan: plan.dbPlan, amount: plan.amount,
-      payment_ref: ref, status: 'pending', created_at: new Date().toISOString()
-    }]);
+    await _sb.from('payment_requests').insert([{ user_id:U.id, plan:plan.dbPlan, amount:plan.amount, payment_ref:ref, status:'pending', created_at:new Date().toISOString() }]);
     closePayModal();
     if (typeof monetbil !== 'undefined') {
-      monetbil.launch({
-        service: MONETBIL_KEY, amount: plan.amount, currency: 'XAF', locale: 'fr',
-        phone: (P && P.whatsapp) ? P.whatsapp.replace(/\D/g,'') : '',
-        item_ref: U.id, payment_ref: ref,
-        notify_url: MONETBIL_NOTIFY, return_url: window.location.href,
-        onComplete: function(data) {
-          if (data && data.status === 'success') {
-            showToast('🎉 Paiement confirmé ! Activation en cours…', 'success');
-            setTimeout(async function() {
-              var fr = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
-              if (fr.data) { P = Object.assign({}, P, fr.data); updateHero(); updatePremiumCard(); }
-              if (P.is_premium) showToast('👑 Premium activé ! Bienvenue !', 'success');
-            }, 3500);
-          } else { showToast('Paiement annulé ou échoué', 'warning'); }
+      monetbil.launch({ service:MONETBIL_KEY, amount:plan.amount, currency:'XAF', locale:'fr',
+        phone:(P&&P.whatsapp)?P.whatsapp.replace(/\D/g,''):'',
+        item_ref:U.id, payment_ref:ref, notify_url:MONETBIL_NOTIFY, return_url:window.location.href,
+        onComplete:function(data) {
+          if (data&&data.status==='success') {
+            showToast('🎉 Paiement confirmé ! Activation en cours…','success');
+            setTimeout(async function(){ var fr=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle(); if(fr.data){P=Object.assign({},P,fr.data);updateHero();updatePremiumCard();} if(P.is_premium)showToast('👑 Premium activé !','success'); }, 3500);
+          } else showToast('Paiement annulé ou échoué','warning');
         }
       });
     } else {
-      var p = new URLSearchParams({
-        amount: plan.amount, currency: 'XAF', locale: 'fr',
-        item_ref: U.id, payment_ref: ref,
-        notify_url: MONETBIL_NOTIFY, return_url: window.location.href
-      });
-      window.location.href = 'https://www.monetbil.com/widget/v2.1/' + MONETBIL_KEY + '?' + p.toString();
+      var p=new URLSearchParams({amount:plan.amount,currency:'XAF',locale:'fr',item_ref:U.id,payment_ref:ref,notify_url:MONETBIL_NOTIFY,return_url:window.location.href});
+      window.location.href='https://www.monetbil.com/widget/v2.1/'+MONETBIL_KEY+'?'+p.toString();
     }
-  } catch(err) {
-    showToast('Erreur : ' + (err.message || 'Inconnue'), 'error');
-  } finally {
-    btn.disabled = false; btn.classList.remove('loading');
+  } catch(err) { showToast('Erreur : '+(err.message||'Inconnue'),'error'); }
+  finally { btn.disabled=false; btn.classList.remove('loading'); }
+}
+
+/* ═══════════════════════════════════════════════
+   MODAL GÉRER ABONNEMENT
+═══════════════════════════════════════════════ */
+function openManageModal() {
+  if (!P || !P.is_premium) {
+    location.href = 'pricing.html';
+    return;
+  }
+  var exp = P.plan_expires ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  document.getElementById('manPlanName').textContent = P.plan==='premium_annual' ? 'Premium Annuel' : 'Premium Mensuel';
+  document.getElementById('manPlanExp').textContent  = 'Expire le ' + exp;
+  document.getElementById('manSubtitle').textContent = 'Ton abonnement est actif jusqu\'au ' + exp;
+  document.getElementById('manageOv').classList.add('open');
+}
+function closeManageModal() { document.getElementById('manageOv').classList.remove('open'); }
+
+function renewPlan() {
+  closeManageModal();
+  selectPlan('mensuel');
+  document.getElementById('payOv').classList.add('open');
+}
+function upgradePlan() {
+  closeManageModal();
+  selectPlan('annuel');
+  document.getElementById('payOv').classList.add('open');
+}
+function contactSupport() {
+  closeManageModal();
+  window.open('https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20un%20probl%C3%A8me%20avec%20mon%20abonnement%20Premium%20%F0%9F%91%8B','_blank');
+}
+function cancelPlan() {
+  closeManageModal();
+  showToast('Pour annuler, contacte notre support WhatsApp','info');
+  setTimeout(function(){ window.open('https://wa.me/237689011185?text=Je%20souhaite%20annuler%20mon%20abonnement%20AfriMarket','_blank'); }, 1500);
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+(async function() {
+  try {
+    var res = await _sb.auth.getSession();
+    var session = res.data && res.data.session;
+    if (!session) { location.href = 'index.html'; return; }
+    U = session.user;
+  } catch(e) { showToast('Erreur connexion : '+e.message,'error'); return; }
+
+  var meta = U.user_metadata || {};
+  P = { full_name:meta.full_name||meta.name||U.email.split('@')[0], email:U.email, avatar_url:meta.avatar_url||'' };
+  fillForm(); updateHero();
+
+  try {
+    var pr = await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+    if (pr.error) throw pr.error;
+    if (pr.data) { P = Object.assign({},P,pr.data); }
+    else {
+      var ins = await _sb.from('profiles').upsert({ id:U.id, full_name:meta.full_name||meta.name||U.email.split('@')[0], email:U.email, created_at:new Date().toISOString() },{ onConflict:'id' }).select().single();
+      if (ins.data) P = Object.assign({},P,ins.data);
+    }
+  } catch(e) { console.warn('Profile fetch:',e.message); }
+
+  fillForm(); updateHero(); updateCompletion(); updatePremiumCard();
+  loadStats(); loadMyAds(); loadMyAvis(U.id); loadUnreadMessages();
+  loadMyServices(); loadNotifications(); setupRealtime();
+})();
+
+/* ═══════════════════════════════════════════════
+   NOTIFICATIONS
+═══════════════════════════════════════════════ */
+async function loadNotifications() {
+  if (!U) return;
+  try {
+    var res = await _sb.from('notifications').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(30);
+    _notifData = res.data || [];
+    renderNotifPanel();
+    updateNotifBadge();
+  } catch(e) { console.warn('loadNotifications:',e.message); }
+}
+
+function updateNotifBadge() {
+  var unread = _notifData.filter(function(n){ return !n.read; }).length;
+  var hb = document.getElementById('hDotsBadge');
+  var db = document.getElementById('dmNotifBadge');
+  if (unread > 0) {
+    var label = unread > 9 ? '9+' : String(unread);
+    hb.textContent = label; hb.classList.add('show');
+    db.textContent = label; db.classList.add('show');
+  } else {
+    hb.classList.remove('show');
+    db.classList.remove('show');
   }
 }
 
-/* ── MENU ⋮ ── */
+function renderNotifPanel() {
+  var list = document.getElementById('notifList');
+  if (!_notifData.length) {
+    list.innerHTML = '<div class="np-empty"><div class="np-empty-ico">🔔</div><div class="np-empty-txt">Aucune notification pour l\'instant</div></div>';
+    return;
+  }
+
+  var NOTIF_COLORS = { success:'rgba(0,194,113,.12)', error:'rgba(232,48,48,.1)', info:'rgba(27,63,228,.08)', warning:'rgba(245,183,49,.1)' };
+  list.innerHTML = _notifData.map(function(n) {
+    var col = NOTIF_COLORS[n.type] || 'rgba(27,63,228,.08)';
+    var d   = new Date(n.created_at);
+    var ago = fmtAgo(d);
+    return '<div class="notif-item ' + (n.read ? '' : 'unread') + '" onclick="markNotifRead(\'' + n.id + '\',this)">' +
+      '<div class="ni-ico" style="background:' + col + ';">' + (n.icon||'🔔') + '</div>' +
+      '<div class="ni-body">' +
+        '<div class="ni-title">' + escHtml(n.title||'Notification') + '</div>' +
+        '<div class="ni-msg">' + escHtml(n.message||'') + '</div>' +
+        '<div class="ni-date">' + ago + '</div>' +
+      '</div>' +
+      (!n.read ? '<div class="ni-dot"></div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function fmtAgo(d) {
+  var diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60)   return 'À l\'instant';
+  if (diff < 3600) return Math.floor(diff/60) + ' min';
+  if (diff < 86400)return Math.floor(diff/3600) + 'h';
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+}
+
+async function markNotifRead(id, el) {
+  if (!id) return;
+  try {
+    await _sb.from('notifications').update({read:true}).eq('id',id);
+    var n = _notifData.find(function(x){ return x.id===id; });
+    if (n) n.read = true;
+    el.classList.remove('unread');
+    el.querySelector('.ni-dot') && el.querySelector('.ni-dot').remove();
+    updateNotifBadge();
+  } catch(e) {}
+}
+
+async function markAllNotifRead() {
+  if (!U) return;
+  try {
+    await _sb.from('notifications').update({read:true}).eq('user_id',U.id).eq('read',false);
+    _notifData.forEach(function(n){ n.read=true; });
+    renderNotifPanel(); updateNotifBadge();
+    showToast('Toutes les notifications marquées comme lues','success');
+  } catch(e) { showToast('Erreur : '+e.message,'error'); }
+}
+
+function openNotifPanel() {
+  document.getElementById('notifPanel').classList.add('open');
+  document.getElementById('notifOverlay').classList.add('open');
+  loadNotifications();
+}
+function closeNotifPanel() {
+  document.getElementById('notifPanel').classList.remove('open');
+  document.getElementById('notifOverlay').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════
+   FORM + HERO + COMPLÉTION
+═══════════════════════════════════════════════ */
+function fillForm() {
+  if (!P) return;
+  document.getElementById('fName').value  = P.full_name||'';
+  document.getElementById('fWa').value    = P.whatsapp||'';
+  document.getElementById('fPays').value  = P.pays||'';
+  document.getElementById('fVille').value = P.ville||'';
+  document.getElementById('fBio').value   = P.bio||'';
+}
+
+function updateHero() {
+  var name = P.full_name||(U&&U.email?U.email.split('@')[0]:'Utilisateur');
+  document.getElementById('heroName').textContent  = name;
+  document.getElementById('heroEmail').textContent = (U&&U.email)||'';
+  var avEl = document.getElementById('avatarEl');
+  if (P.avatar_url&&P.avatar_url.startsWith('http')) {
+    avEl.innerHTML = '<img src="'+escHtml(P.avatar_url)+'" alt="avatar" onerror="this.style.display=\'none\'"/>';
+  } else {
+    avEl.innerHTML = '<span id="avatarInitial">'+escHtml((name[0]||'?').toUpperCase())+'</span>';
+  }
+  var planEl = document.getElementById('heroPlan');
+  if (P.is_premium) {
+    planEl.className   = 'hero-plan '+(P.plan==='elite'?'elite':'premium');
+    planEl.textContent = P.plan==='elite'?'⚡ Compte Elite':'👑 Compte Premium';
+  } else { planEl.className='hero-plan free'; planEl.textContent='🆓 Compte Gratuit'; }
+}
+
+function updateCompletion() {
+  var checks = [
+    {ok:!!(P.full_name), label:'Nom'},
+    {ok:!!(P.whatsapp),  label:'WhatsApp'},
+    {ok:!!(P.ville),     label:'Ville'},
+    {ok:!!(P.avatar_url&&P.avatar_url.startsWith('http')), label:'Photo'},
+    {ok:!!(P.pays),      label:'Pays'},
+    {ok:!!(P.bio),       label:'Bio'}
+  ];
+  var done = checks.filter(function(c){return c.ok;}).length;
+  var pct  = Math.round(done/checks.length*100);
+  document.getElementById('ccPct').textContent = pct+'%';
+  var fill = document.getElementById('ccFill');
+  fill.style.width = pct+'%';
+  if (pct>=100) fill.classList.add('done');
+  document.getElementById('ccDots').innerHTML = checks.map(function(c){
+    return '<span class="cc-dot '+(c.ok?'ok':'ko')+'">'+(c.ok?'✅':'❌')+' '+escHtml(c.label)+'</span>';
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   PREMIUM CARD — bouton Gérer FONCTIONNEL
+═══════════════════════════════════════════════ */
+function updatePremiumCard() {
+  var card  = document.getElementById('premCard');
+  var badge = document.getElementById('planBadge');
+  var title = document.getElementById('planTitle');
+  var feats = document.getElementById('planFeatures');
+  var desc  = document.getElementById('planDesc');
+  var btn   = document.getElementById('planBtn');
+  if (P&&P.is_premium) {
+    card.className    = 'prem-card prem-active';
+    badge.className   = 'pc-badge-prem';
+    badge.textContent = P.plan==='elite'?'⚡ Elite':'👑 Premium';
+    title.textContent = P.plan==='elite'?'Compte Elite Actif':'Compte Premium Actif';
+    feats.innerHTML   = '<div class="pc-feat">✅ Annonces illimitées</div><div class="pc-feat">✅ Mise en avant prioritaire</div><div class="pc-feat">✅ Badge vendeur vérifié</div><div class="pc-feat">✅ Statistiques avancées</div>';
+    var exp = P.plan_expires ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+    desc.innerHTML    = '<div class="pc-expires">⏰ Expire le '+escHtml(exp)+'</div>';
+    btn.className     = 'pc-btn pc-btn-manage';
+    btn.textContent   = '⚙️ Gérer mon abonnement';
+    btn.onclick       = function(){ openManageModal(); };  /* ← FONCTIONNEL */
+    card.querySelector('.pc-top').children[0].textContent = '👑';
+  } else {
+    card.className    = 'prem-card free-card';
+    badge.className   = 'pc-badge-free';
+    badge.textContent = 'Compte Gratuit';
+    title.textContent = 'Passe à Premium';
+    feats.innerHTML   = '<div class="pc-feat">🆓 5 annonces gratuites / mois</div><div class="pc-feat">❌ Pas de mise en avant</div><div class="pc-feat">❌ Pas de badge vendeur vérifié</div>';
+    desc.innerHTML    = 'Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.';
+    btn.className     = 'pc-btn pc-btn-upgrade';
+    btn.textContent   = '👑 Passer Premium — Mobile Money';
+    btn.onclick       = function(){ openPayModal(); };
+    card.querySelector('.pc-top').children[0].textContent = '🆓';
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════ */
+async function loadStats() {
+  try {
+    var adsRes  = await _sb.from('annonces').select('id',{count:'exact',head:true}).eq('user_id',U.id);
+    var refCode = P.ref_code||U.id.substring(0,8);
+    var refsRes = await _sb.from('profiles').select('id',{count:'exact',head:true}).eq('referred_by',refCode);
+    var earnRes = await _sb.from('referral_earnings').select('amount,status').eq('user_id',U.id);
+    var solde   = 0;
+    if (earnRes.data) solde = earnRes.data.filter(function(e){return e.status==='available';}).reduce(function(s,e){return s+(e.amount||0);},0);
+    var days = P.created_at ? Math.floor((Date.now()-new Date(P.created_at).getTime())/86400000) : 0;
+    document.getElementById('statAds').textContent   = adsRes.count||0;
+    document.getElementById('statRefs').textContent  = refsRes.count||0;
+    document.getElementById('statSolde').textContent = solde.toLocaleString('fr-FR');
+    document.getElementById('statDays').textContent  = days;
+  } catch(e) { console.warn('loadStats:',e); }
+}
+
+/* ═══════════════════════════════════════════════
+   MES ANNONCES
+═══════════════════════════════════════════════ */
+async function loadMyAds() {
+  try {
+    var res   = await _sb.from('annonces').select('id,titre,prix,categorie,ville,image_url,created_at').eq('user_id',U.id).order('created_at',{ascending:false}).limit(20);
+    var grid  = document.getElementById('myAdsGrid');
+    var empty = document.getElementById('myAdsEmpty');
+    if (!res.data||!res.data.length) { grid.style.display='none'; empty.style.display='block'; return; }
+    var EMAP = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
+    grid.style.display='grid'; empty.style.display='none';
+    grid.innerHTML = res.data.map(function(ad) {
+      var em   = EMAP[ad.categorie]||'📦';
+      var prix = ad.prix?Number(ad.prix).toLocaleString('fr-FR')+' FCFA':'Prix libre';
+      var imgH = ad.image_url
+        ? '<img src="'+escHtml(ad.image_url)+'" alt="" style="width:100%;height:95px;object-fit:cover;" loading="lazy">'
+        : '<div style="width:100%;height:95px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">'+em+'</div>';
+      return '<div class="ad-mini-card">'+imgH+'<div style="padding:.5rem .65rem .6rem;"><div style="font-size:.76rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escHtml(ad.titre||'Sans titre')+'</div><div style="font-family:\'Clash Display\',sans-serif;font-size:.8rem;font-weight:700;color:var(--blue2);margin-top:1px;">'+escHtml(prix)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:.35rem;"><span style="font-size:.6rem;color:var(--gray);">📍 '+escHtml(ad.ville||'—')+'</span><button onclick="event.stopPropagation();deleteAd(\''+ad.id+'\')" style="font-size:.6rem;color:var(--red);background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.12rem .45rem;cursor:pointer;font-weight:700;">🗑️</button></div></div></div>';
+    }).join('');
+  } catch(e) { console.warn('loadMyAds:',e); }
+}
+
+async function deleteAd(id) {
+  if (!confirm('Supprimer cette annonce ?')) return;
+  try {
+    var res = await _sb.from('annonces').delete().eq('id',id).eq('user_id',U.id);
+    if (res.error) throw res.error;
+    showToast('Annonce supprimée ✅','success'); loadMyAds(); loadStats();
+  } catch(e) { showToast('Erreur : '+e.message,'error'); }
+}
+
+/* ═══════════════════════════════════════════════
+   AVIS
+═══════════════════════════════════════════════ */
+async function loadMyAvis(uid) {
+  try {
+    var res = await _sb.from('avis').select('note,commentaire,created_at,reviewer_id').eq('seller_id',uid).order('created_at',{ascending:false}).limit(20);
+    var sec = document.getElementById('avisSection');
+    if (!res.data||!res.data.length) { sec.innerHTML='<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem">🌟</div><div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l\'instant.<br>Les acheteurs pourront te noter après un échange.</div></div>'; return; }
+    var reviewerIds = res.data.map(function(a){return a.reviewer_id;}).filter(Boolean);
+    var nameMap = {};
+    if (reviewerIds.length) { var prRes=await _sb.from('profiles').select('id,full_name').in('id',reviewerIds); if(prRes.data)prRes.data.forEach(function(p){nameMap[p.id]=p.full_name||'Anonyme';}); }
+    var avg    = (res.data.reduce(function(s,a){return s+a.note;},0)/res.data.length).toFixed(1);
+    var filled = Math.round(parseFloat(avg));
+    var stars  = '⭐'.repeat(filled)+'☆'.repeat(Math.max(0,5-filled));
+    var barsHtml=[5,4,3,2,1].map(function(n){var cnt=res.data.filter(function(a){return a.note===n;}).length;var pct=Math.round(cnt/res.data.length*100);return '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem"><span style="font-size:.62rem;color:var(--gray);width:12px">'+n+'</span><div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--gold);border-radius:99px"></div></div><span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">'+cnt+'</span></div>';}).join('');
+    var cardsHtml=res.data.slice(0,5).map(function(a){var name=nameMap[a.reviewer_id]||'Anonyme';var init=(name[0]||'?').toUpperCase();var d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});var s2='⭐'.repeat(a.note)+'☆'.repeat(Math.max(0,5-a.note));var cmt=a.commentaire?'<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"'+escHtml(a.commentaire)+'"</div>':'';return '<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;"><div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;">'+escHtml(init)+'</div><div><div style="font-size:.78rem;font-weight:700;color:var(--dark)">'+escHtml(name)+'</div><div style="font-size:.62rem;color:var(--gray)">'+escHtml(d)+'</div></div><div style="margin-left:auto;font-size:.85rem">'+s2+'</div></div>'+cmt+'</div>';}).join('');
+    sec.innerHTML='<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;"><div style="text-align:center;flex-shrink:0"><div style="font-family:\'Clash Display\',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">'+avg+'</div><div style="font-size:1rem;margin:.2rem 0">'+stars+'</div><div style="font-size:.65rem;color:var(--gray)">'+res.data.length+' avis</div></div><div style="flex:1">'+barsHtml+'</div></div>'+cardsHtml;
+  } catch(e) { console.warn('loadMyAvis:',e); }
+}
+
+/* ═══════════════════════════════════════════════
+   BADGE MESSAGES
+═══════════════════════════════════════════════ */
+async function loadUnreadMessages() {
+  if (!U) return;
+  try {
+    var res = await _sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',U.id).eq('read',false);
+    var count = 0;
+    if (!res.error) count = res.count||0;
+    else { var r2=await _sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',U.id).eq('lu',false); if(!r2.error)count=r2.count||0; }
+    var el=document.getElementById('navMessages'), ex=el.querySelector('.nav-badge');
+    if (ex) ex.remove();
+    if (count>0) { var b=document.createElement('span');b.className='nav-badge';b.textContent=count>99?'99+':String(count);el.appendChild(b); }
+  } catch(e) { console.warn('loadUnreadMessages:',e); }
+}
+
+/* ═══════════════════════════════════════════════
+   MES SERVICES — avec Realtime
+═══════════════════════════════════════════════ */
+var SVC_INFO = {
+  'gagner-chasseur'    :{ label:'Chasseur de Vendeurs',   icon:'🎯', color:'#E8960A' },
+  'gagner-verificateur':{ label:'Vérificateur Certifié',  icon:'🕵️', color:'#00A8A0' },
+  'gagner-negociateur' :{ label:'Négociateur Pro',        icon:'🗣️', color:'#D4561A' },
+  'gagner-livreur'     :{ label:'Livreur Indépendant',    icon:'📦', color:'#009958' },
+  'gagner-formateur'   :{ label:'Formateur Certifié',     icon:'🎓', color:'#1B3FE4' },
+  'gagner-courtier'    :{ label:'Courtier Import-Export', icon:'🌍', color:'#8B2FD4' },
+  'gagner-encheres'    :{ label:'Enchères Inversées',     icon:'🎰', color:'#C42020' }
+};
+
+async function loadMyServices() {
+  if (!U) return;
+  var container = document.getElementById('servicesSection');
+  if (!container) return;
+  try {
+    var res = await _sb.from('service_registrations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
+    if (res.error) throw res.error;
+    var records = res.data||[];
+    if (!records.length) {
+      container.innerHTML = '<div class="empty-services"><div class="es-ico">💰</div><div class="es-title">Commence à gagner</div><div class="es-desc">Tu n\'as pas encore rejoint un service.<br>Rejoins une activité et gagne de l\'argent !</div><button class="es-btn" onclick="location.href=\'gagner.html\'">Voir les opportunités →</button></div>';
+      return;
+    }
+    var html = records.map(function(r) {
+      var s = SVC_INFO[r.service]||{label:r.service,icon:'📋',color:'#888'};
+      var statusLabel = {pending:'⏳ En attente de validation', approved:'✅ Actif', rejected:'❌ Non retenu'}[r.status]||r.status;
+      var actionBtn = '';
+      if (r.status==='approved') actionBtn='<button class="sb-btn" onclick="location.href=\'mes-missions.html?service='+r.service+'\'">Voir mes missions →</button>';
+      if (r.status==='pending')  actionBtn='<button class="sb-btn" disabled>En cours de traitement</button>';
+      if (r.status==='rejected') actionBtn='<button class="sb-btn" style="background:#f5f5f5;color:#888;" onclick="location.href=\'gagner.html\'">Recandidater</button>';
+      return '<div class="service-badge-card">'
+        +'<div class="sb-ico-wrap" style="background:'+s.color+'20;border:1.5px solid '+s.color+'40;">'+s.icon+'</div>'
+        +'<div class="sb-info"><div class="sb-name">'+s.label+'</div>'
+        +'<span class="sb-status '+r.status+'">'+statusLabel+'</span>'
+        +(r.status==='pending'?'<div class="sb-pending-info">Réponse sous 24h — vérifie tes notifications</div>':'')
+        +'</div>'+actionBtn+'</div>';
+    }).join('');
+    container.innerHTML = html;
+  } catch(e) { console.warn('loadMyServices:',e.message); }
+}
+
+/* ═══════════════════════════════════════════════
+   SAUVEGARDER
+═══════════════════════════════════════════════ */
+function markChanged(el) {
+  el.classList.add('changed'); hasChanges=true;
+  document.getElementById('hSaveBtn').classList.add('show');
+}
+
+async function uploadAvatar(input) {
+  var file=input.files[0]; if(!file)return;
+  if(file.size>3*1024*1024){showToast('Image trop grande (max 3 Mo)','warning');return;}
+  var reader=new FileReader();
+  reader.onload=function(e){document.getElementById('avatarEl').innerHTML='<img src="'+e.target.result+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;"/>';};
+  reader.readAsDataURL(file);
+  document.getElementById('avatarUploading').classList.add('show');
+  try {
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace('jpeg','jpg');
+    var path='avatars/'+U.id+'_'+Date.now()+'.'+ext;
+    var upRes=await _sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
+    if(upRes.error){showToast('Photo affichée localement uniquement','warning');return;}
+    var pubData=_sb.storage.from('avatars').getPublicUrl(path);
+    var finalUrl=pubData.data&&pubData.data.publicUrl?pubData.data.publicUrl+'?t='+Date.now():null;
+    if(!finalUrl){var signed=await _sb.storage.from('avatars').createSignedUrl(path,31536000);finalUrl=signed.data&&signed.data.signedUrl?signed.data.signedUrl:null;}
+    if(!finalUrl){showToast('Upload OK mais URL inaccessible','warning');return;}
+    var ur=await _sb.from('profiles').upsert({id:U.id,avatar_url:finalUrl},{onConflict:'id'});
+    if(ur.error){showToast('Erreur sauvegarde photo : '+ur.error.message,'error');return;}
+    P.avatar_url=finalUrl;
+    document.getElementById('avatarEl').innerHTML='<img src="'+escHtml(finalUrl)+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"/>';
+    updateCompletion(); showToast('Photo de profil mise à jour ! 🎉','success');
+  } catch(e){showToast('Erreur : '+e.message,'error');}
+  finally{document.getElementById('avatarUploading').classList.remove('show');input.value='';}
+}
+
+async function saveProfile() {
+  var name=document.getElementById('fName').value.trim();
+  var wa=document.getElementById('fWa').value.trim();
+  var pays=document.getElementById('fPays').value;
+  var ville=document.getElementById('fVille').value.trim();
+  var bio=document.getElementById('fBio').value.trim();
+  if(!name){showToast('Le nom est obligatoire','warning');return;}
+  var btn=document.getElementById('saveBtn'),hBtn=document.getElementById('hSaveBtn');
+  btn.disabled=true;btn.textContent='⏳ Sauvegarde…';hBtn.disabled=true;hBtn.textContent='⏳…';
+  try {
+    var payload={id:U.id,full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio,updated_at:new Date().toISOString()};
+    if(P.avatar_url)payload.avatar_url=P.avatar_url;
+    var res=await _sb.from('profiles').upsert(payload,{onConflict:'id'});
+    if(res.error)throw res.error;
+    P=Object.assign({},P,{full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio});
+    document.querySelectorAll('.changed').forEach(function(el){el.classList.remove('changed');});
+    hasChanges=false;hBtn.classList.remove('show');
+    updateHero();updateCompletion();showToast('Profil sauvegardé ✅','success');
+  } catch(e){showToast('Erreur : '+(e.message||'Inconnue'),'error');}
+  finally{btn.disabled=false;btn.textContent='💾 Sauvegarder les modifications';hBtn.disabled=false;hBtn.textContent='💾 Sauvegarder';}
+}
+
+/* ═══════════════════════════════════════════════
+   DÉCONNEXION + SUPPRESSION
+═══════════════════════════════════════════════ */
+async function logout() { try{await _sb.auth.signOut();}catch(e){} location.href='index.html'; }
+
+async function deleteAccount() {
+  var btn = document.querySelector('#delOv .mbtn-ok');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Suppression…'; }
+  try {
+    // Supprimer toutes les données utilisateur
+    await _sb.from('work_submissions').delete().eq('user_id', U.id);
+    await _sb.from('service_registrations').delete().eq('user_id', U.id);
+    await _sb.from('notifications').delete().eq('user_id', U.id);
+    await _sb.from('favoris').delete().eq('user_id', U.id);
+    await _sb.from('annonces').delete().eq('user_id', U.id);
+    await _sb.from('profiles').delete().eq('id', U.id);
+    // Déconnexion (la suppression du compte auth se fait côté Edge Function si dispo)
+    await _sb.auth.signOut();
+    showToast('Compte supprimé. Au revoir !', 'success');
+    setTimeout(function(){ location.href = 'index.html'; }, 1500);
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Supprimer'; }
+    showToast('Erreur : ' + e.message, 'error');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   REALTIME — services + notifs + premium
+═══════════════════════════════════════════════ */
+function setupRealtime() {
+  /* 1. Changement de profil (premium) */
+  _sb.channel('profile-'+U.id)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:'id=eq.'+U.id},async function(){
+      var fresh=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+      if(fresh.data){P=Object.assign({},P,fresh.data);updateHero();updatePremiumCard();updateCompletion();loadStats();showToast(P.is_premium?'👑 Premium activé !':'🔒 Plan mis à jour','info');}
+    }).subscribe();
+
+  /* 2. Nouvelles notifications → toast + badge + refresh services si candidature */
+  _sb.channel('notifs-'+U.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+U.id},function(payload){
+      var n=payload.new;
+      showToast((n.icon||'🔔')+' '+(n.title||'Nouvelle notification'),'info');
+      /* Ajouter en tête de liste */
+      _notifData.unshift(n);
+      updateNotifBadge();
+      /* Si c'est une notif candidature → rafraîchir la section services */
+      if (n.title && (
+        n.title.indexOf('Candidature') !== -1 ||
+        n.title.indexOf('candidature') !== -1 ||
+        n.title.indexOf('approuvée')   !== -1 ||
+        n.title.indexOf('rejetée')     !== -1
+      )) {
+        loadMyServices();
+      }
+      /* Si premium ou retrait */
+      if (n.title&&(n.title.indexOf('Premium')!==-1||n.title.indexOf('Retrait')!==-1)) {
+        setTimeout(async function(){var fresh=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();if(fresh.data){P=Object.assign({},P,fresh.data);updateHero();updatePremiumCard();}},1000);
+      }
+    }).subscribe();
+
+  /* 3. Changement direct sur service_registrations de cet utilisateur */
+  _sb.channel('svc-regs-'+U.id)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'service_registrations',filter:'user_id=eq.'+U.id},function(payload){
+      var r=payload.new;
+      var svcInfo=SVC_INFO[r.service]||{label:r.service,icon:'📋'};
+      var msg = r.status==='approved'
+        ? '✅ '+svcInfo.icon+' '+svcInfo.label+' approuvé ! Commence tes missions.'
+        : r.status==='rejected'
+        ? '❌ '+svcInfo.label+' : candidature non retenue.'
+        : '🔄 Ton statut '+svcInfo.label+' a changé.';
+      showToast(msg, r.status==='approved'?'success':r.status==='rejected'?'error':'info');
+      loadMyServices();  /* ← REFRESH IMMÉDIAT */
+    }).subscribe();
+
+  /* 4. Messages non lus */
+  _sb.channel('msgs-'+U.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'receiver_id=eq.'+U.id},function(){loadUnreadMessages();}).subscribe();
+
+  /* 5. Polling 30s (fallback) */
+  setInterval(async function(){
+    try {
+      loadMyServices();
+      loadNotifications();
+      loadUnreadMessages();
+      var fresh=await _sb.from('profiles').select('is_premium,plan,plan_expires').eq('id',U.id).maybeSingle();
+      if(fresh.data&&(fresh.data.is_premium!==P.is_premium||fresh.data.plan!==P.plan)){P=Object.assign({},P,fresh.data);updateHero();updatePremiumCard();showToast('Compte mis à jour','info');}
+    }catch(e){}
+  }, 30000);
+}
+
+/* ═══════════════════════════════════════════════
+   MENU ⋮
+═══════════════════════════════════════════════ */
 function toggleDots(e) { e.stopPropagation(); document.getElementById('dotsMenu').classList.toggle('open'); }
 function closeDots() { document.getElementById('dotsMenu').classList.remove('open'); }
-document.addEventListener('click', function(e) {
-  var m = document.getElementById('dotsMenu'), b = document.getElementById('dotsBtn');
-  if (m && !m.contains(e.target) && e.target !== b) m.classList.remove('open');
+document.addEventListener('click',function(e){
+  var m=document.getElementById('dotsMenu'),b=document.getElementById('dotsBtn');
+  if(m&&!m.contains(e.target)&&e.target!==b)m.classList.remove('open');
 });
 
 function shareApp() {
-  var url = 'https://afrimarket2.vercel.app';
-  if (navigator.share) { navigator.share({ title: 'AfriMarket', text: '🛒 La marketplace africaine !', url: url }).catch(function(){}); }
-  else if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function(){ showToast('Lien copié ! 📋', 'success'); }).catch(function(){}); }
+  var url='https://afrimarket2.vercel.app';
+  if(navigator.share){navigator.share({title:'AfriMarket',text:'🛒 La marketplace africaine !',url:url}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){showToast('Lien copié ! 📋','success');}).catch(function(){});}
 }
 
-/* ── TOAST ── */
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
 var _tt;
 function showToast(msg, type) {
-  type = type || 'success';
-  var ic  = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
-  var col = { success:'var(--turq)', error:'var(--red)', warning:'var(--orange)', info:'var(--blue2)' };
+  type=type||'success';
+  var ic  ={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  var col ={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
   var el  = document.getElementById('toast');
-  el.textContent = (ic[type] || '') + ' ' + msg;
-  el.className   = 'show';
-  el.style.borderLeftColor = col[type] || 'var(--blue2)';
-  clearTimeout(_tt); _tt = setTimeout(function(){ el.className = ''; }, 4500);
+  if(!el) return;
+  el.textContent = (ic[type]||'ℹ️') + ' ' + msg;
+  el.style.borderLeftColor = col[type]||'var(--turq)';
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ el.classList.remove('show'); }, 3800);
 }
+
+/* ═══════════════════════════════════════════════
+   FIN — L'IIFE ci-dessus s'auto-exécute
+═══════════════════════════════════════════════ */
 </script>
 </body>
 </html>
