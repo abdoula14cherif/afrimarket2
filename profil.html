@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AfriMarket — Passer Premium</title>
-  <!-- PWA -->
+  <title>AfriMarket — Mon Profil</title>
   <link rel="manifest" href="/manifest.json"/>
   <meta name="theme-color" content="#080E2A"/>
   <meta name="mobile-web-app-capable" content="yes"/>
@@ -12,1025 +11,1220 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
   <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
-  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     :root{
       --blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;
-      --turq:#00C2B7;--dark:#080E2A;--bg:#F2F5FF;--white:#FFFFFF;
-      --gray:#8892A8;--border:#E4E9F8;--gold:#F5B731;--gold2:#C8901A;
-      --green:#00C271;
+      --turq:#00C2B7;--bg:#F2F5FF;--card:#FFFFFF;
+      --dark:#080E2A;--gray:#8892A8;--border:#E4E9F8;--gold:#F5B731;--green:#00C271;
+      --nav-h:72px;
     }
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);overflow-x:hidden;min-height:100vh;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
 
-    /* HEADER */
-    .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.4rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
-    .h-logo{font-family:'Clash Display',sans-serif;font-size:1.45rem;font-weight:700;letter-spacing:-1px;text-decoration:none;}
-    .h-logo .la{color:var(--turq)}.h-logo .lm{color:var(--orange)}
-    .h-back{display:flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.6);font-size:.83rem;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid rgba(255,255,255,.15);padding:.38rem .85rem;border-radius:99px;transition:all .2s;}
+    /* ── HEADER ── */
+    .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
+    .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;}
     .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
+    .h-logo{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-1px;}
+    .h-logo .la{color:var(--turq);}.h-logo .lm{color:var(--orange);}
+    .h-right{display:flex;align-items:center;gap:.45rem;}
+    .h-save{background:var(--turq);color:white;border:none;border-radius:99px;padding:.35rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;opacity:0;pointer-events:none;transition:all .3s;}
+    .h-save.show{opacity:1;pointer-events:all;}
+    .h-save:hover{background:#00A89F;}
+    .h-save:disabled{opacity:.4;cursor:not-allowed;}
+    /* ⋮ BOUTON avec badge notif */
+    .h-dots-wrap{position:relative;}
+    .h-dots{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:white;font-size:1.3rem;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;letter-spacing:-.5px;flex-shrink:0;}
+    .h-dots:hover{background:rgba(255,255,255,.2);}
+    .h-dots-badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:99px;background:var(--red);color:white;font-size:.52rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--dark);line-height:1;}
+    .h-dots-badge.show{display:flex;}
 
-    /* HERO */
-    .hero{text-align:center;padding:3rem 1.4rem 2rem;position:relative;overflow:hidden;}
-    .hero::before,.hero::after{content:'';position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
-    .hero::before{width:400px;height:400px;background:rgba(27,63,228,.1);top:-150px;left:-80px;}
-    .hero::after{width:350px;height:350px;background:rgba(0,194,183,.08);top:-100px;right:-60px;}
-    .trial-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,194,113,.1);border:1.5px solid rgba(0,194,113,.25);border-radius:99px;padding:.35rem 1rem;font-size:.75rem;font-weight:700;color:var(--green);margin-bottom:1.5rem;position:relative;z-index:1;}
-    .tdot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
-    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
-    .hero h1{font-family:'Clash Display',sans-serif;font-size:clamp(2rem,7vw,3.5rem);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1rem;position:relative;z-index:1;}
-    .hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--turq));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-    .hero-sub{font-size:.95rem;color:var(--gray);max-width:480px;margin:0 auto 1rem;line-height:1.6;position:relative;z-index:1;}
+    /* ── MENU ⋮ ── */
+    .dots-menu{position:fixed;top:68px;right:1rem;z-index:500;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(8,14,42,.2);border:1px solid var(--border);min-width:210px;overflow:hidden;transform:scale(.95) translateY(-8px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.56,.64,1);}
+    .dots-menu.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all;}
+    .dm-item{display:flex;align-items:center;gap:.7rem;padding:.8rem 1rem;cursor:pointer;transition:background .15s;font-size:.84rem;font-weight:600;color:var(--dark);text-decoration:none;border:none;background:none;width:100%;font-family:'Plus Jakarta Sans',sans-serif;text-align:left;}
+    .dm-item:not(:last-child){border-bottom:1px solid var(--border);}
+    .dm-item:hover{background:var(--bg);}
+    .dm-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+    /* Notif row dans menu */
+    .dm-notif-badge{margin-left:auto;min-width:20px;height:20px;border-radius:99px;background:var(--red);color:white;font-size:.6rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;}
+    .dm-notif-badge.show{display:flex;}
 
-    /* TRIAL COUNTDOWN */
-    .trial-countdown{display:inline-flex;align-items:center;gap:1rem;background:var(--dark);color:white;border-radius:16px;padding:.9rem 1.5rem;margin:1.5rem auto 0;font-size:.82rem;position:relative;z-index:1;box-shadow:0 16px 40px rgba(8,14,42,.25);display:none;}
-    .trial-countdown.show{display:inline-flex;}
-    .tc-num{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1;}
-    .tc-sep{width:1px;height:36px;background:rgba(255,255,255,.12);}
-    .tc-info{font-size:.78rem;color:rgba(255,255,255,.65);line-height:1.4;}
-    .tc-info strong{color:white;}
+    /* ── PANNEAU NOTIFICATIONS ── */
+    .notif-panel{position:fixed;top:0;right:0;bottom:0;width:min(320px,92vw);background:white;z-index:600;box-shadow:-8px 0 32px rgba(8,14,42,.18);transform:translateX(100%);transition:transform .32s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;}
+    .notif-panel.open{transform:translateX(0);}
+    .notif-overlay{position:fixed;inset:0;background:rgba(8,14,42,.4);z-index:599;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .notif-overlay.open{opacity:1;pointer-events:all;}
+    .np-hdr{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--dark),#0D1E6B);}
+    .np-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:white;}
+    .np-close{background:rgba(255,255,255,.12);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
+    .np-actions{display:flex;gap:.5rem;padding:.7rem 1.2rem;border-bottom:1px solid var(--border);}
+    .np-action-btn{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.4rem;font-size:.7rem;font-weight:700;color:var(--dark);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+    .np-list{flex:1;overflow-y:auto;padding:.6rem;}
+    .notif-item{display:flex;gap:.7rem;padding:.8rem .9rem;border-radius:12px;margin-bottom:.4rem;border:1.5px solid var(--border);background:white;cursor:pointer;transition:all .15s;}
+    .notif-item.unread{background:rgba(27,63,228,.04);border-color:rgba(27,63,228,.15);}
+    .notif-item:hover{background:var(--bg);}
+    .ni-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .ni-body{flex:1;min-width:0;}
+    .ni-title{font-size:.78rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;line-height:1.3;}
+    .ni-msg{font-size:.7rem;color:var(--gray);line-height:1.4;margin-bottom:.2rem;}
+    .ni-date{font-size:.6rem;color:var(--gray);font-weight:500;}
+    .ni-dot{width:7px;height:7px;border-radius:50%;background:var(--blue2);flex-shrink:0;margin-top:4px;}
+    .np-empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
+    .np-empty-ico{font-size:2.5rem;margin-bottom:.6rem;}
+    .np-empty-txt{font-size:.8rem;font-weight:600;}
 
-    /* BILLING TOGGLE */
-    .billing-wrap{display:flex;align-items:center;justify-content:center;gap:.8rem;margin:2.5rem 0 2rem;}
-    .billing-lbl{font-size:.85rem;font-weight:600;color:var(--gray);}
-    .billing-lbl.on{color:var(--dark);}
-    .toggle{width:50px;height:27px;border-radius:99px;background:var(--dark);cursor:pointer;position:relative;border:none;transition:background .25s;}
-    .toggle::after{content:'';position:absolute;width:21px;height:21px;border-radius:50%;background:white;top:3px;left:3px;transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
-    .toggle.on::after{transform:translateX(23px);}
-    .save-pill{background:var(--green);color:white;font-size:.6rem;font-weight:800;padding:.2rem .5rem;border-radius:99px;letter-spacing:.5px;}
+    /* ── MODAL GÉRER ABONNEMENT ── */
+    .manage-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.8rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);overflow-y:auto;max-height:90vh;}
+    .modal-ov.open .manage-sheet{transform:translateY(0);}
+    .ms-hdr{text-align:center;margin-bottom:1.2rem;}
+    .ms-ico{font-size:2.2rem;margin-bottom:.3rem;}
+    .ms-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--dark);}
+    .ms-sub{font-size:.74rem;color:var(--gray);margin-top:.2rem;}
+    .ms-info-card{background:linear-gradient(135deg,var(--dark),#1B3FE4);border-radius:16px;padding:1rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:.8rem;}
+    .ms-plan-ico{font-size:1.6rem;}
+    .ms-plan-name{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:white;}
+    .ms-plan-exp{font-size:.7rem;color:rgba(255,255,255,.55);margin-top:.15rem;}
+    .ms-options{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
+    .ms-opt{display:flex;align-items:center;gap:.9rem;padding:.9rem 1rem;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;transition:all .18s;text-align:left;background:none;width:100%;font-family:'Plus Jakarta Sans',sans-serif;}
+    .ms-opt:hover{border-color:var(--blue2);background:rgba(45,85,255,.04);}
+    .ms-opt.danger:hover{border-color:var(--red);background:rgba(232,48,48,.04);}
+    .ms-opt-ico{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+    .ms-opt-body{flex:1;}
+    .ms-opt-title{font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.1rem;}
+    .ms-opt.danger .ms-opt-title{color:var(--red);}
+    .ms-opt-desc{font-size:.68rem;color:var(--gray);}
+    .ms-close-btn{width:100%;padding:.72rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--dark);cursor:pointer;}
 
-    /* PLANS */
-    .plans-wrap{padding:0 1.4rem 4rem;max-width:900px;margin:0 auto;}
-    .plans-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
-    .plan-card{background:white;border:1.5px solid var(--border);border-radius:22px;padding:1.6rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
-    .plan-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(27,63,228,.12);}
-    .plan-card.popular{background:var(--dark);border-color:transparent;color:white;box-shadow:0 24px 64px rgba(8,14,42,.25);}
-    .pop-badge{position:absolute;top:1rem;right:1rem;background:linear-gradient(135deg,var(--gold2),var(--gold));color:white;font-size:.6rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:.25rem .7rem;border-radius:99px;}
-    .plan-ico{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem;}
-    .ico-free{background:rgba(0,0,0,.05)}.ico-prem{background:rgba(245,183,49,.15)}.ico-elite{background:rgba(0,194,183,.1)}
-    .plan-label{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:.25rem;}
-    .plan-card.popular .plan-label{color:rgba(255,255,255,.45);}
-    .plan-name{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.8rem;}
-    .plan-price-box{margin-bottom:1rem;}
-    .plan-price{font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;line-height:1;letter-spacing:-1.5px;}
-    .plan-card.popular .plan-price{color:var(--gold);}
-    .plan-period{font-size:.73rem;color:var(--gray);margin-top:.25rem;}
-    .plan-card.popular .plan-period{color:rgba(255,255,255,.4);}
-    .plan-annual-note{font-size:.7rem;color:var(--green);font-weight:700;margin-top:.15rem;display:none;}
-    .plan-card.popular .plan-annual-note{color:var(--gold);}
-    .plan-divider{height:1px;background:var(--border);margin:.9rem 0;}
-    .plan-card.popular .plan-divider{background:rgba(255,255,255,.1);}
-    .plan-feats{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.4rem;}
-    .feat{display:flex;align-items:flex-start;gap:.5rem;font-size:.8rem;}
-    .fc{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;flex-shrink:0;margin-top:1px;}
-    .fc-yes{background:rgba(0,194,113,.12);color:var(--green)}
-    .fc-gold{background:rgba(200,144,26,.15);color:var(--gold2)}
-    .fc-no{background:rgba(0,0,0,.06);color:var(--gray);}
-    .plan-card.popular .fc-yes{background:rgba(245,183,49,.15);color:var(--gold);}
-    .plan-card.popular .fc-no{background:rgba(255,255,255,.07);color:rgba(255,255,255,.25);}
-    .feat-txt{color:var(--dark);line-height:1.35;}
-    .plan-card.popular .feat-txt{color:rgba(255,255,255,.82);}
-    .feat-txt.dim{color:var(--gray);text-decoration:line-through;}
-    .plan-card.popular .feat-txt.dim{color:rgba(255,255,255,.22);}
+    /* ── HERO ── */
+    .hero{background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 55%,#1B3FE4 100%);padding:2rem 1.2rem 3.5rem;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(0,194,183,.08);right:-60px;top:-80px;}
+    .hero::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,107,26,.06);left:-50px;bottom:-60px;}
+    .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .avatar-wrap{position:relative;margin-bottom:1rem;cursor:pointer;}
+    .avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:white;border:3px solid rgba(255,255,255,.3);overflow:hidden;transition:all .3s;}
+    .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .avatar-edit{position:absolute;bottom:2px;right:2px;width:26px;height:26px;border-radius:50%;background:var(--orange);border:2px solid var(--dark);display:flex;align-items:center;justify-content:center;font-size:.7rem;}
+    .avatar-uploading{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;font-size:1.2rem;}
+    .avatar-uploading.show{display:flex;}
+    #avatarInput{display:none;}
+    .hero-name{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:white;letter-spacing:-.5px;margin-bottom:.2rem;}
+    .hero-email{font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:.7rem;}
+    .hero-plan{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .8rem;border-radius:99px;font-size:.68rem;font-weight:700;}
+    .hero-plan.free{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);}
+    .hero-plan.premium{background:rgba(245,183,49,.2);color:var(--gold);border:1px solid rgba(245,183,49,.35);}
+    .hero-plan.elite{background:rgba(0,194,183,.2);color:var(--turq);border:1px solid rgba(0,194,183,.35);}
 
-    /* CTA BUTTONS */
-    .btn-plan{width:100%;padding:.82rem;border-radius:13px;font-family:'Clash Display',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .25s;border:none;display:flex;align-items:center;justify-content:center;gap:.45rem;}
-    .btn-free-plan{background:rgba(0,0,0,.05);color:var(--dark);border:1.5px solid var(--border);}
-    .btn-free-plan:hover{background:rgba(0,0,0,.1);}
-    .btn-prem-plan{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);box-shadow:0 8px 24px rgba(200,144,26,.35);}
-    .btn-prem-plan:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(200,144,26,.5);}
-    .btn-elite-plan{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 8px 24px rgba(27,63,228,.3);}
-    .btn-elite-plan:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(27,63,228,.45);}
-    .btn-plan:disabled{opacity:.6;cursor:not-allowed;transform:none!important;}
-    .plan-note{text-align:center;font-size:.68rem;color:var(--gray);margin-top:.5rem;}
-    .plan-card.popular .plan-note{color:rgba(255,255,255,.3);}
+    /* ── STATS ── */
+    .stats-float{position:relative;z-index:10;margin:-1.5rem 1.2rem .8rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 8px 24px rgba(27,63,228,.1);padding:1rem;display:flex;gap:.5rem;}
+    .sf{flex:1;text-align:center;padding:.4rem 0;}
+    .sf+.sf{border-left:1px solid var(--border);}
+    .sf-num{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
+    .sf-lbl{font-size:.6rem;color:var(--gray);font-weight:600;margin-top:.1rem;letter-spacing:.2px;}
 
-    /* TRUST */
-    .trust-section{padding:0 1.4rem 4rem;max-width:900px;margin:0 auto;}
-    .trust-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;text-align:center;margin-bottom:1.8rem;letter-spacing:-.5px;}
-    .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
-    .trust-card{background:white;border:1px solid var(--border);border-radius:18px;padding:1.3rem;transition:transform .2s;}
-    .trust-card:hover{transform:translateY(-3px);}
-    .trust-ico{font-size:1.7rem;margin-bottom:.6rem;}
-    .trust-label{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.25rem;}
-    .trust-desc{font-size:.78rem;color:var(--gray);line-height:1.5;}
+    /* ── COMPLÉTION ── */
+    .complet-card{margin:0 1.2rem .8rem;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
+    .cc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
+    .cc-title{font-size:.82rem;font-weight:700;color:var(--dark);}
+    .cc-pct{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--blue2);}
+    .cc-bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border);margin-bottom:.5rem;}
+    .cc-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--turq));transition:width .8s cubic-bezier(.34,1.56,.64,1);}
+    .cc-fill.done{background:linear-gradient(90deg,var(--green),var(--turq));}
+    .cc-dots{display:flex;gap:.4rem;flex-wrap:wrap;}
+    .cc-dot{font-size:.65rem;font-weight:700;padding:.18rem .55rem;border-radius:99px;}
+    .cc-dot.ok{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.2);}
+    .cc-dot.ko{background:rgba(255,107,26,.08);color:var(--orange);border:1px solid rgba(255,107,26,.15);}
 
-    /* FAQ */
-    .faq-section{max-width:600px;margin:0 auto;padding:0 1.4rem 4rem;}
-    .faq-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;text-align:center;margin-bottom:1.5rem;}
-    .faq-item{background:white;border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:.5rem;}
-    .faq-q{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;cursor:pointer;font-weight:700;font-size:.86rem;transition:background .2s;}
-    .faq-q:hover{background:rgba(27,63,228,.03);}
-    .faq-arr{font-size:.72rem;transition:transform .25s;color:var(--gray);}
-    .faq-item.open .faq-arr{transform:rotate(180deg);}
-    .faq-a{font-size:.81rem;color:var(--gray);line-height:1.6;padding:0 1.2rem;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;}
-    .faq-item.open .faq-a{max-height:200px;padding:0 1.2rem 1rem;}
+    /* ── SECTION ── */
+    .sec{padding:1.1rem 1.2rem .5rem;}
+    .sec-ttl{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);letter-spacing:-.3px;}
 
-    /* FINAL CTA BAND */
-    .final-band{background:linear-gradient(135deg,var(--dark),#0D1E6B);color:white;margin:0 1.4rem 4rem;border-radius:22px;padding:2.5rem 2rem;text-align:center;position:relative;overflow:hidden;}
-    .fb-blob{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;}
-    .fb1{width:260px;height:260px;background:rgba(27,63,228,.25);top:-80px;left:-60px;}
-    .fb2{width:200px;height:200px;background:rgba(0,194,183,.15);bottom:-50px;right:-40px;}
-    .final-band h2{font-family:'Clash Display',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-.8px;margin-bottom:.7rem;position:relative;z-index:1;}
-    .final-band p{font-size:.88rem;color:rgba(255,255,255,.55);margin-bottom:1.5rem;position:relative;z-index:1;}
-    .fb-btns{display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;position:relative;z-index:1;}
-    .fb-main{padding:.75rem 2rem;border-radius:99px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;border:none;cursor:pointer;transition:all .2s;}
-    .fb-main:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(200,144,26,.4);}
-    .fb-ghost{padding:.73rem 1.5rem;border-radius:99px;background:transparent;color:rgba(255,255,255,.5);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;font-weight:600;border:1px solid rgba(255,255,255,.2);cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s;}
-    .fb-ghost:hover{color:white;border-color:rgba(255,255,255,.5);}
+    /* ── FORM ── */
+    .form-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.05);padding:1.2rem;display:flex;flex-direction:column;gap:.85rem;}
+    .field{display:flex;flex-direction:column;gap:.3rem;}
+    .field label{font-size:.72rem;font-weight:700;color:var(--dark);letter-spacing:.2px;}
+    .field-wrap{position:relative;}
+    .field-ico{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none;}
+    .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:.7rem .9rem .7rem 2.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;color:var(--dark);outline:none;background:var(--bg);transition:all .2s;}
+    .field textarea{padding:.7rem .9rem;resize:none;min-height:80px;}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue2);background:white;box-shadow:0 0 0 3px rgba(45,85,255,.08);}
+    .field input.changed,.field select.changed,.field textarea.changed{border-color:var(--orange);}
+    .field-hint{font-size:.65rem;color:var(--gray);}
 
-    /* CHECKOUT MODAL */
-    .modal-ov{position:fixed;inset:0;z-index:500;background:rgba(8,14,42,.65);backdrop-filter:blur(8px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
+    /* ── PREMIUM CARD ── */
+    .prem-card{margin:0 1.2rem;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(27,63,228,.1);}
+    .prem-card.free-card{background:linear-gradient(135deg,#F8F9FF,#EEF2FF);border:1.5px solid var(--border);}
+    .prem-card.prem-active{background:linear-gradient(135deg,#0D1E6B,#1B3FE4);border:none;}
+    .pc-inner{padding:1.2rem 1.3rem;}
+    .pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;}
+    .pc-ico{font-size:1.8rem;}
+    .pc-badge-free{background:rgba(27,63,228,.08);color:var(--blue2);border:1px solid rgba(27,63,228,.15);font-size:.65rem;font-weight:700;padding:.22rem .6rem;border-radius:99px;}
+    .pc-badge-prem{background:rgba(245,183,49,.2);color:var(--gold);border:1px solid rgba(245,183,49,.3);font-size:.65rem;font-weight:700;padding:.22rem .6rem;border-radius:99px;}
+    .pc-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.3rem;}
+    .free-card .pc-title{color:var(--dark);}
+    .prem-active .pc-title{color:white;}
+    .pc-desc{font-size:.78rem;line-height:1.5;margin-bottom:1rem;}
+    .free-card .pc-desc{color:var(--gray);}
+    .prem-active .pc-desc{color:rgba(255,255,255,.6);}
+    .pc-expires{font-size:.72rem;font-weight:600;color:var(--gold);margin-bottom:.8rem;}
+    .pc-btn{width:100%;padding:.72rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .pc-btn-upgrade{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.3);}
+    .pc-btn-upgrade:hover{transform:translateY(-1px);}
+    .pc-btn-manage{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25);}
+    .pc-features{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+    .pc-feat{font-size:.75rem;display:flex;align-items:center;gap:.5rem;}
+    .free-card .pc-feat{color:var(--gray);}
+    .prem-active .pc-feat{color:rgba(255,255,255,.75);}
+
+    /* ── ANNONCES ── */
+    .ad-mini-card{background:white;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.06);cursor:pointer;transition:transform .2s;}
+    .ad-mini-card:hover{transform:translateY(-3px);}
+
+    /* ── MES SERVICES ── */
+    .services-section{margin:0 1.2rem .4rem;display:flex;flex-direction:column;gap:.6rem;}
+    .service-badge-card{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;align-items:center;gap:.9rem;}
+    .sb-ico-wrap{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+    .sb-info{flex:1;min-width:0;}
+    .sb-name{font-size:.85rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;}
+    .sb-status{font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:99px;display:inline-block;}
+    .sb-status.approved{background:rgba(0,194,113,.12);color:#007A46;}
+    .sb-status.pending{background:rgba(245,183,49,.12);color:#8A5A00;}
+    .sb-status.rejected{background:rgba(232,48,48,.1);color:var(--red);}
+    .sb-btn{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:10px;padding:.4rem .75rem;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;}
+    .sb-btn:disabled{opacity:.5;cursor:default;}
+    .sb-pending-info{font-size:.72rem;color:var(--gray);margin-top:.15rem;}
+    .empty-services{background:white;border-radius:16px;border:1.5px dashed var(--border);padding:1.2rem;text-align:center;}
+    .es-ico{font-size:1.8rem;margin-bottom:.4rem;}
+    .es-title{font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.2rem;}
+    .es-desc{font-size:.72rem;color:var(--gray);margin-bottom:.7rem;line-height:1.5;}
+    .es-btn{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:10px;padding:.5rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+
+    /* ── DANGER ZONE ── */
+    .danger-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid rgba(232,48,48,.15);padding:1.2rem;box-shadow:0 2px 10px rgba(232,48,48,.05);}
+    .dz-ttl{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--red);margin-bottom:.9rem;}
+    .dz-btn{width:100%;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
+    .dz-logout{background:rgba(232,48,48,.06);color:var(--red);border:1.5px solid rgba(232,48,48,.15);}
+    .dz-logout:hover{background:var(--red);color:white;}
+    .dz-del{background:rgba(139,0,0,.05);color:#8B0000;border:1.5px solid rgba(139,0,0,.1);}
+    .dz-del:hover{background:#8B0000;color:white;}
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;position:relative;}
+    .nav-item:hover{background:var(--bg);}
+    .nav-ico{font-size:1.25rem;line-height:1;}
+    .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
+    .nav-item.active .nav-lbl{color:var(--blue2);font-weight:700;}
+    .nav-plus-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
+    .nav-badge{position:absolute;top:4px;right:8px;min-width:18px;height:18px;border-radius:99px;background:var(--red);color:white;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid white;line-height:1;animation:badgePop .3s cubic-bezier(.34,1.56,.64,1);}
+    @keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
+
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:calc(var(--nav-h)+12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.7rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;pointer-events:none;z-index:700;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.3);max-width:88vw;text-align:center;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    /* ── MODAL BASE ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(8,14,42,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
     .modal-ov.open{opacity:1;pointer-events:all;}
-    .modal{background:white;border-radius:28px 28px 0 0;width:100%;max-height:93vh;overflow-y:auto;padding:1.6rem 1.4rem 2.5rem;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+    .modal{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.4rem 1.3rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
     .modal-ov.open .modal{transform:translateY(0);}
-    .modal-handle{width:40px;height:4px;border-radius:99px;background:var(--border);margin:0 auto 1.4rem;}
-    .modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem;}
-    .modal-title{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;}
-    .modal-x{width:32px;height:32px;border-radius:9px;background:rgba(0,0,0,.07);border:none;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
-    .modal-x:hover{background:rgba(0,0,0,.13);}
+    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.2rem;}
+    .modal-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.6rem;}
+    .modal-desc{font-size:.8rem;color:var(--gray);line-height:1.5;margin-bottom:1.2rem;}
+    .modal-btns{display:flex;gap:.6rem;}
+    .mbtn{flex:1;padding:.72rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
+    .mbtn-ok{background:var(--red);color:white;}
 
-    /* PLAN SUMMARY BOX */
-    .modal-plan-box{background:var(--bg);border-radius:16px;padding:1rem 1.2rem;margin-bottom:1.3rem;display:flex;align-items:center;gap:.9rem;}
-    .mpb-ico{font-size:2rem;}
-    .mpb-name{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;}
-    .mpb-price{font-size:.8rem;color:var(--gray);margin-top:2px;}
-    .mpb-price strong{color:var(--dark);}
+    /* ── SKELETON ── */
+    .skel{background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-    /* FIELD */
-    .m-field{margin-bottom:1rem;}
-    .m-field label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dark);margin-bottom:.4rem;}
-    .m-field input{width:100%;padding:.72rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.87rem;color:var(--dark);background:#FAFBFF;outline:none;transition:border-color .2s,box-shadow .2s;}
-    .m-field input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(45,85,255,.1);}
-
-    /* PAY OPTIONS */
-    .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;}
-    .pay-opt{background:var(--bg);border:1.5px solid var(--border);border-radius:13px;padding:.75rem .9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.65rem;}
-    .pay-opt:hover{border-color:var(--blue2);}
-    .pay-opt.sel{border-color:var(--blue2);background:rgba(45,85,255,.05);box-shadow:0 0 0 3px rgba(45,85,255,.08);}
-    .po-ico{font-size:1.3rem;flex-shrink:0;}
-    .po-name{font-size:.8rem;font-weight:700;color:var(--dark);}
-    .po-sub{font-size:.64rem;color:var(--gray);}
-
-    /* PAY BUTTON */
-    .btn-pay{width:100%;padding:.88rem;border:none;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:.4rem;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 8px 24px rgba(27,63,228,.35);}
-    .btn-pay:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(27,63,228,.45);}
-    .btn-pay:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-    .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none;}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .btn-pay.loading .spin{display:block;}.btn-pay.loading .lbl{display:none;}
-    .modal-secure{text-align:center;font-size:.7rem;color:var(--gray);margin-top:.7rem;}
-
-    /* SUCCESS STATE */
-    .success-state{display:none;text-align:center;padding:1rem 0;}
-    .success-ico{font-size:4rem;margin-bottom:.8rem;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both;}
-    @keyframes pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
-    .success-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:.5rem;}
-    .success-plan{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,194,113,.1);border:1.5px solid rgba(0,194,113,.25);border-radius:99px;padding:.35rem 1rem;font-size:.78rem;font-weight:700;color:var(--green);margin-bottom:1rem;}
-    .success-msg{font-size:.85rem;color:var(--gray);line-height:1.6;margin-bottom:1.5rem;max-width:340px;margin-left:auto;margin-right:auto;}
-    .btn-dash{width:100%;padding:.88rem;border:none;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 8px 24px rgba(27,63,228,.35);transition:all .2s;}
-    .btn-dash:hover{transform:translateY(-2px);}
-
-    /* TOAST */
-    #toast{position:fixed;bottom:1.5rem;right:1rem;max-width:300px;background:var(--dark);color:white;padding:.8rem 1.2rem;border-radius:14px;font-size:.83rem;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:9999;display:flex;align-items:center;gap:.6rem;transform:translateY(20px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);border-left:3px solid var(--turq);}
-    #toast.show{transform:translateY(0);opacity:1;}
-
-    @media(max-width:600px){.plans-grid{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr;}.plan-card.popular{transform:none;}.pay-grid{grid-template-columns:1fr 1fr;}}
+    /* ── MODAL PAIEMENT ── */
+    .pay-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.8rem;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1);overflow-y:auto;max-height:90vh;}
+    .modal-ov.open .pay-sheet{transform:translateY(0);}
+    .pay-title{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:.25rem;}
+    .pay-sub{font-size:.78rem;color:var(--gray);margin-bottom:1.2rem;line-height:1.5;}
+    .plan-cards{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem;}
+    .plan-opt{border:2px solid var(--border);border-radius:14px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;position:relative;}
+    .plan-opt.selected{border-color:var(--blue2);background:rgba(45,85,255,.04);}
+    .plan-opt-row{display:flex;align-items:center;justify-content:space-between;}
+    .plan-opt-name{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);}
+    .plan-opt-price{font-family:'Clash Display',sans-serif;font-size:.98rem;font-weight:700;color:var(--blue2);}
+    .plan-opt-desc{font-size:.7rem;color:var(--gray);margin-top:.2rem;}
+    .plan-eco{position:absolute;top:-9px;right:10px;background:var(--green);color:white;font-size:.58rem;font-weight:800;padding:.15rem .55rem;border-radius:99px;}
+    .plan-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;margin-left:.6rem;}
+    .plan-opt.selected .plan-radio{border-color:var(--blue2);background:var(--blue2);}
+    .plan-opt.selected .plan-radio::after{content:'';width:7px;height:7px;border-radius:50%;background:white;display:block;}
+    .pay-ops{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem;}
+    .pay-op{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);}
+    .pay-avantages{background:rgba(245,183,49,.05);border:1px solid rgba(245,183,49,.2);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;}
+    .pay-avantages-ttl{font-size:.74rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;}
+    .pay-avantages div{font-size:.7rem;color:var(--gray);line-height:1.8;}
+    .pay-btn{width:100%;padding:.82rem;border-radius:14px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(27,63,228,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .pay-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .pay-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:pspin .6s linear infinite;display:none;}
+    .pay-btn.loading .pay-spin{display:block;}
+    .pay-btn.loading .pay-lbl{display:none;}
+    @keyframes pspin{to{transform:rotate(360deg)}}
+    .pay-secure{text-align:center;font-size:.63rem;color:var(--gray);margin-top:.5rem;}
   </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="header">
-  <a class="h-logo" href="dashboard.html"><span class="la">Afri</span><span class="lm">Market</span></a>
-  <a class="h-back" href="dashboard.html">← Dashboard</a>
+  <a class="h-back" href="dashboard.html">← Accueil</a>
+  <div class="h-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+  <div class="h-right">
+    <button class="h-save" id="hSaveBtn" onclick="saveProfile()">💾 Sauvegarder</button>
+    <!-- ⋮ avec badge notif -->
+    <div class="h-dots-wrap">
+      <button class="h-dots" id="dotsBtn" onclick="toggleDots(event)">⋮</button>
+      <div class="h-dots-badge" id="hDotsBadge"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MENU ⋮ -->
+<div class="dots-menu" id="dotsMenu">
+  <button class="dm-item" onclick="closeDots();openNotifPanel()">
+    <div class="dm-ico" style="background:rgba(232,48,48,.1);">🔔</div>Notifications
+    <div class="dm-notif-badge" id="dmNotifBadge"></div>
+  </button>
+  <a class="dm-item" href="parametres.html" onclick="closeDots()">
+    <div class="dm-ico" style="background:rgba(27,63,228,.1);">⚙️</div>Paramètres
+  </a>
+  <button class="dm-item" onclick="shareApp();closeDots()">
+    <div class="dm-ico" style="background:rgba(0,194,183,.1);">📤</div>Partager l'app
+  </button>
+  <a class="dm-item" href="https://wa.me/237689011185?text=Support AfriMarket" target="_blank" onclick="closeDots()">
+    <div class="dm-ico" style="background:rgba(37,211,102,.1);">💬</div>Aide & Support
+  </a>
+  <button class="dm-item" onclick="closeDots();logout()" style="color:var(--red);">
+    <div class="dm-ico" style="background:rgba(232,48,48,.08);">🚪</div>Se déconnecter
+  </button>
+</div>
+
+<!-- PANNEAU NOTIFICATIONS -->
+<div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
+<div class="notif-panel" id="notifPanel">
+  <div class="np-hdr">
+    <div class="np-title">🔔 Notifications</div>
+    <button class="np-close" onclick="closeNotifPanel()">✕</button>
+  </div>
+  <div class="np-actions">
+    <button class="np-action-btn" onclick="markAllNotifRead()">✅ Tout marquer lu</button>
+    <button class="np-action-btn" onclick="loadNotifications()">🔄 Actualiser</button>
+  </div>
+  <div class="np-list" id="notifList">
+    <div class="np-empty"><div class="np-empty-ico">🔔</div><div class="np-empty-txt">Chargement…</div></div>
+  </div>
 </div>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="trial-badge"><div class="tdot"></div> 7 jours d'essai gratuit inclus</div>
-  <h1>Passez <em>Premium</em><br/>vendez sans limites</h1>
-  <div class="hero-sub">Annonces illimitées, badge vérifié, mise en avant, statistiques et bien plus. Dès 1 000 FCFA/mois.</div>
-
-  <!-- Countdown essai -->
-  <div class="trial-countdown" id="trialCountdown">
-    <div>
-      <div style="font-size:.62rem;color:rgba(255,255,255,.5);margin-bottom:.1rem">ESSAI GRATUIT</div>
-      <div class="tc-num" id="tcDays">7</div>
+  <div class="hero-inner">
+    <div class="avatar-wrap" onclick="document.getElementById('avatarInput').click()">
+      <div class="avatar" id="avatarEl"><span id="avatarInitial">?</span></div>
+      <div class="avatar-edit">✏️</div>
+      <div class="avatar-uploading" id="avatarUploading">⏳</div>
     </div>
-    <div class="tc-sep"></div>
-    <div class="tc-info"><strong>jours restants</strong><br/>Passez Premium avant l'expiration</div>
+    <input type="file" id="avatarInput" accept="image/*" onchange="uploadAvatar(this)"/>
+    <div class="hero-name" id="heroName">Chargement…</div>
+    <div class="hero-email" id="heroEmail"></div>
+    <div class="hero-plan free" id="heroPlan">🆓 Compte Gratuit</div>
   </div>
 </div>
 
-<!-- BILLING TOGGLE -->
-<div class="billing-wrap">
-  <div class="billing-lbl on" id="lbl-m">Mensuel</div>
-  <button class="toggle" id="billingToggle" onclick="toggleBilling()"></button>
-  <div class="billing-lbl" id="lbl-a">Annuel</div>
-  <span class="save-pill">-20%</span>
+<!-- STATS -->
+<div class="stats-float">
+  <div class="sf"><div class="sf-num" id="statAds">—</div><div class="sf-lbl">ANNONCES</div></div>
+  <div class="sf"><div class="sf-num" id="statRefs">—</div><div class="sf-lbl">FILLEULS</div></div>
+  <div class="sf"><div class="sf-num" id="statSolde">—</div><div class="sf-lbl">SOLDE F</div></div>
+  <div class="sf"><div class="sf-num" id="statDays">—</div><div class="sf-lbl">JOURS</div></div>
 </div>
 
-<!-- PLANS -->
-<div class="plans-wrap">
-  <div class="plans-grid">
+<!-- COMPLÉTION -->
+<div class="complet-card" id="completCard">
+  <div class="cc-top"><div class="cc-title">✨ Complétion du profil</div><div class="cc-pct" id="ccPct">0%</div></div>
+  <div class="cc-bar"><div class="cc-fill" id="ccFill" style="width:0%"></div></div>
+  <div class="cc-dots" id="ccDots"></div>
+</div>
 
-    <!-- FREE -->
-    <div class="plan-card">
-      <div class="plan-ico ico-free">🆓</div>
-      <div class="plan-label">Gratuit</div>
-      <div class="plan-name">Démarrer</div>
-      <div class="plan-price-box">
-        <div class="plan-price">0</div>
-        <div class="plan-period">FCFA · pour toujours</div>
-      </div>
-      <div class="plan-divider"></div>
-      <div class="plan-feats">
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">3 annonces maximum</span></div>
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">7 jours de visibilité</span></div>
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">Profil public</span></div>
-        <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Badge Vérifié</span></div>
-        <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Mises en avant</span></div>
-        <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Statistiques</span></div>
-      </div>
-      <button class="btn-plan btn-free-plan" onclick="stayFree()">Continuer gratuit</button>
-      <div class="plan-note">Pas d'engagement</div>
+<!-- INFOS PERSONNELLES -->
+<div class="sec"><div class="sec-ttl">👤 Informations personnelles</div></div>
+<div class="form-card" id="formCard">
+  <div class="field">
+    <label>Nom complet</label>
+    <div class="field-wrap"><span class="field-ico">👤</span><input type="text" id="fName" placeholder="Ton nom complet" oninput="markChanged(this)"/></div>
+  </div>
+  <div class="field">
+    <label>Numéro WhatsApp</label>
+    <div class="field-wrap"><span class="field-ico">💬</span><input type="tel" id="fWa" placeholder="+237 6XX XXX XXX" oninput="markChanged(this)"/></div>
+    <div class="field-hint">Utilisé pour que les acheteurs te contactent</div>
+  </div>
+  <div class="field">
+    <label>Pays</label>
+    <div class="field-wrap">
+      <span class="field-ico">🌍</span>
+      <select id="fPays" onchange="markChanged(this)">
+        <option value="">Sélectionner ton pays</option>
+        <option value="Cameroun">🇨🇲 Cameroun</option>
+        <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+        <option value="Sénégal">🇸🇳 Sénégal</option>
+        <option value="Mali">🇲🇱 Mali</option>
+        <option value="Burkina Faso">🇧🇫 Burkina Faso</option>
+        <option value="Guinée">🇬🇳 Guinée</option>
+        <option value="Bénin">🇧🇯 Bénin</option>
+        <option value="Togo">🇹🇬 Togo</option>
+        <option value="Niger">🇳🇪 Niger</option>
+        <option value="Tchad">🇹🇩 Tchad</option>
+        <option value="Congo">🇨🇬 Congo</option>
+        <option value="Gabon">🇬🇦 Gabon</option>
+        <option value="France">🇫🇷 France</option>
+        <option value="Autre">🌍 Autre</option>
+      </select>
     </div>
+  </div>
+  <div class="field">
+    <label>Ville</label>
+    <div class="field-wrap"><span class="field-ico">📍</span><input type="text" id="fVille" placeholder="Ex: Yaoundé, Douala…" oninput="markChanged(this)"/></div>
+  </div>
+  <div class="field">
+    <label>Bio / Description (optionnel)</label>
+    <div class="field-wrap"><textarea id="fBio" placeholder="Parle un peu de toi ou de ce que tu vends…" oninput="markChanged(this)" style="padding-left:.9rem"></textarea></div>
+    <div class="field-hint">Visible sur tes annonces</div>
+  </div>
+  <button onclick="saveProfile()" id="saveBtn" style="width:100%;padding:.78rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.25);">
+    💾 Sauvegarder les modifications
+  </button>
+</div>
 
-    <!-- PREMIUM -->
-    <div class="plan-card popular">
-      <div class="pop-badge">⭐ Populaire</div>
-      <div class="plan-ico ico-prem">👑</div>
-      <div class="plan-label">Premium</div>
-      <div class="plan-name">Vendeur Pro</div>
-      <div class="plan-price-box">
-        <div class="plan-price"><span style="font-size:1.2rem;vertical-align:super">F</span><span id="price-prem">1 000</span></div>
-        <div class="plan-period" id="period-prem">par mois · facturé mensuellement</div>
-        <div class="plan-annual-note" id="annual-prem">💰 Économisez 2 400 FCFA/an</div>
-      </div>
-      <div class="plan-divider"></div>
-      <div class="plan-feats">
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">Annonces illimitées</span></div>
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">Visibilité permanente</span></div>
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">Badge ✓ Vérifié</span></div>
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">1 mise en avant/mois</span></div>
-        <div class="feat"><div class="fc fc-yes">✓</div><span class="feat-txt">Statistiques annonces</span></div>
-        <div class="feat"><div class="fc fc-no">✕</div><span class="feat-txt dim">Boutique dédiée</span></div>
-      </div>
-      <button class="btn-plan btn-prem-plan" onclick="openCheckout('premium')">
-        <span>👑 Choisir Premium</span>
-      </button>
-      <div class="plan-note">7 jours gratuits inclus</div>
+<!-- ABONNEMENT -->
+<div class="sec"><div class="sec-ttl">👑 Mon abonnement</div></div>
+<div class="prem-card free-card" id="premCard">
+  <div class="pc-inner">
+    <div class="pc-top">
+      <div class="pc-ico">🆓</div>
+      <div class="pc-badge-free" id="planBadge">Compte Gratuit</div>
     </div>
-
-    <!-- ELITE -->
-    <div class="plan-card">
-      <div class="plan-ico ico-elite">🚀</div>
-      <div class="plan-label">Elite</div>
-      <div class="plan-name">Marketplace</div>
-      <div class="plan-price-box">
-        <div class="plan-price"><span style="font-size:1.2rem;vertical-align:super">F</span><span id="price-elite">2 500</span></div>
-        <div class="plan-period" id="period-elite">par mois · facturé mensuellement</div>
-        <div class="plan-annual-note" id="annual-elite">💰 Économisez 6 000 FCFA/an</div>
-      </div>
-      <div class="plan-divider"></div>
-      <div class="plan-feats">
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">Tout Premium inclus</span></div>
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">5 mises en avant/mois</span></div>
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">🏪 Boutique dédiée (30 produits)</span></div>
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">🔗 Lien boutique personnel</span></div>
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">💬 Commandes WhatsApp auto</span></div>
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">Badge 🥇 Elite</span></div>
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">Support prioritaire</span></div>
-        <div class="feat"><div class="fc fc-gold">✓</div><span class="feat-txt">Gestionnaire dédié</span></div>
-      </div>
-      <button class="btn-plan btn-elite-plan" onclick="openCheckout('elite')">
-        <span>🚀 Choisir Elite</span>
-      </button>
-      <div class="plan-note">7 jours gratuits inclus</div>
+    <div class="pc-title" id="planTitle">Passe à Premium</div>
+    <div class="pc-features" id="planFeatures">
+      <div class="pc-feat">🆓 5 annonces gratuites / mois</div>
+      <div class="pc-feat">❌ Pas de mise en avant</div>
+      <div class="pc-feat">❌ Pas de badge vendeur vérifié</div>
     </div>
-
+    <div class="pc-desc" id="planDesc">Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.</div>
+    <button class="pc-btn pc-btn-upgrade" id="planBtn" onclick="openPayModal()">
+      👑 Passer Premium — Mobile Money
+    </button>
   </div>
 </div>
 
-<!-- TRUST -->
-<div class="trust-section">
-  <div class="trust-title">Pourquoi passer Premium ?</div>
-  <div class="trust-grid">
-    <div class="trust-card"><div class="trust-ico">♾️</div><div class="trust-label">Sans limites</div><div class="trust-desc">Publiez autant d'annonces que vous voulez, sans aucune restriction.</div></div>
-    <div class="trust-card"><div class="trust-ico">✅</div><div class="trust-label">Badge Vérifié</div><div class="trust-desc">Inspirez confiance avec le badge Premium visible sur toutes vos annonces.</div></div>
-    <div class="trust-card"><div class="trust-ico">📈</div><div class="trust-label">Plus de visibilité</div><div class="trust-desc">Vos annonces mises en avant apparaissent en premier dans les résultats.</div></div>
+<!-- MES ANNONCES -->
+<div class="sec"><div class="sec-ttl">📋 Mes annonces publiées</div></div>
+<div style="padding:0 1.2rem;margin-bottom:.4rem;">
+  <div id="myAdsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+    <div class="skel" style="height:130px;border-radius:16px;"></div>
+    <div class="skel" style="height:130px;border-radius:16px;"></div>
+  </div>
+  <div id="myAdsEmpty" style="display:none;text-align:center;padding:1.8rem 1rem;background:white;border-radius:16px;border:1.5px solid var(--border);">
+    <div style="font-size:2.2rem;margin-bottom:.5rem;">📭</div>
+    <div style="font-size:.85rem;font-weight:700;color:var(--dark);">Aucune annonce publiée</div>
+    <div style="font-size:.75rem;color:var(--gray);margin-top:.3rem;">Publie ta première annonce depuis le tableau de bord !</div>
+    <button onclick="location.href='dashboard.html'" style="margin-top:.8rem;padding:.5rem 1.2rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🛍️ Publier</button>
   </div>
 </div>
 
-<!-- FAQ -->
-<div class="faq-section">
-  <div class="faq-title">Questions fréquentes</div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Comment fonctionne l'essai gratuit ? <span class="faq-arr">▼</span></div><div class="faq-a">Vous bénéficiez de 7 jours d'accès Premium gratuit dès votre inscription. Aucune carte bancaire n'est requise pour démarrer.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Puis-je annuler à tout moment ? <span class="faq-arr">▼</span></div><div class="faq-a">Oui, vous pouvez annuler votre abonnement à tout moment depuis votre dashboard. Vous conservez l'accès jusqu'à la fin de la période payée.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Quels moyens de paiement acceptez-vous ? <span class="faq-arr">▼</span></div><div class="faq-a">Nous acceptons Orange Money, Wave, MTN Money et les cartes bancaires Visa/Mastercard pour une expérience de paiement simple et sécurisée.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Mes annonces expirent-elles après l'essai ? <span class="faq-arr">▼</span></div><div class="faq-a">En compte gratuit, vos annonces ont une visibilité de 7 jours. En Premium ou Elite, elles restent actives indéfiniment tant que votre abonnement est valide.</div></div>
-  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">L'activation Premium est-elle immédiate ? <span class="faq-arr">▼</span></div><div class="faq-a">Oui ! Dès votre paiement confirmé, votre compte est automatiquement upgradé et vous pouvez profiter de tous vos avantages Premium instantanément.</div></div>
+<!-- MES AVIS -->
+<div class="sec"><div class="sec-ttl">⭐ Mes avis reçus</div></div>
+<div id="avisSection" style="margin:0 1.2rem .4rem;display:flex;flex-direction:column;gap:.6rem;">
+  <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem;">⏳ Chargement…</div>
 </div>
 
-<!-- FINAL BAND -->
-<div class="final-band">
-  <div class="fb-blob fb1"></div><div class="fb-blob fb2"></div>
-  <h2>Prêt à vendre sans limites ? 🚀</h2>
-  <p>Rejoignez des milliers de vendeurs qui font confiance à AfriMarket Premium.</p>
-  <div class="fb-btns">
-    <button class="fb-main" onclick="openCheckout('premium')">👑 Commencer — 1 000 F/mois</button>
-    <a class="fb-ghost" href="dashboard.html">Rester gratuit →</a>
+<!-- MES SERVICES -->
+<div class="sec"><div class="sec-ttl">💼 Mes services actifs</div></div>
+<div class="services-section" id="servicesSection">
+  <div class="empty-services">
+    <div class="es-ico">💰</div>
+    <div class="es-title">Commence à gagner</div>
+    <div class="es-desc">Tu n'as pas encore rejoint un service.<br>Rejoins une activité et gagne de l'argent !</div>
+    <button class="es-btn" onclick="location.href='gagner.html'">Voir les opportunités →</button>
   </div>
-  <div style="margin-top:1rem;font-size:.72rem;color:rgba(255,255,255,.3);position:relative;z-index:1;">✓ 7 jours gratuits · ✓ Sans engagement · ✓ Annulation facile</div>
 </div>
 
-<!-- ===== CHECKOUT MODAL ===== -->
-<div class="modal-ov" id="checkoutModal" onclick="closeModal(event)">
+<!-- SERVICE CLIENT -->
+<div class="sec"><div class="sec-ttl">🎧 Service client</div></div>
+<div style="margin:0 1.2rem .4rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;flex-direction:column;gap:.7rem;">
+  <div style="font-size:.78rem;color:var(--gray);line-height:1.6;">Une question ? Un problème ? Notre équipe est disponible pour t'aider 🙌</div>
+  <a href="https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20besoin%20d%27aide%20%F0%9F%91%8B" target="_blank" style="display:flex;align-items:center;gap:.85rem;background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.9rem 1rem;text-decoration:none;" onmouseover="this.style.background='rgba(0,194,113,.12)'" onmouseout="this.style.background='rgba(0,194,113,.06)'">
+    <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,194,113,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">💬</div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878;">WhatsApp</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">+237 689 011 185 · Réponse rapide</div></div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
+  </a>
+  <a href="/cdn-cgi/l/email-protection#f685838686998482b69790849f9b97849d9382d8978686" style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;" onmouseover="this.style.background='rgba(27,63,228,.09)'" onmouseout="this.style.background='rgba(27,63,228,.04)'">
+    <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;"><span class="__cf_email__" data-cfemail="4f3c3a3f3f203d3b0f2e293d26222e3d242a3b612e3f3f">[email&#160;protected]</span></div></div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
+  </a>
+  <a href="telecharger.html" style="display:flex;align-items:center;gap:.85rem;background:linear-gradient(135deg,rgba(0,194,183,.06),rgba(27,63,228,.04));border:1.5px solid rgba(0,194,183,.25);border-radius:14px;padding:.9rem 1rem;text-decoration:none;" onmouseover="this.style.borderColor='rgba(0,194,183,.5)'" onmouseout="this.style.borderColor='rgba(0,194,183,.25)'">
+    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📲</div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq);">Installer l'application</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Ajouter AfriMarket à l'écran d'accueil</div></div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--turq);">→</div>
+  </a>
+</div>
+
+<!-- DANGER ZONE -->
+<div class="sec"><div class="sec-ttl">⚠️ Zone de danger</div></div>
+<div class="danger-card">
+  <div class="dz-ttl">Actions irréversibles</div>
+  <button class="dz-btn dz-logout" id="logoutBtn" onclick="logout()">🚪 <span>Se déconnecter</span></button>
+  <button class="dz-btn dz-del" onclick="document.getElementById('delOv').classList.add('open')">🗑️ <span>Supprimer mon compte</span></button>
+</div>
+<div style="height:1rem"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" id="navMessages" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+  <button class="nav-item" onclick="location.href='gagner.html'"><span class="nav-ico">💰</span><span class="nav-lbl">Gagner</span></button>
+  <button class="nav-item active"><span class="nav-ico">👤</span><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Profil</span></button>
+</nav>
+
+<!-- MODAL SUPPRESSION -->
+<div class="modal-ov" id="delOv" onclick="if(event.target===this)document.getElementById('delOv').classList.remove('open')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-
-    <!-- ── ÉTAPE 1 : CHOISIR MODE ── -->
-    <div id="stepMode">
-      <div class="modal-top">
-        <div class="modal-title">🛒 Finaliser l'abonnement</div>
-        <button class="modal-x" onclick="document.getElementById('checkoutModal').classList.remove('open')">✕</button>
-      </div>
-
-      <!-- PLAN RECAP -->
-      <div class="modal-plan-box">
-        <div class="mpb-ico" id="mo-ico">👑</div>
-        <div>
-          <div class="mpb-name" id="mo-name">Premium</div>
-          <div class="mpb-price"><strong id="mo-price">1 000 FCFA</strong>/mois · 7 jours offerts</div>
-        </div>
-      </div>
-
-      <!-- TABS MODE -->
-      <div class="mode-tabs">
-        <button class="mode-tab active" id="tabManual" onclick="switchMode('manual')">📱 Paiement Manuel</button>
-        <button class="mode-tab" id="tabAuto" onclick="switchMode('auto')">⚡ Paiement Auto</button>
-      </div>
-
-      <!-- ── MODE MANUEL ── -->
-      <div id="modeManual">
-        <div class="manual-info-box">
-          <div class="mib-title">📋 Comment ça marche ?</div>
-          <div class="mib-steps">
-            <div class="mib-step"><span class="mib-num">1</span><span>Choisissez votre opérateur ci-dessous</span></div>
-            <div class="mib-step"><span class="mib-num">2</span><span>Envoyez le montant exact au numéro indiqué</span></div>
-            <div class="mib-step"><span class="mib-num">3</span><span>Notez votre référence de transaction</span></div>
-            <div class="mib-step"><span class="mib-num">4</span><span>Remplissez le formulaire ci-dessous et validez</span></div>
-            <div class="mib-step"><span class="mib-num">5</span><span>Votre compte est activé dans les <strong>2 minutes</strong> ⚡</span></div>
-          </div>
-        </div>
-
-        <!-- OPÉRATEUR -->
-        <div class="m-field">
-          <label>Choisir l'opérateur</label>
-          <div class="operator-grid">
-            <div class="operator-card sel" id="op-orange" onclick="selectOperator('orange')">
-              <div class="op-ico">🟠</div>
-              <div class="op-info">
-                <div class="op-name">Orange Money</div>
-                <div class="op-country">Cameroun 🇨🇲</div>
-                <div class="op-num">+237 658 033 690</div>
-                <div style="font-size:.6rem;color:var(--gray)">Alirou Moun</div>
-              </div>
-            </div>
-            <div class="operator-card" id="op-mtn" onclick="selectOperator('mtn')">
-              <div class="op-ico">💛</div>
-              <div class="op-info">
-                <div class="op-name">MTN MoMo</div>
-                <div class="op-country">Cameroun 🇨🇲</div>
-                <div class="op-num">+237 651 461 777</div>
-                <div style="font-size:.6rem;color:var(--gray)">Jean Jacques Rousseau</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- MONTANT À ENVOYER -->
-        <div class="amount-banner" id="amountBanner">
-          <div class="ab-label">Montant à envoyer</div>
-          <div class="ab-amount" id="abAmount">1 000 FCFA</div>
-          <div class="ab-num">au numéro : <strong id="abNum">+237 658 033 690</strong></div>
-          <button class="ab-copy" onclick="copyNum()">📋 Copier le numéro</button>
-        </div>
-
-        <!-- FORMULAIRE CONFIRMATION -->
-        <div class="m-field">
-          <label>Votre nom complet *</label>
-          <input type="text" id="manualName" placeholder="Ex : Jean Dupont"/>
-        </div>
-        <div class="m-field">
-          <label>Référence de transaction *</label>
-          <input type="text" id="manualRef" placeholder="Ex : TXN123456789 ou CM00123"/>
-          <div style="font-size:.68rem;color:var(--gray);margin-top:.3rem;">📌 Visible dans votre SMS de confirmation de paiement</div>
-        </div>
-        <div class="m-field">
-          <label>Numéro utilisé pour payer *</label>
-          <input type="tel" id="manualPhone" placeholder="+237 6XX XXX XXX"/>
-        </div>
-
-        <button class="btn-pay" id="btnManualPay" onclick="submitManualPayment()">
-          <div class="spin"></div><span class="lbl">✅ J'ai payé — Soumettre</span>
-        </button>
-        <div class="modal-secure">⏱️ Vérification sous 2 minutes · Activation automatique</div>
-      </div>
-
-      <!-- ── MODE AUTO ── -->
-      <div id="modeAuto" style="display:none">
-        <!-- ★ MONETBIL — Paiement automatique réel -->
-        <div style="background:rgba(0,194,183,.05);border:1px solid rgba(0,194,183,.2);border-radius:14px;padding:.9rem 1rem;margin-bottom:.9rem;text-align:center;">
-          <div style="font-size:1.5rem;margin-bottom:.3rem;">⚡</div>
-          <div style="font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.2rem;">Paiement instantané via Monetbil</div>
-          <div style="font-size:.72rem;color:var(--gray);line-height:1.5;">Tu seras redirigé vers la page de paiement Monetbil sécurisée. Activation immédiate après confirmation.</div>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.9rem;">
-          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">📱 MTN MoMo</span>
-          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">🟠 Orange Money</span>
-          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">🔵 Moov Money</span>
-          <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.28rem .6rem;font-size:.68rem;font-weight:600;color:var(--dark);">🟡 Wave</span>
-        </div>
-        <button id="monetbilPayBtn" onclick="lancerMonetbil()" style="width:100%;padding:.8rem;border-radius:13px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(27,63,228,.3);display:flex;align-items:center;justify-content:center;gap:.5rem;">
-          <span id="monetbilPayLbl">💳 Payer maintenant</span>
-          <span id="monetbilSpin" style="width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none;"></span>
-        </button>
-        <div style="text-align:center;font-size:.63rem;color:var(--gray);margin-top:.5rem;">🔒 Paiement sécurisé par Monetbil · Aucune carte requise</div>
-      </div>
+    <div class="modal-title">🗑️ Supprimer ton compte ?</div>
+    <div class="modal-desc">Cette action est <strong>irréversible</strong>. Toutes tes annonces, ton solde et tes données seront définitivement supprimés.</div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="document.getElementById('delOv').classList.remove('open')">Annuler</button>
+      <button class="mbtn mbtn-ok" onclick="deleteAccount()">Supprimer</button>
     </div>
-
-    <!-- ── ÉTAPE 2 : EN ATTENTE DE VÉRIFICATION ── -->
-    <div id="stepPending" style="display:none">
-      <div style="text-align:center;padding:.5rem 0 1rem">
-        <div class="pending-ring" id="pendingRing">
-          <div class="pending-spinner"></div>
-          <div class="pending-ico">⏳</div>
-        </div>
-        <div class="pending-title">Vérification en cours…</div>
-        <div class="pending-sub">Votre paiement est en cours de vérification. Cela prend généralement <strong>moins de 2 minutes</strong>.</div>
-
-        <!-- COUNTDOWN 2 MIN -->
-        <div class="countdown-box">
-          <div class="cb-label">Activation dans</div>
-          <div class="cb-timer" id="cbTimer">02:00</div>
-          <div class="cb-track"><div class="cb-fill" id="cbFill" style="width:100%"></div></div>
-        </div>
-
-        <!-- RECAP SOUMISSION -->
-        <div class="pending-recap" id="pendingRecap"></div>
-
-        <div class="pending-note">
-          💡 Vous pouvez fermer cette fenêtre. Vous recevrez une notification dès que votre compte sera activé.
-        </div>
-
-        <button class="btn-close-pending" onclick="closePendingAndWait()">
-          Fermer et attendre la notification
-        </button>
-      </div>
-    </div>
-
-    <!-- ── ÉTAPE 3 : SUCCÈS ── -->
-    <div id="stepSuccess" style="display:none">
-      <div style="text-align:center;padding:.5rem 0">
-        <div class="success-ico-big">🎉</div>
-        <div class="success-title-big">Compte activé !</div>
-        <div class="success-plan-badge" id="sPlanBadge">👑 Premium activé</div>
-        <div class="success-details" id="sDetails">Votre compte Premium est actif. Profitez de toutes vos fonctionnalités !</div>
-        <button class="btn-pay" style="margin-top:1.5rem" onclick="goToDashboard()">
-          <span class="lbl">🏠 Aller au Dashboard →</span>
-        </button>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<div id="toast"><span id="tIco"></span>&nbsp;<span id="tMsg"></span></div>
+<!-- MODAL GÉRER ABONNEMENT -->
+<div class="modal-ov" id="manageOv" onclick="if(event.target===this)closeManageModal()">
+  <div class="manage-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="ms-hdr">
+      <div class="ms-ico">👑</div>
+      <div class="ms-title">Gérer mon abonnement</div>
+      <div class="ms-sub" id="manSubtitle">Compte Premium actif</div>
+    </div>
+    <div class="ms-info-card" id="manInfoCard">
+      <div class="ms-plan-ico">👑</div>
+      <div>
+        <div class="ms-plan-name" id="manPlanName">Premium</div>
+        <div class="ms-plan-exp" id="manPlanExp">Expire le —</div>
+      </div>
+    </div>
+    <div class="ms-options">
+      <button class="ms-opt" onclick="renewPlan()">
+        <div class="ms-opt-ico" style="background:rgba(27,63,228,.1);">🔄</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Renouveler maintenant</div><div class="ms-opt-desc">Prolonge ton abonnement avant expiration</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+      <button class="ms-opt" onclick="upgradePlan()">
+        <div class="ms-opt-ico" style="background:rgba(245,183,49,.12);">⬆️</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Passer à l'annuel</div><div class="ms-opt-desc">Économise 17% avec le plan 12 mois</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+      <button class="ms-opt" onclick="contactSupport()">
+        <div class="ms-opt-ico" style="background:rgba(0,194,113,.1);">💬</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Contacter le support</div><div class="ms-opt-desc">Problème avec ton abonnement ?</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+      <button class="ms-opt danger" onclick="cancelPlan()">
+        <div class="ms-opt-ico" style="background:rgba(232,48,48,.08);">❌</div>
+        <div class="ms-opt-body"><div class="ms-opt-title">Annuler l'abonnement</div><div class="ms-opt-desc">Accès maintenu jusqu'à expiration</div></div>
+        <span style="color:var(--gray);font-size:.8rem;">→</span>
+      </button>
+    </div>
+    <button class="ms-close-btn" onclick="closeManageModal()">Fermer</button>
+  </div>
+</div>
 
-<style>
-/* ── STYLES SUPPLÉMENTAIRES MODAL ── */
-.mode-tabs{display:flex;gap:.5rem;margin-bottom:1.3rem;}
-.mode-tab{flex:1;padding:.65rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--gray);}
-.mode-tab.active{background:var(--dark);color:white;border-color:var(--dark);}
+<!-- MODAL PAIEMENT PREMIUM -->
+<div class="modal-ov" id="payOv" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="pay-title">👑 Passer Premium</div>
+    <div class="pay-sub">Paie en Mobile Money en quelques secondes, activation immédiate 🚀</div>
+    <div class="plan-cards">
+      <div class="plan-opt selected" id="optMensuel" onclick="selectPlan('mensuel')">
+        <div class="plan-opt-row">
+          <div><div class="plan-opt-name">📅 Mensuel</div><div class="plan-opt-desc">Accès Premium 30 jours</div></div>
+          <div style="display:flex;align-items:center;"><div class="plan-opt-price">2 000 FCFA</div><div class="plan-radio"></div></div>
+        </div>
+      </div>
+      <div class="plan-opt" id="optAnnuel" onclick="selectPlan('annuel')">
+        <div class="plan-eco">🎉 −17%</div>
+        <div class="plan-opt-row">
+          <div><div class="plan-opt-name">📆 Annuel</div><div class="plan-opt-desc">Accès Premium 12 mois</div></div>
+          <div style="display:flex;align-items:center;"><div class="plan-opt-price">20 000 FCFA</div><div class="plan-radio"></div></div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:.7rem;color:var(--gray);font-weight:600;margin-bottom:.35rem;">Opérateurs acceptés :</div>
+    <div class="pay-ops">
+      <span class="pay-op">📱 MTN MoMo</span><span class="pay-op">🟠 Orange Money</span>
+      <span class="pay-op">🔵 Moov Money</span><span class="pay-op">🟡 Wave</span>
+    </div>
+    <div class="pay-avantages">
+      <div class="pay-avantages-ttl">✨ Ce que tu débloques</div>
+      <div>✅ Annonces illimitées</div><div>✅ Mise en avant prioritaire</div>
+      <div>✅ Badge vendeur vérifié 👑</div><div>✅ Statistiques avancées</div>
+    </div>
+    <button class="pay-btn" id="payBtn" onclick="lancerPaiement()">
+      <div class="pay-spin"></div><span class="pay-lbl">💳 Payer 2 000 FCFA</span>
+    </button>
+    <div class="pay-secure">🔒 Paiement sécurisé par Monetbil · Aucune carte bancaire requise</div>
+    <div style="text-align:center;margin-top:.8rem;">
+      <button onclick="closePayModal()" style="background:none;border:none;color:var(--gray);font-size:.78rem;cursor:pointer;">Fermer ✕</button>
+    </div>
+  </div>
+</div>
 
-.manual-info-box{background:linear-gradient(135deg,rgba(0,194,113,.06),rgba(0,194,183,.05));border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.1rem;}
-.mib-title{font-size:.72rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;}
-.mib-steps{display:flex;flex-direction:column;gap:.4rem;}
-.mib-step{display:flex;align-items:flex-start;gap:.6rem;font-size:.8rem;color:var(--dark);line-height:1.4;}
-.mib-num{width:20px;height:20px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;}
+<div id="toast"></div>
 
-.operator-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
-.operator-card{border:1.5px solid var(--border);border-radius:13px;padding:.8rem;cursor:pointer;transition:all .2s;background:var(--bg);display:flex;align-items:center;gap:.7rem;}
-.operator-card:hover{border-color:var(--blue2);}
-.operator-card.sel{border-color:var(--blue2);background:rgba(45,85,255,.05);box-shadow:0 0 0 3px rgba(45,85,255,.08);}
-.op-ico{font-size:1.7rem;flex-shrink:0;}
-.op-name{font-size:.82rem;font-weight:700;color:var(--dark);}
-.op-country{font-size:.65rem;color:var(--gray);}
-.op-num{font-size:.7rem;color:var(--blue2);font-weight:700;margin-top:.15rem;}
-
-.amount-banner{background:linear-gradient(135deg,var(--dark),#0D1E6B);color:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem;text-align:center;}
-.ab-label{font-size:.65rem;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.2rem;}
-.ab-amount{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--gold);margin-bottom:.2rem;}
-.ab-num{font-size:.8rem;color:rgba(255,255,255,.7);margin-bottom:.7rem;}
-.ab-copy{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;border-radius:99px;padding:.35rem 1rem;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
-.ab-copy:hover{background:rgba(255,255,255,.22);}
-
-/* AUTO PLACEHOLDER */
-.auto-placeholder{background:var(--bg);border:2px dashed var(--border);border-radius:16px;padding:1.8rem 1.4rem;text-align:center;}
-.ap-ico{font-size:2.5rem;margin-bottom:.5rem;}
-.ap-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem;}
-.ap-desc{font-size:.8rem;color:var(--gray);line-height:1.55;margin-bottom:1rem;}
-.ap-methods{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem;}
-.apm{background:white;border:1px solid var(--border);border-radius:99px;padding:.28rem .8rem;font-size:.72rem;font-weight:600;}
-.btn-notify{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;padding:.55rem 1.4rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-
-/* PENDING */
-.pending-ring{width:80px;height:80px;border-radius:50%;background:rgba(245,183,49,.1);border:3px solid rgba(245,183,49,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;position:relative;}
-.pending-spinner{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--gold);animation:spin .9s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.pending-ico{font-size:2rem;}
-.pending-title{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.4rem;}
-.pending-sub{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:1.2rem;}
-.countdown-box{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:1rem;}
-.cb-label{font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;}
-.cb-timer{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;color:var(--blue2);margin-bottom:.6rem;}
-.cb-track{height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
-.cb-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--turq));border-radius:99px;transition:width 1s linear;}
-.pending-recap{background:rgba(27,63,228,.05);border:1px solid rgba(27,63,228,.12);border-radius:12px;padding:.8rem 1rem;margin-bottom:.8rem;font-size:.78rem;text-align:left;}
-.pr-row{display:flex;justify-content:space-between;padding:.2rem 0;}
-.pr-lbl{color:var(--gray);}
-.pr-val{font-weight:700;color:var(--dark);}
-.pending-note{font-size:.73rem;color:var(--gray);line-height:1.5;margin-bottom:1rem;background:rgba(255,183,49,.08);border:1px solid rgba(245,183,49,.2);border-radius:10px;padding:.7rem .9rem;}
-.btn-close-pending{width:100%;padding:.8rem;border:1.5px solid var(--border);border-radius:13px;background:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;color:var(--gray);transition:all .2s;}
-.btn-close-pending:hover{border-color:var(--dark);color:var(--dark);}
-
-/* SUCCESS BIG */
-.success-ico-big{font-size:4rem;animation:popBig .6s cubic-bezier(.34,1.56,.64,1) both;display:block;margin-bottom:.6rem;}
-@keyframes popBig{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
-.success-title-big{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;margin-bottom:.5rem;}
-.success-plan-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,194,113,.1);border:1.5px solid rgba(0,194,113,.25);border-radius:99px;padding:.35rem 1rem;font-size:.82rem;font-weight:700;color:var(--green);margin-bottom:.8rem;}
-.success-details{font-size:.84rem;color:var(--gray);line-height:1.6;}
-</style>
-
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
 <script>
-const{createClient}=supabase;
-const sb=createClient(
+'use strict';
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+var _sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-let currentUser=null,userProfile=null;
-let selectedPlan='premium',selectedOperator='orange',isAnnual=false;
-let paymentId=null,countdownTimer=null;
+var U = null, P = null, hasChanges = false;
+var _notifData = [];
 
-const PLANS={
-  premium:{name:'Premium',ico:'👑',monthly:1000,annual:9600},
-  elite:  {name:'Elite',  ico:'🚀',monthly:2500,annual:24000}
+/* ═══════════════════════════════════════════════
+   MONETBIL
+═══════════════════════════════════════════════ */
+var MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
+var MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
+var PLANS = {
+  mensuel: { amount:2000,  label:'2 000',  months:1,  dbPlan:'premium' },
+  annuel:  { amount:20000, label:'20 000', months:12, dbPlan:'premium_annual' }
 };
+var _selectedPlan = 'mensuel';
 
-// ⚙️ CONFIGURE ICI TES NUMÉROS DE RÉCEPTION
-const PAYMENT_NUMBERS={
-  orange:'+237 658 033 690',
-  mtn:   '+237 651 461 777'
-};
-const PAYMENT_NAMES={
-  orange:'Alirou Moun',
-  mtn:   'Jean Jacques Rousseau'
-};
+function openPayModal() {
+  if (P && P.is_premium) { showToast('👑 Ton compte est déjà Premium !','info'); return; }
+  selectPlan('mensuel');
+  document.getElementById('payOv').classList.add('open');
+}
+function closePayModal() { document.getElementById('payOv').classList.remove('open'); }
 
-// ===== INIT =====
-(async()=>{
-  const{data:{session}}=await sb.auth.getSession();
-  if(session){
-    currentUser=session.user;
-    const{data:prof}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
-    userProfile=prof;
-    if(prof?.is_premium){showToast('Vous avez déjà un compte '+prof.plan+' actif ✅','info');}
-    const daysSince=Math.floor((Date.now()-new Date(currentUser.created_at))/86400000);
-    const trialLeft=Math.max(0,7-daysSince);
-    if(trialLeft>0&&!prof?.is_premium){
-      document.getElementById('tcDays').textContent=trialLeft;
-      document.getElementById('trialCountdown').classList.add('show');
-    }
-
-    // Si paiement en attente → reprendre le suivi
-    const pendingId=localStorage.getItem('pending_payment_id');
-    if(pendingId){checkExistingPending(pendingId);}
-  }
-})();
-
-// ===== BILLING TOGGLE =====
-function toggleBilling(){
-  isAnnual=!isAnnual;
-  document.getElementById('billingToggle').classList.toggle('on',isAnnual);
-  document.getElementById('lbl-m').classList.toggle('on',!isAnnual);
-  document.getElementById('lbl-a').classList.toggle('on',isAnnual);
-  const pp=PLANS.premium,pe=PLANS.elite;
-  const pm=isAnnual?Math.round(pp.annual/12):pp.monthly;
-  const em=isAnnual?Math.round(pe.annual/12):pe.monthly;
-  document.getElementById('price-prem').textContent=pm.toLocaleString('fr-FR');
-  document.getElementById('price-elite').textContent=em.toLocaleString('fr-FR');
-  const period=isAnnual?'par mois · facturé annuellement':'par mois · facturé mensuellement';
-  document.getElementById('period-prem').textContent=period;
-  document.getElementById('period-elite').textContent=period;
-  document.getElementById('annual-prem').style.display=isAnnual?'block':'none';
-  document.getElementById('annual-elite').style.display=isAnnual?'block':'none';
+function selectPlan(key) {
+  _selectedPlan = key;
+  document.getElementById('optMensuel').classList.toggle('selected', key==='mensuel');
+  document.getElementById('optAnnuel').classList.toggle('selected',  key==='annuel');
+  document.querySelector('#payBtn .pay-lbl').textContent = '💳 Payer ' + PLANS[key].label + ' FCFA';
 }
 
-// ===== CHECKOUT OPEN =====
-function openCheckout(plan){
-  if(!currentUser){
-    showToast('Connectez-vous pour continuer','warning');
-    setTimeout(()=>window.location.href='index.html',1500);
-    return;
-  }
-  selectedPlan=plan;
-  const p=PLANS[plan];
-  const price=isAnnual?p.annual:p.monthly;
-  document.getElementById('mo-ico').textContent=p.ico;
-  document.getElementById('mo-name').textContent=p.name;
-  document.getElementById('mo-price').textContent=price.toLocaleString('fr-FR')+' FCFA'+(isAnnual?'/an':'/mois');
-  document.getElementById('abAmount').textContent=price.toLocaleString('fr-FR')+' FCFA';
-  // Reset steps
-  showStep('stepMode');
-  switchMode('manual');
-  selectOperator('orange');
-  document.getElementById('checkoutModal').classList.add('open');
-}
-
-/* ════════════════════════════════════════
-   ★ MONETBIL — Paiement automatique réel
-════════════════════════════════════════ */
-const MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
-const MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
-
-async function lancerMonetbil() {
-  if (!currentUser) {
-    showToast('Connecte-toi pour payer','warning');
-    setTimeout(()=>location.href='index.html',1500);
-    return;
-  }
-  const plan = PLANS[selectedPlan];
-  const amount = isAnnual ? plan.annual : plan.monthly;
-  const planKey = selectedPlan + (isAnnual ? '_annual' : '');
-  const ref = 'AM_' + Date.now() + '_' + currentUser.id.slice(0,8);
-
-  const btn  = document.getElementById('monetbilPayBtn');
-  const lbl  = document.getElementById('monetbilPayLbl');
-  const spin = document.getElementById('monetbilSpin');
-  btn.disabled = true; lbl.style.display='none'; spin.style.display='block';
-
+async function lancerPaiement() {
+  if (!U) { showToast('Connecte-toi pour payer','warning'); return; }
+  var plan = PLANS[_selectedPlan];
+  var ref  = 'AM_' + Date.now() + '_' + U.id.slice(0,8);
+  var btn  = document.getElementById('payBtn');
+  btn.disabled = true; btn.classList.add('loading');
   try {
-    /* Sauvegarder la demande en base */
-    await sb.from('payment_requests').insert([{
-      user_id:     currentUser.id,
-      plan:        planKey,
-      amount:      amount,
-      payment_ref: ref,
-      status:      'pending',
-      created_at:  new Date().toISOString()
-    }]);
-
-    /* Fermer le modal checkout */
-    document.getElementById('checkoutModal').classList.remove('open');
-
-    /* Lancer Monetbil */
+    await _sb.from('payment_requests').insert([{ user_id:U.id, plan:plan.dbPlan, amount:plan.amount, payment_ref:ref, status:'pending', created_at:new Date().toISOString() }]);
+    closePayModal();
     if (typeof monetbil !== 'undefined') {
-      monetbil.launch({
-        service:     MONETBIL_KEY,
-        amount:      amount,
-        currency:    'XAF',
-        locale:      'fr',
-        item_ref:    currentUser.id,
-        payment_ref: ref,
-        notify_url:  MONETBIL_NOTIFY,
-        return_url:  window.location.href,
-        onComplete: async function(data) {
-          if (data && data.status === 'success') {
+      monetbil.launch({ service:MONETBIL_KEY, amount:plan.amount, currency:'XAF', locale:'fr',
+        phone:(P&&P.whatsapp)?P.whatsapp.replace(/\D/g,''):'',
+        item_ref:U.id, payment_ref:ref, notify_url:MONETBIL_NOTIFY, return_url:window.location.href,
+        onComplete:function(data) {
+          if (data&&data.status==='success') {
             showToast('🎉 Paiement confirmé ! Activation en cours…','success');
-            setTimeout(async () => {
-              const {data:prof} = await sb.from('profiles').select('is_premium,plan').eq('id',currentUser.id).single();
-              if (prof && prof.is_premium) {
-                showToast('👑 Premium activé ! Bienvenue !','success');
-                setTimeout(()=>location.href='profil.html',2000);
-              }
-            }, 3000);
-          } else {
-            showToast('Paiement annulé ou échoué','warning');
-          }
+            setTimeout(async function(){ var fr=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle(); if(fr.data){P=Object.assign({},P,fr.data);updateHero();updatePremiumCard();} if(P.is_premium)showToast('👑 Premium activé !','success'); }, 3500);
+          } else showToast('Paiement annulé ou échoué','warning');
         }
       });
     } else {
-      /* Fallback redirection directe */
-      const p = new URLSearchParams({
-        amount, currency:'XAF', locale:'fr',
-        item_ref:currentUser.id, payment_ref:ref,
-        notify_url:MONETBIL_NOTIFY,
-        return_url:window.location.href
-      });
-      location.href = 'https://www.monetbil.com/widget/v2.1/'+MONETBIL_KEY+'?'+p.toString();
+      var p=new URLSearchParams({amount:plan.amount,currency:'XAF',locale:'fr',item_ref:U.id,payment_ref:ref,notify_url:MONETBIL_NOTIFY,return_url:window.location.href});
+      window.location.href='https://www.monetbil.com/widget/v2.1/'+MONETBIL_KEY+'?'+p.toString();
     }
-  } catch(err) {
-    showToast('Erreur : '+(err.message||'Inconnue'),'error');
-  } finally {
-    btn.disabled=false; lbl.style.display=''; spin.style.display='none';
-  }
-}
-/* ════════ FIN MONETBIL ════════ */
-
-function closeModal(e){
-  if(e.target===document.getElementById('checkoutModal'))
-    document.getElementById('checkoutModal').classList.remove('open');
+  } catch(err) { showToast('Erreur : '+(err.message||'Inconnue'),'error'); }
+  finally { btn.disabled=false; btn.classList.remove('loading'); }
 }
 
-// ===== STEP NAVIGATION =====
-function showStep(id){
-  ['stepMode','stepPending','stepSuccess'].forEach(s=>{
-    document.getElementById(s).style.display=s===id?'':'none';
-  });
-}
-
-// ===== MODE TABS =====
-function switchMode(mode){
-  document.getElementById('tabManual').classList.toggle('active',mode==='manual');
-  document.getElementById('tabAuto').classList.toggle('active',mode==='auto');
-  document.getElementById('modeManual').style.display=mode==='manual'?'':'none';
-  document.getElementById('modeAuto').style.display=mode==='auto'?'':'none';
-}
-
-// ===== OPERATOR SELECT =====
-function selectOperator(op){
-  selectedOperator=op;
-  document.getElementById('op-orange').classList.toggle('sel',op==='orange');
-  document.getElementById('op-mtn').classList.toggle('sel',op==='mtn');
-  const num=PAYMENT_NUMBERS[op];
-  const nom=PAYMENT_NAMES[op];
-  document.getElementById('abNum').textContent=num;
-  // Afficher le nom du bénéficiaire
-  let nomEl=document.getElementById('abBenef');
-  if(!nomEl){
-    nomEl=document.createElement('div');
-    nomEl.id='abBenef';
-    nomEl.style.cssText='font-size:.72rem;color:rgba(255,255,255,.55);margin-top:.15rem;';
-    document.getElementById('abNum').parentNode.appendChild(nomEl);
-  }
-  nomEl.textContent='Nom : '+nom;
-}
-
-function copyNum(){
-  const num=PAYMENT_NUMBERS[selectedOperator];
-  navigator.clipboard?.writeText(num.replace(/\s/g,''))
-    .then(()=>showToast('Numéro copié ! '+num,'success'))
-    .catch(()=>showToast(num,'info'));
-}
-
-// ===== SOUMETTRE PAIEMENT MANUEL =====
-async function submitManualPayment(){
-  if(!currentUser){showToast('Connectez-vous d\'abord','warning');return;}
-  const name=document.getElementById('manualName').value.trim();
-  const ref=document.getElementById('manualRef').value.trim();
-  const phone=document.getElementById('manualPhone').value.trim();
-  if(!name){showToast('Entrez votre nom complet','warning');return;}
-  if(!ref){showToast('Entrez la référence de la transaction','warning');return;}
-  if(!phone){showToast('Entrez le numéro utilisé pour payer','warning');return;}
-
-  const btn=document.getElementById('btnManualPay');
-  btn.disabled=true;btn.classList.add('loading');
-
-  try{
-    const price=isAnnual?PLANS[selectedPlan].annual:PLANS[selectedPlan].monthly;
-
-    // Insérer dans payment_requests
-    const{data:pay,error}=await sb.from('payment_requests').insert({
-      user_id:        currentUser.id,
-      plan:           selectedPlan,
-      amount:         price,
-      billing:        isAnnual?'annual':'monthly',
-      operator:       selectedOperator,
-      sender_name:    name,
-      sender_phone:   phone,
-      transaction_ref:ref,
-      status:         'pending',
-      created_at:     new Date().toISOString()
-    }).select().single();
-
-    if(error) throw error;
-
-    paymentId=pay.id;
-    localStorage.setItem('pending_payment_id',pay.id);
-
-    // Afficher étape en attente
-    showPendingStep(name,ref,phone,price);
-
-    // Démarrer countdown 2min + polling Supabase
-    startVerificationCountdown(pay.id);
-
-  }catch(e){
-    showToast('Erreur : '+e.message,'error');
-  }finally{
-    btn.disabled=false;btn.classList.remove('loading');
-  }
-}
-
-// ===== AFFICHER ÉTAPE PENDING =====
-function showPendingStep(name,ref,phone,price){
-  document.getElementById('pendingRecap').innerHTML=`
-    <div class="pr-row"><span class="pr-lbl">Nom</span><span class="pr-val">${name}</span></div>
-    <div class="pr-row"><span class="pr-lbl">Référence</span><span class="pr-val">${ref}</span></div>
-    <div class="pr-row"><span class="pr-lbl">Numéro</span><span class="pr-val">${phone}</span></div>
-    <div class="pr-row"><span class="pr-lbl">Montant</span><span class="pr-val">${price.toLocaleString('fr-FR')} FCFA</span></div>
-    <div class="pr-row"><span class="pr-lbl">Plan</span><span class="pr-val">${PLANS[selectedPlan].ico} ${PLANS[selectedPlan].name}</span></div>`;
-  showStep('stepPending');
-}
-
-// ===== COUNTDOWN + POLLING =====
-function startVerificationCountdown(pid){
-  const TOTAL=120; // 2 minutes
-  let elapsed=0;
-  const fill=document.getElementById('cbFill');
-  const timer=document.getElementById('cbTimer');
-
-  countdownTimer=setInterval(async()=>{
-    elapsed++;
-    const rem=Math.max(0,TOTAL-elapsed);
-    const m=String(Math.floor(rem/60)).padStart(2,'0');
-    const s=String(rem%60).padStart(2,'0');
-    timer.textContent=m+':'+s;
-    fill.style.width=((rem/TOTAL)*100)+'%';
-
-    // Polling Supabase toutes les 10s pour vérifier si approuvé par admin
-    if(elapsed%10===0){
-      const{data:p}=await sb.from('payment_requests').select('status').eq('id',pid).single();
-      if(p?.status==='approved'){
-        clearInterval(countdownTimer);
-        await activatePremium(pid);
-        return;
-      }
-      if(p?.status==='rejected'){
-        clearInterval(countdownTimer);
-        localStorage.removeItem('pending_payment_id');
-        showToast('Paiement non confirmé. Vérifiez votre référence et réessayez.','error');
-        showStep('stepMode');
-        return;
-      }
-    }
-
-    // Après 2 minutes → activer automatiquement (confiance)
-    if(elapsed>=TOTAL){
-      clearInterval(countdownTimer);
-      await activatePremium(pid);
-    }
-  },1000);
-}
-
-// ===== ACTIVATION PREMIUM =====
-async function activatePremium(pid){
-  try{
-    const expiresAt=new Date();
-    if(isAnnual) expiresAt.setFullYear(expiresAt.getFullYear()+1);
-    else expiresAt.setMonth(expiresAt.getMonth()+1);
-
-    // Mettre à jour le profil
-    const{error:updateErr}=await sb.from('profiles').update({
-      is_premium:   true,
-      plan:         selectedPlan,
-      plan_expires: expiresAt.toISOString()
-    }).eq('id',currentUser.id);
-    if(updateErr) throw updateErr;
-
-    // Marquer la demande comme traitée
-    await sb.from('payment_requests').update({
-      status:      'approved',
-      approved_at: new Date().toISOString()
-    }).eq('id',pid);
-
-    // Envoyer notification
-    await sb.from('notifications').insert({
-      user_id:    currentUser.id,
-      title:      `🎉 Bienvenue en ${PLANS[selectedPlan].name} !`,
-      message:    `Votre abonnement ${PLANS[selectedPlan].name} est actif jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}. Publiez sans limites !`,
-      icon:       PLANS[selectedPlan].ico,
-      type:       'success',
-      read:       false,
-      created_at: new Date().toISOString()
-    });
-
-    localStorage.removeItem('pending_payment_id');
-
-    // Stocker pour payment-success.html
-    sessionStorage.setItem('justUpgraded',JSON.stringify({
-      name:    PLANS[selectedPlan].name,
-      ico:     PLANS[selectedPlan].ico,
-      plan:    selectedPlan,
-      expires: expiresAt.toLocaleDateString('fr-FR')
-    }));
-
-    // Afficher succès
-    document.getElementById('sPlanBadge').textContent=PLANS[selectedPlan].ico+' '+PLANS[selectedPlan].name+' activé ✅';
-    document.getElementById('sDetails').textContent=`Votre compte ${PLANS[selectedPlan].name} est actif jusqu'au ${expiresAt.toLocaleDateString('fr-FR')}.`;
-    showStep('stepSuccess');
-
-  }catch(e){
-    showToast('Erreur activation : '+e.message,'error');
-  }
-}
-
-// ===== VÉRIFIER PAIEMENT EN ATTENTE (si l'utilisateur revient) =====
-async function checkExistingPending(pid){
-  const{data:p}=await sb.from('payment_requests').select('*').eq('id',pid).single();
-  if(!p) return;
-  if(p.status==='approved'){
-    localStorage.removeItem('pending_payment_id');
-    sessionStorage.setItem('showWelcomePremium','1');
+/* ═══════════════════════════════════════════════
+   MODAL GÉRER ABONNEMENT
+═══════════════════════════════════════════════ */
+function openManageModal() {
+  if (!P || !P.is_premium) {
+    location.href = 'pricing.html';
     return;
   }
-  if(p.status==='pending'){
-    selectedPlan=p.plan;
-    isAnnual=p.billing==='annual';
-    const price=p.amount;
-    const elapsed=Math.floor((Date.now()-new Date(p.created_at))/1000);
-    if(elapsed<120){
-      // Reprendre le suivi dans le modal
-      document.getElementById('checkoutModal').classList.add('open');
-      showPendingStep(p.sender_name,p.transaction_ref,p.sender_phone,price);
-      paymentId=pid;
-      startVerificationCountdown(pid);
-      showToast('Reprise du suivi de votre paiement en cours…','info');
-    } else {
-      // Délai dépassé → activer quand même
-      await activatePremium(pid);
-      sessionStorage.setItem('showWelcomePremium','1');
+  var exp = P.plan_expires ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  document.getElementById('manPlanName').textContent = P.plan==='premium_annual' ? 'Premium Annuel' : 'Premium Mensuel';
+  document.getElementById('manPlanExp').textContent  = 'Expire le ' + exp;
+  document.getElementById('manSubtitle').textContent = 'Ton abonnement est actif jusqu\'au ' + exp;
+  document.getElementById('manageOv').classList.add('open');
+}
+function closeManageModal() { document.getElementById('manageOv').classList.remove('open'); }
+
+function renewPlan() {
+  closeManageModal();
+  selectPlan('mensuel');
+  document.getElementById('payOv').classList.add('open');
+}
+function upgradePlan() {
+  closeManageModal();
+  selectPlan('annuel');
+  document.getElementById('payOv').classList.add('open');
+}
+function contactSupport() {
+  closeManageModal();
+  window.open('https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20un%20probl%C3%A8me%20avec%20mon%20abonnement%20Premium%20%F0%9F%91%8B','_blank');
+}
+function cancelPlan() {
+  closeManageModal();
+  showToast('Pour annuler, contacte notre support WhatsApp','info');
+  setTimeout(function(){ window.open('https://wa.me/237689011185?text=Je%20souhaite%20annuler%20mon%20abonnement%20AfriMarket','_blank'); }, 1500);
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+(async function() {
+  try {
+    var res = await _sb.auth.getSession();
+    var session = res.data && res.data.session;
+    if (!session) { location.href = 'index.html'; return; }
+    U = session.user;
+  } catch(e) { showToast('Erreur connexion : '+e.message,'error'); return; }
+
+  var meta = U.user_metadata || {};
+  P = { full_name:meta.full_name||meta.name||U.email.split('@')[0], email:U.email, avatar_url:meta.avatar_url||'' };
+  fillForm(); updateHero();
+
+  try {
+    var pr = await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+    if (pr.error) throw pr.error;
+    if (pr.data) { P = Object.assign({},P,pr.data); }
+    else {
+      var ins = await _sb.from('profiles').upsert({ id:U.id, full_name:meta.full_name||meta.name||U.email.split('@')[0], email:U.email, created_at:new Date().toISOString() },{ onConflict:'id' }).select().single();
+      if (ins.data) P = Object.assign({},P,ins.data);
     }
+  } catch(e) { console.warn('Profile fetch:',e.message); }
+
+  fillForm(); updateHero(); updateCompletion(); updatePremiumCard();
+  loadStats(); loadMyAds(); loadMyAvis(U.id); loadUnreadMessages();
+  loadMyServices(); loadNotifications(); setupRealtime();
+})();
+
+/* ═══════════════════════════════════════════════
+   NOTIFICATIONS
+═══════════════════════════════════════════════ */
+async function loadNotifications() {
+  if (!U) return;
+  try {
+    var res = await _sb.from('notifications').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(30);
+    _notifData = res.data || [];
+    renderNotifPanel();
+    updateNotifBadge();
+  } catch(e) { console.warn('loadNotifications:',e.message); }
+}
+
+function updateNotifBadge() {
+  var unread = _notifData.filter(function(n){ return !n.read; }).length;
+  var hb = document.getElementById('hDotsBadge');
+  var db = document.getElementById('dmNotifBadge');
+  if (unread > 0) {
+    var label = unread > 9 ? '9+' : String(unread);
+    hb.textContent = label; hb.classList.add('show');
+    db.textContent = label; db.classList.add('show');
+  } else {
+    hb.classList.remove('show');
+    db.classList.remove('show');
   }
 }
 
-// ===== FERMER ET ATTENDRE =====
-function closePendingAndWait(){
-  document.getElementById('checkoutModal').classList.remove('open');
-  showToast('Vous recevrez une notification à l\'activation de votre compte 🔔','info');
+function renderNotifPanel() {
+  var list = document.getElementById('notifList');
+  if (!_notifData.length) {
+    list.innerHTML = '<div class="np-empty"><div class="np-empty-ico">🔔</div><div class="np-empty-txt">Aucune notification pour l\'instant</div></div>';
+    return;
+  }
+
+  var NOTIF_COLORS = { success:'rgba(0,194,113,.12)', error:'rgba(232,48,48,.1)', info:'rgba(27,63,228,.08)', warning:'rgba(245,183,49,.1)' };
+  list.innerHTML = _notifData.map(function(n) {
+    var col = NOTIF_COLORS[n.type] || 'rgba(27,63,228,.08)';
+    var d   = new Date(n.created_at);
+    var ago = fmtAgo(d);
+    return '<div class="notif-item ' + (n.read ? '' : 'unread') + '" onclick="markNotifRead(\'' + n.id + '\',this)">' +
+      '<div class="ni-ico" style="background:' + col + ';">' + (n.icon||'🔔') + '</div>' +
+      '<div class="ni-body">' +
+        '<div class="ni-title">' + escHtml(n.title||'Notification') + '</div>' +
+        '<div class="ni-msg">' + escHtml(n.message||'') + '</div>' +
+        '<div class="ni-date">' + ago + '</div>' +
+      '</div>' +
+      (!n.read ? '<div class="ni-dot"></div>' : '') +
+    '</div>';
+  }).join('');
 }
 
-// ===== NOTIFIER AUTO =====
-async function notifyAuto(){
-  if(!currentUser){showToast('Connectez-vous pour être notifié','warning');return;}
-  await sb.from('notifications').insert({
-    user_id:currentUser.id,
-    title:'🔔 Paiement auto — Bientôt disponible !',
-    message:'Nous vous préviendrons dès que le paiement automatique sera disponible.',
-    icon:'⚡',type:'info',read:false,created_at:new Date().toISOString()
-  });
-  showToast('Nous vous préviendrons dès que disponible ! 📩','success');
+function fmtAgo(d) {
+  var diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60)   return 'À l\'instant';
+  if (diff < 3600) return Math.floor(diff/60) + ' min';
+  if (diff < 86400)return Math.floor(diff/3600) + 'h';
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
 }
 
-// ===== GO TO DASHBOARD =====
-function goToDashboard(){
-  sessionStorage.removeItem('justUpgraded');
-  sessionStorage.setItem('showWelcomePremium','1');
-  window.location.href='dashboard.html';
+async function markNotifRead(id, el) {
+  if (!id) return;
+  try {
+    await _sb.from('notifications').update({read:true}).eq('id',id);
+    var n = _notifData.find(function(x){ return x.id===id; });
+    if (n) n.read = true;
+    el.classList.remove('unread');
+    el.querySelector('.ni-dot') && el.querySelector('.ni-dot').remove();
+    updateNotifBadge();
+  } catch(e) {}
 }
 
-function stayFree(){ window.location.href='dashboard.html'; }
-
-// ===== FAQ =====
-function toggleFaq(el){
-  const item=el.parentElement;
-  const isOpen=item.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach(f=>f.classList.remove('open'));
-  if(!isOpen)item.classList.add('open');
+async function markAllNotifRead() {
+  if (!U) return;
+  try {
+    await _sb.from('notifications').update({read:true}).eq('user_id',U.id).eq('read',false);
+    _notifData.forEach(function(n){ n.read=true; });
+    renderNotifPanel(); updateNotifBadge();
+    showToast('Toutes les notifications marquées comme lues','success');
+  } catch(e) { showToast('Erreur : '+e.message,'error'); }
 }
 
-// ===== TOAST =====
-let tt;
-function showToast(msg,type='success'){
-  const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
-  document.getElementById('tIco').textContent=icons[type]||'💬';
-  document.getElementById('tMsg').textContent=msg;
-  const el=document.getElementById('toast');
-  el.className='show';
-  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
-  clearTimeout(tt);tt=setTimeout(()=>el.className='',4500);
+function openNotifPanel() {
+  document.getElementById('notifPanel').classList.add('open');
+  document.getElementById('notifOverlay').classList.add('open');
+  loadNotifications();
+}
+function closeNotifPanel() {
+  document.getElementById('notifPanel').classList.remove('open');
+  document.getElementById('notifOverlay').classList.remove('open');
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('checkoutModal').classList.remove('open');});
-</script>
-  <script>
-    if('serviceWorker' in navigator){
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(r => console.log('[SW] Registered:', r.scope))
-          .catch(e => console.warn('[SW] Error:', e));
-      });
+/* ═══════════════════════════════════════════════
+   FORM + HERO + COMPLÉTION
+═══════════════════════════════════════════════ */
+function fillForm() {
+  if (!P) return;
+  document.getElementById('fName').value  = P.full_name||'';
+  document.getElementById('fWa').value    = P.whatsapp||'';
+  document.getElementById('fPays').value  = P.pays||'';
+  document.getElementById('fVille').value = P.ville||'';
+  document.getElementById('fBio').value   = P.bio||'';
+}
+
+function updateHero() {
+  var name = P.full_name||(U&&U.email?U.email.split('@')[0]:'Utilisateur');
+  document.getElementById('heroName').textContent  = name;
+  document.getElementById('heroEmail').textContent = (U&&U.email)||'';
+  var avEl = document.getElementById('avatarEl');
+  if (P.avatar_url&&P.avatar_url.startsWith('http')) {
+    avEl.innerHTML = '<img src="'+escHtml(P.avatar_url)+'" alt="avatar" onerror="this.style.display=\'none\'"/>';
+  } else {
+    avEl.innerHTML = '<span id="avatarInitial">'+escHtml((name[0]||'?').toUpperCase())+'</span>';
+  }
+  var planEl = document.getElementById('heroPlan');
+  if (P.is_premium) {
+    planEl.className   = 'hero-plan '+(P.plan==='elite'?'elite':'premium');
+    planEl.textContent = P.plan==='elite'?'⚡ Compte Elite':'👑 Compte Premium';
+  } else { planEl.className='hero-plan free'; planEl.textContent='🆓 Compte Gratuit'; }
+}
+
+function updateCompletion() {
+  var checks = [
+    {ok:!!(P.full_name), label:'Nom'},
+    {ok:!!(P.whatsapp),  label:'WhatsApp'},
+    {ok:!!(P.ville),     label:'Ville'},
+    {ok:!!(P.avatar_url&&P.avatar_url.startsWith('http')), label:'Photo'},
+    {ok:!!(P.pays),      label:'Pays'},
+    {ok:!!(P.bio),       label:'Bio'}
+  ];
+  var done = checks.filter(function(c){return c.ok;}).length;
+  var pct  = Math.round(done/checks.length*100);
+  document.getElementById('ccPct').textContent = pct+'%';
+  var fill = document.getElementById('ccFill');
+  fill.style.width = pct+'%';
+  if (pct>=100) fill.classList.add('done');
+  document.getElementById('ccDots').innerHTML = checks.map(function(c){
+    return '<span class="cc-dot '+(c.ok?'ok':'ko')+'">'+(c.ok?'✅':'❌')+' '+escHtml(c.label)+'</span>';
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   PREMIUM CARD — bouton Gérer FONCTIONNEL
+═══════════════════════════════════════════════ */
+function updatePremiumCard() {
+  var card  = document.getElementById('premCard');
+  var badge = document.getElementById('planBadge');
+  var title = document.getElementById('planTitle');
+  var feats = document.getElementById('planFeatures');
+  var desc  = document.getElementById('planDesc');
+  var btn   = document.getElementById('planBtn');
+  if (P&&P.is_premium) {
+    card.className    = 'prem-card prem-active';
+    badge.className   = 'pc-badge-prem';
+    badge.textContent = P.plan==='elite'?'⚡ Elite':'👑 Premium';
+    title.textContent = P.plan==='elite'?'Compte Elite Actif':'Compte Premium Actif';
+    feats.innerHTML   = '<div class="pc-feat">✅ Annonces illimitées</div><div class="pc-feat">✅ Mise en avant prioritaire</div><div class="pc-feat">✅ Badge vendeur vérifié</div><div class="pc-feat">✅ Statistiques avancées</div>';
+    var exp = P.plan_expires ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+    desc.innerHTML    = '<div class="pc-expires">⏰ Expire le '+escHtml(exp)+'</div>';
+    btn.className     = 'pc-btn pc-btn-manage';
+    btn.textContent   = '⚙️ Gérer mon abonnement';
+    btn.onclick       = function(){ openManageModal(); };  /* ← FONCTIONNEL */
+    // Ajouter bouton boutique pour Elite
+    var existBout = document.getElementById('boutiqueCardBtn');
+    if(!existBout) {
+      var boutBtn = document.createElement('button');
+      boutBtn.id = 'boutiqueCardBtn';
+      boutBtn.textContent = '🏪 Gérer ma boutique';
+      boutBtn.style.cssText = 'width:100%;margin-top:.6rem;padding:.55rem;border-radius:11px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;font-size:.75rem;font-weight:700;cursor:pointer;';
+      boutBtn.onclick = function(){ location.href='boutique-manager.html'; };
+      btn.parentNode.appendChild(boutBtn);
     }
-  </script>
-<!-- ★ Monetbil Widget SDK -->
-<script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
-<style>#monetbilSpin{animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style>
+    card.querySelector('.pc-top').children[0].textContent = '👑';
+  } else {
+    card.className    = 'prem-card free-card';
+    badge.className   = 'pc-badge-free';
+    badge.textContent = 'Compte Gratuit';
+    title.textContent = 'Passe à Premium';
+    feats.innerHTML   = '<div class="pc-feat">🆓 5 annonces gratuites / mois</div><div class="pc-feat">❌ Pas de mise en avant</div><div class="pc-feat">❌ Pas de badge vendeur vérifié</div>';
+    desc.innerHTML    = 'Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.';
+    btn.className     = 'pc-btn pc-btn-upgrade';
+    btn.textContent   = '👑 Passer Premium — Mobile Money';
+    btn.onclick       = function(){ openPayModal(); };
+    card.querySelector('.pc-top').children[0].textContent = '🆓';
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════ */
+async function loadStats() {
+  try {
+    var adsRes  = await _sb.from('annonces').select('id',{count:'exact',head:true}).eq('user_id',U.id);
+    var refCode = P.ref_code||U.id.substring(0,8);
+    var refsRes = await _sb.from('profiles').select('id',{count:'exact',head:true}).eq('referred_by',refCode);
+    var earnRes = await _sb.from('referral_earnings').select('amount,status').eq('user_id',U.id);
+    var solde   = 0;
+    if (earnRes.data) solde = earnRes.data.filter(function(e){return e.status==='available';}).reduce(function(s,e){return s+(e.amount||0);},0);
+    var days = P.created_at ? Math.floor((Date.now()-new Date(P.created_at).getTime())/86400000) : 0;
+    document.getElementById('statAds').textContent   = adsRes.count||0;
+    document.getElementById('statRefs').textContent  = refsRes.count||0;
+    document.getElementById('statSolde').textContent = solde.toLocaleString('fr-FR');
+    document.getElementById('statDays').textContent  = days;
+  } catch(e) { console.warn('loadStats:',e); }
+}
+
+/* ═══════════════════════════════════════════════
+   MES ANNONCES
+═══════════════════════════════════════════════ */
+async function loadMyAds() {
+  try {
+    var res   = await _sb.from('annonces').select('id,titre,prix,categorie,ville,image_url,created_at').eq('user_id',U.id).order('created_at',{ascending:false}).limit(20);
+    var grid  = document.getElementById('myAdsGrid');
+    var empty = document.getElementById('myAdsEmpty');
+    if (!res.data||!res.data.length) { grid.style.display='none'; empty.style.display='block'; return; }
+    var EMAP = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
+    grid.style.display='grid'; empty.style.display='none';
+    grid.innerHTML = res.data.map(function(ad) {
+      var em   = EMAP[ad.categorie]||'📦';
+      var prix = ad.prix?Number(ad.prix).toLocaleString('fr-FR')+' FCFA':'Prix libre';
+      var imgH = ad.image_url
+        ? '<img src="'+escHtml(ad.image_url)+'" alt="" style="width:100%;height:95px;object-fit:cover;" loading="lazy">'
+        : '<div style="width:100%;height:95px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">'+em+'</div>';
+      return '<div class="ad-mini-card">'+imgH+'<div style="padding:.5rem .65rem .6rem;"><div style="font-size:.76rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escHtml(ad.titre||'Sans titre')+'</div><div style="font-family:\'Clash Display\',sans-serif;font-size:.8rem;font-weight:700;color:var(--blue2);margin-top:1px;">'+escHtml(prix)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:.35rem;"><span style="font-size:.6rem;color:var(--gray);">📍 '+escHtml(ad.ville||'—')+'</span><button onclick="event.stopPropagation();deleteAd(\''+ad.id+'\')" style="font-size:.6rem;color:var(--red);background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.12rem .45rem;cursor:pointer;font-weight:700;">🗑️</button></div></div></div>';
+    }).join('');
+  } catch(e) { console.warn('loadMyAds:',e); }
+}
+
+async function deleteAd(id) {
+  if (!confirm('Supprimer cette annonce ?')) return;
+  try {
+    var res = await _sb.from('annonces').delete().eq('id',id).eq('user_id',U.id);
+    if (res.error) throw res.error;
+    showToast('Annonce supprimée ✅','success'); loadMyAds(); loadStats();
+  } catch(e) { showToast('Erreur : '+e.message,'error'); }
+}
+
+/* ═══════════════════════════════════════════════
+   AVIS
+═══════════════════════════════════════════════ */
+async function loadMyAvis(uid) {
+  try {
+    var res = await _sb.from('avis').select('note,commentaire,created_at,reviewer_id').eq('seller_id',uid).order('created_at',{ascending:false}).limit(20);
+    var sec = document.getElementById('avisSection');
+    if (!res.data||!res.data.length) { sec.innerHTML='<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem">🌟</div><div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l\'instant.<br>Les acheteurs pourront te noter après un échange.</div></div>'; return; }
+    var reviewerIds = res.data.map(function(a){return a.reviewer_id;}).filter(Boolean);
+    var nameMap = {};
+    if (reviewerIds.length) { var prRes=await _sb.from('profiles').select('id,full_name').in('id',reviewerIds); if(prRes.data)prRes.data.forEach(function(p){nameMap[p.id]=p.full_name||'Anonyme';}); }
+    var avg    = (res.data.reduce(function(s,a){return s+a.note;},0)/res.data.length).toFixed(1);
+    var filled = Math.round(parseFloat(avg));
+    var stars  = '⭐'.repeat(filled)+'☆'.repeat(Math.max(0,5-filled));
+    var barsHtml=[5,4,3,2,1].map(function(n){var cnt=res.data.filter(function(a){return a.note===n;}).length;var pct=Math.round(cnt/res.data.length*100);return '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem"><span style="font-size:.62rem;color:var(--gray);width:12px">'+n+'</span><div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--gold);border-radius:99px"></div></div><span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">'+cnt+'</span></div>';}).join('');
+    var cardsHtml=res.data.slice(0,5).map(function(a){var name=nameMap[a.reviewer_id]||'Anonyme';var init=(name[0]||'?').toUpperCase();var d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});var s2='⭐'.repeat(a.note)+'☆'.repeat(Math.max(0,5-a.note));var cmt=a.commentaire?'<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"'+escHtml(a.commentaire)+'"</div>':'';return '<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;"><div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;">'+escHtml(init)+'</div><div><div style="font-size:.78rem;font-weight:700;color:var(--dark)">'+escHtml(name)+'</div><div style="font-size:.62rem;color:var(--gray)">'+escHtml(d)+'</div></div><div style="margin-left:auto;font-size:.85rem">'+s2+'</div></div>'+cmt+'</div>';}).join('');
+    sec.innerHTML='<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;"><div style="text-align:center;flex-shrink:0"><div style="font-family:\'Clash Display\',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">'+avg+'</div><div style="font-size:1rem;margin:.2rem 0">'+stars+'</div><div style="font-size:.65rem;color:var(--gray)">'+res.data.length+' avis</div></div><div style="flex:1">'+barsHtml+'</div></div>'+cardsHtml;
+  } catch(e) { console.warn('loadMyAvis:',e); }
+}
+
+/* ═══════════════════════════════════════════════
+   BADGE MESSAGES
+═══════════════════════════════════════════════ */
+async function loadUnreadMessages() {
+  if (!U) return;
+  try {
+    var res = await _sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',U.id).eq('read',false);
+    var count = 0;
+    if (!res.error) count = res.count||0;
+    else { var r2=await _sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',U.id).eq('lu',false); if(!r2.error)count=r2.count||0; }
+    var el=document.getElementById('navMessages'), ex=el.querySelector('.nav-badge');
+    if (ex) ex.remove();
+    if (count>0) { var b=document.createElement('span');b.className='nav-badge';b.textContent=count>99?'99+':String(count);el.appendChild(b); }
+  } catch(e) { console.warn('loadUnreadMessages:',e); }
+}
+
+/* ═══════════════════════════════════════════════
+   MES SERVICES — avec Realtime
+═══════════════════════════════════════════════ */
+var SVC_INFO = {
+  'gagner-chasseur'    :{ label:'Chasseur de Vendeurs',   icon:'🎯', color:'#E8960A' },
+  'gagner-verificateur':{ label:'Vérificateur Certifié',  icon:'🕵️', color:'#00A8A0' },
+  'gagner-negociateur' :{ label:'Négociateur Pro',        icon:'🗣️', color:'#D4561A' },
+  'gagner-livreur'     :{ label:'Livreur Indépendant',    icon:'📦', color:'#009958' },
+  'gagner-formateur'   :{ label:'Formateur Certifié',     icon:'🎓', color:'#1B3FE4' },
+  'gagner-courtier'    :{ label:'Courtier Import-Export', icon:'🌍', color:'#8B2FD4' },
+  'gagner-encheres'    :{ label:'Enchères Inversées',     icon:'🎰', color:'#C42020' }
+};
+
+async function loadMyServices() {
+  if (!U) return;
+  var container = document.getElementById('servicesSection');
+  if (!container) return;
+  try {
+    var res = await _sb.from('service_registrations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
+    if (res.error) throw res.error;
+    var records = res.data||[];
+    if (!records.length) {
+      container.innerHTML = '<div class="empty-services"><div class="es-ico">💰</div><div class="es-title">Commence à gagner</div><div class="es-desc">Tu n\'as pas encore rejoint un service.<br>Rejoins une activité et gagne de l\'argent !</div><button class="es-btn" onclick="location.href=\'gagner.html\'">Voir les opportunités →</button></div>';
+      return;
+    }
+    var html = records.map(function(r) {
+      var s = SVC_INFO[r.service]||{label:r.service,icon:'📋',color:'#888'};
+      var statusLabel = {pending:'⏳ En attente de validation', approved:'✅ Actif', rejected:'❌ Non retenu'}[r.status]||r.status;
+      var actionBtn = '';
+      if (r.status==='approved') actionBtn='<button class="sb-btn" onclick="location.href=\'mes-missions.html?service='+r.service+'\'">Voir mes missions →</button>';
+      if (r.status==='pending')  actionBtn='<button class="sb-btn" disabled>En cours de traitement</button>';
+      if (r.status==='rejected') actionBtn='<button class="sb-btn" style="background:#f5f5f5;color:#888;" onclick="location.href=\'gagner.html\'">Recandidater</button>';
+      return '<div class="service-badge-card">'
+        +'<div class="sb-ico-wrap" style="background:'+s.color+'20;border:1.5px solid '+s.color+'40;">'+s.icon+'</div>'
+        +'<div class="sb-info"><div class="sb-name">'+s.label+'</div>'
+        +'<span class="sb-status '+r.status+'">'+statusLabel+'</span>'
+        +(r.status==='pending'?'<div class="sb-pending-info">Réponse sous 24h — vérifie tes notifications</div>':'')
+        +'</div>'+actionBtn+'</div>';
+    }).join('');
+    container.innerHTML = html;
+  } catch(e) { console.warn('loadMyServices:',e.message); }
+}
+
+/* ═══════════════════════════════════════════════
+   SAUVEGARDER
+═══════════════════════════════════════════════ */
+function markChanged(el) {
+  el.classList.add('changed'); hasChanges=true;
+  document.getElementById('hSaveBtn').classList.add('show');
+}
+
+async function uploadAvatar(input) {
+  var file=input.files[0]; if(!file)return;
+  if(file.size>3*1024*1024){showToast('Image trop grande (max 3 Mo)','warning');return;}
+  var reader=new FileReader();
+  reader.onload=function(e){document.getElementById('avatarEl').innerHTML='<img src="'+e.target.result+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;"/>';};
+  reader.readAsDataURL(file);
+  document.getElementById('avatarUploading').classList.add('show');
+  try {
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace('jpeg','jpg');
+    var path='avatars/'+U.id+'_'+Date.now()+'.'+ext;
+    var upRes=await _sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
+    if(upRes.error){showToast('Photo affichée localement uniquement','warning');return;}
+    var pubData=_sb.storage.from('avatars').getPublicUrl(path);
+    var finalUrl=pubData.data&&pubData.data.publicUrl?pubData.data.publicUrl+'?t='+Date.now():null;
+    if(!finalUrl){var signed=await _sb.storage.from('avatars').createSignedUrl(path,31536000);finalUrl=signed.data&&signed.data.signedUrl?signed.data.signedUrl:null;}
+    if(!finalUrl){showToast('Upload OK mais URL inaccessible','warning');return;}
+    var ur=await _sb.from('profiles').upsert({id:U.id,avatar_url:finalUrl},{onConflict:'id'});
+    if(ur.error){showToast('Erreur sauvegarde photo : '+ur.error.message,'error');return;}
+    P.avatar_url=finalUrl;
+    document.getElementById('avatarEl').innerHTML='<img src="'+escHtml(finalUrl)+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"/>';
+    updateCompletion(); showToast('Photo de profil mise à jour ! 🎉','success');
+  } catch(e){showToast('Erreur : '+e.message,'error');}
+  finally{document.getElementById('avatarUploading').classList.remove('show');input.value='';}
+}
+
+async function saveProfile() {
+  var name=document.getElementById('fName').value.trim();
+  var wa=document.getElementById('fWa').value.trim();
+  var pays=document.getElementById('fPays').value;
+  var ville=document.getElementById('fVille').value.trim();
+  var bio=document.getElementById('fBio').value.trim();
+  if(!name){showToast('Le nom est obligatoire','warning');return;}
+  var btn=document.getElementById('saveBtn'),hBtn=document.getElementById('hSaveBtn');
+  btn.disabled=true;btn.textContent='⏳ Sauvegarde…';hBtn.disabled=true;hBtn.textContent='⏳…';
+  try {
+    var payload={id:U.id,full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio,updated_at:new Date().toISOString()};
+    if(P.avatar_url)payload.avatar_url=P.avatar_url;
+    var res=await _sb.from('profiles').upsert(payload,{onConflict:'id'});
+    if(res.error)throw res.error;
+    P=Object.assign({},P,{full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio});
+    document.querySelectorAll('.changed').forEach(function(el){el.classList.remove('changed');});
+    hasChanges=false;hBtn.classList.remove('show');
+    updateHero();updateCompletion();showToast('Profil sauvegardé ✅','success');
+  } catch(e){showToast('Erreur : '+(e.message||'Inconnue'),'error');}
+  finally{btn.disabled=false;btn.textContent='💾 Sauvegarder les modifications';hBtn.disabled=false;hBtn.textContent='💾 Sauvegarder';}
+}
+
+/* ═══════════════════════════════════════════════
+   DÉCONNEXION + SUPPRESSION
+═══════════════════════════════════════════════ */
+async function logout() { try{await _sb.auth.signOut();}catch(e){} location.href='index.html'; }
+
+async function deleteAccount() {
+  var btn = document.querySelector('#delOv .mbtn-ok');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Suppression…'; }
+  try {
+    // Supprimer toutes les données utilisateur
+    await _sb.from('work_submissions').delete().eq('user_id', U.id);
+    await _sb.from('service_registrations').delete().eq('user_id', U.id);
+    await _sb.from('notifications').delete().eq('user_id', U.id);
+    await _sb.from('favoris').delete().eq('user_id', U.id);
+    await _sb.from('annonces').delete().eq('user_id', U.id);
+    await _sb.from('profiles').delete().eq('id', U.id);
+    // Déconnexion (la suppression du compte auth se fait côté Edge Function si dispo)
+    await _sb.auth.signOut();
+    showToast('Compte supprimé. Au revoir !', 'success');
+    setTimeout(function(){ location.href = 'index.html'; }, 1500);
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Supprimer'; }
+    showToast('Erreur : ' + e.message, 'error');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   REALTIME — services + notifs + premium
+═══════════════════════════════════════════════ */
+function setupRealtime() {
+  /* 1. Changement de profil (premium) */
+  _sb.channel('profile-'+U.id)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:'id=eq.'+U.id},async function(){
+      var fresh=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+      if(fresh.data){P=Object.assign({},P,fresh.data);updateHero();updatePremiumCard();updateCompletion();loadStats();showToast(P.is_premium?'👑 Premium activé !':'🔒 Plan mis à jour','info');}
+    }).subscribe();
+
+  /* 2. Nouvelles notifications → toast + badge + refresh services si candidature */
+  _sb.channel('notifs-'+U.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+U.id},function(payload){
+      var n=payload.new;
+      showToast((n.icon||'🔔')+' '+(n.title||'Nouvelle notification'),'info');
+      /* Ajouter en tête de liste */
+      _notifData.unshift(n);
+      updateNotifBadge();
+      /* Si c'est une notif candidature → rafraîchir la section services */
+      if (n.title && (
+        n.title.indexOf('Candidature') !== -1 ||
+        n.title.indexOf('candidature') !== -1 ||
+        n.title.indexOf('approuvée')   !== -1 ||
+        n.title.indexOf('rejetée')     !== -1
+      )) {
+        loadMyServices();
+      }
+      /* Si premium ou retrait */
+      if (n.title&&(n.title.indexOf('Premium')!==-1||n.title.indexOf('Retrait')!==-1)) {
+        setTimeout(async function(){var fresh=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();if(fresh.data){P=Object.assign({},P,fresh.data);updateHero();updatePremiumCard();}},1000);
+      }
+    }).subscribe();
+
+  /* 3. Changement direct sur service_registrations de cet utilisateur */
+  _sb.channel('svc-regs-'+U.id)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'service_registrations',filter:'user_id=eq.'+U.id},function(payload){
+      var r=payload.new;
+      var svcInfo=SVC_INFO[r.service]||{label:r.service,icon:'📋'};
+      var msg = r.status==='approved'
+        ? '✅ '+svcInfo.icon+' '+svcInfo.label+' approuvé ! Commence tes missions.'
+        : r.status==='rejected'
+        ? '❌ '+svcInfo.label+' : candidature non retenue.'
+        : '🔄 Ton statut '+svcInfo.label+' a changé.';
+      showToast(msg, r.status==='approved'?'success':r.status==='rejected'?'error':'info');
+      loadMyServices();  /* ← REFRESH IMMÉDIAT */
+    }).subscribe();
+
+  /* 4. Messages non lus */
+  _sb.channel('msgs-'+U.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'receiver_id=eq.'+U.id},function(){loadUnreadMessages();}).subscribe();
+
+  /* 5. Polling 30s (fallback) */
+  setInterval(async function(){
+    try {
+      loadMyServices();
+      loadNotifications();
+      loadUnreadMessages();
+      var fresh=await _sb.from('profiles').select('is_premium,plan,plan_expires').eq('id',U.id).maybeSingle();
+      if(fresh.data&&(fresh.data.is_premium!==P.is_premium||fresh.data.plan!==P.plan)){P=Object.assign({},P,fresh.data);updateHero();updatePremiumCard();showToast('Compte mis à jour','info');}
+    }catch(e){}
+  }, 30000);
+}
+
+/* ═══════════════════════════════════════════════
+   MENU ⋮
+═══════════════════════════════════════════════ */
+function toggleDots(e) { e.stopPropagation(); document.getElementById('dotsMenu').classList.toggle('open'); }
+function closeDots() { document.getElementById('dotsMenu').classList.remove('open'); }
+document.addEventListener('click',function(e){
+  var m=document.getElementById('dotsMenu'),b=document.getElementById('dotsBtn');
+  if(m&&!m.contains(e.target)&&e.target!==b)m.classList.remove('open');
+});
+
+function shareApp() {
+  var url='https://afrimarket2.vercel.app';
+  if(navigator.share){navigator.share({title:'AfriMarket',text:'🛒 La marketplace africaine !',url:url}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){showToast('Lien copié ! 📋','success');}).catch(function(){});}
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+var _tt;
+function showToast(msg, type) {
+  type=type||'success';
+  var ic  ={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  var col ={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
+  var el  = document.getElementById('toast');
+  if(!el) return;
+  el.textContent = (ic[type]||'ℹ️') + ' ' + msg;
+  el.style.borderLeftColor = col[type]||'var(--turq)';
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ el.classList.remove('show'); }, 3800);
+}
+
+/* ═══════════════════════════════════════════════
+   FIN — L'IIFE ci-dessus s'auto-exécute
+═══════════════════════════════════════════════ */
+</script>
 </body>
 </html>
