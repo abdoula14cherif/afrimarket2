@@ -136,8 +136,43 @@ body{font-family:var(--shop-font);background:var(--shop-bg);color:var(--shop-dar
 .pm-cart-btn{flex:1;padding:.72rem;border-radius:12px;background:var(--shop-primary);color:white;border:none;font-size:.85rem;font-weight:700;cursor:pointer;}
 .pm-wa-btn{flex:1;padding:.72rem;border-radius:12px;background:linear-gradient(135deg,#25D366,#128C7E);color:white;border:none;font-size:.85rem;font-weight:700;cursor:pointer;}
 
-/* ── BRANDING FOOTER ── */
-.branding-footer{text-align:center;padding:1.2rem;font-size:.68rem;color:var(--shop-gray);}
+/* ── CARROUSEL VEDETTES ── */
+.carousel-section{padding:.8rem .9rem 0;position:relative;}
+.carousel-label{font-size:.68rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--shop-primary);margin-bottom:.55rem;display:flex;align-items:center;gap:.4rem;}
+.carousel-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--shop-primary),transparent);}
+
+.carousel-track-wrap{position:relative;overflow:hidden;border-radius:18px;}
+.carousel-track{display:flex;transition:transform .65s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.carousel-slide{min-width:calc(100% / 3);padding:0 .3rem;box-sizing:border-box;}
+
+/* Carte slide */
+.cs-card{background:var(--shop-white);border-radius:14px;overflow:hidden;cursor:pointer;position:relative;box-shadow:0 4px 18px rgba(0,0,0,.09);transform:scale(.97);transition:transform .3s;}
+.cs-card:hover{transform:scale(1);}
+.cs-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--shop-bg);display:block;}
+.cs-img-empty{width:100%;aspect-ratio:1;background:var(--shop-bg);display:flex;align-items:center;justify-content:center;font-size:2.2rem;}
+.cs-body{padding:.55rem .6rem .6rem;}
+.cs-name{font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--shop-dark);}
+.cs-price{font-size:.8rem;font-weight:800;color:var(--shop-primary);margin-top:.1rem;}
+.cs-promo{font-size:.62rem;text-decoration:line-through;color:var(--shop-gray);margin-left:.2rem;}
+
+/* Badge vedette lumineux */
+.cs-glow{position:absolute;top:.4rem;left:.4rem;font-size:.58rem;font-weight:800;padding:.2rem .5rem;border-radius:7px;background:linear-gradient(135deg,var(--shop-primary),var(--shop-accent));color:white;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.25);animation:glowPulse 2.5s ease-in-out infinite;}
+@keyframes glowPulse{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.2);}50%{box-shadow:0 2px 20px rgba(0,194,183,.6),0 0 30px rgba(27,63,228,.3);}}
+
+/* Shimmer sur slide actif */
+.carousel-track-wrap::after{content:'';position:absolute;top:0;left:-100%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:shimmer 3.5s linear infinite;pointer-events:none;border-radius:18px;}
+@keyframes shimmer{0%{left:-40%;}100%{left:140%;}}
+
+/* Indicateurs dots */
+.carousel-dots{display:flex;justify-content:center;gap:.45rem;margin-top:.65rem;}
+.c-dot{width:6px;height:6px;border-radius:99px;background:var(--shop-border);cursor:pointer;transition:all .35s;}
+.c-dot.active{width:22px;background:var(--shop-primary);}
+
+/* Luminosité de fond derrière le carrousel */
+.carousel-glow-bg{position:absolute;inset:0;border-radius:18px;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(27,63,228,.07),transparent 70%);z-index:0;}
+
+.carousel-track-wrap{position:relative;z-index:1;}
+
 .branding-footer a{color:var(--shop-primary);font-weight:700;text-decoration:none;}
 
 /* ── NOT FOUND ── */
@@ -184,6 +219,18 @@ body{font-family:var(--shop-font);background:var(--shop-bg);color:var(--shop-dar
 
   <!-- CATÉGORIES -->
   <div class="cats-bar" id="catsBar"></div>
+
+  <!-- CARROUSEL VEDETTES -->
+  <div class="carousel-section" id="carouselSection" style="display:none">
+    <div class="carousel-label">⭐ Produits vedettes</div>
+    <div style="position:relative;">
+      <div class="carousel-glow-bg"></div>
+      <div class="carousel-track-wrap">
+        <div class="carousel-track" id="carouselTrack"></div>
+      </div>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+  </div>
 
   <!-- PRODUITS -->
   <div class="products-section">
@@ -290,6 +337,7 @@ let SHOP = null, PRODUCTS = [], CART = {}, activeCategory = 'tout', searchQuery 
     renderHeader();
     renderCategories();
     renderGrid(PRODUCTS);
+    buildCarousel();
 
     document.title = SHOP.name + ' — AfriMarket';
 
@@ -579,7 +627,131 @@ function orderSingleOnWhatsApp(id){
   closeProdDetail();
 }
 
-// ── NOT FOUND ──
+// ── CARROUSEL ──
+var _carouselIdx = 0;
+var _carouselTimer = null;
+var _carouselProds = [];
+var CAROUSEL_SIZE = 3; // produits visibles par "page"
+
+function buildCarousel(){
+  // Prend les produits avec image en priorité, sinon tous
+  var withImg = PRODUCTS.filter(function(p){ return p.image_url && p.disponible; });
+  _carouselProds = withImg.length >= 3 ? withImg : PRODUCTS.filter(function(p){ return p.disponible; });
+
+  var sec = document.getElementById('carouselSection');
+  if(_carouselProds.length < 3){ sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+
+  renderCarouselSlides();
+  renderCarouselDots();
+  startCarousel();
+
+  // Swipe touch
+  var track = document.getElementById('carouselTrack');
+  var startX = 0;
+  track.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - startX;
+    if(Math.abs(dx) > 40){ dx < 0 ? carouselNext() : carouselPrev(); }
+  }, {passive:true});
+}
+
+function renderCarouselSlides(){
+  var track = document.getElementById('carouselTrack');
+  // Clone pour loop infini : [last3] + [all] + [first3]
+  var prods = _carouselProds;
+  var pages = Math.ceil(prods.length / CAROUSEL_SIZE);
+  var slides = '';
+  // Crée les pages de 3
+  for(var pg = 0; pg < pages; pg++){
+    var chunk = prods.slice(pg * CAROUSEL_SIZE, pg * CAROUSEL_SIZE + CAROUSEL_SIZE);
+    // Si la dernière page a moins de 3, compléter avec les premiers
+    while(chunk.length < CAROUSEL_SIZE){ chunk.push(prods[chunk.length % prods.length]); }
+    slides += '<div class="carousel-page" style="min-width:100%;display:flex;gap:.6rem;padding:0 0;">' +
+      chunk.map(function(p, i){ return mkSlideCard(p, i===0); }).join('') +
+    '</div>';
+  }
+  track.innerHTML = slides;
+  // Position initiale
+  _carouselIdx = 0;
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0%)';
+}
+
+function mkSlideCard(p, featured){
+  var isPromo = p.promo_price && p.promo_price < p.price;
+  var price   = isPromo ? p.promo_price : p.price;
+  var img = p.image_url
+    ? '<img class="cs-img" src="'+esc(p.image_url)+'" alt="'+esc(p.name)+'" loading="lazy" onerror="this.outerHTML=\'<div class=cs-img-empty>🛍️</div>\'">'
+    : '<div class="cs-img-empty">🛍️</div>';
+  return '<div style="flex:1;min-width:0;">' +
+    '<div class="cs-card" onclick="openProdDetail(\''+p.id+'\')">'+
+      (featured ? '<div class="cs-glow">⭐ Vedette</div>' : '') +
+      img +
+      '<div class="cs-body">' +
+        '<div class="cs-name">'+esc(p.name)+'</div>' +
+        '<div style="display:flex;align-items:baseline;gap:.2rem;">' +
+          '<span class="cs-price">'+fmt(price)+'F</span>' +
+          (isPromo ? '<span class="cs-promo">'+fmt(p.price)+'F</span>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderCarouselDots(){
+  var prods = _carouselProds;
+  var pages = Math.ceil(prods.length / CAROUSEL_SIZE);
+  var dots  = document.getElementById('carouselDots');
+  dots.innerHTML = '';
+  for(var i = 0; i < pages; i++){
+    var d = document.createElement('div');
+    d.className = 'c-dot' + (i===0 ? ' active' : '');
+    d.setAttribute('data-i', i);
+    d.onclick = (function(idx){ return function(){ goCarousel(idx); }; })(i);
+    dots.appendChild(d);
+  }
+}
+
+function goCarousel(idx){
+  var pages = Math.ceil(_carouselProds.length / CAROUSEL_SIZE);
+  _carouselIdx = ((idx % pages) + pages) % pages;
+  var track = document.getElementById('carouselTrack');
+  track.style.transition = 'transform .65s cubic-bezier(.4,0,.2,1)';
+  track.style.transform  = 'translateX(-' + (_carouselIdx * 100) + '%)';
+  // Dots
+  document.querySelectorAll('.c-dot').forEach(function(d, i){
+    d.classList.toggle('active', i === _carouselIdx);
+  });
+}
+
+function carouselNext(){
+  var pages = Math.ceil(_carouselProds.length / CAROUSEL_SIZE);
+  goCarousel((_carouselIdx + 1) % pages);
+}
+function carouselPrev(){
+  var pages = Math.ceil(_carouselProds.length / CAROUSEL_SIZE);
+  goCarousel((_carouselIdx - 1 + pages) % pages);
+}
+
+function startCarousel(){
+  stopCarousel();
+  _carouselTimer = setInterval(carouselNext, 3500);
+}
+function stopCarousel(){
+  if(_carouselTimer){ clearInterval(_carouselTimer); _carouselTimer = null; }
+}
+
+// Pause au survol
+document.addEventListener('DOMContentLoaded', function(){
+  var wrap = document.getElementById('carouselSection');
+  if(wrap){
+    wrap.addEventListener('mouseenter', stopCarousel);
+    wrap.addEventListener('mouseleave', startCarousel);
+  }
+});
+
+
 function showNotFound(){
   document.getElementById('loader').style.display = 'none';
   document.getElementById('notFound').style.display = 'flex';
