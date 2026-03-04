@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Boutique — AfriMarket</title>
+<link rel="manifest" href="/manifest.json"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+/* ── RESET & VARS dynamiques (remplacées par JS via CSS variables) ── */
+:root {
+  --shop-primary: #1B3FE4;
+  --shop-accent:  #00C2B7;
+  --shop-bg:      #F5F7FC;
+  --shop-dark:    #0D1117;
+  --shop-gray:    #8A94A6;
+  --shop-border:  #E8ECF4;
+  --shop-white:   #FFFFFF;
+  --shop-font:    'Segoe UI', system-ui, sans-serif;
+  --radius:14px;
+  --shadow:0 4px 20px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--shop-font);background:var(--shop-bg);color:var(--shop-dark);min-height:100vh;}
+
+/* ── LOADING ── */
+.loader{position:fixed;inset:0;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:.8rem;}
+.loader-spinner{width:40px;height:40px;border:3px solid #eee;border-top-color:var(--shop-primary);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loader-txt{font-size:.8rem;color:var(--shop-gray);}
+
+/* ── HEADER BOUTIQUE ── */
+.shop-header{background:var(--shop-primary);color:white;position:relative;overflow:hidden;}
+.shop-banner{width:100%;height:180px;object-fit:cover;display:block;}
+.shop-banner-empty{height:120px;background:linear-gradient(135deg,var(--shop-primary),var(--shop-accent));}
+.shop-header-body{padding:0 1.1rem 1.2rem;position:relative;}
+.shop-logo-wrap{position:absolute;top:-32px;left:1.1rem;}
+.shop-logo{width:64px;height:64px;border-radius:16px;border:3px solid white;object-fit:cover;background:white;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+.shop-logo-letter{width:64px;height:64px;border-radius:16px;border:3px solid white;background:var(--shop-accent);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;color:white;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+.shop-meta{padding-top:40px;}
+.shop-name{font-size:1.25rem;font-weight:800;line-height:1.2;margin-bottom:.2rem;}
+.shop-tagline{font-size:.78rem;opacity:.8;line-height:1.4;}
+.shop-desc{font-size:.73rem;opacity:.7;margin-top:.5rem;line-height:1.5;}
+.shop-stats{display:flex;gap:.8rem;margin-top:.75rem;flex-wrap:wrap;}
+.shop-stat{font-size:.68rem;opacity:.75;display:flex;align-items:center;gap:.25rem;}
+.shop-wa-btn{margin-top:.9rem;display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;padding:.5rem 1rem;border-radius:10px;font-size:.75rem;font-weight:700;cursor:pointer;text-decoration:none;transition:background .2s;}
+.shop-wa-btn:hover{background:rgba(255,255,255,.25);}
+
+/* ── NAV STICKY ── */
+.shop-nav{background:var(--shop-white);border-bottom:1px solid var(--shop-border);position:sticky;top:0;z-index:80;display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.nav-search{flex:1;border:1.5px solid var(--shop-border);border-radius:10px;padding:.48rem .8rem;font-size:.78rem;background:var(--shop-bg);outline:none;color:var(--shop-dark);}
+.nav-search:focus{border-color:var(--shop-primary);}
+.nav-cart-btn{position:relative;width:40px;height:40px;border-radius:11px;background:var(--shop-primary);border:none;color:white;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cart-badge{position:absolute;top:-4px;right:-4px;background:var(--shop-accent);color:white;font-size:.6rem;font-weight:700;min-width:18px;height:18px;border-radius:99px;display:flex;align-items:center;justify-content:center;border:2px solid var(--shop-white);}
+
+/* ── FILTRES CATÉGORIES ── */
+.cats-bar{display:flex;gap:.5rem;overflow-x:auto;padding:.7rem .9rem;scrollbar-width:none;background:var(--shop-white);}
+.cats-bar::-webkit-scrollbar{display:none;}
+.cat-chip{flex:none;padding:.38rem .85rem;border-radius:99px;border:1.5px solid var(--shop-border);background:transparent;font-size:.72rem;font-weight:600;color:var(--shop-gray);cursor:pointer;transition:all .18s;white-space:nowrap;}
+.cat-chip.active{background:var(--shop-primary);border-color:var(--shop-primary);color:white;}
+
+/* ── GRILLE PRODUITS ── */
+.products-section{padding:.8rem .9rem 100px;}
+.products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;}
+@media(min-width:480px){.products-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:720px){.products-grid{grid-template-columns:repeat(4,1fr);}}
+
+.prod-card{background:var(--shop-white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);position:relative;cursor:pointer;transition:transform .18s,box-shadow .18s;}
+.prod-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.12);}
+.prod-img-wrap{aspect-ratio:1;background:var(--shop-bg);overflow:hidden;position:relative;}
+.prod-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.prod-card:hover .prod-img-wrap img{transform:scale(1.04);}
+.prod-img-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+.prod-badge{position:absolute;top:.45rem;left:.45rem;font-size:.6rem;font-weight:700;padding:.2rem .45rem;border-radius:6px;}
+.prod-badge.promo{background:var(--shop-accent);color:white;}
+.prod-badge.off{background:#666;color:white;}
+.prod-info{padding:.65rem .7rem .5rem;}
+.prod-name{font-size:.78rem;font-weight:700;line-height:1.3;margin-bottom:.25rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.prod-price{font-size:.88rem;font-weight:800;color:var(--shop-primary);}
+.prod-promo{font-size:.68rem;color:var(--shop-gray);text-decoration:line-through;margin-left:.3rem;}
+.prod-add-btn{width:100%;padding:.5rem;border:none;background:var(--shop-primary);color:white;font-size:.73rem;font-weight:700;cursor:pointer;transition:background .18s;}
+.prod-add-btn:hover{filter:brightness(1.1);}
+.prod-add-btn:disabled{background:#ccc;cursor:not-allowed;}
+.prod-qty-row{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.4rem;background:var(--shop-bg);}
+.qty-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--shop-border);background:var(--shop-white);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--shop-primary);}
+.qty-num{font-size:.82rem;font-weight:800;min-width:24px;text-align:center;}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--shop-gray);}
+.empty-state .em-ico{font-size:3rem;margin-bottom:.7rem;}
+
+/* ── PANIER SIDEBAR ── */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;opacity:0;pointer-events:none;transition:opacity .28s;}
+.cart-overlay.open{opacity:1;pointer-events:all;}
+.cart-panel{position:fixed;right:0;top:0;bottom:0;width:min(100vw,380px);background:var(--shop-white);z-index:210;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 32px rgba(0,0,0,.12);}
+.cart-overlay.open .cart-panel{transform:translateX(0);}
+.cart-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.1rem;border-bottom:1px solid var(--shop-border);}
+.cart-head-title{font-size:.95rem;font-weight:800;}
+.cart-close{width:32px;height:32px;border-radius:9px;border:1.5px solid var(--shop-border);background:var(--shop-bg);cursor:pointer;font-size:.9rem;}
+.cart-items{flex:1;overflow-y:auto;padding:.8rem 1.1rem;}
+.cart-item{display:flex;gap:.7rem;padding:.75rem 0;border-bottom:1px solid var(--shop-border);}
+.cart-item-img{width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--shop-bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;}
+.cart-item-img img{width:100%;height:100%;object-fit:cover;}
+.cart-item-info{flex:1;}
+.cart-item-name{font-size:.78rem;font-weight:700;line-height:1.3;}
+.cart-item-price{font-size:.82rem;font-weight:800;color:var(--shop-primary);margin-top:.15rem;}
+.cart-item-controls{display:flex;align-items:center;gap:.5rem;margin-top:.4rem;}
+.ci-qty-btn{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--shop-border);background:var(--shop-bg);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.ci-qty{font-size:.78rem;font-weight:800;min-width:20px;text-align:center;}
+.ci-del{margin-left:auto;color:var(--shop-gray);background:none;border:none;cursor:pointer;font-size:.85rem;}
+.cart-footer{padding:1rem 1.1rem calc(1rem + env(safe-area-inset-bottom));border-top:1px solid var(--shop-border);}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;}
+.cart-total-lbl{font-size:.8rem;color:var(--shop-gray);font-weight:600;}
+.cart-total-val{font-size:1.15rem;font-weight:800;color:var(--shop-dark);}
+.btn-order{width:100%;padding:.82rem;border-radius:13px;background:linear-gradient(135deg,#25D366,#128C7E);color:white;border:none;font-size:.9rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:transform .18s;}
+.btn-order:hover{transform:translateY(-1px);}
+.cart-empty-state{text-align:center;padding:2rem;color:var(--shop-gray);}
+.cart-empty-state .ce-ico{font-size:2.5rem;margin-bottom:.5rem;}
+
+/* ── MODAL PRODUIT DETAIL ── */
+.prod-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:250;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s;}
+.prod-modal-ov.open{opacity:1;pointer-events:all;}
+.prod-modal-sheet{background:var(--shop-white);border-radius:24px 24px 0 0;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);padding-bottom:calc(1.5rem + env(safe-area-inset-bottom));}
+.prod-modal-ov.open .prod-modal-sheet{transform:translateY(0);}
+.pm-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--shop-bg);border-radius:24px 24px 0 0;}
+.pm-img-empty{width:100%;height:180px;background:var(--shop-bg);display:flex;align-items:center;justify-content:center;font-size:4rem;border-radius:24px 24px 0 0;}
+.pm-body{padding:1.2rem 1.3rem;}
+.pm-name{font-size:1.1rem;font-weight:800;line-height:1.3;margin-bottom:.3rem;}
+.pm-price-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem;}
+.pm-price{font-size:1.4rem;font-weight:800;color:var(--shop-primary);}
+.pm-old-price{font-size:.88rem;color:var(--shop-gray);text-decoration:line-through;}
+.pm-badge-promo{background:var(--shop-accent);color:white;font-size:.62rem;font-weight:700;padding:.2rem .5rem;border-radius:6px;}
+.pm-desc{font-size:.78rem;color:var(--shop-gray);line-height:1.6;margin-bottom:1rem;}
+.pm-close{position:absolute;top:1rem;right:1rem;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.35);border:none;color:white;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.pm-actions{display:flex;gap:.7rem;margin-top:1rem;}
+.pm-cart-btn{flex:1;padding:.72rem;border-radius:12px;background:var(--shop-primary);color:white;border:none;font-size:.85rem;font-weight:700;cursor:pointer;}
+.pm-wa-btn{flex:1;padding:.72rem;border-radius:12px;background:linear-gradient(135deg,#25D366,#128C7E);color:white;border:none;font-size:.85rem;font-weight:700;cursor:pointer;}
+
+/* ── BRANDING FOOTER ── */
+.branding-footer{text-align:center;padding:1.2rem;font-size:.68rem;color:var(--shop-gray);}
+.branding-footer a{color:var(--shop-primary);font-weight:700;text-decoration:none;}
+
+/* ── NOT FOUND ── */
+.not-found{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;gap:.8rem;}
+.not-found .nf-ico{font-size:4rem;}
+.not-found h2{font-size:1.2rem;font-weight:800;}
+.not-found p{font-size:.8rem;color:var(--shop-gray);}
+.not-found a{padding:.7rem 1.5rem;background:var(--shop-primary);color:white;border-radius:12px;text-decoration:none;font-weight:700;font-size:.82rem;}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-txt">Chargement de la boutique…</div>
+</div>
+
+<!-- CONTENU PRINCIPAL -->
+<div id="shopContent" style="display:none">
+
+  <!-- HEADER -->
+  <div class="shop-header" id="shopHeader">
+    <div id="bannerWrap"></div>
+    <div class="shop-header-body">
+      <div class="shop-logo-wrap" id="shopLogoWrap"></div>
+      <div class="shop-meta">
+        <div class="shop-name" id="shopName"></div>
+        <div class="shop-tagline" id="shopTagline"></div>
+        <div class="shop-desc" id="shopDescEl"></div>
+        <div class="shop-stats" id="shopStats"></div>
+        <a class="shop-wa-btn" id="shopWaBtn" href="#">💬 Contacter sur WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="shop-nav">
+    <input class="nav-search" id="searchInput" placeholder="🔍 Rechercher un produit…" oninput="filterProducts()"/>
+    <button class="nav-cart-btn" onclick="openCart()" id="cartBtn">
+      🛒<span class="cart-badge" id="cartBadge" style="display:none">0</span>
+    </button>
+  </div>
+
+  <!-- CATÉGORIES -->
+  <div class="cats-bar" id="catsBar"></div>
+
+  <!-- PRODUITS -->
+  <div class="products-section">
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
+
+  <!-- BRANDING FOOTER -->
+  <div class="branding-footer" id="brandingFooter">
+    Propulsé par <a href="/" target="_blank">AfriMarket</a> — La marketplace africaine 🛒
+  </div>
+
+</div>
+
+<!-- NOT FOUND -->
+<div class="not-found" id="notFound" style="display:none">
+  <div class="nf-ico">🏪</div>
+  <h2>Boutique introuvable</h2>
+  <p>Cette boutique n'existe pas ou a été désactivée.</p>
+  <a href="/">Retour à AfriMarket</a>
+</div>
+
+<!-- PANIER OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()">
+  <div class="cart-panel" onclick="event.stopPropagation()">
+    <div class="cart-head">
+      <div class="cart-head-title">🛒 Mon panier</div>
+      <button class="cart-close" onclick="closeCart()">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer" id="cartFooter"></div>
+  </div>
+</div>
+
+<!-- MODAL DÉTAIL PRODUIT -->
+<div class="prod-modal-ov" id="prodDetailModal">
+  <div class="prod-modal-sheet" style="position:relative">
+    <button class="pm-close" onclick="closeProdDetail()">✕</button>
+    <div id="prodDetailContent"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SB_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
+const {createClient} = supabase;
+const sb = createClient(SB_URL, SB_KEY);
+
+let SHOP = null, PRODUCTS = [], CART = {}, activeCategory = 'tout', searchQuery = '';
+
+// ── INIT ──
+(async function(){
+  const params = new URLSearchParams(location.search);
+  const slug   = params.get('shop');
+
+  if(!slug){ showNotFound(); return; }
+
+  // Load shop
+  const {data:shop, error} = await sb.from('boutiques').select('*').eq('slug', slug).eq('actif', true).maybeSingle();
+  if(error || !shop){ showNotFound(); return; }
+  SHOP = shop;
+
+  // Increment views (fire and forget)
+  sb.rpc('increment_boutique_views', {p_slug: slug}).catch(()=>{});
+
+  // Load products
+  const {data:prods} = await sb.from('boutique_products').select('*').eq('boutique_id', SHOP.id).eq('disponible', true).order('position');
+  PRODUCTS = prods || [];
+
+  // Apply theme
+  applyTheme();
+
+  // Render
+  renderHeader();
+  renderCategories();
+  renderGrid(PRODUCTS);
+
+  document.title = SHOP.name + ' — AfriMarket';
+
+  // Branding
+  if(!SHOP.show_branding) document.getElementById('brandingFooter').style.display = 'none';
+
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('shopContent').style.display = 'block';
+})();
+
+// ── THEME ──
+function applyTheme(){
+  const root = document.documentElement;
+  root.style.setProperty('--shop-primary', SHOP.primary_color || '#1B3FE4');
+  root.style.setProperty('--shop-accent',  SHOP.accent_color  || '#00C2B7');
+  root.style.setProperty('--shop-bg',      SHOP.bg_color      || '#F5F7FC');
+  // Font
+  const fontMap = {
+    modern:  "'Segoe UI',system-ui,sans-serif",
+    elegant: "'Georgia',serif",
+    bold:    "'Arial Black',sans-serif",
+    round:   "'Comic Sans MS',cursive",
+    serif:   "'Times New Roman',serif",
+    mono:    "monospace"
+  };
+  root.style.setProperty('--shop-font', fontMap[SHOP.font_style] || fontMap.modern);
+}
+
+// ── HEADER ──
+function renderHeader(){
+  // Banner
+  const bw = document.getElementById('bannerWrap');
+  if(SHOP.banner_url){
+    bw.innerHTML = `<img class="shop-banner" src="${esc(SHOP.banner_url)}" alt="Bannière" onerror="this.parentElement.innerHTML='<div class=shop-banner-empty></div>'"/>`;
+  } else {
+    bw.innerHTML = `<div class="shop-banner-empty"></div>`;
+  }
+
+  // Logo
+  const lw = document.getElementById('shopLogoWrap');
+  if(SHOP.logo_url){
+    lw.innerHTML = `<img class="shop-logo" src="${esc(SHOP.logo_url)}" alt="Logo" onerror="this.outerHTML='<div class=shop-logo-letter>${esc((SHOP.name[0]||'?').toUpperCase())}</div>'"/>`;
+  } else {
+    lw.innerHTML = `<div class="shop-logo-letter">${esc((SHOP.name[0]||'?').toUpperCase())}</div>`;
+  }
+
+  document.getElementById('shopName').textContent = SHOP.name;
+  document.getElementById('shopTagline').textContent = SHOP.tagline || '';
+  const descEl = document.getElementById('shopDescEl');
+  if(SHOP.description){ descEl.textContent = SHOP.description; } else { descEl.style.display='none'; }
+
+  // Stats
+  const statsEl = document.getElementById('shopStats');
+  statsEl.innerHTML = `
+    <span class="shop-stat">📦 ${PRODUCTS.length} produit${PRODUCTS.length>1?'s':''}</span>
+    <span class="shop-stat">👁 ${SHOP.views||0} vue${(SHOP.views||0)>1?'s':''}</span>`;
+
+  // WhatsApp
+  const waBtn = document.getElementById('shopWaBtn');
+  const waNum = (SHOP.whatsapp||'').replace(/[^0-9]/g,'');
+  if(waNum){
+    waBtn.href = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent('Bonjour ! Je visite votre boutique ' + SHOP.name + ' sur AfriMarket 🛒');
+    waBtn.target = '_blank';
+  } else {
+    waBtn.style.display = 'none';
+  }
+}
+
+// ── CATEGORIES ──
+function renderCategories(){
+  const cats = ['tout', ...new Set(PRODUCTS.map(p=>p.category).filter(Boolean))];
+  const labels = {tout:'Tout',mode:'Mode',electronique:'Électro',alimentation:'Alim.',beaute:'Beauté',maison:'Maison',sport:'Sport',auto:'Auto',services:'Services',autre:'Autre'};
+  const bar = document.getElementById('catsBar');
+  if(cats.length <= 2){ bar.style.display='none'; return; }
+  bar.innerHTML = cats.map(c=>`
+    <button class="cat-chip ${c===activeCategory?'active':''}" onclick="setCategory('${c}',this)">${labels[c]||c}</button>
+  `).join('');
+}
+
+function setCategory(cat, el){
+  activeCategory = cat;
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  filterProducts();
+}
+
+// ── FILTER & RENDER GRID ──
+function filterProducts(){
+  searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+  let prods = PRODUCTS;
+  if(activeCategory !== 'tout') prods = prods.filter(p=>p.category === activeCategory);
+  if(searchQuery) prods = prods.filter(p=>
+    p.name.toLowerCase().includes(searchQuery) ||
+    (p.description||'').toLowerCase().includes(searchQuery)
+  );
+  renderGrid(prods);
+}
+
+function renderGrid(prods){
+  const grid = document.getElementById('productsGrid');
+  if(!prods.length){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="em-ico">🔍</div><div style="font-size:.82rem;color:var(--shop-gray)">Aucun produit trouvé</div></div>`;
+    return;
+  }
+  grid.innerHTML = prods.map(p=>{
+    const inCart = CART[p.id] || 0;
+    const isPromo = p.promo_price && p.promo_price < p.price;
+    const displayPrice = isPromo ? p.promo_price : p.price;
+    const imgContent = p.image_url
+      ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.parentElement.classList.add('prod-img-empty');this.remove();" loading="lazy"/>`
+      : '<div class="prod-img-empty" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🛍️</div>';
+    return `
+      <div class="prod-card" id="pc-${p.id}">
+        <div class="prod-img-wrap" onclick="openProdDetail('${p.id}')">${imgContent}</div>
+        ${isPromo ? '<div class="prod-badge promo">Promo</div>' : ''}
+        <div class="prod-info" onclick="openProdDetail('${p.id}')">
+          <div class="prod-name">${esc(p.name)}</div>
+          <div style="display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;">
+            <span class="prod-price">${fmt(displayPrice)} F</span>
+            ${isPromo ? `<span class="prod-promo">${fmt(p.price)} F</span>` : ''}
+          </div>
+        </div>
+        ${inCart > 0 ? `
+          <div class="prod-qty-row">
+            <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+            <span class="qty-num">${inCart}</span>
+            <button class="qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+          </div>` : `
+          <button class="prod-add-btn" onclick="addToCart('${p.id}')">🛒 Ajouter</button>`}
+      </div>`;
+  }).join('');
+}
+
+// ── CART ──
+function addToCart(id){
+  CART[id] = (CART[id]||0) + 1;
+  updateCartBadge();
+  refreshProdCard(id);
+}
+
+function changeQty(id, delta){
+  CART[id] = Math.max(0, (CART[id]||0) + delta);
+  if(CART[id] === 0) delete CART[id];
+  updateCartBadge();
+  refreshProdCard(id);
+}
+
+function refreshProdCard(id){
+  const card = document.getElementById('pc-'+id);
+  if(!card) return;
+  const inCart = CART[id]||0;
+  const qtyRow = card.querySelector('.prod-qty-row');
+  const addBtn = card.querySelector('.prod-add-btn');
+  if(inCart > 0){
+    if(qtyRow){ qtyRow.innerHTML = `<button class="qty-btn" onclick="changeQty('${id}',-1)">−</button><span class="qty-num">${inCart}</span><button class="qty-btn" onclick="changeQty('${id}',1)">+</button>`; }
+    else if(addBtn){
+      addBtn.outerHTML = `<div class="prod-qty-row"><button class="qty-btn" onclick="changeQty('${id}',-1)">−</button><span class="qty-num">${inCart}</span><button class="qty-btn" onclick="changeQty('${id}',1)">+</button></div>`;
+    }
+  } else {
+    if(qtyRow){ qtyRow.outerHTML = `<button class="prod-add-btn" onclick="addToCart('${id}')">🛒 Ajouter</button>`; }
+    else if(addBtn){ addBtn.outerHTML = `<button class="prod-add-btn" onclick="addToCart('${id}')">🛒 Ajouter</button>`; }
+  }
+}
+
+function updateCartBadge(){
+  const total = Object.values(CART).reduce((s,q)=>s+q,0);
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+}
+
+function openCart(){ document.getElementById('cartOverlay').classList.add('open'); renderCart(); }
+function closeCart(){ document.getElementById('cartOverlay').classList.remove('open'); }
+
+function renderCart(){
+  const items = Object.entries(CART).filter(([id,q])=>q>0);
+  const itemsEl = document.getElementById('cartItems');
+  const footerEl = document.getElementById('cartFooter');
+
+  if(!items.length){
+    itemsEl.innerHTML = `<div class="cart-empty-state"><div class="ce-ico">🛒</div><div style="font-size:.78rem">Ton panier est vide</div></div>`;
+    footerEl.innerHTML = '';
+    return;
+  }
+
+  let total = 0;
+  itemsEl.innerHTML = items.map(([id, qty])=>{
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(!p) return '';
+    const price = (p.promo_price && p.promo_price < p.price) ? p.promo_price : p.price;
+    total += price * qty;
+    const imgContent = p.image_url ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover;"/>` : '🛍️';
+    return `
+      <div class="cart-item">
+        <div class="cart-item-img">${imgContent}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${esc(p.name)}</div>
+          <div class="cart-item-price">${fmt(price * qty)} F</div>
+          <div class="cart-item-controls">
+            <button class="ci-qty-btn" onclick="changeQty('${id}',-1);renderCart()">−</button>
+            <span class="ci-qty">${qty}</span>
+            <button class="ci-qty-btn" onclick="changeQty('${id}',1);renderCart()">+</button>
+            <button class="ci-del" onclick="delete CART['${id}'];updateCartBadge();renderCart()">🗑️</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  footerEl.innerHTML = `
+    <div class="cart-total-row">
+      <span class="cart-total-lbl">Total</span>
+      <span class="cart-total-val">${fmt(total)} FCFA</span>
+    </div>
+    <button class="btn-order" onclick="orderOnWhatsApp()">
+      💬 Commander sur WhatsApp
+    </button>`;
+}
+
+function orderOnWhatsApp(){
+  const items = Object.entries(CART).filter(([id,q])=>q>0);
+  if(!items.length) return;
+
+  let msg = '🛒 *Commande — ' + SHOP.name + '*\n\n';
+  let total = 0;
+
+  items.forEach(([id, qty]) => {
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(!p) return;
+    const price = (p.promo_price && p.promo_price < p.price) ? p.promo_price : p.price;
+    const subtotal = price * qty;
+    total += subtotal;
+    msg += '▪ ' + p.name + ' × ' + qty + ' = ' + fmt(subtotal) + ' FCFA\n';
+  });
+
+  msg += '\n💰 *Total : ' + fmt(total) + ' FCFA*\n';
+  msg += '\nMerci de confirmer ma commande et les détails de livraison 🙏';
+
+  const waNum = (SHOP.whatsapp||'').replace(/[^0-9]/g,'');
+  if(!waNum){ alert('Ce vendeur n\'a pas renseigné son WhatsApp.'); return; }
+
+  const url = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+// ── DÉTAIL PRODUIT ──
+function openProdDetail(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const isPromo = p.promo_price && p.promo_price < p.price;
+  const displayPrice = isPromo ? p.promo_price : p.price;
+  const imgHtml = p.image_url
+    ? `<img class="pm-img" src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.outerHTML='<div class=pm-img-empty>🛍️</div>'"/>`
+    : '<div class="pm-img-empty">🛍️</div>';
+
+  document.getElementById('prodDetailContent').innerHTML = `
+    ${imgHtml}
+    <div class="pm-body">
+      <div class="pm-name">${esc(p.name)}</div>
+      <div class="pm-price-row">
+        <span class="pm-price">${fmt(displayPrice)} FCFA</span>
+        ${isPromo ? `<span class="pm-old-price">${fmt(p.price)} F</span><span class="pm-badge-promo">−${Math.round((1-p.promo_price/p.price)*100)}%</span>` : ''}
+      </div>
+      ${p.description ? `<div class="pm-desc">${esc(p.description)}</div>` : ''}
+      ${p.stock > 0 ? `<div style="font-size:.7rem;color:var(--shop-accent);font-weight:700;margin-bottom:.7rem;">✅ En stock (${p.stock} disponible${p.stock>1?'s':''})</div>` : ''}
+      <div class="pm-actions">
+        <button class="pm-cart-btn" onclick="addToCart('${p.id}');closeProdDetail()">🛒 Ajouter au panier</button>
+        <button class="pm-wa-btn" onclick="orderSingleOnWhatsApp('${p.id}')">💬 Commander</button>
+      </div>
+    </div>`;
+  document.getElementById('prodDetailModal').classList.add('open');
+}
+
+function closeProdDetail(){ document.getElementById('prodDetailModal').classList.remove('open'); }
+
+function orderSingleOnWhatsApp(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const price = (p.promo_price && p.promo_price < p.price) ? p.promo_price : p.price;
+  const msg = '🛒 Bonjour ! Je voudrais commander :\n\n▪ *' + p.name + '* — ' + fmt(price) + ' FCFA\n\nMerci de confirmer la disponibilité et les détails de livraison 🙏';
+  const waNum = (SHOP.whatsapp||'').replace(/[^0-9]/g,'');
+  if(!waNum){ alert('Ce vendeur n\'a pas renseigné son WhatsApp.'); return; }
+  window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg), '_blank');
+  closeProdDetail();
+}
+
+// ── NOT FOUND ──
+function showNotFound(){
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('notFound').style.display = 'flex';
+}
+
+// ── HELPERS ──
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n){ return Number(n).toLocaleString('fr-FR'); }
+</script>
+</body>
+</html>
