@@ -236,38 +236,72 @@ let SHOP = null, PRODUCTS = [], CART = {}, activeCategory = 'tout', searchQuery 
 
 // ── INIT ──
 (async function(){
-  const params = new URLSearchParams(location.search);
-  const slug   = params.get('shop');
+  // Timeout de sécurité : si rien ne se passe en 8s → afficher erreur
+  var loadTimeout = setTimeout(function(){
+    showError('Chargement trop long. Vérifie ta connexion ou que boutique_sql.sql a été exécuté dans Supabase.');
+  }, 8000);
 
-  if(!slug){ showNotFound(); return; }
+  try {
+    var params = new URLSearchParams(location.search);
+    var slug   = params.get('shop');
 
-  // Load shop
-  const {data:shop, error} = await sb.from('boutiques').select('*').eq('slug', slug).eq('actif', true).maybeSingle();
-  if(error || !shop){ showNotFound(); return; }
-  SHOP = shop;
+    if(!slug){
+      clearTimeout(loadTimeout);
+      showNotFound();
+      return;
+    }
 
-  // Increment views (fire and forget)
-  sb.rpc('increment_boutique_views', {p_slug: slug}).catch(()=>{});
+    // Load shop — with explicit error handling
+    var shopRes = await sb.from('boutiques').select('*').eq('slug', slug).maybeSingle();
 
-  // Load products
-  const {data:prods} = await sb.from('boutique_products').select('*').eq('boutique_id', SHOP.id).eq('disponible', true).order('position');
-  PRODUCTS = prods || [];
+    if(shopRes.error){
+      clearTimeout(loadTimeout);
+      // Table doesn't exist yet
+      if(shopRes.error.code === '42P01' || shopRes.error.message.indexOf('does not exist') !== -1){
+        showError('Le système de boutiques n\'est pas encore configuré.<br/>Exécute <strong>boutique_sql.sql</strong> dans Supabase.');
+      } else {
+        showError('Erreur : ' + shopRes.error.message);
+      }
+      return;
+    }
 
-  // Apply theme
-  applyTheme();
+    if(!shopRes.data || shopRes.data.actif === false){
+      clearTimeout(loadTimeout);
+      showNotFound();
+      return;
+    }
 
-  // Render
-  renderHeader();
-  renderCategories();
-  renderGrid(PRODUCTS);
+    SHOP = shopRes.data;
 
-  document.title = SHOP.name + ' — AfriMarket';
+    // Increment views (fire and forget)
+    try { sb.rpc('increment_boutique_views', {p_slug: slug}); } catch(e){}
 
-  // Branding
-  if(!SHOP.show_branding) document.getElementById('brandingFooter').style.display = 'none';
+    // Load products
+    var prodsRes = await sb.from('boutique_products').select('*')
+      .eq('boutique_id', SHOP.id).eq('disponible', true).order('position');
+    PRODUCTS = (prodsRes.data) || [];
 
-  document.getElementById('loader').style.display = 'none';
-  document.getElementById('shopContent').style.display = 'block';
+    clearTimeout(loadTimeout);
+
+    // Apply theme
+    applyTheme();
+
+    // Render
+    renderHeader();
+    renderCategories();
+    renderGrid(PRODUCTS);
+
+    document.title = SHOP.name + ' — AfriMarket';
+
+    if(!SHOP.show_branding) document.getElementById('brandingFooter').style.display = 'none';
+
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('shopContent').style.display = 'block';
+
+  } catch(e) {
+    clearTimeout(loadTimeout);
+    showError('Erreur inattendue : ' + e.message);
+  }
 })();
 
 // ── THEME ──
@@ -549,6 +583,16 @@ function orderSingleOnWhatsApp(id){
 function showNotFound(){
   document.getElementById('loader').style.display = 'none';
   document.getElementById('notFound').style.display = 'flex';
+}
+
+function showError(msg){
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('notFound').style.display = 'flex';
+  document.getElementById('notFound').innerHTML =
+    '<div class="nf-ico">⚠️</div>' +
+    '<h2>Problème de chargement</h2>' +
+    '<p style="max-width:320px;line-height:1.6;">' + msg + '</p>' +
+    '<a href="/">Retour à AfriMarket</a>';
 }
 
 // ── HELPERS ──
