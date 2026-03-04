@@ -215,69 +215,77 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div id="toast"></div>
 
 <script>
+
 'use strict';
-const SB_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
-const {createClient} = supabase;
-const sb = createClient(SB_URL, SB_KEY);
+var SB_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
+var sb = supabase.createClient(SB_URL, SB_KEY);
 
-let U = null, P = null, SHOP = null, PRODUCTS = [];
-let editingProductId = null;
+var U = null, P = null, SHOP = null, PRODUCTS = [];
+var editingProductId = null;
 
-// ── INIT ──
+/* ═══════════ INIT ═══════════ */
 (async function(){
-  const {data:{session}} = await sb.auth.getSession();
-  if(!session){ location.href='index.html'; return; }
-  U = session.user;
+  try {
+    var r = await sb.auth.getSession();
+    if(!r.data || !r.data.session){ location.href='index.html'; return; }
+    U = r.data.session.user;
+  } catch(e){ setMsg('Erreur connexion: '+e.message,'error'); return; }
 
-  // Load profile
-  const {data:prof} = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
-  P = prof || {};
+  var pr = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+  P = pr.data || {};
 
-  // Check elite plan
-  if(P.plan !== 'elite' && P.plan !== 'elite_annual'){
-    showPremiumGate();
+  // Accept premium ou elite
+  if(!P.plan){
+    setMsg('Plan Elite requis. <a href="pricing.html" style="color:var(--gold);font-weight:700">Passer Elite 2500F/mois</a>','warn');
     return;
   }
 
-  // Load boutique
-  const {data:shop} = await sb.from('boutiques').select('*').eq('user_id',U.id).maybeSingle();
-  SHOP = shop;
+  var shopRes = await sb.from('boutiques').select('*').eq('user_id',U.id).maybeSingle();
+  if(shopRes.error && shopRes.error.code !== 'PGRST116'){
+    setMsg('Table boutiques manquante — execute boutique_sql.sql dans Supabase. Erreur: '+shopRes.error.message,'error');
+    return;
+  }
+
+  SHOP = shopRes.data || null;
 
   if(!SHOP){
-    showCreateShop();
+    renderCreateCTA();
   } else {
     await loadProducts();
     renderAll();
   }
 })();
 
-// ── PREMIUM GATE ──
-function showPremiumGate(){
-  document.getElementById('sec-info').innerHTML = `
-    <div class="premium-gate">
-      <div class="pg-ico">🏪</div>
-      <div class="pg-title">Boutique Elite</div>
-      <div class="pg-sub">Crée ta boutique personnelle avec ton lien unique, jusqu'à 30 produits, couleurs personnalisées et commandes WhatsApp.<br/><br/>Disponible avec le plan <strong>Elite à 2 500 FCFA/mois</strong>.</div>
-      <button class="pg-btn" onclick="location.href='pricing.html'">👑 Passer Elite — 2 500 FCFA/mois</button>
-    </div>`;
+/* ═══════════ MSG D'ETAT ═══════════ */
+function setMsg(html, type){
+  var cols = {error:'var(--red)',warn:'var(--gold)',info:'var(--blue)'};
+  document.getElementById('infoContent').innerHTML =
+    '<div style="margin:1rem;padding:1.4rem 1.2rem;background:white;border-radius:16px;' +
+    'border-left:4px solid '+(cols[type]||cols.info)+';font-size:.82rem;line-height:1.7;">'+html+'</div>';
 }
 
-// ── CREATE SHOP ──
-function showCreateShop(){
-  document.getElementById('sec-info').innerHTML = `
-    <div class="create-shop-cta">
-      <div class="csc-ico">🏪</div>
-      <div class="csc-title">Crée ta boutique</div>
-      <div class="csc-sub">Configure ton nom, tes couleurs, ton logo et commence à vendre. Tes clients commanderont directement sur WhatsApp.</div>
-      <button class="btn-create" onclick="initNewShop()">🚀 Créer ma boutique</button>
-    </div>`;
+/* ═══════════ CTA ═══════════ */
+function renderCreateCTA(){
+  document.getElementById('tabsBar').style.display = 'none';
+  document.getElementById('saveBar').style.display = 'none';
+  document.getElementById('previewBtn').style.display = 'none';
+  document.getElementById('infoContent').innerHTML =
+    '<div class="create-shop-cta">' +
+      '<div class="csc-ico">&#x1F3EA;</div>' +
+      '<div class="csc-title">Cr\u00e9e ta boutique</div>' +
+      '<div class="csc-sub">Configure ton nom, tes couleurs, ton logo et commence \u00e0 vendre.' +
+      '<br/>Tes clients commanderont directement sur WhatsApp.</div>' +
+      '<button class="btn-create" onclick="initNewShop()">&#x1F680; Cr\u00e9er ma boutique</button>' +
+    '</div>';
 }
 
+/* ═══════════ INIT NOUVELLE BOUTIQUE ═══════════ */
 function initNewShop(){
+  var base = slugify(P.full_name || U.email.split('@')[0]);
   SHOP = {
     user_id: U.id,
-    slug: slugify(P.full_name || U.email.split('@')[0]) + '-' + Math.random().toString(36).slice(2,6),
+    slug: base + '-' + Math.random().toString(36).slice(2,6),
     name: P.full_name || 'Ma Boutique',
     tagline: 'Bienvenue dans ma boutique',
     description: '',
@@ -286,285 +294,299 @@ function initNewShop(){
     whatsapp: P.whatsapp || '',
     primary_color: '#1B3FE4',
     accent_color: '#00C2B7',
-    bg_color: '#FFFFFF',
+    bg_color: '#F5F7FC',
     font_style: 'modern',
-    theme: 'light',
     show_branding: true,
     actif: true
   };
+  // Restore the infoContent div before renderAll
+  document.getElementById('sec-info').innerHTML = '<div id="infoContent"></div>';
   renderAll();
 }
 
-function slugify(s){
-  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-}
-
-// ── RENDER ALL ──
+/* ═══════════ RENDER ALL ═══════════ */
 function renderAll(){
   document.getElementById('tabsBar').style.display = 'flex';
   document.getElementById('saveBar').style.display = 'flex';
-  document.getElementById('previewBtn').style.display = SHOP.id ? 'block' : 'none';
+  document.getElementById('previewBtn').style.display = (SHOP && SHOP.id) ? 'block' : 'none';
+  if(!document.getElementById('infoContent')){
+    document.getElementById('sec-info').innerHTML = '<div id="infoContent"></div>';
+  }
   renderInfo();
   renderDesign();
   renderProduits();
   renderLien();
 }
 
-// ── INFO TAB ──
+/* ═══════════ INFOS ═══════════ */
 function renderInfo(){
-  document.getElementById('infoContent').innerHTML = `
-    <div class="card">
-      <div class="card-title">🏪 Profil de la boutique</div>
-      <div class="upload-row">
-        <div>
-          <div class="f-label">Logo</div>
-          <div class="upload-zone logo-zone" onclick="triggerUpload('logo')" id="logoZone">
-            ${SHOP.logo_url ? `<img src="${esc(SHOP.logo_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>` : `<div class="uz-ico">🖼️</div><div class="uz-txt">Logo</div>`}
-          </div>
-          <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadMedia('logo',this)"/>
-        </div>
-        <div>
-          <div class="f-label">Bannière</div>
-          <div class="upload-zone logo-zone" onclick="triggerUpload('banner')" id="bannerZone">
-            ${SHOP.banner_url ? `<img src="${esc(SHOP.banner_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>` : `<div class="uz-ico">🖼️</div><div class="uz-txt">Bannière</div>`}
-          </div>
-          <input type="file" id="bannerInput" accept="image/*" style="display:none" onchange="uploadMedia('banner',this)"/>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">📝 Identité</div>
-      <div class="f-row">
-        <label class="f-label">Nom de la boutique <span>*</span></label>
-        <input class="f-input" id="shopName" value="${esc(SHOP.name)}" placeholder="Ex: Chez Aminata Mode" maxlength="60"/>
-      </div>
-      <div class="f-row">
-        <label class="f-label">Slogan</label>
-        <input class="f-input" id="shopTagline" value="${esc(SHOP.tagline||'')}" placeholder="Ex: La mode africaine à prix doux" maxlength="100"/>
-      </div>
-      <div class="f-row">
-        <label class="f-label">Description</label>
-        <textarea class="f-textarea" id="shopDesc" placeholder="Décris ta boutique, ce que tu vends…" maxlength="400">${esc(SHOP.description||'')}</textarea>
-      </div>
-      <div class="f-row">
-        <label class="f-label">WhatsApp (avec indicatif) <span>*</span></label>
-        <input class="f-input" id="shopWa" value="${esc(SHOP.whatsapp||'')}" placeholder="+237 6XX XXX XXX" type="tel"/>
-        <div class="f-hint">Les commandes arriveront sur ce numéro</div>
-      </div>
-      <div class="f-row">
-        <label class="f-label">Slug URL personnalisé</label>
-        <input class="f-input" id="shopSlug" value="${esc(SHOP.slug||'')}" placeholder="ma-boutique" maxlength="40" oninput="this.value=slugify(this.value)"/>
-        <div class="f-hint">boutique.html?shop=<strong id="slugPreview">${esc(SHOP.slug||'')}</strong></div>
-      </div>
-    </div>`;
-
-  document.getElementById('shopSlug').addEventListener('input', function(){
-    document.getElementById('slugPreview').textContent = this.value;
-  });
+  var el = document.getElementById('infoContent');
+  if(!el) return;
+  el.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">&#x1F5BC;&#xFE0F; Visuels</div>' +
+      '<div class="upload-row">' +
+        '<div>' +
+          '<div class="f-label">Logo</div>' +
+          '<div class="upload-zone logo-zone" onclick="triggerUpload(\'logo\')" id="logoZone">' +
+            (SHOP.logo_url ?
+              '<img src="'+esc(SHOP.logo_url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>' :
+              '<div class="uz-ico">&#x1F5BC;&#xFE0F;</div><div class="uz-txt">Logo</div>'
+            ) +
+          '</div>' +
+          '<input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadMedia(\'logo\',this)"/>' +
+        '</div>' +
+        '<div>' +
+          '<div class="f-label">Banni\u00e8re</div>' +
+          '<div class="upload-zone logo-zone" onclick="triggerUpload(\'banner\')" id="bannerZone">' +
+            (SHOP.banner_url ?
+              '<img src="'+esc(SHOP.banner_url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>' :
+              '<div class="uz-ico">&#x1F5BC;&#xFE0F;</div><div class="uz-txt">Banni\u00e8re</div>'
+            ) +
+          '</div>' +
+          '<input type="file" id="bannerInput" accept="image/*" style="display:none" onchange="uploadMedia(\'banner\',this)"/>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">&#x1F4DD; Identit\u00e9</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">Nom de la boutique <span>*</span></label>' +
+        '<input class="f-input" id="shopName" value="'+esc(SHOP.name||'')+'" placeholder="Ex: Chez Aminata Mode" maxlength="60"/>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">Slogan</label>' +
+        '<input class="f-input" id="shopTagline" value="'+esc(SHOP.tagline||'')+'" placeholder="Ex: La mode africaine \u00e0 prix doux" maxlength="100"/>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">Description</label>' +
+        '<textarea class="f-textarea" id="shopDesc" placeholder="D\u00e9cris ta boutique\u2026" maxlength="400">'+esc(SHOP.description||'')+'</textarea>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">WhatsApp (avec indicatif) <span>*</span></label>' +
+        '<input class="f-input" id="shopWa" value="'+esc(SHOP.whatsapp||'')+'" placeholder="+237 6XX XXX XXX" type="tel"/>' +
+        '<div class="f-hint">Les commandes arrivent sur ce num\u00e9ro</div>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">URL personnalis\u00e9e</label>' +
+        '<input class="f-input" id="shopSlug" value="'+esc(SHOP.slug||'')+'" placeholder="ma-boutique" maxlength="40" oninput="onSlugInput(this)"/>' +
+        '<div class="f-hint">boutique.html?shop=<strong id="slugPreview">'+esc(SHOP.slug||'')+'</strong></div>' +
+      '</div>' +
+    '</div>';
 }
 
-// ── DESIGN TAB ──
+function onSlugInput(el){
+  var v = slugify(el.value); el.value = v;
+  var sp = document.getElementById('slugPreview');
+  if(sp) sp.textContent = v;
+}
+
+/* ═══════════ DESIGN ═══════════ */
 function renderDesign(){
-  document.getElementById('designContent').innerHTML = `
-    <div class="card">
-      <div class="card-title">🎨 Couleurs</div>
-      <div class="f-row">
-        <label class="f-label">Couleur principale</label>
-        <div class="color-row">
-          <div class="color-preview" id="cpPrimary" style="background:${esc(SHOP.primary_color||'#1B3FE4')}" onclick="document.getElementById('cpInput').click()"></div>
-          <div class="color-input-wrap">
-            <input type="color" id="cpInput" value="${esc(SHOP.primary_color||'#1B3FE4')}" oninput="updateColor('primary',this.value)"/>
-          </div>
-          <span style="font-size:.78rem;color:var(--gray)" id="cpHex">${esc(SHOP.primary_color||'#1B3FE4')}</span>
-        </div>
-      </div>
-      <div class="f-row">
-        <label class="f-label">Couleur accent</label>
-        <div class="color-row">
-          <div class="color-preview" id="cpAccent" style="background:${esc(SHOP.accent_color||'#00C2B7')}" onclick="document.getElementById('caInput').click()"></div>
-          <div class="color-input-wrap">
-            <input type="color" id="caInput" value="${esc(SHOP.accent_color||'#00C2B7')}" oninput="updateColor('accent',this.value)"/>
-          </div>
-          <span style="font-size:.78rem;color:var(--gray)" id="caHex">${esc(SHOP.accent_color||'#00C2B7')}</span>
-        </div>
-      </div>
-      <div class="f-row">
-        <label class="f-label">Couleur fond</label>
-        <div class="color-row">
-          <div class="color-preview" id="cpBg" style="background:${esc(SHOP.bg_color||'#FFFFFF')};border:1.5px solid var(--border);" onclick="document.getElementById('cbInput').click()"></div>
-          <div class="color-input-wrap">
-            <input type="color" id="cbInput" value="${esc(SHOP.bg_color||'#FFFFFF')}" oninput="updateColor('bg',this.value)"/>
-          </div>
-          <span style="font-size:.78rem;color:var(--gray)" id="cbHex">${esc(SHOP.bg_color||'#FFFFFF')}</span>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">🔤 Style de police</div>
-      <div class="font-grid">
-        ${[
-          {key:'modern',  label:'Moderne',  preview:'Aa'},
-          {key:'elegant', label:'Élégant',  preview:'Aa'},
-          {key:'bold',    label:'Gras',     preview:'Aa'},
-          {key:'round',   label:'Arrondi',  preview:'Aa'},
-          {key:'serif',   label:'Classique',preview:'Aa'},
-          {key:'mono',    label:'Technique',preview:'Aa'},
-        ].map(f=>`
-          <div class="font-opt ${SHOP.font_style===f.key?'sel':''}" onclick="selectFont('${f.key}',this)">
-            <div class="fo-preview" style="${getFontStyle(f.key)}">${f.preview}</div>
-            <div class="fo-name">${f.label}</div>
-          </div>`).join('')}
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">⚙️ Options</div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-title">🏷️ Propulsé par AfriMarket</div>
-          <div class="toggle-sub">Badge en bas de ta boutique</div>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="toggleBranding" ${SHOP.show_branding?'checked':''} onchange="SHOP.show_branding=this.checked"/>
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-title">✅ Boutique active</div>
-          <div class="toggle-sub">Visible par les visiteurs</div>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="toggleActif" ${SHOP.actif!==false?'checked':''} onchange="SHOP.actif=this.checked"/>
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-    </div>`;
+  var el = document.getElementById('designContent');
+  if(!el) return;
+  var fonts = [
+    {key:'modern',  label:'Moderne'},
+    {key:'elegant', label:'\u00c9l\u00e9gant'},
+    {key:'bold',    label:'Gras'},
+    {key:'round',   label:'Arrondi'},
+    {key:'serif',   label:'Classique'},
+    {key:'mono',    label:'Technique'}
+  ];
+  var fontGrid = fonts.map(function(f){
+    return '<div class="font-opt '+(SHOP.font_style===f.key?'sel':'')+'" onclick="selectFont(\''+f.key+'\',this)">' +
+      '<div class="fo-preview" style="'+getFontStyle(f.key)+'">Aa</div>' +
+      '<div class="fo-name">'+f.label+'</div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">&#x1F3A8; Couleurs</div>' +
+      mkColorRow('Couleur principale','cpPrimary','cpInput','cpHex', SHOP.primary_color||'#1B3FE4','primary') +
+      mkColorRow('Couleur accent','cpAccent','caInput','caHex', SHOP.accent_color||'#00C2B7','accent') +
+      mkColorRow('Couleur fond','cpBg','cbInput','cbHex', SHOP.bg_color||'#F5F7FC','bg') +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">&#x1F524; Police</div>' +
+      '<div class="font-grid">'+fontGrid+'</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">&#x2699;&#xFE0F; Options</div>' +
+      '<div class="toggle-row">' +
+        '<div class="toggle-info">' +
+          '<div class="toggle-title">&#x1F3F7;&#xFE0F; Badge AfriMarket</div>' +
+          '<div class="toggle-sub">Visible en bas de ta boutique</div>' +
+        '</div>' +
+        '<label class="toggle">' +
+          '<input type="checkbox" id="toggleBranding" '+(SHOP.show_branding!==false?'checked':'')+' onchange="SHOP.show_branding=this.checked"/>' +
+          '<span class="toggle-track"></span>' +
+        '</label>' +
+      '</div>' +
+      '<div class="toggle-row">' +
+        '<div class="toggle-info">' +
+          '<div class="toggle-title">&#x2705; Boutique active</div>' +
+          '<div class="toggle-sub">Visible par les visiteurs</div>' +
+        '</div>' +
+        '<label class="toggle">' +
+          '<input type="checkbox" id="toggleActif" '+(SHOP.actif!==false?'checked':'')+' onchange="SHOP.actif=this.checked"/>' +
+          '<span class="toggle-track"></span>' +
+        '</label>' +
+      '</div>' +
+    '</div>';
+}
+
+function mkColorRow(label, previewId, inputId, hexId, val, type){
+  return '<div class="f-row"><label class="f-label">'+label+'</label>' +
+    '<div class="color-row">' +
+      '<div class="color-preview" id="'+previewId+'" style="background:'+val+'" onclick="document.getElementById(\''+inputId+'\').click()"></div>' +
+      '<input type="color" id="'+inputId+'" value="'+val+'" oninput="updateColor(\''+type+'\',this.value)" style="position:absolute;opacity:0;width:0;height:0;"/>' +
+      '<span style="font-size:.78rem;color:var(--gray)" id="'+hexId+'">'+val+'</span>' +
+    '</div></div>';
 }
 
 function getFontStyle(key){
-  const map = {
-    modern: 'font-family:system-ui,sans-serif;font-size:1.4rem;',
-    elegant: "font-family:'Georgia',serif;font-size:1.4rem;font-style:italic;",
-    bold: 'font-family:system-ui,sans-serif;font-size:1.4rem;font-weight:900;',
-    round: "font-family:'Comic Sans MS',cursive;font-size:1.3rem;",
-    serif: "font-family:'Times New Roman',serif;font-size:1.4rem;",
-    mono: "font-family:monospace;font-size:1.2rem;"
+  var map = {
+    modern:'font-family:system-ui,sans-serif;font-size:1.3rem;',
+    elegant:'font-family:Georgia,serif;font-size:1.3rem;font-style:italic;',
+    bold:'font-family:system-ui,sans-serif;font-size:1.3rem;font-weight:900;',
+    round:'font-family:cursive;font-size:1.2rem;',
+    serif:'font-family:serif;font-size:1.3rem;',
+    mono:'font-family:monospace;font-size:1.1rem;'
   };
-  return map[key] || map.modern;
+  return map[key]||map.modern;
 }
 
 function updateColor(type, val){
-  if(type==='primary'){ SHOP.primary_color=val; document.getElementById('cpPrimary').style.background=val; document.getElementById('cpHex').textContent=val; }
-  if(type==='accent'){  SHOP.accent_color=val;  document.getElementById('cpAccent').style.background=val; document.getElementById('caHex').textContent=val; }
-  if(type==='bg'){      SHOP.bg_color=val;       document.getElementById('cpBg').style.background=val;     document.getElementById('cbHex').textContent=val; }
+  var map = {primary:['cpPrimary','cpHex'],accent:['cpAccent','caHex'],bg:['cpBg','cbHex']};
+  var ids = map[type]; if(!ids) return;
+  if(type==='primary') SHOP.primary_color=val;
+  if(type==='accent')  SHOP.accent_color=val;
+  if(type==='bg')      SHOP.bg_color=val;
+  var prev=document.getElementById(ids[0]); if(prev) prev.style.background=val;
+  var hex=document.getElementById(ids[1]);  if(hex)  hex.textContent=val;
 }
 
 function selectFont(key, el){
   SHOP.font_style = key;
-  document.querySelectorAll('.font-opt').forEach(f=>f.classList.remove('sel'));
+  document.querySelectorAll('.font-opt').forEach(function(f){ f.classList.remove('sel'); });
   el.classList.add('sel');
 }
 
-// ── PRODUITS TAB ──
+/* ═══════════ PRODUITS ═══════════ */
 function renderProduits(){
-  const cnt = PRODUCTS.length;
-  const max = 30;
-  document.getElementById('produitsContent').innerHTML = `
-    <div class="prod-header">
-      <div class="prod-count">Produits : <span>${cnt}/${max}</span></div>
-      <button class="btn-add-prod" onclick="openProdModal(null)" ${cnt>=max?'disabled':''}>➕ Ajouter</button>
-    </div>
-    ${cnt === 0 ? `
-      <div class="empty-prods">
-        <div class="em-ico">📦</div>
-        <div class="em-txt">Aucun produit.<br/>Ajoute ton premier article !</div>
-      </div>` : `
-      <div class="prod-grid">
-        ${PRODUCTS.map(renderProdCard).join('')}
-      </div>`}`;
+  var el = document.getElementById('produitsContent');
+  if(!el) return;
+  var cnt = PRODUCTS.length, max = 30;
+  var html = '<div class="prod-header">' +
+    '<div class="prod-count">Produits\u00a0: <span>'+cnt+'/'+max+'</span></div>' +
+    '<button class="btn-add-prod" onclick="openProdModal(null)"'+(cnt>=max?' disabled':'')+'>&#x2795; Ajouter</button>' +
+  '</div>';
+  if(!cnt){
+    html += '<div class="empty-prods"><div class="em-ico">&#x1F4E6;</div><div class="em-txt">Aucun produit.<br/>Ajoute ton premier article\u00a0!</div></div>';
+  } else {
+    html += '<div class="prod-grid">'+PRODUCTS.map(renderProdCard).join('')+'</div>';
+  }
+  el.innerHTML = html;
 }
 
 function renderProdCard(p){
-  const imgContent = p.image_url
-    ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.parentElement.innerHTML='📦'"/>`
-    : '📦';
-  const promo = p.promo_price && p.promo_price < p.price;
-  return `
-    <div class="prod-card">
-      <div class="prod-card-img">${imgContent}</div>
-      ${!p.disponible ? '<div class="prod-badge-off">Indispo</div>' : ''}
-      ${promo ? '<div class="prod-badge-promo">Promo</div>' : ''}
-      <div class="prod-card-body">
-        <div class="prod-card-name">${esc(p.name)}</div>
-        <div class="prod-card-price">
-          ${fmt(promo ? p.promo_price : p.price)} F
-          ${promo ? `<span class="prod-card-promo">${fmt(p.price)} F</span>` : ''}
-        </div>
-      </div>
-      <div class="prod-card-actions">
-        <button class="prod-act-btn edit" onclick="openProdModal('${p.id}')">✏️ Modifier</button>
-        <button class="prod-act-btn del"  onclick="deleteProduct('${p.id}')">🗑️</button>
-      </div>
-    </div>`;
+  var isPromo = p.promo_price && p.promo_price < p.price;
+  var dispPrice = isPromo ? p.promo_price : p.price;
+  var img = p.image_url
+    ? '<img src="'+esc(p.image_url)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\'&#x1F4E6;\'" />'
+    : '&#x1F4E6;';
+  return '<div class="prod-card">' +
+    '<div class="prod-card-img">'+img+'</div>' +
+    (!p.disponible ? '<div class="prod-badge-off">Indispo</div>' : '') +
+    (isPromo       ? '<div class="prod-badge-promo">Promo</div>': '') +
+    '<div class="prod-card-body">' +
+      '<div class="prod-card-name">'+esc(p.name)+'</div>' +
+      '<div class="prod-card-price">'+fmt(dispPrice)+'\u00a0F' +
+        (isPromo ? '<span class="prod-card-promo">'+fmt(p.price)+'\u00a0F</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="prod-card-actions">' +
+      '<button class="prod-act-btn edit" onclick="openProdModal(\''+p.id+'\')">&#x270F;&#xFE0F; Modifier</button>' +
+      '<button class="prod-act-btn del"  onclick="deleteProduct(\''+p.id+'\')">&#x1F5D1;&#xFE0F;</button>' +
+    '</div>' +
+  '</div>';
 }
 
-// ── LIEN TAB ──
+/* ═══════════ LIEN ═══════════ */
 function renderLien(){
-  if(!SHOP.id){ document.getElementById('lienContent').innerHTML=`<div class="card"><div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1rem;">Sauvegarde d'abord ta boutique pour obtenir ton lien.</div></div>`; return; }
-  const url = location.origin + '/boutique.html?shop=' + SHOP.slug;
-  const waUrl = 'https://wa.me/?text=' + encodeURIComponent('Visitez ma boutique AfriMarket : ' + url);
-  document.getElementById('lienContent').innerHTML = `
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-val">${SHOP.views||0}</div><div class="stat-lbl">Vues</div></div>
-      <div class="stat-box"><div class="stat-val">${PRODUCTS.length}</div><div class="stat-lbl">Produits</div></div>
-      <div class="stat-box"><div class="stat-val">${PRODUCTS.filter(p=>p.disponible).length}</div><div class="stat-lbl">En stock</div></div>
-    </div>
-    <div class="shop-link-card">
-      <div class="sl-title">🔗 Ton lien boutique</div>
-      <div class="sl-url">${esc(url)}</div>
-      <div class="sl-btns">
-        <button class="sl-btn" onclick="copyLink('${esc(url)}')">📋 Copier</button>
-        <button class="sl-btn" onclick="window.open('${esc(waUrl)}','_blank')">💬 Partager</button>
-        <button class="sl-btn" onclick="window.open('${esc(url)}','_blank')">👁️ Ouvrir</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">💡 Astuces</div>
-      <div style="font-size:.78rem;color:var(--gray);line-height:1.7;">
-        ✅ Partage ton lien dans ta bio Instagram ou Facebook<br/>
-        ✅ Envoie-le directement sur WhatsApp à tes clients<br/>
-        ✅ Met-le dans tes statuts WhatsApp<br/>
-        ${SHOP.show_branding ? '⚙️ <a href="#" onclick="switchTab(\'design\',document.querySelector(\'.tab:nth-child(2)\'));return false;">Désactive le badge AfriMarket</a> dans Design' : '✅ Badge AfriMarket masqué'}
-      </div>
-    </div>`;
+  var el = document.getElementById('lienContent');
+  if(!el) return;
+  if(!SHOP || !SHOP.id){
+    el.innerHTML = '<div class="card"><div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.2rem;">Sauvegarde d\'abord ta boutique pour obtenir ton lien.</div></div>';
+    return;
+  }
+  var url = location.origin + '/boutique.html?shop=' + SHOP.slug;
+  var waMsg = encodeURIComponent('Visitez ma boutique : ' + url);
+  el.innerHTML =
+    '<div class="stats-row">' +
+      '<div class="stat-box"><div class="stat-val">'+(SHOP.views||0)+'</div><div class="stat-lbl">Vues</div></div>' +
+      '<div class="stat-box"><div class="stat-val">'+PRODUCTS.length+'</div><div class="stat-lbl">Produits</div></div>' +
+      '<div class="stat-box"><div class="stat-val">'+PRODUCTS.filter(function(p){return p.disponible;}).length+'</div><div class="stat-lbl">En stock</div></div>' +
+    '</div>' +
+    '<div class="shop-link-card">' +
+      '<div class="sl-title">&#x1F517; Ton lien boutique</div>' +
+      '<div class="sl-url">'+esc(url)+'</div>' +
+      '<div class="sl-btns">' +
+        '<button class="sl-btn" onclick="copyLink()">&#x1F4CB; Copier</button>' +
+        '<button class="sl-btn" onclick="shareWa()">&#x1F4AC; WhatsApp</button>' +
+        '<button class="sl-btn" onclick="window.open(\''+url+'\',\'_blank\')">&#x1F441;&#xFE0F; Voir</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">&#x1F4A1; Astuces</div>' +
+      '<div style="font-size:.78rem;color:var(--gray);line-height:1.9;">' +
+        '&#x2705; Bio Instagram / Facebook<br/>' +
+        '&#x2705; Statuts WhatsApp<br/>' +
+        '&#x2705; Groupes WhatsApp de vente<br/>' +
+        (SHOP.show_branding ? '&#x2699;&#xFE0F; D\u00e9sactive le badge AfriMarket dans Design' : '&#x2705; Badge AfriMarket masqu\u00e9') +
+      '</div>' +
+    '</div>';
 }
 
-function copyLink(url){
-  navigator.clipboard.writeText(url).then(()=>toast('Lien copié ! 📋')).catch(()=>{});
+function copyLink(){
+  if(!SHOP||!SHOP.slug) return;
+  var url = location.origin + '/boutique.html?shop=' + SHOP.slug;
+  navigator.clipboard.writeText(url).then(function(){ toast('Lien copi\u00e9\u00a0! &#x1F4CB;'); }).catch(function(){});
+}
+function shareWa(){
+  if(!SHOP||!SHOP.slug) return;
+  var url = location.origin + '/boutique.html?shop=' + SHOP.slug;
+  window.open('https://wa.me/?text='+encodeURIComponent('Visitez ma boutique\u00a0: '+url),'_blank');
 }
 
-// ── SAVE SHOP ──
+/* ═══════════ SAVE BOUTIQUE ═══════════ */
 async function saveShop(){
-  const name = document.getElementById('shopName')?.value?.trim();
-  const wa   = document.getElementById('shopWa')?.value?.trim();
-  const slug = document.getElementById('shopSlug')?.value?.trim();
+  var nameEl = document.getElementById('shopName');
+  var waEl   = document.getElementById('shopWa');
+  var slugEl = document.getElementById('shopSlug');
+  if(!nameEl){ toast('Va dans l\'onglet Infos pour remplir les champs','warning'); return; }
+  var name = nameEl.value.trim();
+  var wa   = waEl ? waEl.value.trim() : '';
+  var slug = slugEl ? slugEl.value.trim() : '';
   if(!name){ toast('Nom de boutique obligatoire','error'); return; }
-  if(!wa){ toast('Numéro WhatsApp obligatoire','error'); return; }
-  if(!slug){ toast('Slug URL obligatoire','error'); return; }
+  if(!wa){   toast('Num\u00e9ro WhatsApp obligatoire','error'); return; }
+  if(!slug){ toast('URL obligatoire','error'); return; }
 
   SHOP.name        = name;
-  SHOP.tagline     = document.getElementById('shopTagline')?.value?.trim() || '';
-  SHOP.description = document.getElementById('shopDesc')?.value?.trim() || '';
+  SHOP.tagline     = (document.getElementById('shopTagline')||{value:''}).value.trim();
+  SHOP.description = (document.getElementById('shopDesc')||{value:''}).value.trim();
   SHOP.whatsapp    = wa;
   SHOP.slug        = slug;
 
-  const btn = document.getElementById('saveBtn');
-  btn.disabled = true; btn.textContent = '⏳ Sauvegarde…';
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '\u23F3 Sauvegarde\u2026';
 
   try {
-    const payload = { ...SHOP, user_id: U.id, updated_at: new Date().toISOString() };
-    let res;
+    var payload = {};
+    Object.keys(SHOP).forEach(function(k){ payload[k] = SHOP[k]; });
+    payload.user_id     = U.id;
+    payload.updated_at  = new Date().toISOString();
+    var res;
     if(SHOP.id){
       res = await sb.from('boutiques').update(payload).eq('id', SHOP.id).select().single();
     } else {
@@ -574,74 +596,65 @@ async function saveShop(){
     if(res.error) throw res.error;
     SHOP = res.data;
     renderAll();
-    toast('Boutique sauvegardée ✅');
+    toast('Boutique sauvegard\u00e9e \u2705');
   } catch(e){
-    toast('Erreur : ' + e.message, 'error');
+    toast('Erreur\u00a0: '+(e.message||JSON.stringify(e)), 'error');
+    console.error(e);
   } finally {
-    btn.disabled = false; btn.textContent = '💾 Sauvegarder la boutique';
+    btn.disabled = false; btn.textContent = '\uD83D\uDCBE Sauvegarder la boutique';
   }
 }
 
-// ── PRODUCTS ──
+/* ═══════════ PRODUITS CRUD ═══════════ */
 async function loadProducts(){
-  if(!SHOP?.id) return;
-  const {data, error} = await sb.from('boutique_products').select('*').eq('boutique_id', SHOP.id).order('position');
-  if(!error) PRODUCTS = data || [];
+  if(!SHOP || !SHOP.id) return;
+  var res = await sb.from('boutique_products').select('*').eq('boutique_id', SHOP.id).order('position');
+  if(!res.error) PRODUCTS = res.data || [];
 }
 
 function openProdModal(id){
   editingProductId = id;
-  const p = id ? PRODUCTS.find(x=>x.id===id) : null;
-  document.getElementById('prodModalTitle').textContent = id ? '✏️ Modifier le produit' : '➕ Nouveau produit';
-  document.getElementById('prodModalBody').innerHTML = `
-    <div class="f-row">
-      <label class="f-label">Photo du produit</label>
-      <div class="upload-zone" onclick="triggerUpload('product')" id="prodImgZone" style="aspect-ratio:4/3;max-height:160px;">
-        ${p?.image_url ? `<img src="${esc(p.image_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>` : `<div class="uz-ico">📷</div><div class="uz-txt">Ajouter une photo</div><div class="uz-sub">JPG, PNG – max 5 Mo</div>`}
-      </div>
-      <input type="file" id="productInput" accept="image/*" style="display:none" onchange="uploadMedia('product',this)"/>
-    </div>
-    <div class="f-row">
-      <label class="f-label">Nom du produit <span style="color:var(--red)">*</span></label>
-      <input class="f-input" id="pName" value="${esc(p?.name||'')}" placeholder="Ex: Boubou Bazin brodé" maxlength="80"/>
-    </div>
-    <div class="f-row">
-      <label class="f-label">Description</label>
-      <textarea class="f-textarea" id="pDesc" placeholder="Couleurs, tailles, matière…" maxlength="300">${esc(p?.description||'')}</textarea>
-    </div>
-    <div class="f-row-2">
-      <div class="f-row" style="margin:0">
-        <label class="f-label">Prix (FCFA) <span style="color:var(--red)">*</span></label>
-        <input class="f-input" id="pPrice" type="number" value="${p?.price||''}" placeholder="5000" min="0"/>
-      </div>
-      <div class="f-row" style="margin:0">
-        <label class="f-label">Prix promo</label>
-        <input class="f-input" id="pPromo" type="number" value="${p?.promo_price||''}" placeholder="4000" min="0"/>
-      </div>
-    </div>
-    <div class="f-row-2">
-      <div class="f-row" style="margin:0">
-        <label class="f-label">Catégorie</label>
-        <select class="f-select" id="pCat">
-          ${['mode','electronique','alimentation','beaute','maison','sport','auto','services','autre'].map(c=>`<option value="${c}" ${p?.category===c?'selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}
-        </select>
-      </div>
-      <div class="f-row" style="margin:0">
-        <label class="f-label">Stock (-1 = illimité)</label>
-        <input class="f-input" id="pStock" type="number" value="${p?.stock??-1}" placeholder="-1"/>
-      </div>
-    </div>
-    <div class="toggle-row" style="padding:.4rem 0">
-      <div class="toggle-info"><div class="toggle-title">Disponible à la vente</div></div>
-      <label class="toggle">
-        <input type="checkbox" id="pDispo" ${p?.disponible!==false?'checked':''}/>
-        <span class="toggle-track"></span>
-      </label>
-    </div>
-    <div style="display:flex;gap:.7rem;margin-top:1rem;">
-      <button style="flex:1;padding:.72rem;border-radius:12px;background:var(--bg);border:1.5px solid var(--border);font-weight:700;cursor:pointer;" onclick="closeProdModal()">Annuler</button>
-      <button style="flex:2;padding:.72rem;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-weight:700;cursor:pointer;" onclick="saveProd()">💾 Enregistrer</button>
-    </div>`;
+  var p = id ? PRODUCTS.find(function(x){ return x.id === id; }) : null;
+  document.getElementById('prodModalTitle').textContent = id ? '\u270F\uFE0F Modifier le produit' : '\u2795 Nouveau produit';
+  var cats = ['mode','electronique','alimentation','beaute','maison','sport','auto','services','autre'];
+  var catOpts = cats.map(function(c){
+    return '<option value="'+c+'"'+(p&&p.category===c?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>';
+  }).join('');
+  var existImg = p && p.image_url
+    ? '<img src="'+esc(p.image_url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>'
+    : '<div class="uz-ico">&#x1F4F7;</div><div class="uz-txt">Ajouter une photo</div>';
+
+  document.getElementById('prodModalBody').innerHTML =
+    '<div class="f-row">' +
+      '<label class="f-label">Photo</label>' +
+      '<div class="upload-zone" onclick="triggerUpload(\'product\')" id="prodImgZone" style="aspect-ratio:4/3;max-height:160px;">'+existImg+'</div>' +
+      '<input type="file" id="productInput" accept="image/*" style="display:none" onchange="uploadMedia(\'product\',this)"/>' +
+    '</div>' +
+    '<div class="f-row"><label class="f-label">Nom <span style="color:var(--red)">*</span></label>' +
+      '<input class="f-input" id="pName" value="'+esc(p&&p.name||'')+'" placeholder="Ex: Boubou Bazin" maxlength="80"/></div>' +
+    '<div class="f-row"><label class="f-label">Description</label>' +
+      '<textarea class="f-textarea" id="pDesc" placeholder="Couleurs, tailles\u2026" maxlength="300">'+esc(p&&p.description||'')+'</textarea></div>' +
+    '<div class="f-row-2">' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Prix FCFA <span style="color:var(--red)">*</span></label>' +
+        '<input class="f-input" id="pPrice" type="number" value="'+(p&&p.price||'')+'" placeholder="5000" min="0"/></div>' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Prix promo</label>' +
+        '<input class="f-input" id="pPromo" type="number" value="'+(p&&p.promo_price||'')+'" placeholder="4000" min="0"/></div>' +
+    '</div>' +
+    '<div class="f-row-2">' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Cat\u00e9gorie</label>' +
+        '<select class="f-select" id="pCat">'+catOpts+'</select></div>' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Stock (-1=\u221E)</label>' +
+        '<input class="f-input" id="pStock" type="number" value="'+((p&&p.stock!=null)?p.stock:-1)+'" placeholder="-1"/></div>' +
+    '</div>' +
+    '<div class="toggle-row" style="padding:.35rem 0">' +
+      '<div class="toggle-info"><div class="toggle-title">Disponible \u00e0 la vente</div></div>' +
+      '<label class="toggle"><input type="checkbox" id="pDispo" '+((!p||p.disponible!==false)?'checked':'')+'/><span class="toggle-track"></span></label>' +
+    '</div>' +
+    '<div style="display:flex;gap:.7rem;margin-top:1rem;">' +
+      '<button style="flex:1;padding:.72rem;border-radius:12px;background:var(--bg);border:1.5px solid var(--border);font-size:.82rem;font-weight:700;cursor:pointer;" onclick="closeProdModal()">Annuler</button>' +
+      '<button style="flex:2;padding:.72rem;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:.82rem;font-weight:700;cursor:pointer;" onclick="saveProd()">&#x1F4BE; Enregistrer</button>' +
+    '</div>';
+
   document.getElementById('prodModal').classList.add('open');
 }
 
@@ -651,118 +664,115 @@ function closeProdModal(){
 }
 
 async function saveProd(){
-  const name  = document.getElementById('pName').value.trim();
-  const price = parseFloat(document.getElementById('pPrice').value);
-  if(!name){ toast('Nom du produit obligatoire','error'); return; }
+  var name  = (document.getElementById('pName')||{value:''}).value.trim();
+  var price = parseFloat((document.getElementById('pPrice')||{value:'0'}).value);
+  if(!name){ toast('Nom obligatoire','error'); return; }
   if(isNaN(price)||price<0){ toast('Prix invalide','error'); return; }
-
-  const promo  = parseFloat(document.getElementById('pPromo').value)||null;
-  const desc   = document.getElementById('pDesc').value.trim();
-  const cat    = document.getElementById('pCat').value;
-  const stock  = parseInt(document.getElementById('pStock').value)||(-1);
-  const dispo  = document.getElementById('pDispo').checked;
-  const imgZone = document.getElementById('prodImgZone');
-  const img = imgZone?.querySelector('img')?.src || (editingProductId ? (PRODUCTS.find(x=>x.id===editingProductId)?.image_url||'') : '');
-
-  const payload = {
-    boutique_id: SHOP.id, user_id: U.id,
-    name, description: desc, price, promo_price: promo||null,
-    image_url: img, category: cat, stock, disponible: dispo,
-    position: editingProductId ? (PRODUCTS.find(x=>x.id===editingProductId)?.position||0) : PRODUCTS.length,
-    updated_at: new Date().toISOString()
+  var promo = parseFloat((document.getElementById('pPromo')||{value:''}).value)||null;
+  var desc  = (document.getElementById('pDesc')||{value:''}).value.trim();
+  var cat   = (document.getElementById('pCat')||{value:'autre'}).value;
+  var stock = parseInt((document.getElementById('pStock')||{value:'-1'}).value); if(isNaN(stock)) stock=-1;
+  var dispo = (document.getElementById('pDispo')||{checked:true}).checked;
+  var imgEl = document.getElementById('prodImgZone');
+  var imgSrc = '';
+  if(imgEl && imgEl.querySelector('img')) imgSrc = imgEl.querySelector('img').src;
+  if(!imgSrc && editingProductId){
+    var ex = PRODUCTS.find(function(x){return x.id===editingProductId;});
+    if(ex) imgSrc = ex.image_url||'';
+  }
+  var pos = editingProductId
+    ? ((PRODUCTS.find(function(x){return x.id===editingProductId;})||{position:0}).position)
+    : PRODUCTS.length;
+  var payload = {
+    boutique_id:SHOP.id, user_id:U.id, name:name, description:desc,
+    price:price, promo_price:promo||null, image_url:imgSrc,
+    category:cat, stock:stock, disponible:dispo, position:pos,
+    updated_at:new Date().toISOString()
   };
-
   try {
-    let res;
+    var res;
     if(editingProductId){
-      res = await sb.from('boutique_products').update(payload).eq('id', editingProductId).select().single();
+      res = await sb.from('boutique_products').update(payload).eq('id',editingProductId).select().single();
       if(res.error) throw res.error;
-      const idx = PRODUCTS.findIndex(x=>x.id===editingProductId);
-      if(idx>-1) PRODUCTS[idx] = res.data;
+      var idx2 = PRODUCTS.findIndex(function(x){return x.id===editingProductId;});
+      if(idx2>-1) PRODUCTS[idx2]=res.data;
     } else {
-      if(PRODUCTS.length >= 30){ toast('Maximum 30 produits','warning'); return; }
+      if(PRODUCTS.length>=30){ toast('Maximum 30 produits','warning'); return; }
       res = await sb.from('boutique_products').insert(payload).select().single();
       if(res.error) throw res.error;
       PRODUCTS.push(res.data);
     }
-    closeProdModal();
-    renderProduits();
-    toast(editingProductId ? 'Produit modifié ✅' : 'Produit ajouté ✅');
-  } catch(e){ toast('Erreur : '+e.message,'error'); }
+    closeProdModal(); renderProduits();
+    toast(editingProductId ? 'Produit modifi\u00e9 \u2705' : 'Produit ajout\u00e9 \u2705');
+  } catch(e){ toast('Erreur\u00a0: '+e.message,'error'); console.error(e); }
 }
 
 async function deleteProduct(id){
-  if(!confirm('Supprimer ce produit ?')) return;
-  const {error} = await sb.from('boutique_products').delete().eq('id',id);
-  if(error){ toast('Erreur : '+error.message,'error'); return; }
-  PRODUCTS = PRODUCTS.filter(p=>p.id!==id);
-  renderProduits();
-  toast('Produit supprimé');
+  if(!confirm('Supprimer ce produit d\u00e9finitivement\u00a0?')) return;
+  var res = await sb.from('boutique_products').delete().eq('id',id);
+  if(res.error){ toast('Erreur\u00a0: '+res.error.message,'error'); return; }
+  PRODUCTS = PRODUCTS.filter(function(p){ return p.id!==id; });
+  renderProduits(); toast('Produit supprim\u00e9');
 }
 
-// ── MEDIA UPLOAD ──
+/* ═══════════ UPLOAD ═══════════ */
 function triggerUpload(type){
-  document.getElementById(type+'Input').click();
+  var inp = document.getElementById(type+'Input');
+  if(inp) inp.click();
 }
 
 async function uploadMedia(type, input){
-  const file = input.files[0];
-  if(!file) return;
-  if(file.size > 5*1024*1024){ toast('Image trop lourde (max 5 Mo)','warning'); return; }
-
-  toast('⏳ Upload en cours…','info');
-  const ext  = file.name.split('.').pop();
-  const path = `${U.id}/${type}-${Date.now()}.${ext}`;
-
-  const {error:upErr} = await sb.storage.from('boutique-media').upload(path, file, {upsert:true,contentType:file.type});
-  if(upErr){ toast('Erreur upload : '+upErr.message,'error'); return; }
-
-  const {data:urlData} = sb.storage.from('boutique-media').getPublicUrl(path);
-  const url = urlData.publicUrl;
-
+  var file = input.files[0]; if(!file) return;
+  if(file.size>5*1024*1024){ toast('Max 5\u00a0Mo','warning'); return; }
+  toast('\u23F3 Upload\u2026','info');
+  var ext  = file.name.split('.').pop();
+  var path = U.id+'/'+type+'-'+Date.now()+'.'+ext;
+  var up = await sb.storage.from('boutique-media').upload(path, file, {upsert:true, contentType:file.type});
+  if(up.error){ toast('Erreur upload\u00a0: '+up.error.message,'error'); return; }
+  var url = sb.storage.from('boutique-media').getPublicUrl(path).data.publicUrl;
+  var imgTag = '<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>';
   if(type==='logo'){
     SHOP.logo_url = url;
-    document.getElementById('logoZone').innerHTML = `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>`;
+    var lz = document.getElementById('logoZone'); if(lz) lz.innerHTML = imgTag;
   } else if(type==='banner'){
     SHOP.banner_url = url;
-    document.getElementById('bannerZone').innerHTML = `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>`;
+    var bz = document.getElementById('bannerZone'); if(bz) bz.innerHTML = imgTag;
   } else if(type==='product'){
-    const zone = document.getElementById('prodImgZone');
-    zone.innerHTML = `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>`;
-    zone.dataset.url = url;
+    var pz = document.getElementById('prodImgZone');
+    if(pz) pz.innerHTML = '<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>';
   }
-  toast('Image uploadée ✅');
+  toast('Image upload\u00e9e \u2705');
 }
 
-// ── PREVIEW ──
-function previewShop(){
-  if(SHOP?.slug) window.open('boutique.html?shop='+SHOP.slug,'_blank');
-}
-
-// ── TAB SWITCH ──
+/* ═══════════ TAB SWITCH ═══════════ */
 function switchTab(name, el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('sec-'+name).classList.add('active');
   el.classList.add('active');
-  // Refresh save bar
   document.getElementById('saveBar').style.display = (name==='produits'||name==='lien') ? 'none' : 'flex';
 }
 
-// ── HELPERS ──
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmt(n){ return Number(n).toLocaleString('fr-FR'); }
-function slugify(s){ return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+/* ═══════════ PREVIEW ═══════════ */
+function previewShop(){
+  if(SHOP&&SHOP.slug) window.open('boutique.html?shop='+SHOP.slug,'_blank');
+}
 
-let _tt;
+/* ═══════════ HELPERS ═══════════ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
+function slugify(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+var _tt;
 function toast(msg, type){
   type=type||'success';
-  const el=document.getElementById('toast');
-  const col={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
-  el.textContent=msg; el.style.borderLeftColor=col[type]||col.success;
+  var el=document.getElementById('toast');
+  var cols={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
+  el.textContent=msg; el.style.borderLeftColor=cols[type]||cols.success;
   el.classList.add('show'); clearTimeout(_tt);
-  _tt=setTimeout(()=>el.classList.remove('show'),3500);
+  _tt=setTimeout(function(){ el.classList.remove('show'); },3500);
 }
+
 </script>
 </body>
 </html>
