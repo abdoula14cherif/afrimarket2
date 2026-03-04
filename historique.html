@@ -693,10 +693,15 @@ function timeAgo(d) {
 }
 
 // ===== INIT =====
+let _isPremium = false;
+
 async function init() {
   const { data:{ session } } = await sb.auth.getSession();
   if (!session) { window.location.href = 'index.html'; return; }
   currentUser = session.user;
+  // Vérifier si l'utilisateur est Premium
+  const { data: prof } = await sb.from('profiles').select('is_premium').eq('id', currentUser.id).maybeSingle();
+  _isPremium = prof?.is_premium === true;
   loadAds();
 }
 
@@ -786,7 +791,7 @@ function renderList(ads) {
               <span class="ad-meta-tag">🏷️ ${ad.categorie||'—'}</span>
               <span class="ad-meta-tag">🕐 ${timeAgo(ad.created_at)}</span>
               <span class="ad-meta-tag">👁️ ${ad.vues||0} vues</span>
-              ${ad.boosted?'<span class="ad-meta-tag boost-tag">🚀 Boosté</span>':''}
+              ${ad.is_featured?'<span class="ad-meta-tag" style="background:rgba(245,183,49,.15);color:#8A5A00;border:1px solid rgba(245,183,49,.3);">⭐ Vedette</span>':(ad.boosted?'<span class="ad-meta-tag boost-tag">🚀 Boosté</span>':'')}
               <span class="ad-status ${isActive?'status-active':'status-inactive'}">
                 ${isActive?'● Actif':'● Inactif'}
               </span>
@@ -800,11 +805,11 @@ function renderList(ads) {
           <button class="action-btn toggle" onclick="toggleAd('${ad.id}',${isActive})">${isActive?'⏸️ Pause':'▶️ Activer'}</button>
           <button class="action-btn del"    onclick="confirmDelete('${ad.id}')">🗑️ Sup.</button>
         </div>
-        <div class="ad-boost-bar">
+        ${!_isPremium ? `<div class="ad-boost-bar">
           <button class="boost-btn" onclick="location.href='pricing.html'">
             🚀 Booster cette annonce — Passer Premium
           </button>
-        </div>
+        </div>` : ''}
       </div>
     `;
   }).join('');
@@ -989,21 +994,30 @@ document.getElementById('editForm').addEventListener('submit', async e => {
 // ===== RENOUVELER =====
 async function renewAd(id) {
   try {
+    const now = new Date().toISOString();
+    const updatePayload = { created_at: now, actif: true };
+    // Si l'utilisateur est Premium → annonce mise en vedette en tête
+    if (_isPremium) updatePayload.is_featured = true;
+
     const { error } = await sb.from('annonces')
-      .update({ created_at: new Date().toISOString(), actif: true })
+      .update(updatePayload)
       .eq('id', id)
       .eq('user_id', currentUser.id);
     if (error) throw error;
     // Remettre en tête de liste localement
     const idx = allAds.findIndex(a => a.id === id);
     if (idx > -1) {
-      const ad = { ...allAds[idx], created_at: new Date().toISOString(), actif: true };
+      const ad = { ...allAds[idx], created_at: now, actif: true, is_featured: _isPremium };
       allAds.splice(idx, 1);
       allAds.unshift(ad);
     }
     updateStats();
     applyFilter();
-    showToast('Annonce remise en tête de liste 🔁', 'success');
+    if (_isPremium) {
+      showToast('⭐ Annonce remise en vedette en tête de liste !', 'success');
+    } else {
+      showToast('Annonce remise en tête de liste 🔁', 'success');
+    }
   } catch(err) {
     showToast('Erreur : ' + err.message, 'error');
   }
