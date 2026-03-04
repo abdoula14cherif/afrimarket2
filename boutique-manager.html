@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Ma Boutique — AfriMarket</title>
+<link rel="manifest" href="/manifest.json"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root {
+  --blue:#1B3FE4; --blue2:#4F6EFF; --turq:#00C2B7; --green:#00C271;
+  --orange:#FF6B1A; --red:#E4341B; --gold:#F5B731; --gold2:#C8901A;
+  --dark:#0D1117; --gray:#8A94A6; --border:#E8ECF4; --bg:#F5F7FC;
+  --white:#FFFFFF; --radius:16px; --shadow:0 4px 24px rgba(13,17,23,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;padding-bottom:80px;}
+
+/* ── HEADER ── */
+.top-bar{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);padding:0 1.1rem;height:56px;display:flex;align-items:center;gap:.7rem;}
+.back-btn{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.top-title{font-size:1rem;font-weight:700;flex:1;}
+.top-badge{font-size:.62rem;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);padding:.2rem .55rem;border-radius:99px;letter-spacing:.5px;}
+.preview-btn{padding:.38rem .85rem;border-radius:10px;background:var(--blue);color:white;border:none;font-size:.75rem;font-weight:700;cursor:pointer;}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:none;padding:.72rem 1.1rem;font-size:.78rem;font-weight:600;color:var(--gray);border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ── SECTIONS ── */
+.section{display:none;padding:1rem 1.1rem;}
+.section.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:1.2rem;margin-bottom:1rem;}
+.card-title{font-size:.8rem;font-weight:700;letter-spacing:.5px;color:var(--gray);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem;}
+
+/* ── FORMS ── */
+.f-row{margin-bottom:.9rem;}
+.f-label{font-size:.74rem;font-weight:600;color:var(--dark);margin-bottom:.35rem;display:block;}
+.f-label span{color:var(--red);}
+.f-input,.f-textarea,.f-select{width:100%;border:1.5px solid var(--border);border-radius:11px;padding:.6rem .85rem;font-size:.82rem;background:var(--white);color:var(--dark);transition:border-color .2s;outline:none;}
+.f-input:focus,.f-textarea:focus,.f-select:focus{border-color:var(--blue);}
+.f-textarea{resize:vertical;min-height:70px;}
+.f-hint{font-size:.68rem;color:var(--gray);margin-top:.28rem;}
+.f-row-2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+
+/* ── COLOR PICKER ── */
+.color-row{display:flex;align-items:center;gap:.7rem;}
+.color-preview{width:38px;height:38px;border-radius:10px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;}
+.color-input-wrap{position:relative;}
+.color-input-wrap input[type=color]{width:0;height:0;opacity:0;position:absolute;}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--bg);}
+.upload-zone:hover{border-color:var(--blue);}
+.upload-zone img{width:100%;max-height:140px;object-fit:cover;border-radius:9px;}
+.upload-zone .uz-ico{font-size:1.8rem;margin-bottom:.3rem;}
+.upload-zone .uz-txt{font-size:.73rem;color:var(--gray);}
+.upload-zone .uz-sub{font-size:.65rem;color:var(--gray);margin-top:.15rem;}
+.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.logo-zone{aspect-ratio:1;max-height:120px;}
+
+/* ── TOGGLE ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;}
+.toggle-info{font-size:.78rem;}
+.toggle-title{font-weight:600;color:var(--dark);}
+.toggle-sub{font-size:.7rem;color:var(--gray);margin-top:.1rem;}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:#D0D5E0;border-radius:99px;cursor:pointer;transition:background .2s;}
+.toggle input:checked + .toggle-track{background:var(--blue);}
+.toggle-track::before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle input:checked + .toggle-track::before{transform:translateX(20px);}
+
+/* ── PRODUITS ── */
+.prod-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.prod-count{font-size:.73rem;color:var(--gray);font-weight:600;}
+.prod-count span{color:var(--blue);font-weight:700;}
+.btn-add-prod{padding:.5rem 1rem;background:var(--blue);color:white;border:none;border-radius:11px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.4rem;}
+.btn-add-prod:disabled{opacity:.5;cursor:not-allowed;}
+
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+.prod-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;position:relative;}
+.prod-card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.prod-card-img img{width:100%;height:100%;object-fit:cover;}
+.prod-card-body{padding:.65rem .75rem .55rem;}
+.prod-card-name{font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prod-card-price{font-size:.82rem;font-weight:800;color:var(--blue);margin-top:.15rem;}
+.prod-card-promo{text-decoration:line-through;color:var(--gray);font-size:.68rem;margin-left:.35rem;font-weight:400;}
+.prod-card-actions{display:flex;gap:.4rem;padding:.5rem .75rem .65rem;}
+.prod-act-btn{flex:1;padding:.38rem .2rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:.7rem;font-weight:600;cursor:pointer;text-align:center;}
+.prod-act-btn.edit{color:var(--blue);}
+.prod-act-btn.del{color:var(--red);}
+.prod-badge-off{position:absolute;top:.45rem;left:.45rem;background:var(--red);color:white;font-size:.58rem;font-weight:700;padding:.18rem .42rem;border-radius:6px;}
+.prod-badge-promo{position:absolute;top:.45rem;right:.45rem;background:var(--green);color:white;font-size:.58rem;font-weight:700;padding:.18rem .42rem;border-radius:6px;}
+
+.empty-prods{text-align:center;padding:2.5rem 1rem;color:var(--gray);}
+.empty-prods .em-ico{font-size:2.5rem;margin-bottom:.6rem;}
+.empty-prods .em-txt{font-size:.82rem;}
+
+/* ── LIEN BOUTIQUE ── */
+.shop-link-card{background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:var(--radius);padding:1.2rem;color:white;margin-bottom:1rem;}
+.sl-title{font-size:.72rem;font-weight:700;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem;}
+.sl-url{font-size:.82rem;font-weight:700;word-break:break-all;margin-bottom:.85rem;opacity:.95;}
+.sl-btns{display:flex;gap:.6rem;}
+.sl-btn{flex:1;padding:.5rem;border-radius:10px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:white;font-size:.73rem;font-weight:700;cursor:pointer;text-align:center;}
+.sl-btn:hover{background:rgba(255,255,255,.22);}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-bottom:1rem;}
+.stat-box{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:.85rem .7rem;text-align:center;}
+.stat-val{font-size:1.5rem;font-weight:800;color:var(--dark);}
+.stat-lbl{font-size:.65rem;color:var(--gray);font-weight:600;margin-top:.1rem;}
+
+/* ── SAVE BTN ── */
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:.85rem 1.1rem calc(.85rem + env(safe-area-inset-bottom));display:flex;gap:.7rem;z-index:90;}
+.btn-save{flex:1;padding:.75rem;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.btn-save:disabled{opacity:.6;cursor:not-allowed;}
+
+/* ── MODAL PRODUIT ── */
+.modal-ov{position:fixed;inset:0;background:rgba(13,17,23,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);padding:1.4rem 1.2rem calc(1.6rem + env(safe-area-inset-bottom));}
+.modal-ov.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.2rem;}
+.modal-title{font-size:1rem;font-weight:800;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.9rem;}
+
+/* ── FONT STYLES ── */
+.font-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;}
+.font-opt{border:2px solid var(--border);border-radius:11px;padding:.55rem .5rem;text-align:center;cursor:pointer;transition:all .2s;}
+.font-opt.sel{border-color:var(--blue);background:rgba(27,63,228,.05);}
+.font-opt .fo-name{font-size:.7rem;font-weight:600;color:var(--dark);}
+.font-opt .fo-preview{font-size:1rem;color:var(--gray);margin-bottom:.2rem;}
+
+/* ── PREMIUM GATE ── */
+.premium-gate{text-align:center;padding:2.5rem 1.5rem;background:var(--white);border-radius:var(--radius);margin:1rem;box-shadow:var(--shadow);}
+.pg-ico{font-size:3rem;margin-bottom:.8rem;}
+.pg-title{font-size:1.1rem;font-weight:800;margin-bottom:.4rem;}
+.pg-sub{font-size:.8rem;color:var(--gray);margin-bottom:1.2rem;line-height:1.5;}
+.pg-btn{display:inline-block;padding:.75rem 1.8rem;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);border-radius:13px;font-weight:800;font-size:.88rem;text-decoration:none;cursor:pointer;border:none;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.6rem 1.2rem;border-radius:12px;font-size:.78rem;font-weight:600;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;pointer-events:none;border-left:3px solid var(--turq);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── NO BOUTIQUE ── */
+.create-shop-cta{background:var(--white);border-radius:var(--radius);padding:2rem 1.4rem;text-align:center;margin:1rem;box-shadow:var(--shadow);}
+.csc-ico{font-size:3rem;margin-bottom:.8rem;}
+.csc-title{font-size:1.1rem;font-weight:800;margin-bottom:.4rem;}
+.csc-sub{font-size:.78rem;color:var(--gray);margin-bottom:1.3rem;line-height:1.5;}
+.btn-create{width:100%;padding:.82rem;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:.9rem;font-weight:800;cursor:pointer;}
+
+@media(min-width:540px){.prod-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="top-title">🏪 Ma Boutique</div>
+  <span class="top-badge">ELITE</span>
+  <button class="preview-btn" onclick="previewShop()" id="previewBtn" style="display:none">👁 Voir</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="tabsBar" style="display:none">
+  <div class="tab active" onclick="switchTab('info',this)">📋 Infos</div>
+  <div class="tab" onclick="switchTab('design',this)">🎨 Design</div>
+  <div class="tab" onclick="switchTab('produits',this)">📦 Produits</div>
+  <div class="tab" onclick="switchTab('lien',this)">🔗 Mon Lien</div>
+</div>
+
+<!-- SECTION : INFOS -->
+<div class="section active" id="sec-info">
+  <div id="infoContent"></div>
+</div>
+
+<!-- SECTION : DESIGN -->
+<div class="section" id="sec-design">
+  <div id="designContent"></div>
+</div>
+
+<!-- SECTION : PRODUITS -->
+<div class="section" id="sec-produits">
+  <div id="produitsContent"></div>
+</div>
+
+<!-- SECTION : LIEN -->
+<div class="section" id="sec-lien">
+  <div id="lienContent"></div>
+</div>
+
+<!-- BARRE SAUVEGARDE -->
+<div class="save-bar" id="saveBar" style="display:none">
+  <button class="btn-save" id="saveBtn" onclick="saveShop()">💾 Sauvegarder la boutique</button>
+</div>
+
+<!-- MODAL PRODUIT -->
+<div class="modal-ov" id="prodModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">
+      <span id="prodModalTitle">➕ Nouveau produit</span>
+      <button class="modal-close" onclick="closeProdModal()">✕</button>
+    </div>
+    <div id="prodModalBody"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+const SB_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
+const {createClient} = supabase;
+const sb = createClient(SB_URL, SB_KEY);
+
+let U = null, P = null, SHOP = null, PRODUCTS = [];
+let editingProductId = null;
+
+// ── INIT ──
+(async function(){
+  const {data:{session}} = await sb.auth.getSession();
+  if(!session){ location.href='index.html'; return; }
+  U = session.user;
+
+  // Load profile
+  const {data:prof} = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+  P = prof || {};
+
+  // Check elite plan
+  if(P.plan !== 'elite' && P.plan !== 'elite_annual'){
+    showPremiumGate();
+    return;
+  }
+
+  // Load boutique
+  const {data:shop} = await sb.from('boutiques').select('*').eq('user_id',U.id).maybeSingle();
+  SHOP = shop;
+
+  if(!SHOP){
+    showCreateShop();
+  } else {
+    await loadProducts();
+    renderAll();
+  }
+})();
+
+// ── PREMIUM GATE ──
+function showPremiumGate(){
+  document.getElementById('sec-info').innerHTML = `
+    <div class="premium-gate">
+      <div class="pg-ico">🏪</div>
+      <div class="pg-title">Boutique Elite</div>
+      <div class="pg-sub">Crée ta boutique personnelle avec ton lien unique, jusqu'à 30 produits, couleurs personnalisées et commandes WhatsApp.<br/><br/>Disponible avec le plan <strong>Elite à 2 500 FCFA/mois</strong>.</div>
+      <button class="pg-btn" onclick="location.href='pricing.html'">👑 Passer Elite — 2 500 FCFA/mois</button>
+    </div>`;
+}
+
+// ── CREATE SHOP ──
+function showCreateShop(){
+  document.getElementById('sec-info').innerHTML = `
+    <div class="create-shop-cta">
+      <div class="csc-ico">🏪</div>
+      <div class="csc-title">Crée ta boutique</div>
+      <div class="csc-sub">Configure ton nom, tes couleurs, ton logo et commence à vendre. Tes clients commanderont directement sur WhatsApp.</div>
+      <button class="btn-create" onclick="initNewShop()">🚀 Créer ma boutique</button>
+    </div>`;
+}
+
+function initNewShop(){
+  SHOP = {
+    user_id: U.id,
+    slug: slugify(P.full_name || U.email.split('@')[0]) + '-' + Math.random().toString(36).slice(2,6),
+    name: P.full_name || 'Ma Boutique',
+    tagline: 'Bienvenue dans ma boutique',
+    description: '',
+    logo_url: P.avatar_url || '',
+    banner_url: '',
+    whatsapp: P.whatsapp || '',
+    primary_color: '#1B3FE4',
+    accent_color: '#00C2B7',
+    bg_color: '#FFFFFF',
+    font_style: 'modern',
+    theme: 'light',
+    show_branding: true,
+    actif: true
+  };
+  renderAll();
+}
+
+function slugify(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+
+// ── RENDER ALL ──
+function renderAll(){
+  document.getElementById('tabsBar').style.display = 'flex';
+  document.getElementById('saveBar').style.display = 'flex';
+  document.getElementById('previewBtn').style.display = SHOP.id ? 'block' : 'none';
+  renderInfo();
+  renderDesign();
+  renderProduits();
+  renderLien();
+}
+
+// ── INFO TAB ──
+function renderInfo(){
+  document.getElementById('infoContent').innerHTML = `
+    <div class="card">
+      <div class="card-title">🏪 Profil de la boutique</div>
+      <div class="upload-row">
+        <div>
+          <div class="f-label">Logo</div>
+          <div class="upload-zone logo-zone" onclick="triggerUpload('logo')" id="logoZone">
+            ${SHOP.logo_url ? `<img src="${esc(SHOP.logo_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>` : `<div class="uz-ico">🖼️</div><div class="uz-txt">Logo</div>`}
+          </div>
+          <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadMedia('logo',this)"/>
+        </div>
+        <div>
+          <div class="f-label">Bannière</div>
+          <div class="upload-zone logo-zone" onclick="triggerUpload('banner')" id="bannerZone">
+            ${SHOP.banner_url ? `<img src="${esc(SHOP.banner_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>` : `<div class="uz-ico">🖼️</div><div class="uz-txt">Bannière</div>`}
+          </div>
+          <input type="file" id="bannerInput" accept="image/*" style="display:none" onchange="uploadMedia('banner',this)"/>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📝 Identité</div>
+      <div class="f-row">
+        <label class="f-label">Nom de la boutique <span>*</span></label>
+        <input class="f-input" id="shopName" value="${esc(SHOP.name)}" placeholder="Ex: Chez Aminata Mode" maxlength="60"/>
+      </div>
+      <div class="f-row">
+        <label class="f-label">Slogan</label>
+        <input class="f-input" id="shopTagline" value="${esc(SHOP.tagline||'')}" placeholder="Ex: La mode africaine à prix doux" maxlength="100"/>
+      </div>
+      <div class="f-row">
+        <label class="f-label">Description</label>
+        <textarea class="f-textarea" id="shopDesc" placeholder="Décris ta boutique, ce que tu vends…" maxlength="400">${esc(SHOP.description||'')}</textarea>
+      </div>
+      <div class="f-row">
+        <label class="f-label">WhatsApp (avec indicatif) <span>*</span></label>
+        <input class="f-input" id="shopWa" value="${esc(SHOP.whatsapp||'')}" placeholder="+237 6XX XXX XXX" type="tel"/>
+        <div class="f-hint">Les commandes arriveront sur ce numéro</div>
+      </div>
+      <div class="f-row">
+        <label class="f-label">Slug URL personnalisé</label>
+        <input class="f-input" id="shopSlug" value="${esc(SHOP.slug||'')}" placeholder="ma-boutique" maxlength="40" oninput="this.value=slugify(this.value)"/>
+        <div class="f-hint">boutique.html?shop=<strong id="slugPreview">${esc(SHOP.slug||'')}</strong></div>
+      </div>
+    </div>`;
+
+  document.getElementById('shopSlug').addEventListener('input', function(){
+    document.getElementById('slugPreview').textContent = this.value;
+  });
+}
+
+// ── DESIGN TAB ──
+function renderDesign(){
+  document.getElementById('designContent').innerHTML = `
+    <div class="card">
+      <div class="card-title">🎨 Couleurs</div>
+      <div class="f-row">
+        <label class="f-label">Couleur principale</label>
+        <div class="color-row">
+          <div class="color-preview" id="cpPrimary" style="background:${esc(SHOP.primary_color||'#1B3FE4')}" onclick="document.getElementById('cpInput').click()"></div>
+          <div class="color-input-wrap">
+            <input type="color" id="cpInput" value="${esc(SHOP.primary_color||'#1B3FE4')}" oninput="updateColor('primary',this.value)"/>
+          </div>
+          <span style="font-size:.78rem;color:var(--gray)" id="cpHex">${esc(SHOP.primary_color||'#1B3FE4')}</span>
+        </div>
+      </div>
+      <div class="f-row">
+        <label class="f-label">Couleur accent</label>
+        <div class="color-row">
+          <div class="color-preview" id="cpAccent" style="background:${esc(SHOP.accent_color||'#00C2B7')}" onclick="document.getElementById('caInput').click()"></div>
+          <div class="color-input-wrap">
+            <input type="color" id="caInput" value="${esc(SHOP.accent_color||'#00C2B7')}" oninput="updateColor('accent',this.value)"/>
+          </div>
+          <span style="font-size:.78rem;color:var(--gray)" id="caHex">${esc(SHOP.accent_color||'#00C2B7')}</span>
+        </div>
+      </div>
+      <div class="f-row">
+        <label class="f-label">Couleur fond</label>
+        <div class="color-row">
+          <div class="color-preview" id="cpBg" style="background:${esc(SHOP.bg_color||'#FFFFFF')};border:1.5px solid var(--border);" onclick="document.getElementById('cbInput').click()"></div>
+          <div class="color-input-wrap">
+            <input type="color" id="cbInput" value="${esc(SHOP.bg_color||'#FFFFFF')}" oninput="updateColor('bg',this.value)"/>
+          </div>
+          <span style="font-size:.78rem;color:var(--gray)" id="cbHex">${esc(SHOP.bg_color||'#FFFFFF')}</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔤 Style de police</div>
+      <div class="font-grid">
+        ${[
+          {key:'modern',  label:'Moderne',  preview:'Aa'},
+          {key:'elegant', label:'Élégant',  preview:'Aa'},
+          {key:'bold',    label:'Gras',     preview:'Aa'},
+          {key:'round',   label:'Arrondi',  preview:'Aa'},
+          {key:'serif',   label:'Classique',preview:'Aa'},
+          {key:'mono',    label:'Technique',preview:'Aa'},
+        ].map(f=>`
+          <div class="font-opt ${SHOP.font_style===f.key?'sel':''}" onclick="selectFont('${f.key}',this)">
+            <div class="fo-preview" style="${getFontStyle(f.key)}">${f.preview}</div>
+            <div class="fo-name">${f.label}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙️ Options</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">🏷️ Propulsé par AfriMarket</div>
+          <div class="toggle-sub">Badge en bas de ta boutique</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleBranding" ${SHOP.show_branding?'checked':''} onchange="SHOP.show_branding=this.checked"/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">✅ Boutique active</div>
+          <div class="toggle-sub">Visible par les visiteurs</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleActif" ${SHOP.actif!==false?'checked':''} onchange="SHOP.actif=this.checked"/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>`;
+}
+
+function getFontStyle(key){
+  const map = {
+    modern: 'font-family:system-ui,sans-serif;font-size:1.4rem;',
+    elegant: "font-family:'Georgia',serif;font-size:1.4rem;font-style:italic;",
+    bold: 'font-family:system-ui,sans-serif;font-size:1.4rem;font-weight:900;',
+    round: "font-family:'Comic Sans MS',cursive;font-size:1.3rem;",
+    serif: "font-family:'Times New Roman',serif;font-size:1.4rem;",
+    mono: "font-family:monospace;font-size:1.2rem;"
+  };
+  return map[key] || map.modern;
+}
+
+function updateColor(type, val){
+  if(type==='primary'){ SHOP.primary_color=val; document.getElementById('cpPrimary').style.background=val; document.getElementById('cpHex').textContent=val; }
+  if(type==='accent'){  SHOP.accent_color=val;  document.getElementById('cpAccent').style.background=val; document.getElementById('caHex').textContent=val; }
+  if(type==='bg'){      SHOP.bg_color=val;       document.getElementById('cpBg').style.background=val;     document.getElementById('cbHex').textContent=val; }
+}
+
+function selectFont(key, el){
+  SHOP.font_style = key;
+  document.querySelectorAll('.font-opt').forEach(f=>f.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── PRODUITS TAB ──
+function renderProduits(){
+  const cnt = PRODUCTS.length;
+  const max = 30;
+  document.getElementById('produitsContent').innerHTML = `
+    <div class="prod-header">
+      <div class="prod-count">Produits : <span>${cnt}/${max}</span></div>
+      <button class="btn-add-prod" onclick="openProdModal(null)" ${cnt>=max?'disabled':''}>➕ Ajouter</button>
+    </div>
+    ${cnt === 0 ? `
+      <div class="empty-prods">
+        <div class="em-ico">📦</div>
+        <div class="em-txt">Aucun produit.<br/>Ajoute ton premier article !</div>
+      </div>` : `
+      <div class="prod-grid">
+        ${PRODUCTS.map(renderProdCard).join('')}
+      </div>`}`;
+}
+
+function renderProdCard(p){
+  const imgContent = p.image_url
+    ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.parentElement.innerHTML='📦'"/>`
+    : '📦';
+  const promo = p.promo_price && p.promo_price < p.price;
+  return `
+    <div class="prod-card">
+      <div class="prod-card-img">${imgContent}</div>
+      ${!p.disponible ? '<div class="prod-badge-off">Indispo</div>' : ''}
+      ${promo ? '<div class="prod-badge-promo">Promo</div>' : ''}
+      <div class="prod-card-body">
+        <div class="prod-card-name">${esc(p.name)}</div>
+        <div class="prod-card-price">
+          ${fmt(promo ? p.promo_price : p.price)} F
+          ${promo ? `<span class="prod-card-promo">${fmt(p.price)} F</span>` : ''}
+        </div>
+      </div>
+      <div class="prod-card-actions">
+        <button class="prod-act-btn edit" onclick="openProdModal('${p.id}')">✏️ Modifier</button>
+        <button class="prod-act-btn del"  onclick="deleteProduct('${p.id}')">🗑️</button>
+      </div>
+    </div>`;
+}
+
+// ── LIEN TAB ──
+function renderLien(){
+  if(!SHOP.id){ document.getElementById('lienContent').innerHTML=`<div class="card"><div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1rem;">Sauvegarde d'abord ta boutique pour obtenir ton lien.</div></div>`; return; }
+  const url = location.origin + '/boutique.html?shop=' + SHOP.slug;
+  const waUrl = 'https://wa.me/?text=' + encodeURIComponent('Visitez ma boutique AfriMarket : ' + url);
+  document.getElementById('lienContent').innerHTML = `
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val">${SHOP.views||0}</div><div class="stat-lbl">Vues</div></div>
+      <div class="stat-box"><div class="stat-val">${PRODUCTS.length}</div><div class="stat-lbl">Produits</div></div>
+      <div class="stat-box"><div class="stat-val">${PRODUCTS.filter(p=>p.disponible).length}</div><div class="stat-lbl">En stock</div></div>
+    </div>
+    <div class="shop-link-card">
+      <div class="sl-title">🔗 Ton lien boutique</div>
+      <div class="sl-url">${esc(url)}</div>
+      <div class="sl-btns">
+        <button class="sl-btn" onclick="copyLink('${esc(url)}')">📋 Copier</button>
+        <button class="sl-btn" onclick="window.open('${esc(waUrl)}','_blank')">💬 Partager</button>
+        <button class="sl-btn" onclick="window.open('${esc(url)}','_blank')">👁️ Ouvrir</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 Astuces</div>
+      <div style="font-size:.78rem;color:var(--gray);line-height:1.7;">
+        ✅ Partage ton lien dans ta bio Instagram ou Facebook<br/>
+        ✅ Envoie-le directement sur WhatsApp à tes clients<br/>
+        ✅ Met-le dans tes statuts WhatsApp<br/>
+        ${SHOP.show_branding ? '⚙️ <a href="#" onclick="switchTab(\'design\',document.querySelector(\'.tab:nth-child(2)\'));return false;">Désactive le badge AfriMarket</a> dans Design' : '✅ Badge AfriMarket masqué'}
+      </div>
+    </div>`;
+}
+
+function copyLink(url){
+  navigator.clipboard.writeText(url).then(()=>toast('Lien copié ! 📋')).catch(()=>{});
+}
+
+// ── SAVE SHOP ──
+async function saveShop(){
+  const name = document.getElementById('shopName')?.value?.trim();
+  const wa   = document.getElementById('shopWa')?.value?.trim();
+  const slug = document.getElementById('shopSlug')?.value?.trim();
+  if(!name){ toast('Nom de boutique obligatoire','error'); return; }
+  if(!wa){ toast('Numéro WhatsApp obligatoire','error'); return; }
+  if(!slug){ toast('Slug URL obligatoire','error'); return; }
+
+  SHOP.name        = name;
+  SHOP.tagline     = document.getElementById('shopTagline')?.value?.trim() || '';
+  SHOP.description = document.getElementById('shopDesc')?.value?.trim() || '';
+  SHOP.whatsapp    = wa;
+  SHOP.slug        = slug;
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '⏳ Sauvegarde…';
+
+  try {
+    const payload = { ...SHOP, user_id: U.id, updated_at: new Date().toISOString() };
+    let res;
+    if(SHOP.id){
+      res = await sb.from('boutiques').update(payload).eq('id', SHOP.id).select().single();
+    } else {
+      delete payload.id;
+      res = await sb.from('boutiques').insert(payload).select().single();
+    }
+    if(res.error) throw res.error;
+    SHOP = res.data;
+    renderAll();
+    toast('Boutique sauvegardée ✅');
+  } catch(e){
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Sauvegarder la boutique';
+  }
+}
+
+// ── PRODUCTS ──
+async function loadProducts(){
+  if(!SHOP?.id) return;
+  const {data, error} = await sb.from('boutique_products').select('*').eq('boutique_id', SHOP.id).order('position');
+  if(!error) PRODUCTS = data || [];
+}
+
+function openProdModal(id){
+  editingProductId = id;
+  const p = id ? PRODUCTS.find(x=>x.id===id) : null;
+  document.getElementById('prodModalTitle').textContent = id ? '✏️ Modifier le produit' : '➕ Nouveau produit';
+  document.getElementById('prodModalBody').innerHTML = `
+    <div class="f-row">
+      <label class="f-label">Photo du produit</label>
+      <div class="upload-zone" onclick="triggerUpload('product')" id="prodImgZone" style="aspect-ratio:4/3;max-height:160px;">
+        ${p?.image_url ? `<img src="${esc(p.image_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>` : `<div class="uz-ico">📷</div><div class="uz-txt">Ajouter une photo</div><div class="uz-sub">JPG, PNG – max 5 Mo</div>`}
+      </div>
+      <input type="file" id="productInput" accept="image/*" style="display:none" onchange="uploadMedia('product',this)"/>
+    </div>
+    <div class="f-row">
+      <label class="f-label">Nom du produit <span style="color:var(--red)">*</span></label>
+      <input class="f-input" id="pName" value="${esc(p?.name||'')}" placeholder="Ex: Boubou Bazin brodé" maxlength="80"/>
+    </div>
+    <div class="f-row">
+      <label class="f-label">Description</label>
+      <textarea class="f-textarea" id="pDesc" placeholder="Couleurs, tailles, matière…" maxlength="300">${esc(p?.description||'')}</textarea>
+    </div>
+    <div class="f-row-2">
+      <div class="f-row" style="margin:0">
+        <label class="f-label">Prix (FCFA) <span style="color:var(--red)">*</span></label>
+        <input class="f-input" id="pPrice" type="number" value="${p?.price||''}" placeholder="5000" min="0"/>
+      </div>
+      <div class="f-row" style="margin:0">
+        <label class="f-label">Prix promo</label>
+        <input class="f-input" id="pPromo" type="number" value="${p?.promo_price||''}" placeholder="4000" min="0"/>
+      </div>
+    </div>
+    <div class="f-row-2">
+      <div class="f-row" style="margin:0">
+        <label class="f-label">Catégorie</label>
+        <select class="f-select" id="pCat">
+          ${['mode','electronique','alimentation','beaute','maison','sport','auto','services','autre'].map(c=>`<option value="${c}" ${p?.category===c?'selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="f-row" style="margin:0">
+        <label class="f-label">Stock (-1 = illimité)</label>
+        <input class="f-input" id="pStock" type="number" value="${p?.stock??-1}" placeholder="-1"/>
+      </div>
+    </div>
+    <div class="toggle-row" style="padding:.4rem 0">
+      <div class="toggle-info"><div class="toggle-title">Disponible à la vente</div></div>
+      <label class="toggle">
+        <input type="checkbox" id="pDispo" ${p?.disponible!==false?'checked':''}/>
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div style="display:flex;gap:.7rem;margin-top:1rem;">
+      <button style="flex:1;padding:.72rem;border-radius:12px;background:var(--bg);border:1.5px solid var(--border);font-weight:700;cursor:pointer;" onclick="closeProdModal()">Annuler</button>
+      <button style="flex:2;padding:.72rem;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-weight:700;cursor:pointer;" onclick="saveProd()">💾 Enregistrer</button>
+    </div>`;
+  document.getElementById('prodModal').classList.add('open');
+}
+
+function closeProdModal(){
+  document.getElementById('prodModal').classList.remove('open');
+  editingProductId = null;
+}
+
+async function saveProd(){
+  const name  = document.getElementById('pName').value.trim();
+  const price = parseFloat(document.getElementById('pPrice').value);
+  if(!name){ toast('Nom du produit obligatoire','error'); return; }
+  if(isNaN(price)||price<0){ toast('Prix invalide','error'); return; }
+
+  const promo  = parseFloat(document.getElementById('pPromo').value)||null;
+  const desc   = document.getElementById('pDesc').value.trim();
+  const cat    = document.getElementById('pCat').value;
+  const stock  = parseInt(document.getElementById('pStock').value)||(-1);
+  const dispo  = document.getElementById('pDispo').checked;
+  const imgZone = document.getElementById('prodImgZone');
+  const img = imgZone?.querySelector('img')?.src || (editingProductId ? (PRODUCTS.find(x=>x.id===editingProductId)?.image_url||'') : '');
+
+  const payload = {
+    boutique_id: SHOP.id, user_id: U.id,
+    name, description: desc, price, promo_price: promo||null,
+    image_url: img, category: cat, stock, disponible: dispo,
+    position: editingProductId ? (PRODUCTS.find(x=>x.id===editingProductId)?.position||0) : PRODUCTS.length,
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    let res;
+    if(editingProductId){
+      res = await sb.from('boutique_products').update(payload).eq('id', editingProductId).select().single();
+      if(res.error) throw res.error;
+      const idx = PRODUCTS.findIndex(x=>x.id===editingProductId);
+      if(idx>-1) PRODUCTS[idx] = res.data;
+    } else {
+      if(PRODUCTS.length >= 30){ toast('Maximum 30 produits','warning'); return; }
+      res = await sb.from('boutique_products').insert(payload).select().single();
+      if(res.error) throw res.error;
+      PRODUCTS.push(res.data);
+    }
+    closeProdModal();
+    renderProduits();
+    toast(editingProductId ? 'Produit modifié ✅' : 'Produit ajouté ✅');
+  } catch(e){ toast('Erreur : '+e.message,'error'); }
+}
+
+async function deleteProduct(id){
+  if(!confirm('Supprimer ce produit ?')) return;
+  const {error} = await sb.from('boutique_products').delete().eq('id',id);
+  if(error){ toast('Erreur : '+error.message,'error'); return; }
+  PRODUCTS = PRODUCTS.filter(p=>p.id!==id);
+  renderProduits();
+  toast('Produit supprimé');
+}
+
+// ── MEDIA UPLOAD ──
+function triggerUpload(type){
+  document.getElementById(type+'Input').click();
+}
+
+async function uploadMedia(type, input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024){ toast('Image trop lourde (max 5 Mo)','warning'); return; }
+
+  toast('⏳ Upload en cours…','info');
+  const ext  = file.name.split('.').pop();
+  const path = `${U.id}/${type}-${Date.now()}.${ext}`;
+
+  const {error:upErr} = await sb.storage.from('boutique-media').upload(path, file, {upsert:true,contentType:file.type});
+  if(upErr){ toast('Erreur upload : '+upErr.message,'error'); return; }
+
+  const {data:urlData} = sb.storage.from('boutique-media').getPublicUrl(path);
+  const url = urlData.publicUrl;
+
+  if(type==='logo'){
+    SHOP.logo_url = url;
+    document.getElementById('logoZone').innerHTML = `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>`;
+  } else if(type==='banner'){
+    SHOP.banner_url = url;
+    document.getElementById('bannerZone').innerHTML = `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>`;
+  } else if(type==='product'){
+    const zone = document.getElementById('prodImgZone');
+    zone.innerHTML = `<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>`;
+    zone.dataset.url = url;
+  }
+  toast('Image uploadée ✅');
+}
+
+// ── PREVIEW ──
+function previewShop(){
+  if(SHOP?.slug) window.open('boutique.html?shop='+SHOP.slug,'_blank');
+}
+
+// ── TAB SWITCH ──
+function switchTab(name, el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  el.classList.add('active');
+  // Refresh save bar
+  document.getElementById('saveBar').style.display = (name==='produits'||name==='lien') ? 'none' : 'flex';
+}
+
+// ── HELPERS ──
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n){ return Number(n).toLocaleString('fr-FR'); }
+function slugify(s){ return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+let _tt;
+function toast(msg, type){
+  type=type||'success';
+  const el=document.getElementById('toast');
+  const col={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
+  el.textContent=msg; el.style.borderLeftColor=col[type]||col.success;
+  el.classList.add('show'); clearTimeout(_tt);
+  _tt=setTimeout(()=>el.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>
