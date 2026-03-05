@@ -5,426 +5,351 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Parrainage — AfriMarket</title>
 <link rel="manifest" href="/manifest.json"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root{
-  --gold:#F5B731; --gold2:#C8901A; --gold3:#FFF3C4;
-  --blue:#1B3FE4; --blue2:#4F6EFF; --turq:#00C2B7;
-  --green:#00C271; --red:#E4341B; --orange:#FF6B1A;
-  --dark:#0D1117; --gray:#8A94A6; --border:#E8ECF4;
-  --bg:#F5F7FC; --white:#FFFFFF;
-  --font-display:'Syne',sans-serif;
-  --font-body:'DM Sans',sans-serif;
+  --blue:#1B3FE4;--blue2:#4F6EFF;--turq:#00C2B7;
+  --green:#00C271;--gold:#F5B731;--gold2:#C8901A;
+  --red:#E4341B;--dark:#0D1117;--gray:#8A94A6;
+  --border:#E8ECF4;--bg:#F5F7FC;--white:#fff;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font-body);background:var(--dark);color:var(--white);min-height:100vh;padding-bottom:100px;overflow-x:hidden;}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;padding-bottom:90px;font-size:15px;}
 
-/* ── HERO ── */
-.hero{position:relative;overflow:hidden;padding:3.5rem 1.3rem 2rem;text-align:center;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+/* TOP BAR */
+.topbar{position:sticky;top:0;z-index:99;height:52px;background:var(--dark);display:flex;align-items:center;padding:0 1rem;gap:.7rem;border-bottom:1px solid rgba(255,255,255,.06);}
+.back{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.75);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.topbar-title{font-size:.95rem;font-weight:700;color:white;flex:1;}
+.topbar-btn{padding:.35rem .85rem;border-radius:9px;background:var(--gold);color:var(--dark);font-size:.73rem;font-weight:700;border:none;cursor:pointer;}
 
-/* Fond animé */
-.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse at 30% 0%,rgba(245,183,49,.22),transparent 55%),
-  radial-gradient(ellipse at 80% 100%,rgba(27,63,228,.25),transparent 55%),
-  radial-gradient(ellipse at 50% 50%,rgba(0,194,183,.08),transparent 70%),
-  linear-gradient(160deg,#0D1117 0%,#111827 100%);}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;animation:orbFloat 8s ease-in-out infinite;}
-.hero-orb.o1{width:260px;height:260px;background:var(--gold);top:-80px;left:-60px;animation-delay:0s;}
-.hero-orb.o2{width:200px;height:200px;background:var(--blue);bottom:-60px;right:-40px;animation-delay:-3s;}
-.hero-orb.o3{width:150px;height:150px;background:var(--turq);top:40%;left:60%;animation-delay:-5s;}
-@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-30px) scale(1.08);}}
+/* HERO */
+.hero{background:var(--dark);padding:2rem 1.2rem 1.8rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(245,183,49,.15),transparent 70%);top:-80px;right:-60px;pointer-events:none;}
+.hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,194,183,.12),transparent 70%);bottom:-50px;left:-30px;pointer-events:none;}
+.hero-emoji{font-size:2.5rem;margin-bottom:.7rem;display:block;animation:bob 3s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.hero-title{font-size:1.55rem;font-weight:800;color:white;margin-bottom:.5rem;line-height:1.2;}
+.hero-title em{color:var(--gold);font-style:normal;}
+.hero-sub{font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.65;max-width:290px;margin:0 auto 1.6rem;}
+.gains-chip{display:inline-flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.06);border:1.5px solid rgba(245,183,49,.2);border-radius:16px;padding:.9rem 2.2rem;position:relative;}
+.gains-chip::before{content:'';position:absolute;top:.65rem;right:.65rem;width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.gains-lbl{font-size:.62rem;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:.25rem;}
+.gains-val{font-size:2rem;font-weight:800;color:var(--gold);line-height:1;}
+.gains-cur{font-size:.85rem;color:rgba(245,183,49,.65);font-weight:600;margin-left:.2rem;}
 
-/* Particles */
-.hero-particles{position:absolute;inset:0;z-index:1;pointer-events:none;}
-.particle{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:0;animation:particleFly 5s linear infinite;}
-@keyframes particleFly{0%{transform:translateY(0) scale(0);opacity:0;}20%{opacity:.8;}80%{opacity:.4;}100%{transform:translateY(-200px) scale(1.5);opacity:0;}}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;padding:.9rem 1.1rem;}
+.stat{background:white;border:1px solid var(--border);border-radius:14px;padding:.8rem .5rem;text-align:center;}
+.stat-n{font-size:1.5rem;font-weight:800;color:var(--dark);}
+.stat-n.gold{color:var(--gold2);}
+.stat-n.green{color:var(--green);}
+.stat-l{font-size:.62rem;color:var(--gray);margin-top:.1rem;line-height:1.3;}
 
-.hero-content{position:relative;z-index:2;}
-.hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(245,183,49,.15);border:1px solid rgba(245,183,49,.35);color:var(--gold);font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.35rem .9rem;border-radius:99px;margin-bottom:1rem;animation:fadeSlideDown .6s ease both;}
-@keyframes fadeSlideDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
-.hero-title{font-family:var(--font-display);font-size:2rem;font-weight:800;line-height:1.15;margin-bottom:.6rem;animation:fadeSlideDown .6s .1s ease both;}
-.hero-title span{background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:.85rem;color:rgba(255,255,255,.6);line-height:1.6;max-width:320px;animation:fadeSlideDown .6s .2s ease both;}
+/* SECTION HEADER */
+.sh{padding:.5rem 1.1rem .65rem;display:flex;align-items:center;gap:.6rem;}
+.sh h2{font-size:.9rem;font-weight:700;color:var(--dark);}
+.sh::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* ── COMPTEUR ANIMÉ GAINS ── */
-.gains-counter{position:relative;z-index:2;margin-top:1.5rem;animation:fadeSlideDown .6s .35s ease both;}
-.gc-label{font-size:.65rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:.3rem;}
-.gc-amount{font-family:var(--font-display);font-size:2.8rem;font-weight:800;background:linear-gradient(135deg,#FFF3C4,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;display:flex;align-items:baseline;gap:.2rem;}
-.gc-amount .gc-unit{font-size:1rem;font-weight:700;-webkit-text-fill-color:var(--gold);}
-.gc-pulse{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-left:.4rem;animation:pulse 1.5s ease-in-out infinite;-webkit-text-fill-color:initial;}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.6);opacity:.6;}}
+/* LIEN */
+.lien-card{margin:0 1.1rem .9rem;background:white;border:1.5px solid var(--border);border-radius:16px;padding:1.1rem;}
+.lien-lbl{font-size:.67rem;font-weight:600;color:var(--gray);letter-spacing:.6px;margin-bottom:.6rem;}
+.lien-row{display:flex;gap:.5rem;align-items:center;background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:.5rem .75rem;margin-bottom:.8rem;}
+.lien-txt{flex:1;font-size:.72rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace;}
+.btn-copy{padding:.38rem .9rem;border-radius:8px;background:var(--blue);color:white;border:none;font-size:.72rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .18s;}
+.btn-copy:active{background:var(--blue2);}
+.btn-copy.ok{background:var(--green);}
+.share-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+.sbtn{display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem;border-radius:10px;border:1.5px solid var(--border);background:white;font-size:.75rem;font-weight:600;color:var(--dark);cursor:pointer;transition:background .15s;}
+.sbtn:hover{background:var(--bg);}
+.sbtn.wa{border-color:rgba(37,211,102,.3);color:#128C7E;}
+.sbtn.wa:hover{background:rgba(37,211,102,.05);}
 
-/* ── STATS ROW ── */
-.stats-section{padding:.8rem 1.1rem;display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;}
-.stat-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:.9rem .6rem;text-align:center;animation:fadeUp .5s ease both;}
-.stat-card:nth-child(1){animation-delay:.1s;}
-.stat-card:nth-child(2){animation-delay:.2s;}
-.stat-card:nth-child(3){animation-delay:.3s;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-.stat-val{font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--white);}
-.stat-val.gold{color:var(--gold);}
-.stat-val.green{color:var(--green);}
-.stat-lbl{font-size:.63rem;color:rgba(255,255,255,.4);font-weight:600;margin-top:.15rem;line-height:1.3;}
+/* EXPLICATION ÉTAPES */
+.steps{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.5rem;}
+.step{background:white;border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;display:flex;gap:.85rem;}
+.step-n{width:32px;height:32px;border-radius:9px;background:var(--blue);color:white;font-size:.82rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-body{}
+.step-body b{font-size:.82rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.1rem;}
+.step-body p{font-size:.75rem;color:var(--gray);line-height:1.5;}
+.badge-earn{display:inline-block;background:rgba(245,183,49,.12);border:1px solid rgba(245,183,49,.3);color:var(--gold2);font-size:.68rem;font-weight:700;padding:.12rem .5rem;border-radius:6px;margin-top:.3rem;margin-right:.2rem;}
 
-/* ── LIEN PARRAINAGE ── */
-.link-section{padding:0 1.1rem 1rem;}
-.link-card{background:linear-gradient(135deg,rgba(245,183,49,.12),rgba(200,144,26,.08));border:1.5px solid rgba(245,183,49,.25);border-radius:20px;padding:1.3rem 1.2rem;animation:fadeUp .5s .4s ease both;}
-.link-title{font-size:.68rem;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
-.link-url-wrap{display:flex;gap:.6rem;align-items:stretch;}
-.link-url{flex:1;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;padding:.6rem .8rem;font-size:.72rem;color:rgba(255,255,255,.7);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;}
-.link-copy-btn{padding:.6rem 1rem;border-radius:12px;background:var(--gold);color:var(--dark);border:none;font-weight:800;font-size:.78rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;gap:.3rem;transition:transform .15s,box-shadow .15s;}
-.link-copy-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,183,49,.4);}
-.link-copy-btn:active{transform:scale(.96);}
-.link-copied{background:var(--green)!important;color:white!important;}
-.share-btns{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.9rem;}
-.share-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.65rem;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.85);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;}
-.share-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);}
-.share-btn.wa{border-color:rgba(37,211,102,.3);color:#25D366;}
-.share-btn.wa:hover{background:rgba(37,211,102,.1);}
+/* PALIERS */
+.paliers{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.5rem;}
+.palier{background:white;border:1.5px solid var(--border);border-radius:14px;padding:.9rem 1rem;display:flex;gap:.85rem;}
+.palier.done{border-color:rgba(0,194,113,.3);background:rgba(0,194,113,.03);}
+.palier.active{border-color:rgba(245,183,49,.4);background:rgba(245,183,49,.03);}
+.palier-ico{width:38px;height:38px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.palier.active .palier-ico{background:rgba(245,183,49,.1);border-color:rgba(245,183,49,.3);animation:glow 2s ease-in-out infinite;}
+.palier.done   .palier-ico{background:rgba(0,194,113,.1);border-color:rgba(0,194,113,.25);}
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(245,183,49,0);}50%{box-shadow:0 0 14px rgba(245,183,49,.4);}}
+.palier-info{}
+.palier-name{font-size:.8rem;font-weight:700;color:var(--dark);margin-bottom:.1rem;}
+.palier-desc{font-size:.72rem;color:var(--gray);line-height:1.45;margin-bottom:.3rem;}
+.palier-gain{font-size:.82rem;font-weight:800;color:var(--gold2);}
+.palier.done .palier-gain{color:var(--green);}
+.prog{height:5px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border);margin-top:.5rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width 1s ease;}
+.prog-txt{font-size:.62rem;color:var(--gray);margin-top:.25rem;}
 
-/* ── PALIERS ── */
-.paliers-section{padding:0 1.1rem 1rem;}
-.section-title{font-family:var(--font-display);font-size:1rem;font-weight:800;color:var(--white);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem;}
-.paliers-track{position:relative;padding:.5rem 0 1.5rem;}
-.paliers-line{position:absolute;left:18px;top:8px;bottom:8px;width:2px;background:linear-gradient(to bottom,var(--gold),rgba(245,183,49,.1));border-radius:99px;}
-.palier-row{display:flex;gap:.85rem;align-items:flex-start;margin-bottom:1.1rem;animation:fadeUp .5s ease both;}
-.palier-row:nth-child(1){animation-delay:.2s;}
-.palier-row:nth-child(2){animation-delay:.3s;}
-.palier-row:nth-child(3){animation-delay:.4s;}
-.palier-dot{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);position:relative;z-index:1;}
-.palier-dot.done{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent;box-shadow:0 0 16px rgba(245,183,49,.4);}
-.palier-dot.active{border-color:var(--gold);background:rgba(245,183,49,.15);animation:dotGlow 2s ease-in-out infinite;}
-@keyframes dotGlow{0%,100%{box-shadow:0 0 8px rgba(245,183,49,.3);}50%{box-shadow:0 0 20px rgba(245,183,49,.6);}}
-.palier-info{flex:1;}
-.palier-label{font-size:.82rem;font-weight:700;color:var(--white);margin-bottom:.15rem;}
-.palier-sub{font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.4;}
-.palier-bonus{font-family:var(--font-display);font-size:.88rem;font-weight:800;color:var(--gold);}
-.palier-progress{margin-top:.5rem;height:4px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
-.palier-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+/* CLASSEMENT */
+.ranking{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.45rem;}
+.rk{background:white;border:1px solid var(--border);border-radius:13px;padding:.72rem .9rem;display:flex;align-items:center;gap:.7rem;}
+.rk.me{border-color:rgba(245,183,49,.4);background:rgba(245,183,49,.04);}
+.rk-pos{font-size:.95rem;font-weight:800;min-width:26px;text-align:center;}
+.rk-pos.p1{color:var(--gold);}
+.rk-pos.p2{color:#aaa;}
+.rk-pos.p3{color:#CD7F32;}
+.rk-av{width:34px;height:34px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;overflow:hidden;flex-shrink:0;}
+.rk-av img{width:100%;height:100%;object-fit:cover;}
+.rk-info{flex:1;}
+.rk-name{font-size:.78rem;font-weight:700;color:var(--dark);}
+.rk-sub{font-size:.63rem;color:var(--gray);margin-top:.04rem;}
+.rk-amt{font-size:.85rem;font-weight:800;color:var(--gold2);}
 
-/* ── COMMENT ÇA MARCHE ── */
-.how-section{padding:0 1.1rem 1rem;}
-.how-cards{display:flex;flex-direction:column;gap:.65rem;}
-.how-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1rem 1.1rem;display:flex;gap:.85rem;align-items:flex-start;animation:fadeUp .5s ease both;}
-.how-card:nth-child(1){animation-delay:.15s;}
-.how-card:nth-child(2){animation-delay:.25s;}
-.how-card:nth-child(3){animation-delay:.35s;}
-.how-card:nth-child(4){animation-delay:.45s;}
-.how-num{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:.9rem;flex-shrink:0;}
-.how-text{font-size:.78rem;color:rgba(255,255,255,.7);line-height:1.6;}
-.how-text strong{color:var(--white);}
-.how-gain{display:inline-block;background:rgba(245,183,49,.15);border:1px solid rgba(245,183,49,.3);color:var(--gold);font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:7px;margin-top:.3rem;}
+/* HISTORIQUE */
+.hist{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.45rem;}
+.hi{background:white;border:1px solid var(--border);border-radius:13px;padding:.7rem .9rem;display:flex;align-items:center;gap:.7rem;}
+.hi-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.hi-ico.earn{background:rgba(0,194,113,.1);}
+.hi-ico.bonus{background:rgba(245,183,49,.1);}
+.hi-ico.out{background:rgba(228,52,27,.08);}
+.hi-desc{flex:1;}
+.hi-desc b{font-size:.76rem;font-weight:600;color:var(--dark);display:block;}
+.hi-desc span{font-size:.63rem;color:var(--gray);}
+.hi-amt{font-size:.85rem;font-weight:800;}
+.hi-amt.p{color:var(--green);}
+.hi-amt.m{color:var(--red);}
+.empty{background:white;border:1px solid var(--border);border-radius:13px;padding:2rem 1rem;text-align:center;color:var(--gray);font-size:.78rem;}
 
-/* ── CLASSEMENT ── */
-.rank-section{padding:0 1.1rem 1rem;}
-.rank-list{display:flex;flex-direction:column;gap:.5rem;}
-.rank-item{display:flex;align-items:center;gap:.75rem;padding:.8rem 1rem;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);animation:fadeUp .4s ease both;transition:background .2s;}
-.rank-item.me{background:rgba(245,183,49,.08);border-color:rgba(245,183,49,.25);}
-.rank-item:nth-child(1){animation-delay:.1s;}
-.rank-item:nth-child(2){animation-delay:.15s;}
-.rank-item:nth-child(3){animation-delay:.2s;}
-.rank-pos{font-family:var(--font-display);font-size:1rem;font-weight:800;min-width:28px;text-align:center;}
-.rank-pos.p1{color:var(--gold);}
-.rank-pos.p2{color:#C0C0C0;}
-.rank-pos.p3{color:#CD7F32;}
-.rank-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden;}
-.rank-avatar img{width:100%;height:100%;object-fit:cover;}
-.rank-info{flex:1;}
-.rank-name{font-size:.8rem;font-weight:700;color:var(--white);}
-.rank-sub{font-size:.65rem;color:rgba(255,255,255,.4);margin-top:.05rem;}
-.rank-amount{font-family:var(--font-display);font-size:.88rem;font-weight:800;color:var(--gold);}
+/* RETRAIT */
+.wd-card{margin:0 1.1rem .9rem;background:white;border:1.5px solid var(--border);border-radius:16px;padding:1.1rem;}
+.wd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;}
+.wd-lbl{font-size:.63rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.2rem;}
+.wd-amount{font-size:1.9rem;font-weight:800;color:var(--green);}
+.wd-min{font-size:.68rem;color:var(--gray);margin-top:.15rem;}
+.btn-wd{width:100%;padding:.76rem;border-radius:12px;background:linear-gradient(135deg,var(--green),#00A860);color:white;border:none;font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .18s;}
+.btn-wd:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06);}
+.btn-wd:disabled{background:#cdd3de;color:#9aa0ae;cursor:not-allowed;transform:none;}
 
-/* ── HISTORIQUE ── */
-.history-section{padding:0 1.1rem 1rem;}
-.history-list{display:flex;flex-direction:column;gap:.5rem;}
-.hist-item{display:flex;align-items:center;gap:.75rem;padding:.75rem .9rem;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);}
-.hist-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
-.hist-ico.earn{background:rgba(0,194,113,.12);}
-.hist-ico.bonus{background:rgba(245,183,49,.12);}
-.hist-ico.withdraw{background:rgba(228,52,27,.1);}
-.hist-info{flex:1;}
-.hist-desc{font-size:.76rem;font-weight:600;color:rgba(255,255,255,.85);line-height:1.3;}
-.hist-date{font-size:.63rem;color:rgba(255,255,255,.35);margin-top:.12rem;}
-.hist-amount{font-family:var(--font-display);font-weight:800;font-size:.88rem;}
-.hist-amount.plus{color:var(--green);}
-.hist-amount.minus{color:var(--red);}
-.empty-history{text-align:center;padding:2rem 1rem;color:rgba(255,255,255,.25);font-size:.8rem;}
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(13,17,23,.55);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .24s;backdrop-filter:blur(3px);}
+.ov.open{opacity:1;pointer-events:all;}
+.sheet{background:white;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:1.3rem 1.2rem calc(1.6rem + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+.ov.open .sheet{transform:translateY(0);}
+.handle{width:34px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1rem;}
+.sheet-title{font-size:.95rem;font-weight:800;color:var(--dark);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;}
+.sheet-close{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);color:var(--gray);cursor:pointer;font-size:.8rem;}
+.f-lbl{font-size:.72rem;font-weight:600;color:var(--dark);margin-bottom:.32rem;display:block;}
+.f-inp,.f-sel{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.58rem .85rem;font-size:.82rem;color:var(--dark);background:white;margin-bottom:.8rem;outline:none;font-family:inherit;}
+.f-inp:focus,.f-sel:focus{border-color:var(--blue);}
+.f-hint{font-size:.67rem;color:var(--gray);margin-top:-.5rem;margin-bottom:.8rem;line-height:1.5;}
+.btn-ok{width:100%;padding:.76rem;border-radius:12px;background:linear-gradient(135deg,var(--green),#00A860);color:white;border:none;font-size:.88rem;font-weight:700;cursor:pointer;}
+.btn-ok:disabled{opacity:.5;cursor:not-allowed;}
 
-/* ── RETRAIT ── */
-.withdraw-section{padding:0 1.1rem 1.5rem;}
-.withdraw-card{background:linear-gradient(135deg,rgba(0,194,113,.1),rgba(0,194,183,.06));border:1.5px solid rgba(0,194,113,.2);border-radius:20px;padding:1.3rem 1.2rem;}
-.wc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-.wc-balance{font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--green);}
-.wc-label{font-size:.65rem;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:1px;}
-.wc-min{font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.15rem;}
-.btn-withdraw{width:100%;padding:.82rem;border-radius:14px;background:linear-gradient(135deg,var(--green),#00A860);color:white;border:none;font-family:var(--font-display);font-size:.9rem;font-weight:800;cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
-.btn-withdraw:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,194,113,.35);}
-.btn-withdraw:disabled{opacity:.4;cursor:not-allowed;}
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:.5rem 0 calc(.5rem + env(safe-area-inset-bottom));z-index:90;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:.15rem;cursor:pointer;background:none;border:none;padding:.3rem 0;}
+.ni-ico{font-size:1.3rem;line-height:1;}
+.ni-lbl{font-size:.6rem;color:var(--gray);font-weight:600;}
+.ni.on .ni-lbl{color:var(--blue);}
+.nav-plus{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:1.4rem;cursor:pointer;}
 
-/* ── MODAL RETRAIT ── */
-.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s;backdrop-filter:blur(4px);}
-.modal-ov.open{opacity:1;pointer-events:all;}
-.modal-sheet{background:#1A1F2E;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem calc(2rem + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);}
-.modal-ov.open .modal-sheet{transform:translateY(0);}
-.modal-handle{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:99px;margin:0 auto 1.2rem;}
-.modal-title{font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;}
-.modal-close{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:.9rem;}
-.f-label{font-size:.73rem;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:.4rem;display:block;}
-.f-input,.f-select{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;padding:.65rem .9rem;font-size:.83rem;color:var(--white);margin-bottom:.9rem;outline:none;font-family:var(--font-body);}
-.f-input:focus,.f-select:focus{border-color:var(--gold);}
-.f-select option{background:#1A1F2E;color:var(--white);}
-.f-hint{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:-.6rem;margin-bottom:.9rem;line-height:1.5;}
-.btn-submit{width:100%;padding:.82rem;border-radius:14px;background:linear-gradient(135deg,var(--green),#00A860);color:white;border:none;font-family:var(--font-display);font-size:.9rem;font-weight:800;cursor:pointer;}
-.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
-
-/* ── HEADER ── */
-.top-bar{position:sticky;top:0;z-index:100;padding:.7rem 1.1rem;display:flex;align-items:center;gap:.7rem;background:rgba(13,17,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);}
-.back-btn{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
-.top-title{font-family:var(--font-display);font-size:1rem;font-weight:800;flex:1;}
-.top-link-btn{padding:.38rem .85rem;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--dark);font-size:.72rem;font-weight:800;border:none;cursor:pointer;}
-
-/* ── BOTTOM NAV ── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-around;padding:.5rem 0 calc(.5rem + env(safe-area-inset-bottom));z-index:90;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:.15rem;cursor:pointer;background:none;border:none;padding:.3rem 0;}
-.nav-ico{font-size:1.3rem;line-height:1;}
-.nav-lbl{font-size:.6rem;color:rgba(255,255,255,.4);font-weight:600;}
-.nav-item.active .nav-lbl{color:var(--gold);}
-.nav-plus-btn{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(27,63,228,.4);}
-
-/* ── TOAST ── */
-#toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:#1A1F2E;color:white;padding:.65rem 1.3rem;border-radius:14px;font-size:.78rem;font-weight:600;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;pointer-events:none;border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.4);}
+/* TOAST */
+#toast{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(10px);background:var(--dark);color:white;padding:.58rem 1.2rem;border-radius:11px;font-size:.77rem;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;border-left:3px solid var(--green);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ── LOADING SKELETON ── */
-.skel{background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:skelShimmer 1.5s infinite;border-radius:8px;}
-@keyframes skelShimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+/* SKELETON */
+.sk{background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite;border-radius:10px;}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-@media(min-width:540px){.stats-section{grid-template-columns:repeat(3,1fr);max-width:480px;margin:0 auto;}
-.link-section,.paliers-section,.how-section,.rank-section,.history-section,.withdraw-section{max-width:480px;margin:0 auto;}}
+/* ANIMATIONS */
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.u1{animation:up .4s .05s ease both;}
+.u2{animation:up .4s .1s ease both;}
+.u3{animation:up .4s .15s ease both;}
+.u4{animation:up .4s .2s ease both;}
+.u5{animation:up .4s .25s ease both;}
+.u6{animation:up .4s .3s ease both;}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="top-bar">
-  <button class="back-btn" onclick="history.back()">←</button>
-  <div class="top-title">💰 Parrainage</div>
-  <button class="top-link-btn" onclick="scrollToLink()">Mon lien</button>
+<div class="topbar">
+  <button class="back" onclick="history.back()">←</button>
+  <div class="topbar-title">💰 Parrainage</div>
+  <button class="topbar-btn" onclick="document.getElementById('lienCard').scrollIntoView({behavior:'smooth'})">Mon lien</button>
 </div>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-particles" id="heroParticles"></div>
-  <div class="hero-content">
-    <div class="hero-badge">🚀 Zéro investissement · Argent réel</div>
-    <div class="hero-title">Partage, <span>gagne.</span><br/>C'est tout.</div>
-    <div class="hero-sub">Partage ton lien. Quand tes amis passent Premium, tu reçois une commission directement sur ton compte.</div>
-    <div class="gains-counter">
-      <div class="gc-label">Tes gains disponibles</div>
-      <div class="gc-amount">
-        <span id="gainsDisplay">0</span>
-        <span class="gc-unit">FCFA</span>
-        <span class="gc-pulse"></span>
-      </div>
-    </div>
+  <span class="hero-emoji">💰</span>
+  <div class="hero-title">Partage, <em>gagne.</em></div>
+  <div class="hero-sub">Tes amis s'inscrivent via ton lien. Quand ils passent Premium, tu reçois une commission automatiquement.</div>
+  <div class="gains-chip">
+    <div class="gains-lbl">Gains disponibles</div>
+    <div class="gains-val"><span id="gainsDisplay">0</span><span class="gains-cur">FCFA</span></div>
   </div>
 </div>
 
 <!-- STATS -->
-<div class="stats-section">
-  <div class="stat-card">
-    <div class="stat-val gold" id="statFilleuls">—</div>
-    <div class="stat-lbl">Filleuls<br/>Premium</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-val" id="statTotal">—</div>
-    <div class="stat-lbl">Gains<br/>totaux (F)</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-val green" id="statRang">—</div>
-    <div class="stat-lbl">Ton rang<br/>classement</div>
-  </div>
+<div class="stats">
+  <div class="stat u1"><div class="stat-n gold" id="statFilleuls">—</div><div class="stat-l">Filleuls<br/>Premium</div></div>
+  <div class="stat u2"><div class="stat-n" id="statTotal">—</div><div class="stat-l">Total<br/>gagné (F)</div></div>
+  <div class="stat u3"><div class="stat-n green" id="statRang">—</div><div class="stat-l">Rang<br/>classement</div></div>
 </div>
 
-<!-- LIEN DE PARRAINAGE -->
-<div class="link-section" id="linkSection">
-  <div class="link-card">
-    <div class="link-title">🔗 Ton lien de parrainage</div>
-    <div class="link-url-wrap">
-      <div class="link-url" id="linkDisplay">Chargement…</div>
-      <button class="link-copy-btn" id="copyBtn" onclick="copyLink()">📋 Copier</button>
-    </div>
-    <div class="share-btns">
-      <button class="share-btn wa" onclick="shareWA()">💬 WhatsApp</button>
-      <button class="share-btn" onclick="shareTelegram()">✈️ Telegram</button>
-      <button class="share-btn" onclick="shareNative()">📤 Partager</button>
-      <button class="share-btn" onclick="shareText()">📝 SMS</button>
-    </div>
+<!-- LIEN -->
+<div class="sh u2"><h2>🔗 Ton lien de parrainage</h2></div>
+<div class="lien-card u3" id="lienCard">
+  <div class="lien-lbl">Partage ce lien à tes amis</div>
+  <div class="lien-row">
+    <div class="lien-txt" id="linkDisplay">Chargement…</div>
+    <button class="btn-copy" id="copyBtn" onclick="copyLink()">Copier</button>
   </div>
-</div>
-
-<!-- PALIERS BONUS -->
-<div class="paliers-section">
-  <div class="section-title">🏆 Paliers bonus</div>
-  <div class="paliers-track">
-    <div class="paliers-line"></div>
-
-    <!-- Palier signup -->
-    <div class="palier-row">
-      <div class="palier-dot" id="dot0">📩</div>
-      <div class="palier-info">
-        <div class="palier-label">Filleul inscrit</div>
-        <div class="palier-sub">Quelqu'un s'inscrit via ton lien</div>
-        <div class="how-gain">0 FCFA — Commission à l'activation Premium</div>
-      </div>
-    </div>
-
-    <!-- Palier Premium -->
-    <div class="palier-row">
-      <div class="palier-dot" id="dot1">👑</div>
-      <div class="palier-info">
-        <div class="palier-label">Filleul passe Premium <span style="color:rgba(255,255,255,.4);font-size:.7rem">1 000F</span></div>
-        <div class="palier-sub">Commission niveau 1 · niveau 2</div>
-        <div class="palier-bonus">+200 FCFA · +50 FCFA</div>
-      </div>
-    </div>
-
-    <!-- Palier Elite -->
-    <div class="palier-row">
-      <div class="palier-dot" id="dot2">🚀</div>
-      <div class="palier-info">
-        <div class="palier-label">Filleul passe Elite <span style="color:rgba(255,255,255,.4);font-size:.7rem">2 500F</span></div>
-        <div class="palier-sub">Commission niveau 1 · niveau 2</div>
-        <div class="palier-bonus">+500 FCFA · +100 FCFA</div>
-      </div>
-    </div>
-
-    <!-- Palier 5 filleuls -->
-    <div class="palier-row">
-      <div class="palier-dot" id="dot5">🎁</div>
-      <div class="palier-info">
-        <div class="palier-label">5 filleuls Premium</div>
-        <div class="palier-sub">Bonus spécial débloqué automatiquement</div>
-        <div class="palier-bonus">+500 FCFA bonus</div>
-        <div class="palier-progress"><div class="palier-fill" id="prog5" style="width:0%"></div></div>
-        <div style="font-size:.63rem;color:rgba(255,255,255,.3);margin-top:.3rem"><span id="prog5txt">0</span>/5 filleuls</div>
-      </div>
-    </div>
-
-    <!-- Palier 20 filleuls -->
-    <div class="palier-row">
-      <div class="palier-dot" id="dot20">🌟</div>
-      <div class="palier-info">
-        <div class="palier-label">20 filleuls Premium</div>
-        <div class="palier-sub">Statut AfriMarket Ambassador</div>
-        <div class="palier-bonus">+2 000 FCFA bonus</div>
-        <div class="palier-progress"><div class="palier-fill" id="prog20" style="width:0%"></div></div>
-        <div style="font-size:.63rem;color:rgba(255,255,255,.3);margin-top:.3rem"><span id="prog20txt">0</span>/20 filleuls</div>
-      </div>
-    </div>
+  <div class="share-grid">
+    <button class="sbtn wa" onclick="shareWA()">💬 WhatsApp</button>
+    <button class="sbtn" onclick="shareTelegram()">✈️ Telegram</button>
+    <button class="sbtn" onclick="shareNative()">📤 Partager</button>
+    <button class="sbtn" onclick="shareText()">📱 SMS</button>
   </div>
 </div>
 
 <!-- COMMENT ÇA MARCHE -->
-<div class="how-section">
-  <div class="section-title">⚡ Comment ça marche</div>
-  <div class="how-cards">
-    <div class="how-card">
-      <div class="how-num">1</div>
-      <div class="how-text">
-        <strong>Copie ton lien</strong> et partage-le sur WhatsApp, Facebook, TikTok, dans les groupes…
-      </div>
+<div class="sh u2"><h2>⚡ Comment ça marche</h2></div>
+<div class="steps">
+  <div class="step u3">
+    <div class="step-n">1</div>
+    <div class="step-body">
+      <b>Copie et partage ton lien</b>
+      <p>WhatsApp, groupes, statuts, Facebook… chaque partage est une opportunité de gagner.</p>
     </div>
-    <div class="how-card">
-      <div class="how-num">2</div>
-      <div class="how-text">
-        Ton ami <strong>s'inscrit via ton lien</strong> → il est lié à toi pour toujours
-      </div>
+  </div>
+  <div class="step u4">
+    <div class="step-n">2</div>
+    <div class="step-body">
+      <b>Ton ami s'inscrit</b>
+      <p>Il s'inscrit sur AfriMarket via ton lien. Il est lié à toi pour toujours.</p>
     </div>
-    <div class="how-card">
-      <div class="how-num">3</div>
-      <div class="how-text">
-        Dès qu'il <strong>active Premium 1 000F</strong> tu gagnes <div class="how-gain">+200 FCFA</div><br/>
-        Dès qu'il <strong>active Elite 2 500F</strong> tu gagnes <div class="how-gain">+500 FCFA</div>
-      </div>
+  </div>
+  <div class="step u5">
+    <div class="step-n">3</div>
+    <div class="step-body">
+      <b>Il passe Premium → tu es payé</b>
+      <p>Commission automatique créditée sur ton compte dès activation.</p>
+      <span class="badge-earn">+200 FCFA — Plan 1 000F</span>
+      <span class="badge-earn">+500 FCFA — Plan 2 500F</span>
     </div>
-    <div class="how-card">
-      <div class="how-num">4</div>
-      <div class="how-text">
-        Dès <strong>2 000 FCFA</strong> accumulés → tu demandes ton retrait via <strong>Mobile Money</strong> en 24h
-      </div>
+  </div>
+  <div class="step u6">
+    <div class="step-n">4</div>
+    <div class="step-body">
+      <b>Tu retires sur Mobile Money</b>
+      <p>Dès 2 000 FCFA accumulés, tu demandes ton retrait. Paiement sous 24h.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PALIERS -->
+<div class="sh u3"><h2>🏆 Paliers bonus</h2></div>
+<div class="paliers">
+  <div class="palier u3" id="pc-prem">
+    <div class="palier-ico">👑</div>
+    <div class="palier-info">
+      <div class="palier-name">Filleul passe Premium — 1 000 FCFA</div>
+      <div class="palier-desc">Niveau 1 : +200 FCFA · Niveau 2 (ami de ton ami) : +50 FCFA</div>
+      <div class="palier-gain">+200 FCFA par filleul</div>
+    </div>
+  </div>
+  <div class="palier u4" id="pc-elite">
+    <div class="palier-ico">🚀</div>
+    <div class="palier-info">
+      <div class="palier-name">Filleul passe Elite — 2 500 FCFA</div>
+      <div class="palier-desc">Niveau 1 : +500 FCFA · Niveau 2 (ami de ton ami) : +100 FCFA</div>
+      <div class="palier-gain">+500 FCFA par filleul</div>
+    </div>
+  </div>
+  <div class="palier u5" id="pc-5">
+    <div class="palier-ico">🎁</div>
+    <div class="palier-info">
+      <div class="palier-name">Bonus — 5 filleuls Premium</div>
+      <div class="palier-desc">Bonus automatique débloqué dès 5 filleuls.</div>
+      <div class="palier-gain">+500 FCFA bonus</div>
+      <div class="prog"><div class="prog-fill" id="prog5" style="width:0%"></div></div>
+      <div class="prog-txt"><span id="prog5txt">0</span>/5 filleuls</div>
+    </div>
+  </div>
+  <div class="palier u6" id="pc-20">
+    <div class="palier-ico">🌟</div>
+    <div class="palier-info">
+      <div class="palier-name">Bonus — 20 filleuls Premium</div>
+      <div class="palier-desc">Statut Ambassador AfriMarket.</div>
+      <div class="palier-gain">+2 000 FCFA bonus</div>
+      <div class="prog"><div class="prog-fill" id="prog20" style="width:0%"></div></div>
+      <div class="prog-txt"><span id="prog20txt">0</span>/20 filleuls</div>
     </div>
   </div>
 </div>
 
 <!-- CLASSEMENT -->
-<div class="rank-section">
-  <div class="section-title">🏅 Top parrains du mois</div>
-  <div class="rank-list" id="rankList">
-    <div class="rank-item"><div class="skel" style="width:100%;height:48px;border-radius:14px;"></div></div>
-    <div class="rank-item"><div class="skel" style="width:100%;height:48px;border-radius:14px;"></div></div>
-    <div class="rank-item"><div class="skel" style="width:100%;height:48px;border-radius:14px;"></div></div>
-  </div>
+<div class="sh u3"><h2>🏅 Top parrains</h2></div>
+<div class="ranking" id="rankList">
+  <div class="sk" style="height:54px;"></div>
+  <div class="sk" style="height:54px;margin-top:.45rem;"></div>
+  <div class="sk" style="height:54px;margin-top:.45rem;"></div>
 </div>
 
 <!-- HISTORIQUE -->
-<div class="history-section">
-  <div class="section-title">📋 Historique des gains</div>
-  <div class="history-list" id="historyList">
-    <div class="skel" style="width:100%;height:60px;border-radius:13px;"></div>
-    <div class="skel" style="width:100%;height:60px;border-radius:13px;margin-top:.5rem;"></div>
-  </div>
+<div class="sh u4"><h2>📋 Mes gains</h2></div>
+<div class="hist" id="histList">
+  <div class="sk" style="height:54px;"></div>
+  <div class="sk" style="height:54px;margin-top:.45rem;"></div>
 </div>
 
 <!-- RETRAIT -->
-<div class="withdraw-section">
-  <div class="withdraw-card">
-    <div class="wc-row">
-      <div>
-        <div class="wc-label">Solde disponible</div>
-        <div class="wc-balance" id="balanceDisplay">0 F</div>
-        <div class="wc-min">Retrait minimum : 2 000 FCFA</div>
-      </div>
-      <div style="font-size:2.5rem">💳</div>
+<div class="sh u5"><h2>💳 Retrait Mobile Money</h2></div>
+<div class="wd-card u6">
+  <div class="wd-top">
+    <div>
+      <div class="wd-lbl">Solde disponible</div>
+      <div class="wd-amount" id="balDisplay">0 F</div>
+      <div class="wd-min">Minimum de retrait : 2 000 FCFA</div>
     </div>
-    <button class="btn-withdraw" id="withdrawBtn" onclick="openWithdraw()" disabled>
-      💸 Demander un retrait
-    </button>
+    <div style="font-size:2rem;">💳</div>
   </div>
+  <button class="btn-wd" id="wdBtn" onclick="openWd()" disabled>💸 Demander un retrait</button>
 </div>
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
-  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
-  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
-  <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--gold);font-weight:700">Gagner</span></button>
-  <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
+<!-- NAV -->
+<nav class="nav">
+  <button class="ni" onclick="location.href='dashboard.html'"><span class="ni-ico">🏠</span><span class="ni-lbl">Accueil</span></button>
+  <button class="ni" onclick="location.href='messages.html'"><span class="ni-ico">💬</span><span class="ni-lbl">Messages</span></button>
+  <div class="ni"><button class="nav-plus" onclick="location.href='dashboard.html'">➕</button><span class="ni-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+  <button class="ni on" onclick="location.href='gagner.html'"><span class="ni-ico">💰</span><span class="ni-lbl" style="color:var(--blue);font-weight:700">Gagner</span></button>
+  <button class="ni" onclick="location.href='profil.html'"><span class="ni-ico">👤</span><span class="ni-lbl">Profil</span></button>
 </nav>
 
 <!-- MODAL RETRAIT -->
-<div class="modal-ov" id="withdrawModal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">
+<div class="ov" id="wdModal">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">
       💸 Demander un retrait
-      <button class="modal-close" onclick="closeWithdraw()">✕</button>
+      <button class="sheet-close" onclick="closeWd()">✕</button>
     </div>
-    <label class="f-label">Opérateur Mobile Money</label>
-    <select class="f-select" id="wOp">
+    <label class="f-lbl">Opérateur Mobile Money</label>
+    <select class="f-sel" id="wOp">
       <option value="orange">Orange Money</option>
       <option value="mtn">MTN Mobile Money</option>
     </select>
-    <label class="f-label">Numéro Mobile Money</label>
-    <input class="f-input" id="wPhone" type="tel" placeholder="+237 6XX XXX XXX"/>
-    <label class="f-label">Ton nom complet</label>
-    <input class="f-input" id="wName" placeholder="Prénom Nom"/>
-    <label class="f-label">Montant à retirer (FCFA)</label>
-    <input class="f-input" id="wAmount" type="number" placeholder="2000"/>
-    <div class="f-hint" id="wHint">Min 2 000 FCFA · Disponible : <span id="wAvail">0</span> FCFA</div>
-    <button class="btn-submit" id="wSubmitBtn" onclick="submitWithdraw()">✅ Confirmer le retrait</button>
+    <label class="f-lbl">Numéro Mobile Money</label>
+    <input class="f-inp" id="wPhone" type="tel" placeholder="+237 6XX XXX XXX"/>
+    <label class="f-lbl">Ton nom complet</label>
+    <input class="f-inp" id="wName" placeholder="Prénom Nom"/>
+    <label class="f-lbl">Montant à retirer (FCFA)</label>
+    <input class="f-inp" id="wAmt" type="number" placeholder="2000"/>
+    <div class="f-hint">Minimum 2 000 FCFA · Disponible : <span id="wAvail">0</span> FCFA</div>
+    <button class="btn-ok" id="wOkBtn" onclick="submitWd()">✅ Confirmer le retrait</button>
   </div>
 </div>
 
@@ -432,295 +357,180 @@ body{font-family:var(--font-body);background:var(--dark);color:var(--white);min-
 
 <script>
 'use strict';
-var _sb = supabase.createClient(
+var sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-var U = null, P = null;
-var _earnings = [], _leaderboard = [];
-var _solde = 0, _totalGains = 0, _filleulsPremium = 0;
+var U=null, P=null, earnings=[], board=[];
+var solde=0, total=0, filleuls=0;
 
-/* ── PARTICLES ── */
-(function spawnParticles(){
-  var container = document.getElementById('heroParticles');
-  for(var i = 0; i < 18; i++){
-    (function(i){
-      setTimeout(function(){
-        var p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.bottom = '0';
-        p.style.animationDuration = (3 + Math.random()*4) + 's';
-        p.style.animationDelay    = (Math.random()*5) + 's';
-        p.style.width  = (2 + Math.random()*3) + 'px';
-        p.style.height = p.style.width;
-        p.style.background = Math.random() > 0.5 ? 'var(--gold)' : 'var(--turq)';
-        p.style.animationIterationCount = 'infinite';
-        container.appendChild(p);
-      }, i * 200);
-    })(i);
-  }
-})();
-
-/* ── INIT ── */
 (async function(){
-  var res = await _sb.auth.getSession();
-  if(!res.data || !res.data.session){ location.href='index.html'; return; }
-  U = res.data.session.user;
-
-  var pr = await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
-  P = pr.data || {};
-
-  // Lien parrainage
-  var refCode = P.ref_code || U.id.substring(0,8);
-  var link = location.origin + '/index.html?ref=' + refCode;
-  document.getElementById('linkDisplay').textContent = link;
-
-  // Charger données en parallèle
-  await Promise.all([loadEarnings(), loadLeaderboard()]);
-
-  updateStats();
-  updatePaliers();
-  renderHistory();
-  renderLeaderboard();
+  var r = await sb.auth.getSession();
+  if(!r.data||!r.data.session){ location.href='index.html'; return; }
+  U = r.data.session.user;
+  var pr = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+  P = pr.data||{};
+  var code = P.ref_code||U.id.substring(0,8);
+  document.getElementById('linkDisplay').textContent = location.origin+'/index.html?ref='+code;
+  await Promise.all([loadEarnings(), loadBoard()]);
+  refreshStats();
+  refreshPaliers();
+  renderHist();
+  renderBoard();
 })();
 
-/* ── CHARGEMENT GAINS ── */
 async function loadEarnings(){
-  var res = await _sb.from('referral_earnings').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
-  _earnings = res.data || [];
-  _solde = _earnings.filter(function(e){ return e.status==='available'; }).reduce(function(s,e){ return s+e.amount; }, 0);
-  _totalGains = _earnings.reduce(function(s,e){ return s+e.amount; }, 0);
-  _filleulsPremium = _earnings.filter(function(e){ return e.type==='premium_commission' && e.level===1; }).length;
+  var r = await sb.from('referral_earnings').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
+  earnings = r.data||[];
+  solde   = earnings.filter(function(e){return e.status==='available';}).reduce(function(s,e){return s+e.amount;},0);
+  total   = earnings.reduce(function(s,e){return s+e.amount;},0);
+  filleuls= earnings.filter(function(e){return e.type==='premium_commission'&&e.level===1;}).length;
+}
+async function loadBoard(){
+  try{ var r=await sb.from('referral_leaderboard').select('*').limit(10); board=r.data||[]; }catch(e){ board=[]; }
 }
 
-/* ── CLASSEMENT ── */
-async function loadLeaderboard(){
-  try {
-    var res = await _sb.from('referral_leaderboard').select('*').limit(10);
-    _leaderboard = res.data || [];
-  } catch(e){ _leaderboard = []; }
+function refreshStats(){
+  count('gainsDisplay', solde, 900);
+  count('statFilleuls', filleuls, 700);
+  count('statTotal', total, 800);
+  var rang = board.findIndex(function(l){return l.id===U.id;});
+  document.getElementById('statRang').textContent = rang>=0?'#'+(rang+1):'—';
+  document.getElementById('balDisplay').textContent = fmt(solde)+' F';
+  document.getElementById('wAvail').textContent = fmt(solde);
+  document.getElementById('wdBtn').disabled = solde<2000;
 }
 
-/* ── UPDATE STATS ── */
-function updateStats(){
-  // Animé compteur gains
-  animateCounter('gainsDisplay', 0, _solde, 800);
-  animateCounter('statFilleuls', 0, _filleulsPremium, 600);
-  animateCounter('statTotal', 0, _totalGains, 700);
-
-  // Rang dans classement
-  var rang = _leaderboard.findIndex(function(l){ return l.id === U.id; });
-  document.getElementById('statRang').textContent = rang >= 0 ? '#'+(rang+1) : '—';
-
-  // Balance
-  document.getElementById('balanceDisplay').textContent = fmt(_solde) + ' F';
-  document.getElementById('wAvail').textContent = fmt(_solde);
-
-  // Bouton retrait
-  var btn = document.getElementById('withdrawBtn');
-  btn.disabled = _solde < 2000;
-  if(_solde >= 2000) btn.style.animation = 'none';
-}
-
-/* ── PALIERS ── */
-function updatePaliers(){
-  var n = _filleulsPremium;
-
-  // Progress 5
-  var p5 = Math.min(n/5*100, 100);
-  document.getElementById('prog5').style.width = p5 + '%';
-  document.getElementById('prog5txt').textContent = Math.min(n,5);
-  var dot5 = document.getElementById('dot5');
-  if(n>=5){ dot5.classList.add('done'); dot5.textContent='✅'; }
-  else if(n>0){ dot5.classList.add('active'); }
-
-  // Progress 20
-  var p20 = Math.min(n/20*100, 100);
-  document.getElementById('prog20').style.width = p20 + '%';
+function refreshPaliers(){
+  var n = filleuls;
+  document.getElementById('prog5').style.width  = Math.min(n/5*100,100)+'%';
+  document.getElementById('prog20').style.width = Math.min(n/20*100,100)+'%';
+  document.getElementById('prog5txt').textContent  = Math.min(n,5);
   document.getElementById('prog20txt').textContent = Math.min(n,20);
-  var dot20 = document.getElementById('dot20');
-  if(n>=20){ dot20.classList.add('done'); dot20.textContent='✅'; }
-  else if(n>=5){ dot20.classList.add('active'); }
+  var c5=document.getElementById('pc-5'), c20=document.getElementById('pc-20');
+  if(n>=5){  c5.classList.add('done'); c5.querySelector('.palier-ico').textContent='✅'; }
+  else if(n>0){ c5.classList.add('active'); }
+  if(n>=20){ c20.classList.add('done'); c20.querySelector('.palier-ico').textContent='✅'; }
+  else if(n>=5){ c20.classList.add('active'); }
 }
 
-/* ── HISTORIQUE ── */
-function renderHistory(){
-  var el = document.getElementById('historyList');
-  if(!_earnings.length){
-    el.innerHTML = '<div class="empty-history">Aucun gain pour l\'instant.<br/>Partage ton lien pour commencer !</div>';
-    return;
-  }
-  el.innerHTML = _earnings.slice(0,20).map(function(e){
-    var icoClass = e.type==='bonus' ? 'bonus' : (e.type==='withdrawal'?'withdraw':'earn');
-    var ico = e.type==='bonus'?'🎁': e.type==='withdrawal'?'💸':'💰';
-    var sign = e.type==='withdrawal' ? '-' : '+';
-    var amtClass = e.type==='withdrawal' ? 'minus' : 'plus';
-    var d = new Date(e.created_at);
-    var dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
-    return '<div class="hist-item">' +
-      '<div class="hist-ico '+icoClass+'">'+ico+'</div>' +
-      '<div class="hist-info">' +
-        '<div class="hist-desc">'+esc(e.description||'Gain parrainage')+'</div>' +
-        '<div class="hist-date">'+dateStr+'</div>' +
-      '</div>' +
-      '<div class="hist-amount '+amtClass+'">'+sign+fmt(e.amount)+' F</div>' +
+function renderHist(){
+  var el=document.getElementById('histList');
+  if(!earnings.length){ el.innerHTML='<div class="empty">Aucun gain pour l\'instant.<br/>Partage ton lien pour commencer !</div>'; return; }
+  var ico={'bonus':'🎁','withdrawal':'💸'};
+  var cls={'bonus':'bonus','withdrawal':'out'};
+  el.innerHTML = earnings.slice(0,20).map(function(e){
+    var t=e.type; var plus=t!=='withdrawal';
+    var d=new Date(e.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+    return '<div class="hi">'+
+      '<div class="hi-ico '+(cls[t]||'earn')+'">'+(ico[t]||'💰')+'</div>'+
+      '<div class="hi-desc"><b>'+esc(e.description||'Gain parrainage')+'</b><span>'+d+'</span></div>'+
+      '<div class="hi-amt '+(plus?'p':'m')+'">'+(plus?'+':'-')+fmt(e.amount)+' F</div>'+
     '</div>';
   }).join('');
 }
 
-/* ── CLASSEMENT ── */
-function renderLeaderboard(){
-  var el = document.getElementById('rankList');
-  if(!_leaderboard.length){
-    el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.3);font-size:.78rem;padding:1.5rem;">Sois le premier à parrainer !</div>';
-    return;
-  }
-  var posLabels = ['🥇','🥈','🥉'];
-  el.innerHTML = _leaderboard.slice(0,10).map(function(l, i){
-    var isMe = l.id === U.id;
-    var posClass = i<3 ? ['p1','p2','p3'][i] : '';
-    var avatarHtml = l.avatar_url
-      ? '<img src="'+esc(l.avatar_url)+'" alt="" onerror="this.outerHTML=\'<span>'+esc((l.full_name||'?')[0].toUpperCase())+'</span>\'">'
-      : '<span>'+(l.full_name||'?')[0].toUpperCase()+'</span>';
-    return '<div class="rank-item'+(isMe?' me':'')+'">' +
-      '<div class="rank-pos '+posClass+'">'+(i<3?posLabels[i]:'#'+(i+1))+'</div>' +
-      '<div class="rank-avatar">'+avatarHtml+'</div>' +
-      '<div class="rank-info">' +
-        '<div class="rank-name">'+(isMe?'👤 Toi':esc(l.full_name||'Anonyme'))+'</div>' +
-        '<div class="rank-sub">'+l.filleuls_premium+' filleul'+(l.filleuls_premium>1?'s':'')+' Premium</div>' +
-      '</div>' +
-      '<div class="rank-amount">'+fmt(l.gains_totaux)+' F</div>' +
+function renderBoard(){
+  var el=document.getElementById('rankList');
+  if(!board.length){ el.innerHTML='<div class="empty">Sois le premier à parrainer !</div>'; return; }
+  var m=['🥇','🥈','🥉'], pc=['p1','p2','p3'];
+  el.innerHTML = board.slice(0,10).map(function(l,i){
+    var me=l.id===U.id;
+    var av=l.avatar_url
+      ?'<img src="'+esc(l.avatar_url)+'" onerror="this.outerHTML=\'<span>'+(l.full_name||'?')[0].toUpperCase()+'</span>\'">'
+      :'<span>'+(l.full_name||'?')[0].toUpperCase()+'</span>';
+    return '<div class="rk'+(me?' me':'')+'">'+
+      '<div class="rk-pos '+(pc[i]||'')+'">'+(i<3?m[i]:'#'+(i+1))+'</div>'+
+      '<div class="rk-av">'+av+'</div>'+
+      '<div class="rk-info"><div class="rk-name">'+(me?'👤 Toi':esc(l.full_name||'Anonyme'))+'</div>'+
+      '<div class="rk-sub">'+l.filleuls_premium+' filleul'+(l.filleuls_premium>1?'s':'')+'</div></div>'+
+      '<div class="rk-amt">'+fmt(l.gains_totaux)+' F</div>'+
     '</div>';
   }).join('');
 }
 
-/* ── PARTAGE ── */
+/* PARTAGE */
 function getLink(){
-  var refCode = P.ref_code || (U&&U.id.substring(0,8)) || '';
-  return location.origin + '/index.html?ref=' + refCode;
+  return location.origin+'/index.html?ref='+(P.ref_code||U.id.substring(0,8));
 }
-
 function copyLink(){
-  var url = getLink();
-  var btn = document.getElementById('copyBtn');
-  navigator.clipboard.writeText(url).then(function(){
-    btn.textContent = '✅ Copié !';
-    btn.classList.add('link-copied');
-    setTimeout(function(){ btn.textContent='📋 Copier'; btn.classList.remove('link-copied'); }, 2000);
-    toast('Lien copié ! Partage-le maintenant 🚀');
-  }).catch(function(){
-    toast('Copie manuelle : ' + url, 'info');
-  });
+  var btn=document.getElementById('copyBtn');
+  navigator.clipboard.writeText(getLink()).then(function(){
+    btn.textContent='✅ Copié !'; btn.classList.add('ok');
+    setTimeout(function(){btn.textContent='Copier';btn.classList.remove('ok');},2200);
+    toast('Lien copié ! 🚀');
+  }).catch(function(){toast(getLink(),'info');});
 }
-
 function shareWA(){
-  var msg = '🛒 Rejoins AfriMarket — la marketplace africaine !\n\nAchète et vends facilement. Inscription gratuite ici :\n' + getLink();
+  var msg='Rejoins AfriMarket — la marketplace africaine !\nInscription gratuite : '+getLink();
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
-
 function shareTelegram(){
-  window.open('https://t.me/share/url?url='+encodeURIComponent(getLink())+'&text='+encodeURIComponent('🛒 Rejoins AfriMarket — la marketplace africaine !'),'_blank');
+  window.open('https://t.me/share/url?url='+encodeURIComponent(getLink())+'&text='+encodeURIComponent('Rejoins AfriMarket !'),'_blank');
 }
-
 function shareNative(){
-  if(navigator.share){
-    navigator.share({title:'AfriMarket',text:'🛒 Rejoins AfriMarket !',url:getLink()}).catch(function(){});
-  } else { copyLink(); }
+  if(navigator.share){navigator.share({title:'AfriMarket',text:'Rejoins AfriMarket !',url:getLink()}).catch(function(){});}
+  else copyLink();
 }
+function shareText(){ window.open('sms:?body='+encodeURIComponent('Rejoins AfriMarket : '+getLink())); }
 
-function shareText(){
-  window.open('sms:?body='+encodeURIComponent('🛒 Rejoins AfriMarket : '+getLink()));
+/* RETRAIT */
+function openWd(){
+  document.getElementById('wAmt').value=Math.max(solde,2000);
+  document.getElementById('wdModal').classList.add('open');
 }
+function closeWd(){ document.getElementById('wdModal').classList.remove('open'); }
 
-function scrollToLink(){
-  document.getElementById('linkSection').scrollIntoView({behavior:'smooth'});
-}
-
-/* ── RETRAIT ── */
-function openWithdraw(){
-  document.getElementById('wAmount').value = _solde >= 2000 ? _solde : 2000;
-  document.getElementById('withdrawModal').classList.add('open');
-}
-function closeWithdraw(){
-  document.getElementById('withdrawModal').classList.remove('open');
-}
-
-async function submitWithdraw(){
-  var op     = document.getElementById('wOp').value;
-  var phone  = document.getElementById('wPhone').value.trim();
-  var name   = document.getElementById('wName').value.trim();
-  var amount = parseInt(document.getElementById('wAmount').value);
-
-  if(!phone){ toast('Numéro Mobile Money obligatoire','error'); return; }
-  if(!name){  toast('Ton nom est obligatoire','error'); return; }
-  if(isNaN(amount)||amount<2000){ toast('Minimum 2 000 FCFA','error'); return; }
-  if(amount > _solde){ toast('Solde insuffisant','error'); return; }
-
-  var btn = document.getElementById('wSubmitBtn');
+async function submitWd(){
+  var op=document.getElementById('wOp').value;
+  var ph=document.getElementById('wPhone').value.trim();
+  var nm=document.getElementById('wName').value.trim();
+  var am=parseInt(document.getElementById('wAmt').value);
+  if(!ph){toast('Numéro obligatoire','error');return;}
+  if(!nm){toast('Nom obligatoire','error');return;}
+  if(isNaN(am)||am<2000){toast('Minimum 2 000 FCFA','error');return;}
+  if(am>solde){toast('Solde insuffisant','error');return;}
+  var btn=document.getElementById('wOkBtn');
   btn.disabled=true; btn.textContent='⏳ Envoi…';
-
-  try {
-    var res = await _sb.from('withdrawal_requests').insert({
-      user_id:U.id, amount:amount, operator:op, phone:phone, name:name, status:'pending'
-    });
-    if(res.error) throw res.error;
-
-    // Marquer les gains comme "withdrawn"
-    var toMark = [];
-    var running = 0;
-    for(var i=0;i<_earnings.length;i++){
-      var e = _earnings[i];
-      if(e.status==='available' && running<amount){
-        toMark.push(e.id);
-        running += e.amount;
-      }
+  try{
+    var r=await sb.from('withdrawal_requests').insert({user_id:U.id,amount:am,operator:op,phone:ph,name:nm,status:'pending'});
+    if(r.error)throw r.error;
+    var ids=[],run=0;
+    for(var i=0;i<earnings.length;i++){
+      if(earnings[i].status==='available'&&run<am){ids.push(earnings[i].id);run+=earnings[i].amount;}
     }
-    if(toMark.length){
-      await _sb.from('referral_earnings').update({status:'withdrawn'}).in('id',toMark);
-    }
-
-    closeWithdraw();
-    _solde = Math.max(0, _solde - amount);
-    document.getElementById('balanceDisplay').textContent = fmt(_solde)+' F';
-    document.getElementById('gainsDisplay').textContent = fmt(_solde);
-    document.getElementById('withdrawBtn').disabled = _solde < 2000;
-    toast('Demande envoyée ✅ Paiement sous 24h via '+op.toUpperCase());
-  } catch(e){
-    toast('Erreur : '+e.message,'error');
-  } finally {
-    btn.disabled=false; btn.textContent='✅ Confirmer le retrait';
-  }
+    if(ids.length) await sb.from('referral_earnings').update({status:'withdrawn'}).in('id',ids);
+    closeWd();
+    solde=Math.max(0,solde-am);
+    document.getElementById('balDisplay').textContent=fmt(solde)+' F';
+    document.getElementById('gainsDisplay').textContent=fmt(solde);
+    document.getElementById('wdBtn').disabled=solde<2000;
+    toast('Demande envoyée ✅ Paiement sous 24h');
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='✅ Confirmer le retrait';}
 }
 
-/* ── UTILS ── */
-function animateCounter(id, from, to, dur){
-  var el = document.getElementById(id);
-  if(!el) return;
-  var start = performance.now();
-  function step(now){
-    var t = Math.min((now-start)/dur, 1);
-    var val = Math.round(from + (to-from) * easeOut(t));
-    el.textContent = fmt(val);
-    if(t<1) requestAnimationFrame(step);
-    else el.textContent = fmt(to);
-  }
-  requestAnimationFrame(step);
+/* UTILS */
+function count(id,to,dur){
+  var el=document.getElementById(id); if(!el)return;
+  var t0=performance.now();
+  (function go(now){
+    var p=Math.min((now-t0)/dur,1);
+    el.textContent=fmt(Math.round(to*(1-Math.pow(1-p,3))));
+    if(p<1)requestAnimationFrame(go); else el.textContent=fmt(to);
+  })(t0);
 }
-function easeOut(t){ return 1-Math.pow(1-t,3); }
-function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
+function fmt(n){return Number(n||0).toLocaleString('fr-FR');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 var _tt;
-function toast(msg, type){
+function toast(msg,type){
   type=type||'success';
   var el=document.getElementById('toast');
-  var cols={success:'#00C271',error:'#E4341B',warning:'#F5B731',info:'#4F6EFF'};
-  el.textContent=msg;
-  el.style.borderLeft='3px solid '+(cols[type]||cols.success);
+  var c={success:'var(--green)',error:'var(--red)',warning:'var(--gold)',info:'var(--blue2)'};
+  el.textContent=msg; el.style.borderLeftColor=c[type]||c.success;
   el.classList.add('show'); clearTimeout(_tt);
-  _tt=setTimeout(function(){ el.classList.remove('show'); },3800);
+  _tt=setTimeout(function(){el.classList.remove('show');},3500);
 }
 </script>
 </body>
