@@ -171,9 +171,7 @@
   </div>
 
   <!-- FORMULAIRE CANDIDATURE -->
-  <div id="formSection">
-    <div class="loading"><div class="spin"></div>Chargement…</div>
-  </div>
+  <div id="formSection"></div>
 </div>
 
 <nav class="bottom-nav">
@@ -196,44 +194,66 @@ const SVC_NEEDS_FORMATION = false;
 var U = null, _reg = null;
 
 (async function(){
-  var sess = await _sb.auth.getSession();
-  if(!sess.data.session){ renderForm(null); return; }
-  U = sess.data.session.user;
-  var res = await _sb.from('service_registrations').select('*')
-    .eq('user_id',U.id).eq('service',SVC_ID).maybeSingle();
-  _reg = res.data;
-  renderStatus(_reg);
-  renderForm(_reg);
+  // Timeout de sécurité : si tout plante, afficher le formulaire quand même
+  var _done = false;
+  var _timeout = setTimeout(function(){
+    if(!_done){ _done=true; renderForm(null); }
+  }, 6000);
+
+  try {
+    var sess = await _sb.auth.getSession();
+    if(!sess.data.session){
+      clearTimeout(_timeout); _done=true;
+      renderForm(null); return;
+    }
+    U = sess.data.session.user;
+
+    // Requête simple pour éviter les erreurs de colonnes manquantes
+    var res = await _sb.from('service_registrations')
+      .select('*')
+      .eq('user_id', U.id)
+      .eq('service', SVC_ID)
+      .maybeSingle();
+
+    _reg = (res && !res.error) ? res.data : null;
+
+    clearTimeout(_timeout); _done=true;
+    renderStatus(_reg);
+    renderForm(_reg);
+  } catch(e) {
+    clearTimeout(_timeout); _done=true;
+    console.warn('Init:', e.message);
+    renderForm(null);
+  }
 })();
 
 function renderStatus(reg){
   if(!reg) return;
-  var html = '';
+  var el = document.getElementById('statusSection');
   if(reg.status==='pending'){
-    html = '<div style="background:rgba(245,183,49,.1);border:1.5px solid rgba(245,183,49,.3);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
+    el.innerHTML = '<div style="background:rgba(245,183,49,.1);border:1.5px solid rgba(245,183,49,.3);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
       '<div style="font-size:1.5rem;margin-bottom:.3rem;">⏳</div>' +
-      '<div style="font-size:.9rem;font-weight:700;color:var(--dark);">Candidature en cours d'examen</div>' +
-      '<div style="font-size:.75rem;color:var(--gray);margin-top:.3rem;">On revient vers toi sous 24-48h. Vérifie tes notifications.</div>' +
-    '</div>';
+      '<div style="font-size:.9rem;font-weight:700;">Candidature en cours d&#39;examen</div>' +
+      '<div style="font-size:.75rem;color:#8A94A6;margin-top:.3rem;">On revient vers toi sous 24-48h.</div>' +
+      '</div>';
   } else if(reg.status==='approved'){
-    var nextAction = '';
-    if(SVC_NEEDS_FORMATION && !reg.formation_done){
-      nextAction = '<button class="already-btn" onclick="location.href='formation.html?service='+SVC_ID+''">📚 Commencer la formation →</button>';
-    } else {
-      nextAction = '<button class="already-btn" onclick="location.href='mes-candidatures.html'">🚀 Aller travailler →</button>';
-    }
-    html = '<div class="already-applied">' +
+    var goUrl = (SVC_NEEDS_FORMATION && !reg.formation_done)
+      ? 'formation.html?service=' + SVC_ID
+      : 'mes-candidatures.html';
+    var goLabel = (SVC_NEEDS_FORMATION && !reg.formation_done)
+      ? '📚 Commencer la formation →'
+      : '🚀 Aller travailler →';
+    el.innerHTML = '<div class="already-applied">' +
       '<h3>✅ Tu es approuvé(e) !</h3>' +
-      '<p>Ton code agent : <strong>' + (reg.agent_code||'En cours de génération…') + '</strong></p>' +
-      nextAction +
-    '</div>';
+      '<p>Ton code agent : <strong>' + (reg.agent_code || 'En cours de génération…') + '</strong></p>' +
+      '<button class="already-btn" onclick="location.href=\"' + goUrl + '\"">'+goLabel+'</button>' +
+      '</div>';
   } else if(reg.status==='rejected'){
-    html = '<div style="background:rgba(232,48,48,.06);border:1.5px solid rgba(232,48,48,.2);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
-      '<div style="font-size:.85rem;font-weight:700;color:var(--red);">❌ Candidature non retenue</div>' +
-      '<div style="font-size:.75rem;color:var(--gray);margin-top:.3rem;">' + (reg.admin_note||'Tu peux recandidater.') + '</div>' +
-    '</div>';
+    el.innerHTML = '<div style="background:rgba(232,48,48,.06);border:1.5px solid rgba(232,48,48,.2);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
+      '<div style="font-size:.85rem;font-weight:700;color:#E4341B;">❌ Candidature non retenue</div>' +
+      '<div style="font-size:.75rem;color:#8A94A6;margin-top:.3rem;">' + (reg.admin_note || 'Tu peux recandidater.') + '</div>' +
+      '</div>';
   }
-  document.getElementById('statusSection').innerHTML = html;
 }
 
 function renderForm(reg){
