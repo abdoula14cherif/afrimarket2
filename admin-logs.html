@@ -325,7 +325,14 @@ let allLogs=[],fLog='all',logQ='';
 async function init(){if(!await checkAuth())return;document.getElementById('topbar-right').innerHTML='<button class="btn-refresh" onclick="loadLogs()">🔄 Actualiser</button>';loadLogs();}
 async function loadLogs(){
   toast('Chargement...','info');
-  const{data}=await sb.from('wallet_movements').select('*,profiles(full_name,email)').order('created_at',{ascending:false}).limit(500);
+  const{data:rawData}=await sb.from('wallet_movements').select('*').order('created_at',{ascending:false}).limit(500);
+  const userIds=[...new Set((rawData||[]).map(l=>l.user_id).filter(Boolean))];
+  let profileMap={};
+  if(userIds.length){
+    const{data:profs}=await sb.from('profiles').select('id,full_name,email').in('id',userIds);
+    (profs||[]).forEach(p=>profileMap[p.id]=p);
+  }
+  const data=(rawData||[]).map(l=>({...l,profiles:profileMap[l.user_id]||{}}));
   allLogs=data||[];
   document.getElementById('lg-total').textContent=allLogs.length;
   document.getElementById('lg-credits').textContent=fmtF(allLogs.filter(l=>l.type==='credit').reduce((a,l)=>a+(+l.amount||0),0));
