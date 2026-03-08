@@ -384,9 +384,16 @@ async function init(){
 }
 async function loadPay(){
   toast('Chargement...','info');
-  const{data,error}=await sb.from('payment_requests').select('*,profiles(full_name,email,whatsapp)').order('created_at',{ascending:false});
+  const{data,error}=await sb.from('payment_requests').select('*').order('created_at',{ascending:false});
   if(error){toast('Erreur: '+error.message,'error');return;}
-  allPay=data||[];renderPay();toast('','info');
+  const userIds=[...new Set((data||[]).map(p=>p.user_id).filter(Boolean))];
+  let profileMap={};
+  if(userIds.length){
+    const{data:profs}=await sb.from('profiles').select('id,full_name,email,whatsapp').in('id',userIds);
+    (profs||[]).forEach(p=>profileMap[p.id]=p);
+  }
+  allPay=(data||[]).map(p=>({...p,profiles:profileMap[p.user_id]||{}}));
+  renderPay();toast('','info');
 }
 function filterPay(f,btn){fPay=f;document.querySelectorAll('.filter-bar .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPay();}
 function searchPay(q){payQ=q.toLowerCase();renderPay();}
