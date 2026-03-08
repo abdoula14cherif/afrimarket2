@@ -333,8 +333,15 @@ let allAnn=[],fAnn='all',annQ='',selAnnId=null;
 async function init(){if(!await checkAuth())return;document.getElementById('topbar-right').innerHTML='<button class="btn-refresh" onclick="loadAnn()">🔄 Actualiser</button>';loadAnn();}
 async function loadAnn(){
   toast('Chargement...','info');
-  const{data}=await sb.from('annonces').select('*,profiles(full_name,email)').order('created_at',{ascending:false});
-  allAnn=data||[];renderAnn();toast('','info');
+  const{data}=await sb.from('annonces').select('*').order('created_at',{ascending:false});
+  const userIds=[...new Set((data||[]).map(a=>a.user_id).filter(Boolean))];
+  let profileMap={};
+  if(userIds.length){
+    const{data:profs}=await sb.from('profiles').select('id,full_name,email').in('id',userIds);
+    (profs||[]).forEach(p=>profileMap[p.id]=p);
+  }
+  allAnn=(data||[]).map(a=>({...a,profiles:profileMap[a.user_id]||{}}));
+  renderAnn();toast('','info');
 }
 function filterAnn(f,btn){fAnn=f;document.querySelectorAll('.filter-bar .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAnn();}
 function searchAnn(q){annQ=q.toLowerCase();renderAnn();}
