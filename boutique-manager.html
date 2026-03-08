@@ -656,6 +656,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <button class="preview-btn" onclick="previewShop()" id="previewBtn" style="display:none">👁 Voir</button>
 </div>
 
+<!-- LOADER OVERLAY -->
+<div id="mgr-loader" style="position:fixed;inset:0;top:52px;background:var(--bg,#F5F7FC);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;">
+  <div style="width:38px;height:38px;border:3px solid #e0e6f5;border-top-color:#1B3FE4;border-radius:50%;animation:mgr-spin .7s linear infinite;"></div>
+  <div style="font-size:.78rem;color:#6B7A9B;" id="mgr-loader-txt">Chargement…</div>
+</div>
+<style>@keyframes mgr-spin{to{transform:rotate(360deg)}}</style>
+
+<!-- ERREUR OVERLAY -->
+<div id="mgr-error" style="display:none;position:fixed;inset:0;top:52px;background:#fff;z-index:51;padding:2rem;text-align:center;">
+  <div style="font-size:2.5rem;margin-bottom:.8rem;">⚠️</div>
+  <div style="font-size:.85rem;font-weight:700;margin-bottom:.4rem;" id="mgr-error-title">Erreur de chargement</div>
+  <div style="font-size:.78rem;color:#6B7A9B;line-height:1.7;max-width:320px;margin:0 auto 1rem;" id="mgr-error-msg"></div>
+  <button onclick="location.reload()" style="padding:.55rem 1.2rem;border-radius:99px;background:#1B3FE4;color:white;border:none;font-size:.8rem;font-weight:700;cursor:pointer;">🔄 Réessayer</button>
+</div>
+
 <!-- TABS -->
 <div class="tabs" id="tabsBar" style="display:none">
   <div class="tab active" onclick="switchTab('info',this)">📋 Infos</div>
@@ -739,34 +754,62 @@ var editingProductId = null;
 
 /* ═══════════ INIT ═══════════ */
 (async function(){
+  function mgrError(title, msg) {
+    document.getElementById('mgr-loader').style.display = 'none';
+    var errEl = document.getElementById('mgr-error');
+    errEl.style.display = 'block';
+    document.getElementById('mgr-error-title').textContent = title;
+    document.getElementById('mgr-error-msg').innerHTML = msg;
+  }
+  function mgrLoading(txt) {
+    var el = document.getElementById('mgr-loader-txt');
+    if (el) el.textContent = txt || 'Chargement…';
+  }
+  function mgrReady() {
+    document.getElementById('mgr-loader').style.display = 'none';
+  }
+
   try {
+    mgrLoading('Vérification connexion…');
     var r = await sb.auth.getSession();
     if(!r.data || !r.data.session){ location.href='index.html'; return; }
     U = r.data.session.user;
-  } catch(e){ setMsg('Erreur connexion: '+e.message,'error'); return; }
-
-  var pr = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
-  P = pr.data || {};
-
-  // Accept premium ou elite
-  if(!P.plan){
-    setMsg('Plan Elite requis. <a href="pricing.html" style="color:var(--gold);font-weight:700">Passer Elite 2500F/mois</a>','warn');
+  } catch(e){
+    mgrError('Erreur de connexion', e.message);
     return;
   }
 
-  var shopRes = await sb.from('boutiques').select('*').eq('user_id',U.id).maybeSingle();
-  if(shopRes.error && shopRes.error.code !== 'PGRST116'){
-    setMsg('Table boutiques manquante — execute boutique_sql.sql dans Supabase. Erreur: '+shopRes.error.message,'error');
-    return;
-  }
+  try {
+    mgrLoading('Chargement du profil…');
+    var pr = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+    P = pr.data || {};
 
-  SHOP = shopRes.data || null;
+    if(!P.plan){
+      mgrReady();
+      setMsg('Plan requis. <a href="pricing.html" style="color:var(--gold);font-weight:700">Passer Elite 2500F/mois</a>','warn');
+      return;
+    }
 
-  if(!SHOP){
-    renderCreateCTA();
-  } else {
-    await loadProducts();
-    renderAll();
+    mgrLoading('Chargement de ta boutique…');
+    var shopRes = await sb.from('boutiques').select('*').eq('user_id',U.id).maybeSingle();
+    if(shopRes.error && shopRes.error.code !== 'PGRST116'){
+      mgrError('Erreur base de données', 'Table boutiques introuvable.<br/>Execute boutique_sql.sql dans Supabase.<br/><small style="color:#aaa">Code: '+shopRes.error.code+' — '+shopRes.error.message+'</small>');
+      return;
+    }
+
+    SHOP = shopRes.data || null;
+
+    mgrReady();
+    if(!SHOP){
+      renderCreateCTA();
+    } else {
+      mgrLoading('Chargement des produits…');
+      await loadProducts();
+      mgrReady();
+      renderAll();
+    }
+  } catch(e) {
+    mgrError('Erreur inattendue', e.message + '<br/><small style="color:#aaa">' + (e.stack||'').split('\n')[1] + '</small>');
   }
 })();
 
@@ -1196,7 +1239,7 @@ function openProdModal(id){
         '<label class="f-label">📸 Images supplémentaires</label>' +
         '<div id="extraImgsPreview" style="margin-bottom:.5rem;"></div>' +
         '<input type="file" id="extraImgInput" accept="image/*" style="display:none" onchange="uploadExtraImage(this)"/>' +
-        '<button class="f-input" style="cursor:pointer;color:var(--gray);font-size:.75rem;background:white;border:1.5px dashed var(--border);" onclick="document.getElementById('extraImgInput').click()">+ Ajouter image galerie</button>' +
+        '<button class="f-input" style="cursor:pointer;color:var(--gray);font-size:.75rem;background:white;border:1.5px dashed var(--border);" onclick="document.getElementById(\'extraImgInput\').click()">+ Ajouter image galerie</button>' +
       '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">' +
         '<div class="f-row"><label class="f-label">SKU / Réf.</label><input class="f-input" id="pSku" placeholder="REF-001" value="'+skuVal+'"/></div>' +
