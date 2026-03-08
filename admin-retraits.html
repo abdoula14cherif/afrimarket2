@@ -362,8 +362,15 @@ let allWr=[],fWr='all',wrQ='',selWrId=null;
 async function init(){if(!await checkAuth())return;document.getElementById('topbar-right').innerHTML='<button class="btn-refresh" onclick="loadWr()">🔄 Actualiser</button>';loadWr();}
 async function loadWr(){
   toast('Chargement...','info');
-  const{data}=await sb.from('withdrawal_requests').select('*,profiles(full_name,email,whatsapp)').order('created_at',{ascending:false});
-  allWr=data||[];renderWr();toast('','info');
+  const{data}=await sb.from('withdrawal_requests').select('*').order('created_at',{ascending:false});
+  const userIds=[...new Set((data||[]).map(w=>w.user_id).filter(Boolean))];
+  let profileMap={};
+  if(userIds.length){
+    const{data:profs}=await sb.from('profiles').select('id,full_name,email,whatsapp').in('id',userIds);
+    (profs||[]).forEach(p=>profileMap[p.id]=p);
+  }
+  allWr=(data||[]).map(w=>({...w,profiles:profileMap[w.user_id]||{}}));
+  renderWr();toast('','info');
 }
 function filterWr(f,btn){fWr=f;document.querySelectorAll('.filter-bar .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderWr();}
 function searchWr(q){wrQ=q.toLowerCase();renderWr();}
