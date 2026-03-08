@@ -329,11 +329,18 @@ async function init(){if(!await checkAuth())return;document.getElementById('topb
 async function loadPar(){
   toast('Chargement...','info');
   const[earnings,wrTotal,wrPaid]=await Promise.all([
-    sb.from('referral_earnings').select('*,parrain:user_id(full_name,email),filleul:referred_user_id(full_name)').order('created_at',{ascending:false}),
+    sb.from('referral_earnings').select('*').order('created_at',{ascending:false}),
     sb.from('referral_earnings').select('amount'),
     sb.from('referral_earnings').select('amount').eq('status','withdrawn'),
   ]);
-  allPar=earnings.data||[];
+  const rawPar=earnings.data||[];
+  const allUserIds=[...new Set(rawPar.flatMap(r=>[r.user_id,r.referred_user_id]).filter(Boolean))];
+  let pMap={};
+  if(allUserIds.length){
+    const{data:profs}=await sb.from('profiles').select('id,full_name,email').in('id',allUserIds);
+    (profs||[]).forEach(p=>pMap[p.id]=p);
+  }
+  allPar=rawPar.map(r=>({...r,parrain:pMap[r.user_id]||{},filleul:pMap[r.referred_user_id]||{}}));
   const total=(earnings.data||[]).length;
   const comm=(wrTotal.data||[]).reduce((a,r)=>a+(+r.amount||0),0);
   const paid=(wrPaid.data||[]).reduce((a,r)=>a+(+r.amount||0),0);
