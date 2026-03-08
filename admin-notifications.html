@@ -375,8 +375,15 @@ async function init(){
   loadNotifs();
 }
 async function loadNotifs(){
-  const{data}=await sb.from('notifications').select('*,profiles(full_name)').order('created_at',{ascending:false}).limit(200);
-  allNotifs=data||[];renderNotifs();
+  const{data}=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(200);
+  const userIds=[...new Set((data||[]).map(n=>n.user_id).filter(Boolean))];
+  let profileMap={};
+  if(userIds.length){
+    const{data:profs}=await sb.from('profiles').select('id,full_name').in('id',userIds);
+    (profs||[]).forEach(p=>profileMap[p.id]=p);
+  }
+  allNotifs=(data||[]).map(n=>({...n,profiles:profileMap[n.user_id]||{}}));
+  renderNotifs();
 }
 function filterNotif(f,btn){fNotif=f;document.querySelectorAll('.filter-bar .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderNotifs();}
 function renderNotifs(){
