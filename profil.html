@@ -414,7 +414,7 @@
     </div>
     <div class="pc-title" id="planTitle">Passe à Premium</div>
     <div class="pc-features" id="planFeatures">
-      <div class="pc-feat">🆓 5 annonces gratuites / mois</div>
+      <div class="pc-feat">🆓 10 annonces gratuites / mois</div>
       <div class="pc-feat">❌ Pas de mise en avant</div>
       <div class="pc-feat">❌ Pas de badge vendeur vérifié</div>
     </div>
@@ -906,7 +906,7 @@ function updatePremiumCard() {
     badge.className   = 'pc-badge-free';
     badge.textContent = 'Compte Gratuit';
     title.textContent = 'Passe à Premium';
-    feats.innerHTML   = '<div class="pc-feat">🆓 5 annonces gratuites / mois</div><div class="pc-feat">❌ Pas de mise en avant</div><div class="pc-feat">❌ Pas de badge vendeur vérifié</div>';
+    feats.innerHTML   = '<div class="pc-feat">🆓 10 annonces gratuites / mois</div><div class="pc-feat">❌ Pas de mise en avant</div><div class="pc-feat">❌ Pas de badge vendeur vérifié</div>';
     desc.innerHTML    = 'Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.';
     btn.className     = 'pc-btn pc-btn-upgrade';
     btn.textContent   = '👑 Passer Premium — Mobile Money';
@@ -1226,5 +1226,7 @@ function showToast(msg, type) {
    FIN — L'IIFE ci-dessus s'auto-exécute
 ═══════════════════════════════════════════════ */
 </script>
+
+<script src="push.js"></script>
 </body>
 </html>
