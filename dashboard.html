@@ -399,7 +399,7 @@ var EM = { immobilier:'🏠', vehicules:'🚗', electronique:'📱', mode:'👗'
 var NOTE_LBL = ['','😞 Très mauvais','😕 Mauvais','😐 Moyen','😊 Bien','🤩 Excellent !'];
 
 /* ════════════════════════════════════════════
-   ★ QUOTA MENSUEL — 5 annonces gratuites/mois
+   ★ QUOTA MENSUEL — 10 annonces gratuites/mois
 ════════════════════════════════════════════ */
 async function loadQuotaMensuel() {
   try {
@@ -412,7 +412,7 @@ async function loadQuotaMensuel() {
       .gte('created_at', debutMois);
 
     var used  = res.count || 0;
-    var max   = 5;
+    var max   = 10;
     var reste = Math.max(0, max - used);
     var pct   = Math.min(100, Math.round(used / max * 100));
 
@@ -431,7 +431,7 @@ async function loadQuotaMensuel() {
       /* Griser le bouton Publier */
       var qp = document.getElementById('qPublier');
       if (qp) { qp.style.opacity='.45'; qp.style.pointerEvents='none'; }
-    } else if (used >= 3) {
+    } else if (used >= 7) {
       bar.style.background = 'linear-gradient(90deg,var(--orange),#FFA040)';
       document.getElementById('quotaMsg').innerHTML = '⚠️ Plus que <strong>' + reste + '</strong> annonce(s) gratuite(s) ce mois.';
       document.getElementById('quotaCta').style.display = 'flex';
@@ -914,7 +914,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
         var nbCeMois = (countRes.count) || 0;
         if (nbCeMois >= 5) {
-          toast('🚫 Limite mensuelle atteinte — 5 annonces gratuites/mois. Passe à Premium 👑 pour publier sans limite !', 'warning');
+          toast('🚫 Limite mensuelle atteinte — 10 annonces gratuites/mois. Passe à Premium 👑 pour publier sans limite !', 'warning');
           btn.disabled=false; btn.classList.remove('loading');
           return;
         }
@@ -937,6 +937,8 @@ document.addEventListener('DOMContentLoaded',function(){
       document.getElementById('uploadPh').style.display='';
       document.getElementById('uploadZone').classList.remove('has-img');
       toast('Annonce publiée avec succès ! 🎉','success');
+      // Notification temps réel
+      await _sb.from('notifications').insert([{user_id:currentUser.id,title:'Annonce publiée ✅',message:'Votre annonce est en ligne et visible par tous.',icon:'📢',type:'success',url:'/dashboard.html'}]);
     }catch(err){
       console.error('Publish:',err);toast('Erreur : '+(err.message||'Inconnue'),'error');
     }finally{btn.disabled=false;btn.classList.remove('loading');}
@@ -956,5 +958,7 @@ document.addEventListener('DOMContentLoaded',function(){
   init();
 });
 </script>
+
+<script src="push.js"></script>
 </body>
 </html>
