@@ -161,6 +161,40 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
 .ec-go{flex:1;padding:.44rem .55rem;border-radius:12px;border:none;background:linear-gradient(135deg,#C8901A,#F5B731);color:#080E2A;font-family:"Clash Display",sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;}
 .ec-cls{padding:.44rem .55rem;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);font-size:.66rem;cursor:pointer;}
 @media(min-width:600px){.ads-grid{grid-template-columns:repeat(3,1fr);}}
+
+/* ── BANNIÈRE BOUTIQUE ──────────────────────────────── */
+#boutiqueBanner{
+  margin:.7rem 1.2rem .2rem;
+  background:linear-gradient(135deg,#1B3FE4 0%,#00C2B7 100%);
+  border-radius:18px;
+  padding:1.1rem 1.2rem 1rem;
+  color:white;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 6px 24px rgba(27,63,228,.25);
+  animation:boutiqueSlideIn .45s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes boutiqueSlideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+#boutiqueBanner::before{
+  content:'🏪';
+  position:absolute;right:-10px;top:-10px;
+  font-size:5rem;opacity:.12;
+  transform:rotate(-10deg);
+  pointer-events:none;
+}
+.bb-label{font-size:.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.75;margin-bottom:.2rem;}
+.bb-title{font-size:1rem;font-weight:800;line-height:1.2;margin-bottom:.25rem;}
+.bb-sub{font-size:.73rem;opacity:.85;line-height:1.5;margin-bottom:.75rem;}
+.bb-actions{display:flex;gap:.5rem;flex-wrap:wrap;}
+.bb-btn-main{padding:.48rem 1.1rem;border-radius:99px;background:white;color:#1B3FE4;font-size:.78rem;font-weight:800;border:none;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.bb-btn-main:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.2);}
+.bb-btn-later{padding:.48rem 1rem;border-radius:99px;background:rgba(255,255,255,.18);color:white;font-size:.76rem;font-weight:600;border:1px solid rgba(255,255,255,.3);cursor:pointer;transition:all .2s;}
+.bb-btn-later:hover{background:rgba(255,255,255,.28);}
+.bb-close{position:absolute;top:.55rem;right:.7rem;background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer;padding:.2rem .4rem;border-radius:6px;line-height:1;}
+.bb-close:hover{color:white;background:rgba(255,255,255,.15);}
+/* Variante si boutique déjà créée */
+#boutiqueBanner.has-shop{background:linear-gradient(135deg,#00a896 0%,#00C2B7 100%);}
+
 </style>
 </head>
 <body>
@@ -214,20 +248,17 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
   </div>
 </div>
 
-<!-- ★ BANNIÈRE QUOTA MENSUEL — visible uniquement pour les comptes gratuits -->
-<div id="quotaBanner" style="display:none;margin:.6rem 1.2rem;background:white;border-radius:16px;border:1.5px solid var(--border);padding:.85rem 1rem;box-shadow:0 2px 10px rgba(27,63,228,.06);">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
-    <div style="font-size:.78rem;font-weight:700;color:var(--dark);">📋 Annonces ce mois</div>
-    <div id="quotaLabel" style="font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;color:var(--blue2);">0 / 5</div>
-  </div>
-  <div style="height:7px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border);margin-bottom:.5rem;">
-    <div id="quotaBar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--turq));transition:width .6s ease;width:0%"></div>
-  </div>
-  <div id="quotaMsg" style="font-size:.68rem;color:var(--gray);">Tu peux publier encore <strong id="quotaReste">5</strong> annonce(s) ce mois gratuitement.</div>
-  <!-- CTA Premium si limite proche -->
-  <div id="quotaCta" style="display:none;margin-top:.5rem;background:linear-gradient(135deg,rgba(27,63,228,.08),rgba(0,194,183,.06));border:1px solid rgba(27,63,228,.15);border-radius:10px;padding:.55rem .8rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="location.href='pricing.html'">
-    <div style="font-size:.72rem;font-weight:700;color:var(--blue2);">👑 Annonces illimitées → Premium</div>
-    <div style="font-size:.72rem;font-weight:700;color:var(--blue2);">2 000 FCFA/mois →</div>
+<!-- quota card supprimé -->
+
+<!-- ★ BANNIÈRE BOUTIQUE — visible à chaque connexion -->
+<div id="boutiqueBanner" style="display:none;">
+  <button class="bb-close" onclick="dismissBoutiqueBanner()" title="Fermer">✕</button>
+  <div class="bb-label" id="bbLabel">🆕 Nouveau</div>
+  <div class="bb-title" id="bbTitle">Créez votre boutique en ligne !</div>
+  <div class="bb-sub" id="bbSub">Vendez vos produits directement sur AfriMarket. Gratuit, sans carte bancaire requise.</div>
+  <div class="bb-actions">
+    <button class="bb-btn-main" id="bbBtnMain" onclick="location.href='boutique-manager.html'">🚀 Créer ma boutique</button>
+    <button class="bb-btn-later" onclick="dismissBoutiqueBanner()">Plus tard</button>
   </div>
 </div>
 
@@ -655,7 +686,6 @@ async function init() {
     if (prof.is_premium) premiumSet.add(currentUser.id);
 
     /* ★ Afficher le quota mensuel pour les comptes gratuits */
-    if (!userIsPremium) loadQuotaMensuel();
 
     var avBtn=document.getElementById('avatarBtn');
     if (prof.avatar_url){
@@ -670,7 +700,8 @@ async function init() {
     document.getElementById('welcomeName').textContent=em2;
     document.getElementById('avatarBtn').textContent=em2.charAt(0).toUpperCase();
   }
-  loadAds();
+  initBoutiqueBanner();
+    loadAds();
   initNotifBadge();
   setupNotifRealtime();
 }
@@ -957,6 +988,34 @@ document.addEventListener('DOMContentLoaded',function(){
 
   init();
 });
+
+// ── BANNIÈRE BOUTIQUE (chaque connexion) ─────────────
+async function initBoutiqueBanner() {
+  try {
+    var res = await _sb.from('boutiques').select('id,actif').eq('user_id', currentUser.id).maybeSingle();
+    var shop = res.data;
+    var banner = document.getElementById('boutiqueBanner');
+    if (!banner) return;
+
+    if (shop) {
+      // Boutique existante → inviter à la gérer
+      banner.classList.add('has-shop');
+      document.getElementById('bbLabel').textContent  = '🏪 Ta boutique';
+      document.getElementById('bbTitle').textContent  = shop.actif ? 'Ta boutique est en ligne ✅' : 'Ta boutique est désactivée';
+      document.getElementById('bbSub').textContent    = shop.actif
+        ? 'Gère tes produits, consulte tes commandes et avis clients.'
+        : 'Réactive-la pour que tes clients puissent te trouver.';
+      document.getElementById('bbBtnMain').textContent = '📦 Gérer ma boutique';
+    }
+    banner.style.display = 'block';
+  } catch(e) { console.warn('boutiqueBanner:', e); }
+}
+
+function dismissBoutiqueBanner() {
+  var b = document.getElementById('boutiqueBanner');
+  if (b) { b.style.animation = 'none'; b.style.opacity='0'; b.style.transform='translateY(-8px)'; b.style.transition='all .25s'; setTimeout(()=>b.remove(),260); }
+}
+
 </script>
 
 <script src="push.js"></script>
