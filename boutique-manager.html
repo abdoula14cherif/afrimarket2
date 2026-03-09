@@ -784,11 +784,8 @@ var editingProductId = null;
     var pr = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
     P = pr.data || {};
 
-    if(!P.plan){
-      mgrReady();
-      setMsg('Plan requis. <a href="pricing.html" style="color:var(--gold);font-weight:700">Passer Elite 2500F/mois</a>','warn');
-      return;
-    }
+    // Lancement : boutique accessible à tous les utilisateurs connectés
+    // P.plan est utilisé uniquement pour les limites freemium ci-dessous
 
     mgrLoading('Chargement de ta boutique…');
     var shopRes = await sb.from('boutiques').select('*').eq('user_id',U.id).maybeSingle();
@@ -878,6 +875,33 @@ function renderAll(){
 function renderInfo(){
   var el = document.getElementById('infoContent');
   if(!el) return;
+  var _optPm = P && (P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite');
+  if (!_optPm) { SHOP.show_branding = true; }
+  var _optLock = _optPm ? '' : 'opacity:.5;pointer-events:none;';
+  var _optPremBadge = _optPm ? '' : ' <span style="font-size:.62rem;background:linear-gradient(135deg,#F5B731,#c98a00);color:white;padding:.18rem .45rem;border-radius:99px;font-weight:700;">⭐ Premium</span>';
+  var _optBrandRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F3F7;&#xFE0F; Badge AfriMarket'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Visible en bas de ta boutique' : 'Inclus dans le plan gratuit') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleBranding" '+(_optPm?(SHOP.show_branding!==false?'checked':''):'checked')+' '+ (_optPm?'onchange="SHOP.show_branding=this.checked"':'disabled') +'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+  var _optActifRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F512; Désactiver la boutique'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Rend ta boutique invisible aux visiteurs' : 'Disponible avec Premium') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleActif" '+(_optPm?(SHOP.actif!==false?'checked':''):'checked')+' '+(_optPm?'onchange="SHOP.actif=this.checked"':'disabled')+'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+
   el.innerHTML =
     '<div class="card">' +
       '<div class="card-title">&#x1F5BC;&#xFE0F; Visuels</div>' +
@@ -956,6 +980,33 @@ function renderDesign(){
     '</div>';
   }).join('');
 
+  var _optPm = P && (P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite');
+  if (!_optPm) { SHOP.show_branding = true; }
+  var _optLock = _optPm ? '' : 'opacity:.5;pointer-events:none;';
+  var _optPremBadge = _optPm ? '' : ' <span style="font-size:.62rem;background:linear-gradient(135deg,#F5B731,#c98a00);color:white;padding:.18rem .45rem;border-radius:99px;font-weight:700;">⭐ Premium</span>';
+  var _optBrandRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F3F7;&#xFE0F; Badge AfriMarket'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Visible en bas de ta boutique' : 'Inclus dans le plan gratuit') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleBranding" '+(_optPm?(SHOP.show_branding!==false?'checked':''):'checked')+' '+ (_optPm?'onchange="SHOP.show_branding=this.checked"':'disabled') +'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+  var _optActifRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F512; Désactiver la boutique'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Rend ta boutique invisible aux visiteurs' : 'Disponible avec Premium') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleActif" '+(_optPm?(SHOP.actif!==false?'checked':''):'checked')+' '+(_optPm?'onchange="SHOP.actif=this.checked"':'disabled')+'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+
   el.innerHTML =
     '<div class="card">' +
       '<div class="card-title">&#x1F3A8; Couleurs</div>' +
@@ -969,26 +1020,8 @@ function renderDesign(){
     '</div>' +
     '<div class="card">' +
       '<div class="card-title">&#x2699;&#xFE0F; Options</div>' +
-      '<div class="toggle-row">' +
-        '<div class="toggle-info">' +
-          '<div class="toggle-title">&#x1F3F7;&#xFE0F; Badge AfriMarket</div>' +
-          '<div class="toggle-sub">Visible en bas de ta boutique</div>' +
-        '</div>' +
-        '<label class="toggle">' +
-          '<input type="checkbox" id="toggleBranding" '+(SHOP.show_branding!==false?'checked':'')+' onchange="SHOP.show_branding=this.checked"/>' +
-          '<span class="toggle-track"></span>' +
-        '</label>' +
-      '</div>' +
-      '<div class="toggle-row">' +
-        '<div class="toggle-info">' +
-          '<div class="toggle-title">&#x2705; Boutique active</div>' +
-          '<div class="toggle-sub">Visible par les visiteurs</div>' +
-        '</div>' +
-        '<label class="toggle">' +
-          '<input type="checkbox" id="toggleActif" '+(SHOP.actif!==false?'checked':'')+' onchange="SHOP.actif=this.checked"/>' +
-          '<span class="toggle-track"></span>' +
-        '</label>' +
-      '</div>' +
+      _optBrandRow +
+      _optActifRow +
     '</div>';
 }
 
@@ -1033,10 +1066,17 @@ function selectFont(key, el){
 function renderProduits(){
   var el = document.getElementById('produitsContent');
   if(!el) return;
-  var cnt = PRODUCTS.length, max = 30;
+  var isPremium = P && (P.plan === 'premium' || P.plan === 'premium_annual' || P.plan === 'elite');
+  var max = isPremium ? 9999 : 10;
+  var cnt = PRODUCTS.length;
+  var limiteBadge = isPremium ? '' :
+    ' <span style="font-size:.65rem;background:rgba(245,183,49,.15);color:#9a6e00;padding:.18rem .55rem;border-radius:99px;font-weight:700;">Gratuit : '+cnt+'/'+max+'</span>';
   var html = '<div class="prod-header">' +
-    '<div class="prod-count">Produits\u00a0: <span>'+cnt+'/'+max+'</span></div>' +
-    '<button class="btn-add-prod" onclick="openProdModal(null)"'+(cnt>=max?' disabled':'')+'>&#x2795; Ajouter</button>' +
+    '<div class="prod-count">Produits' + limiteBadge + '</div>' +
+    (cnt >= max && !isPremium
+      ? '<a href="pricing.html" style="padding:.42rem .9rem;border-radius:10px;background:linear-gradient(135deg,#F5B731,#c98a00);color:white;font-size:.74rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>'
+      : '<button class="btn-add-prod" onclick="openProdModal(null)">&#x2795; Ajouter</button>'
+    ) +
   '</div>';
   if(!cnt){
     html += '<div class="empty-prods"><div class="em-ico">&#x1F4E6;</div><div class="em-txt">Aucun produit.<br/>Ajoute ton premier article\u00a0!</div></div>';
