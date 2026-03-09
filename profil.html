@@ -271,7 +271,29 @@
     .pay-btn.loading .pay-lbl{display:none;}
     @keyframes pspin{to{transform:rotate(360deg)}}
     .pay-secure{text-align:center;font-size:.63rem;color:var(--gray);margin-top:.5rem;}
-  </style>
+  
+/* ── BANNIÈRE BOUTIQUE PROFIL ────────────────────────── */
+#boutiqueBanner{
+  margin:.8rem 1rem .3rem;
+  background:linear-gradient(135deg,#1B3FE4 0%,#00C2B7 100%);
+  border-radius:18px;padding:1.1rem 1.2rem 1rem;color:white;
+  position:relative;overflow:hidden;
+  box-shadow:0 6px 24px rgba(27,63,228,.25);
+  animation:bbIn .45s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes bbIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+#boutiqueBanner::before{content:'🏪';position:absolute;right:-8px;top:-8px;font-size:5rem;opacity:.1;transform:rotate(-10deg);pointer-events:none;}
+#boutiqueBanner.has-shop{background:linear-gradient(135deg,#00a896 0%,#00C2B7 100%);}
+.bb-label{font-size:.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.75;margin-bottom:.2rem;}
+.bb-title{font-size:1rem;font-weight:800;line-height:1.2;margin-bottom:.25rem;}
+.bb-sub{font-size:.73rem;opacity:.85;line-height:1.5;margin-bottom:.75rem;}
+.bb-actions{display:flex;gap:.5rem;flex-wrap:wrap;}
+.bb-btn-main{padding:.48rem 1.1rem;border-radius:99px;background:white;color:#1B3FE4;font-size:.78rem;font-weight:800;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.bb-btn-later{padding:.48rem 1rem;border-radius:99px;background:rgba(255,255,255,.18);color:white;font-size:.76rem;font-weight:600;border:1px solid rgba(255,255,255,.3);cursor:pointer;}
+.bb-close{position:absolute;top:.55rem;right:.7rem;background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer;padding:.2rem .4rem;border-radius:6px;line-height:1;}
+.bb-close:hover{color:white;}
+
+</style>
 </head>
 <body>
 
@@ -650,8 +672,16 @@ async function lancerPaiement() {
         item_ref:U.id, payment_ref:ref, notify_url:MONETBIL_NOTIFY, return_url:window.location.href,
         onComplete:function(data) {
           if (data&&data.status==='success') {
-            showToast('🎉 Paiement confirmé ! Activation en cours…','success');
-            setTimeout(async function(){ var fr=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle(); if(fr.data){P=Object.assign({},P,fr.data);updateHero();updatePremiumCard();} if(P.is_premium)showToast('👑 Premium activé !','success'); }, 3500);
+            showToast('✅ Paiement reçu ! Activation sous 24h par l\'administrateur.','success');
+            // Mettre la demande en statut "pending" — l'admin active manuellement
+            // Pas d'auto-activation : l'admin valide dans le tableau de bord admin
+            document.getElementById('premCard') && document.getElementById('premCard').querySelector && (function(){
+              var msg = document.createElement('div');
+              msg.style.cssText = 'margin-top:.8rem;padding:.75rem 1rem;background:rgba(245,183,49,.12);border:1px solid rgba(245,183,49,.3);border-radius:12px;font-size:.78rem;line-height:1.6;color:#7a5500;';
+              msg.innerHTML = '⏳ <strong>Paiement reçu.</strong><br>Ton compte Premium sera activ\u00e9 par l\'administrateur sous 24h. Tu recevras une notification d\u00e8s l\'activation.';
+              var card = document.getElementById('premCard');
+              if (card) card.insertAdjacentElement('afterend', msg);
+            })();
           } else showToast('Paiement annulé ou échoué','warning');
         }
       });
@@ -713,6 +743,7 @@ function cancelPlan() {
   var meta = U.user_metadata || {};
   P = { full_name:meta.full_name||meta.name||U.email.split('@')[0], email:U.email, avatar_url:meta.avatar_url||'' };
   fillForm(); updateHero();
+  initBoutiqueBanner();
 
   try {
     var pr = await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
@@ -724,7 +755,8 @@ function cancelPlan() {
     }
   } catch(e) { console.warn('Profile fetch:',e.message); }
 
-  fillForm(); updateHero(); updateCompletion(); updatePremiumCard();
+  fillForm(); updateHero();
+  initBoutiqueBanner(); updateCompletion(); updatePremiumCard();
   loadStats(); loadMyAds(); loadMyAvis(U.id); loadUnreadMessages();
   loadMyServices(); loadNotifications(); setupRealtime();
 })();
@@ -1225,8 +1257,46 @@ function showToast(msg, type) {
 /* ═══════════════════════════════════════════════
    FIN — L'IIFE ci-dessus s'auto-exécute
 ═══════════════════════════════════════════════ */
+
+// ── BANNIÈRE BOUTIQUE (chaque connexion) ─────────────
+async function initBoutiqueBanner() {
+  try {
+    var res = await _sb.from('boutiques').select('id,actif').eq('user_id', U.id).maybeSingle();
+    var shop = res.data;
+    var banner = document.getElementById('boutiqueBanner');
+    if (!banner) return;
+    if (shop) {
+      banner.classList.add('has-shop');
+      document.getElementById('bbLabel').textContent  = '🏪 Ta boutique';
+      document.getElementById('bbTitle').textContent  = shop.actif ? 'Ta boutique est en ligne ✅' : 'Ta boutique est désactivée';
+      document.getElementById('bbSub').textContent    = shop.actif
+        ? 'Gère tes produits, commandes et avis clients.'
+        : 'Réactive-la pour que tes clients puissent te trouver.';
+      document.getElementById('bbBtnMain').textContent = '📦 Gérer ma boutique';
+    }
+    banner.style.display = 'block';
+  } catch(e) { console.warn('boutiqueBanner:', e); }
+}
+function dismissBoutiqueBanner() {
+  var b = document.getElementById('boutiqueBanner');
+  if (b) { b.style.transition='all .25s'; b.style.opacity='0'; b.style.transform='translateY(-8px)'; setTimeout(()=>b.remove(),260); }
+}
+
 </script>
 
 <script src="push.js"></script>
 </body>
+
+<!-- ★ BANNIÈRE BOUTIQUE — visible à chaque connexion -->
+<div id="boutiqueBanner" style="display:none;">
+  <button class="bb-close" onclick="dismissBoutiqueBanner()">✕</button>
+  <div class="bb-label" id="bbLabel">🆕 Nouveau</div>
+  <div class="bb-title" id="bbTitle">Créez votre boutique en ligne !</div>
+  <div class="bb-sub" id="bbSub">Vendez vos produits directement sur AfriMarket. Gratuit, sans carte bancaire requise.</div>
+  <div class="bb-actions">
+    <button class="bb-btn-main" id="bbBtnMain" onclick="location.href='boutique-manager.html'">🚀 Créer ma boutique</button>
+    <button class="bb-btn-later" onclick="dismissBoutiqueBanner()">Plus tard</button>
+  </div>
+</div>
+
 </html>
