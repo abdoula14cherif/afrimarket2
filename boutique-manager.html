@@ -541,6 +541,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* ── MODAL PRODUIT ── */
 .modal-ov{position:fixed;inset:0;background:rgba(13,17,23,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s;}
 .modal-ov.open{opacity:1;pointer-events:all;}
+.modal-ov.open .modal-sheet{transform:translateY(0);}
 .modal-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);padding:1.4rem 1.2rem calc(1.6rem + env(safe-area-inset-bottom));}
 .modal-ov.open .modal-sheet{transform:translateY(0);}
 .modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.2rem;}
@@ -1319,21 +1320,38 @@ async function saveProd(){
   var pos = editingProductId
     ? ((PRODUCTS.find(function(x){return x.id===editingProductId;})||{position:0}).position)
     : PRODUCTS.length;
+  // Champs extras (nécessitent boutique_upgrade.sql exécuté)
+  var skuEl    = document.getElementById('pSku');
+  var weightEl = document.getElementById('pWeight');
+  var tagsEl   = document.getElementById('pTags');
+  var skuVal2    = skuEl    ? skuEl.value.trim()    : '';
+  var weightVal2 = weightEl ? weightEl.value.trim() : '';
+  var tagsVal2   = tagsEl   ? tagsEl.value.trim().split(',').map(function(t){return t.trim();}).filter(Boolean) : [];
   var payload = {
     boutique_id:SHOP.id, user_id:U.id, name:name, description:desc,
     price:price, promo_price:promo||null, image_url:imgSrc,
     category:cat, stock:stock, disponible:dispo, position:pos,
     updated_at:new Date().toISOString()
   };
+  if(skuVal2)    payload.sku    = skuVal2;
+  if(weightVal2) payload.weight = weightVal2;
+  if(tagsVal2.length) payload.tags = tagsVal2;
+  if(EXTRA_IMAGES && EXTRA_IMAGES.length) payload.images = EXTRA_IMAGES;
   try {
     var res;
     if(editingProductId){
-      res = await sb.from('boutique_products').update(payload).eq('id',editingProductId).select().single();
+      // Ne pas inclure user_id dans le UPDATE (évite conflits RLS)
+      var updatePayload = Object.assign({}, payload);
+      delete updatePayload.user_id;
+      delete updatePayload.boutique_id;
+      res = await sb.from('boutique_products').update(updatePayload).eq('id',editingProductId).select().single();
       if(res.error) throw res.error;
       var idx2 = PRODUCTS.findIndex(function(x){return x.id===editingProductId;});
       if(idx2>-1) PRODUCTS[idx2]=res.data;
     } else {
-      if(PRODUCTS.length>=30){ toast('Maximum 30 produits','warning'); return; }
+      var _isFreeLimit = !P || !(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite');
+      var _maxProd = _isFreeLimit ? 10 : 9999;
+      if(PRODUCTS.length >= _maxProd){ toast('Maximum '+_maxProd+' produits (plan gratuit). Passe à Premium pour plus.','warning'); return; }
       res = await sb.from('boutique_products').insert(payload).select().single();
       if(res.error) throw res.error;
       PRODUCTS.push(res.data);
