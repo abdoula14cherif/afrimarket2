@@ -5,425 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Ma Boutique — AfriMarket</title>
 <link rel="manifest" href="/manifest.json"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js">
-
-// ════════════════════════════════════════════════════════════
-// ── STATS ──────────────────────────────────────────────────
-// ════════════════════════════════════════════════════════════
-async function renderStats() {
-  var el = document.getElementById('statsContent');
-  if (!el) return;
-  el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.8rem">Chargement...</div>';
-
-  var boutId = SHOP.id;
-  var [orders, reviews] = await Promise.all([
-    sb.from('boutique_orders').select('total,status,created_at').eq('boutique_id', boutId),
-    sb.from('boutique_reviews').select('rating,approved').eq('boutique_id', boutId)
-  ]);
-
-  var allOrders = orders.data || [];
-  var allRevs   = reviews.data || [];
-
-  // KPIs
-  var totalOrders = allOrders.length;
-  var revenue     = allOrders.filter(o=>o.status==='delivered').reduce((a,o)=>a+(+o.total||0), 0);
-  var pending     = allOrders.filter(o=>o.status==='new'||o.status==='confirmed').length;
-  var avgRating   = allRevs.length ? (allRevs.reduce((a,r)=>a+(+r.rating||5),0)/allRevs.length).toFixed(1) : '—';
-  var views       = SHOP.views || 0;
-
-  // Orders by day (last 7 days)
-  var dayMap = {};
-  for(var i=6;i>=0;i--){
-    var d = new Date(); d.setDate(d.getDate()-i);
-    var key = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
-    dayMap[key] = 0;
-  }
-  allOrders.forEach(function(o){
-    var d = new Date(o.created_at);
-    var key = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
-    if(dayMap[key]!==undefined) dayMap[key]++;
-  });
-
-  // Status breakdown
-  var statuses = {new:0,confirmed:0,shipped:0,delivered:0,cancelled:0};
-  allOrders.forEach(function(o){ if(statuses[o.status]!==undefined) statuses[o.status]++; });
-
-  // Top products
-  var prodCount = {};
-  allOrders.forEach(function(o){
-    (o.items||[]).forEach(function(it){ prodCount[it.name]=(prodCount[it.name]||0)+(+it.qty||1); });
-  });
-  var topProds = Object.entries(prodCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  var maxProd  = topProds[0] ? topProds[0][1] : 1;
-
-  // ── Render ──
-  var daysMax = Math.max(...Object.values(dayMap), 1);
-
-  el.innerHTML =
-    '<div class="stats-row">' +
-      '<div class="stat-box blue"><div class="sb-val">'+views+'</div><div class="sb-lbl">👁 Vues boutique</div></div>' +
-      '<div class="stat-box green"><div class="sb-val">'+totalOrders+'</div><div class="sb-lbl">📦 Commandes</div></div>' +
-      '<div class="stat-box gold"><div class="sb-val">'+pending+'</div><div class="sb-lbl">⏳ En attente</div></div>' +
-      '<div class="stat-box red"><div class="sb-val">'+(revenue>0?Math.round(revenue/1000)+'k':0)+'</div><div class="sb-lbl">💰 Revenus (FCFA)</div></div>' +
-      '<div class="stat-box blue"><div class="sb-val">'+(allRevs.length>0?avgRating:'—')+'</div><div class="sb-lbl">⭐ Note moyenne</div></div>' +
-    '</div>' +
-
-    // Statuts
-    '<div class="chart-bar-wrap">' +
-      '<div class="chart-title">📊 Commandes par statut</div>' +
-      Object.entries({new:'🆕 Nouvelles',confirmed:'✅ Confirmées',shipped:'🚚 Expédiées',delivered:'🎉 Livrées',cancelled:'❌ Annulées'}).map(function(e){
-        var count = statuses[e[0]];
-        var pct   = totalOrders ? Math.round(count/totalOrders*100) : 0;
-        return '<div class="chart-bar-row">' +
-          '<span class="chart-bar-label">'+e[1]+'</span>' +
-          '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%"></div></div>' +
-          '<span class="chart-bar-val">'+count+'</span>' +
-        '</div>';
-      }).join('') +
-    '</div>' +
-
-    // Activité 7 jours
-    '<div class="chart-bar-wrap">' +
-      '<div class="chart-title">📅 Commandes (7 derniers jours)</div>' +
-      Object.entries(dayMap).map(function(e){
-        var pct = Math.round(e[1]/daysMax*100);
-        return '<div class="chart-bar-row">' +
-          '<span class="chart-bar-label">'+e[0]+'</span>' +
-          '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%"></div></div>' +
-          '<span class="chart-bar-val">'+e[1]+'</span>' +
-        '</div>';
-      }).join('') +
-    '</div>' +
-
-    // Top produits
-    (topProds.length ? '<div class="chart-bar-wrap">' +
-      '<div class="chart-title">🔥 Produits les plus commandés</div>' +
-      topProds.map(function(e){
-        var pct = Math.round(e[1]/maxProd*100);
-        return '<div class="chart-bar-row">' +
-          '<span class="chart-bar-label">'+esc(e[0])+'</span>' +
-          '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--accent),#00e5d8)"></div></div>' +
-          '<span class="chart-bar-val">×'+e[1]+'</span>' +
-        '</div>';
-      }).join('') +
-    '</div>' : '') +
-
-    '<div style="font-size:.7rem;color:var(--gray);text-align:center;margin-top:.5rem">Mis à jour à ' +
-      new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) +
-    '</div>';
-}
-
-// ════════════════════════════════════════════════════════════
-// ── COMMANDES ──────────────────────────────────────────────
-// ════════════════════════════════════════════════════════════
-var ALL_ORDERS = [], ORDER_FILTER = 'all';
-
-async function renderCommandes() {
-  var el = document.getElementById('commandesContent');
-  if (!el) return;
-  el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.8rem">Chargement...</div>';
-
-  var res = await sb.from('boutique_orders')
-    .select('*')
-    .eq('boutique_id', SHOP.id)
-    .order('created_at', {ascending: false});
-
-  ALL_ORDERS = res.data || [];
-  renderOrderList();
-}
-
-function renderOrderList() {
-  var el = document.getElementById('commandesContent');
-  if (!el) return;
-  var list = ORDER_FILTER === 'all' ? ALL_ORDERS : ALL_ORDERS.filter(function(o){ return o.status === ORDER_FILTER; });
-
-  var STATUS_LABELS = {new:'🆕 Nouvelle',confirmed:'✅ Confirmée',shipped:'🚚 Expédiée',delivered:'🎉 Livrée',cancelled:'❌ Annulée'};
-  var STATUS_CLASS  = {new:'status-new',confirmed:'status-confirmed',shipped:'status-shipped',delivered:'status-delivered',cancelled:'status-cancelled'};
-
-  var filterHtml = '<div class="order-filter-row">' +
-    '<button class="ofb'+(ORDER_FILTER==='all'?' active':'')+'" onclick="setOrderFilter('all')">Toutes ('+ALL_ORDERS.length+')</button>' +
-    '<button class="ofb'+(ORDER_FILTER==='new'?' active':'')+'" onclick="setOrderFilter('new')">🆕 Nouvelles ('+ALL_ORDERS.filter(o=>o.status==='new').length+')</button>' +
-    '<button class="ofb'+(ORDER_FILTER==='confirmed'?' active':'')+'" onclick="setOrderFilter('confirmed')">✅ Confirmées</button>' +
-    '<button class="ofb'+(ORDER_FILTER==='shipped'?' active':'')+'" onclick="setOrderFilter('shipped')">🚚 Expédiées</button>' +
-    '<button class="ofb'+(ORDER_FILTER==='delivered'?' active':'')+'" onclick="setOrderFilter('delivered')">🎉 Livrées</button>' +
-  '</div>';
-
-  if (!list.length) {
-    el.innerHTML = filterHtml + '<div style="text-align:center;padding:2.5rem;color:var(--gray);font-size:.82rem"><div style="font-size:2.5rem;opacity:.2">📦</div>Aucune commande</div>';
-    return;
-  }
-
-  var cardsHtml = list.map(function(o) {
-    var date = new Date(o.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-    var items = (o.items||[]);
-    var statusClass = STATUS_CLASS[o.status] || 'status-new';
-    var statusLabel = STATUS_LABELS[o.status] || o.status;
-
-    var itemsHtml = items.map(function(it){
-      return '<div class="order-item-row"><span>'+esc(it.name)+' ×'+it.qty+'</span><span>'+Number(it.subtotal||0).toLocaleString('fr-FR')+' F</span></div>';
-    }).join('');
-
-    var promoHtml = o.promo_code ? '<div style="font-size:.72rem;color:var(--blue);margin-top:.3rem">🎟 Code: <strong>'+esc(o.promo_code)+'</strong> (-'+Number(o.discount||0).toLocaleString('fr-FR')+' F)</div>' : '';
-
-    var waLink = o.customer_wa
-      ? '<a href="https://wa.me/'+esc(o.customer_wa.replace(/\D/g,''))+'" target="_blank" class="rv-btn approve" style="text-decoration:none">💬 WhatsApp</a>'
-      : '';
-
-    var statusBtns = ['new','confirmed','shipped','delivered','cancelled'].map(function(s){
-      return '<button class="status-btn '+(o.status===s?'active ':'')+STATUS_CLASS[s]+'" onclick="setOrderStatus(''+o.id+'',''+s+'')">'+(STATUS_LABELS[s])+'</button>';
-    }).join('');
-
-    return '<div class="order-card">' +
-      '<div class="order-head" onclick="toggleOrderBody('ob-'+o.id+'')">' +
-        '<span class="order-num">#'+esc(o.order_number||o.id.slice(0,6).toUpperCase())+'</span>' +
-        '<span class="order-name">'+esc(o.customer_name||'Client')+'</span>' +
-        '<span class="'+statusClass+'" style="font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:99px;">'+statusLabel+'</span>' +
-        '<span class="order-total">'+Number(o.total||0).toLocaleString('fr-FR')+' F</span>' +
-        '<span class="order-date">'+date+'</span>' +
-      '</div>' +
-      '<div class="order-body" id="ob-'+o.id+'">' +
-        '<div class="order-items">' + itemsHtml + promoHtml + '</div>' +
-        (o.note ? '<div style="font-size:.75rem;color:var(--gray);margin-bottom:.5rem;font-style:italic">📝 '+esc(o.note)+'</div>' : '') +
-        '<div style="font-size:.72rem;color:var(--gray);margin-bottom:.5rem">📱 '+esc(o.customer_wa||'—')+'</div>' +
-        '<div class="order-status-row">' + statusBtns + '</div>' +
-        '<div style="display:flex;gap:.4rem;margin-top:.5rem;">'+waLink+'<button class="rv-btn del" onclick="deleteOrder(''+o.id+'')">🗑 Supprimer</button></div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-
-  el.innerHTML = filterHtml + cardsHtml;
-}
-
-function toggleOrderBody(id) {
-  var el = document.getElementById(id);
-  if (el) el.classList.toggle('open');
-}
-
-function setOrderFilter(f) {
-  ORDER_FILTER = f;
-  renderOrderList();
-}
-
-async function setOrderStatus(id, status) {
-  var res = await sb.from('boutique_orders').update({status: status, updated_at: new Date().toISOString()}).eq('id', id);
-  if (!res.error) {
-    ALL_ORDERS = ALL_ORDERS.map(function(o){ return o.id===id ? {...o, status: status} : o; });
-    renderOrderList();
-    toast('Statut mis à jour', 'success');
-  }
-}
-
-async function deleteOrder(id) {
-  if (!confirm('Supprimer cette commande ?')) return;
-  await sb.from('boutique_orders').delete().eq('id', id);
-  ALL_ORDERS = ALL_ORDERS.filter(function(o){ return o.id !== id; });
-  renderOrderList();
-  toast('Commande supprimée', 'success');
-}
-
-// ════════════════════════════════════════════════════════════
-// ── AVIS ───────────────────────────────────────────────────
-// ════════════════════════════════════════════════════════════
-var ALL_REVIEWS = [], REVIEW_FILTER = 'pending';
-
-async function renderAvis() {
-  var el = document.getElementById('avisContent');
-  if (!el) return;
-  el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.8rem">Chargement...</div>';
-
-  var res = await sb.from('boutique_reviews').select('*').eq('boutique_id', SHOP.id).order('created_at', {ascending: false});
-  ALL_REVIEWS = res.data || [];
-  renderReviewList();
-}
-
-function renderReviewList() {
-  var el = document.getElementById('avisContent');
-  if (!el) return;
-  var pending = ALL_REVIEWS.filter(function(r){ return !r.approved; }).length;
-  var list = REVIEW_FILTER === 'pending' ? ALL_REVIEWS.filter(function(r){ return !r.approved; })
-           : REVIEW_FILTER === 'approved' ? ALL_REVIEWS.filter(function(r){ return r.approved; })
-           : ALL_REVIEWS;
-
-  var filterHtml = '<div class="order-filter-row">' +
-    '<button class="ofb'+(REVIEW_FILTER==='pending'?' active':'')+'" onclick="setReviewFilter('pending')">⏳ En attente ('+pending+')</button>' +
-    '<button class="ofb'+(REVIEW_FILTER==='approved'?' active':'')+'" onclick="setReviewFilter('approved')">✅ Approuvés</button>' +
-    '<button class="ofb'+(REVIEW_FILTER==='all'?' active':'')+'" onclick="setReviewFilter('all')">Tous ('+ALL_REVIEWS.length+')</button>' +
-  '</div>';
-
-  if (!list.length) {
-    el.innerHTML = filterHtml + '<div style="text-align:center;padding:2.5rem;color:var(--gray);font-size:.82rem"><div style="font-size:2.5rem;opacity:.2">⭐</div>Aucun avis ici</div>';
-    return;
-  }
-
-  var cardsHtml = list.map(function(r) {
-    var stars = '★'.repeat(r.rating||5) + '☆'.repeat(5-(r.rating||5));
-    var date  = new Date(r.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
-    var prod  = PRODUCTS.find(function(p){ return p.id === r.product_id; });
-    return '<div class="review-card">' +
-      '<div style="flex:1;">' +
-        '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">' +
-          '<span class="review-author">'+esc(r.customer_name||'Anonyme')+'</span>' +
-          '<span class="review-stars">'+stars+'</span>' +
-          '<span class="review-date">'+date+'</span>' +
-          (!r.approved ? '<span class="review-pending-badge">⏳ En attente</span>' : '') +
-        '</div>' +
-        (prod ? '<div class="review-product">📦 '+esc(prod.name)+'</div>' : '') +
-        (r.comment ? '<div class="review-comment">'+esc(r.comment)+'</div>' : '<div style="font-size:.75rem;color:var(--gray);font-style:italic">Pas de commentaire</div>') +
-        '<div class="review-actions">' +
-          (!r.approved ? '<button class="rv-btn approve" onclick="approveReview(''+r.id+'')">✅ Approuver</button>' : '') +
-          (r.approved  ? '<button class="rv-btn reject" onclick="unapproveReview(''+r.id+'')">🚫 Masquer</button>' : '') +
-          '<button class="rv-btn del" onclick="deleteReview(''+r.id+'')">🗑 Supprimer</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-
-  el.innerHTML = filterHtml + cardsHtml;
-}
-
-function setReviewFilter(f) { REVIEW_FILTER = f; renderReviewList(); }
-
-async function approveReview(id) {
-  await sb.from('boutique_reviews').update({approved: true}).eq('id', id);
-  ALL_REVIEWS = ALL_REVIEWS.map(function(r){ return r.id===id ? {...r, approved:true} : r; });
-  renderReviewList(); toast('Avis approuvé ✅', 'success');
-}
-async function unapproveReview(id) {
-  await sb.from('boutique_reviews').update({approved: false}).eq('id', id);
-  ALL_REVIEWS = ALL_REVIEWS.map(function(r){ return r.id===id ? {...r, approved:false} : r; });
-  renderReviewList(); toast('Avis masqué', 'warning');
-}
-async function deleteReview(id) {
-  if (!confirm('Supprimer cet avis ?')) return;
-  await sb.from('boutique_reviews').delete().eq('id', id);
-  ALL_REVIEWS = ALL_REVIEWS.filter(function(r){ return r.id !== id; });
-  renderReviewList(); toast('Avis supprimé', 'success');
-}
-
-// ════════════════════════════════════════════════════════════
-// ── CODES PROMO ────────────────────────────────────────────
-// ════════════════════════════════════════════════════════════
-var ALL_PROMOS = [];
-
-async function renderPromos() {
-  var el = document.getElementById('promosContent');
-  if (!el) return;
-  el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.8rem">Chargement...</div>';
-  var res = await sb.from('boutique_promos').select('*').eq('boutique_id', SHOP.id).order('created_at', {ascending: false});
-  ALL_PROMOS = res.data || [];
-  renderPromoList();
-}
-
-function renderPromoList() {
-  var el = document.getElementById('promosContent');
-  if (!el) return;
-
-  var formHtml =
-    '<div class="card" style="margin-bottom:.9rem;">' +
-      '<div class="card-title">➕ Créer un code promo</div>' +
-      '<div class="f-row">' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">' +
-          '<div><div class="f-label">Code *</div><input class="f-input" id="promoCode" placeholder="EX: PROMO20" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/></div>' +
-          '<div><div class="f-label">Type</div><select class="f-input" id="promoType"><option value="percent">% Pourcentage</option><option value="fixed">FCFA fixe</option></select></div>' +
-          '<div><div class="f-label">Valeur *</div><input type="number" class="f-input" id="promoVal" placeholder="Ex: 10 ou 500"/></div>' +
-          '<div><div class="f-label">Commande min (FCFA)</div><input type="number" class="f-input" id="promoMin" placeholder="0 = sans minimum"/></div>' +
-          '<div><div class="f-label">Nb utilisations max</div><input type="number" class="f-input" id="promoMax" placeholder="100" value="100"/></div>' +
-          '<div><div class="f-label">Expire le</div><input type="date" class="f-input" id="promoExp"/></div>' +
-        '</div>' +
-      '</div>' +
-      '<button class="btn-save" style="width:100%;margin-top:.6rem;" onclick="savePromo()">💾 Créer le code promo</button>' +
-    '</div>';
-
-  if (!ALL_PROMOS.length) {
-    el.innerHTML = formHtml + '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.82rem"><div style="font-size:2rem;opacity:.2">🎟</div>Aucun code promo</div>';
-    return;
-  }
-
-  var promoCards = ALL_PROMOS.map(function(p) {
-    var valLabel = p.type === 'percent' ? '-'+p.value+'%' : '-'+Number(p.value).toLocaleString('fr-FR')+' F';
-    var exp      = p.expires_at ? 'Expire le '+new Date(p.expires_at).toLocaleDateString('fr-FR') : 'Sans expiration';
-    var minOrder = +p.min_order > 0 ? 'Min: '+Number(p.min_order).toLocaleString('fr-FR')+' F' : 'Sans minimum';
-    return '<div class="promo-card '+(p.actif?'':'promo-inactive')+'">' +
-      '<span class="promo-code-badge">'+esc(p.code)+'</span>' +
-      '<div class="promo-info">' +
-        '<div class="promo-val">'+valLabel+'</div>' +
-        '<div class="promo-meta">'+minOrder+' · '+exp+'</div>' +
-        '<div class="promo-uses">Utilisé: '+p.uses+' / '+p.max_uses+'</div>' +
-      '</div>' +
-      '<div class="promo-actions">' +
-        '<button class="rv-btn '+(p.actif?'reject':'approve')+'" onclick="togglePromo(''+p.id+'','+!p.actif+')">'+(p.actif?'⏸ Désact.':'▶ Activer')+'</button>' +
-        '<button class="rv-btn del" onclick="deletePromo(''+p.id+'')">🗑</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-
-  el.innerHTML = formHtml + promoCards;
-}
-
-async function savePromo() {
-  var code = (document.getElementById('promoCode')||{value:''}).value.trim().toUpperCase();
-  var val  = parseFloat((document.getElementById('promoVal')||{value:'0'}).value);
-  var type = (document.getElementById('promoType')||{value:'percent'}).value;
-  var min  = parseFloat((document.getElementById('promoMin')||{value:'0'}).value)||0;
-  var max  = parseInt((document.getElementById('promoMax')||{value:'100'}).value)||100;
-  var exp  = (document.getElementById('promoExp')||{value:''}).value;
-  if (!code) { toast('Code requis','error'); return; }
-  if (!val || val <= 0) { toast('Valeur invalide','error'); return; }
-  if (type==='percent' && val > 100) { toast('Max 100%','error'); return; }
-  var payload = {boutique_id:SHOP.id, code:code, type:type, value:val, min_order:min, max_uses:max, actif:true};
-  if (exp) payload.expires_at = new Date(exp).toISOString();
-  var res = await sb.from('boutique_promos').insert(payload).select().single();
-  if (res.error) { toast('Erreur: '+res.error.message,'error'); return; }
-  ALL_PROMOS.unshift(res.data);
-  renderPromoList();
-  toast('Code '+code+' créé ✅', 'success');
-}
-async function togglePromo(id, val) {
-  await sb.from('boutique_promos').update({actif:val}).eq('id',id);
-  ALL_PROMOS = ALL_PROMOS.map(function(p){ return p.id===id ? {...p,actif:val} : p; });
-  renderPromoList();
-}
-async function deletePromo(id) {
-  if (!confirm('Supprimer ce code promo ?')) return;
-  await sb.from('boutique_promos').delete().eq('id',id);
-  ALL_PROMOS = ALL_PROMOS.filter(function(p){ return p.id !== id; });
-  renderPromoList(); toast('Code supprimé','success');
-}
-
-// ════════════════════════════════════════════════════════════
-// ── MULTI-IMAGES PRODUIT ───────────────────────────────────
-// ════════════════════════════════════════════════════════════
-var EXTRA_IMAGES = [];  // array of URLs
-
-function renderExtraImages() {
-  var el = document.getElementById('extraImgsPreview');
-  if (!el) return;
-  if (!EXTRA_IMAGES.length) { el.innerHTML = '<span style="font-size:.72rem;color:var(--gray)">Aucune image supplémentaire</span>'; return; }
-  el.innerHTML = EXTRA_IMAGES.map(function(url, i) {
-    return '<div style="position:relative;display:inline-block;margin:.3rem;">' +
-      '<img src="'+esc(url)+'" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border)"/>' +
-      '<button onclick="removeExtraImg('+i+')" style="position:absolute;top:-5px;right:-5px;background:var(--red);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>' +
-    '</div>';
-  }).join('');
-}
-function removeExtraImg(i) { EXTRA_IMAGES.splice(i,1); renderExtraImages(); }
-
-async function uploadExtraImage(input) {
-  var file = input.files[0]; if (!file) return;
-  if (file.size > 3*1024*1024) { toast('Image max 3 Mo','error'); return; }
-  toast('Upload image...','info');
-  var ext  = file.name.split('.').pop();
-  var path = (U?U.id:'anon')+'/extra-'+Date.now()+'.'+ext;
-  var res  = await sb.storage.from('boutique-media').upload(path, file, {upsert:true});
-  if (res.error) { toast('Erreur upload','error'); return; }
-  var url = sb.storage.from('boutique-media').getPublicUrl(path).data.publicUrl;
-  EXTRA_IMAGES.push(url);
-  renderExtraImages();
-  toast('Image ajoutée ✅','success');
-  input.value='';
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root {
   --blue:#1B3FE4; --blue2:#4F6EFF; --turq:#00C2B7; --green:#00C271;
@@ -645,7 +227,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .tabs::-webkit-scrollbar{display:none;}
 .tab{white-space:nowrap;}
 
-</style>
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;margin-top:.5rem;}
+  </style>
 </head>
 <body>
 
@@ -1426,7 +1009,234 @@ function toast(msg, type){
   type=type||'success';
   var el=document.getElementById('toast');
   var cols={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
-  el.textContent=msg; el.style.borderLeftColor=cols[type]||cols.success;
+  el.style.borderColor={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'}[type]||'var(--blue2)';
+  el.classList.add('show',type);
+  clearTimeout(_tt);
+  _tt=setTimeout(function(){el.classList.remove('show',type);},4000);
+}
+
+function noSqlMsg(t){
+  return'<div style="margin:1rem;padding:1.4rem;background:white;border-radius:16px;border-left:4px solid var(--orange)">'
+    +'<div style="font-weight:800;margin-bottom:.4rem">Table manquante</div>'
+    +'<div style="font-size:.8rem;color:var(--gray);line-height:1.6">La table <code>'+t+'</code> '
+    +'n&#39;existe pas encore.<br>Execute <strong>boutique_upgrade.sql</strong> dans Supabase SQL Editor</div></div>';
+}
+function errBox(m){
+  return'<div style="margin:1rem;padding:1.2rem;background:white;border-radius:16px;border-left:4px solid var(--red)">'
+    +'<div style="font-weight:800;color:var(--red);margin-bottom:.3rem">Erreur</div>'
+    +'<div style="font-size:.78rem;color:var(--gray)">'+esc(m)+'</div></div>';
+}
+function emptyBox(ico,t,s){
+  return'<div style="text-align:center;padding:2.5rem 1rem">'
+    +'<div style="font-size:2.5rem;margin-bottom:.6rem">'+ico+'</div>'
+    +'<div style="font-weight:700;margin-bottom:.3rem">'+t+'</div>'
+    +'<div style="font-size:.78rem;color:var(--gray)">'+s+'</div></div>';
+}
+function statBox(lb,v,s2,col){
+  return'<div style="background:var(--bg);border-radius:14px;padding:.9rem;text-align:center">'
+    +'<div style="font-size:.72rem;color:var(--gray);margin-bottom:.3rem">'+lb+'</div>'
+    +'<div style="font-size:1.3rem;font-weight:800;color:'+col+'">'+v+'</div>'
+    +'<div style="font-size:.65rem;color:var(--gray);margin-top:.2rem">'+s2+'</div></div>';
+}
+
+async function renderStats(){
+  var el=document.getElementById('statsContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var oR=await sb.from('boutique_orders').select('total,status,created_at').eq('boutique_id',SHOP.id);
+    if(oR.error&&oR.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_orders');return;}
+    var ords=oR.data||[];
+    var rev=ords.filter(function(o){return o.status==='delivered';}).reduce(function(s,o){return s+(parseFloat(o.total)||0);},0);
+    var pend=ords.filter(function(o){return o.status==='new'||o.status==='confirmed';}).length;
+    var rR=await sb.from('boutique_reviews').select('rating').eq('boutique_id',SHOP.id);
+    var revs=rR.data||[];
+    var avg=revs.length?(revs.reduce(function(s,r){return s+(r.rating||0);},0)/revs.length).toFixed(1):'--';
+    var actifs=PRODUCTS.filter(function(p){return p.disponible!==false;}).length;
+    el.innerHTML=
+      '<div class="card"><div class="card-title">Statistiques</div>'
+      +'<div class="stats-grid">'
+      +statBox('Revenus',fmt(rev)+' F','livres','#1B3FE4')
+      +statBox('Commandes',ords.length,'total','#00C2B7')
+      +statBox('En attente',pend,'a traiter','#FF6B1A')
+      +statBox('Note moy.',avg,revs.length+' avis','#F5B731')
+      +statBox('Produits',actifs,'disponibles','#00C2B7')
+      +statBox('Vues',SHOP.views||0,'boutique','#2D55FF')
+      +'</div></div>'
+      +'<div class="card" style="margin-top:.8rem"><div class="card-title">5 dernieres commandes</div>'
+      +(ords.length===0
+        ?'<div style="text-align:center;padding:1.5rem;color:var(--gray);font-size:.82rem;">Aucune commande</div>'
+        :'<div style="font-size:.78rem">'+ords.slice(-5).reverse().map(function(o){
+            var d=new Date(o.created_at).toLocaleDateString('fr-FR');
+            var col={new:'#1B3FE4',confirmed:'#F5B731',shipped:'#FF6B1A',delivered:'#00C2B7',cancelled:'#e83030'}[o.status]||'#8892A8';
+            return'<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">'
+              +'<span>'+d+'</span><span style="color:'+col+';font-weight:700;font-size:.7rem">'+o.status+'</span>'
+              +'<span style="font-weight:700">'+fmt(o.total)+' F</span></div>';
+          }).join('')+'</div>'
+      )+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+
+async function renderCommandes(){
+  var el=document.getElementById('commandesContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var res=await sb.from('boutique_orders').select('*').eq('boutique_id',SHOP.id).order('created_at',{ascending:false});
+    if(res.error&&res.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_orders');return;}
+    var orders=res.data||[];
+    var nb=document.getElementById('nb-orders');
+    var nc=orders.filter(function(o){return o.status==='new';}).length;
+    if(nb){nb.textContent=nc;nb.style.display=nc?'inline':'none';}
+    if(orders.length===0){el.innerHTML=emptyBox('&#128230;','Aucune commande','Les commandes WhatsApp apparaitront ici.');return;}
+    var sL={new:'Nouveau',confirmed:'Confirme',shipped:'Expedie',delivered:'Livre',cancelled:'Annule'};
+    var sC={new:'#1B3FE4',confirmed:'#00C2B7',shipped:'#FF6B1A',delivered:'#00a86b',cancelled:'#e83030'};
+    el.innerHTML='<div class="card"><div class="card-title">Commandes ('+orders.length+')</div>'
+      +orders.map(function(o){
+        var items=Array.isArray(o.items)?o.items:[];
+        var d=new Date(o.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+        var color=sC[o.status]||'#8892A8'; var label=sL[o.status]||o.status;
+        return'<div style="border:1px solid var(--border);border-radius:14px;padding:.9rem;margin-bottom:.7rem;background:white">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">'
+          +'<div><div style="font-size:.8rem;font-weight:700">'+esc(o.customer_name||'Client')+'</div>'
+          +'<div style="font-size:.68rem;color:var(--gray)">'+d+' #'+(o.order_number||o.id.slice(0,8))+'</div></div>'
+          +'<span style="font-size:.68rem;font-weight:800;color:'+color+';background:'+color+'1A;padding:.2rem .55rem;border-radius:99px">'+label+'</span>'
+          +'</div>'
+          +(items.length?'<div style="font-size:.73rem;color:var(--gray);margin-bottom:.5rem">'+items.map(function(i){return esc(i.name||'?')+' x'+(i.qty||1);}).join(' - ')+'</div>':'')
+          +'<div style="display:flex;justify-content:space-between;align-items:center">'
+          +'<div style="font-size:.9rem;font-weight:800;color:var(--blue)">'+fmt(o.total)+' F</div>'
+          +'<div style="display:flex;gap:.4rem">'
+          +'<select onchange="updateOrderStatus(\'' +o.id+ '\',this.value)" style="font-size:.7rem;padding:.25rem .5rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer">'
+          +Object.keys(sL).map(function(s){return'<option value="'+s+'"'+(o.status===s?' selected':'')+'>'+sL[s]+'</option>';}).join('')
+          +'</select>'
+          +(o.customer_wa?'<a href="https://wa.me/'+o.customer_wa.replace(/\D/g,'')+'" target="_blank" style="padding:.25rem .55rem;border-radius:8px;background:#25D366;color:white;font-size:.7rem;font-weight:700;text-decoration:none">WA</a>':'')
+          +'</div></div></div>';
+      }).join('')+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+async function updateOrderStatus(id,status){
+  var res=await sb.from('boutique_orders').update({status:status,updated_at:new Date().toISOString()}).eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Statut mis a jour');renderCommandes();
+}
+
+async function renderAvis(){
+  var el=document.getElementById('avisContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var res=await sb.from('boutique_reviews').select('*').eq('boutique_id',SHOP.id).order('created_at',{ascending:false});
+    if(res.error&&res.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_reviews');return;}
+    var reviews=res.data||[];
+    var nb=document.getElementById('nb-reviews');
+    var pnd=reviews.filter(function(r){return !r.approved;}).length;
+    if(nb){nb.textContent=pnd;nb.style.display=pnd?'inline':'none';}
+    if(reviews.length===0){el.innerHTML=emptyBox('&#11088;','Aucun avis','Les avis de tes clients apparaitront ici.');return;}
+    el.innerHTML='<div class="card"><div class="card-title">Avis clients ('+reviews.length+')</div>'
+      +reviews.map(function(r){
+        var stars='&#11088;'.repeat(r.rating||5);
+        var d=new Date(r.created_at).toLocaleDateString('fr-FR');
+        return'<div style="border:1px solid var(--border);border-radius:14px;padding:.9rem;margin-bottom:.7rem;background:white">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">'
+          +'<div><div style="font-size:.8rem;font-weight:700">'+esc(r.customer_name||'Anonyme')+' <span style="font-size:.75rem">'+stars+'</span></div>'
+          +'<div style="font-size:.68rem;color:var(--gray)">'+d+'</div></div>'
+          +'<span style="font-size:.68rem;padding:.18rem .5rem;border-radius:99px;font-weight:700;'+(r.approved?'background:#00C2B71A;color:#00a86b':'background:#F5B7311A;color:#9a6e00')+'">'
+          +(r.approved?'Publie':'En attente')+'</span>'
+          +'</div>'
+          +(r.comment?'<div style="font-size:.8rem;color:var(--dark);line-height:1.5;margin-bottom:.6rem">&laquo;'+esc(r.comment)+'&raquo;</div>':'')
+          +'<div style="display:flex;gap:.4rem;justify-content:flex-end">'
+          +(!r.approved?'<button onclick="approveReview(\'' +r.id+ '\')" style="padding:.25rem .7rem;border-radius:8px;background:#00C2B7;color:white;border:none;font-size:.72rem;font-weight:700;cursor:pointer">Approuver</button>':'')
+          +'<button onclick="deleteReview(\'' +r.id+ '\')" style="padding:.25rem .7rem;border-radius:8px;background:#e830301A;color:#e83030;border:none;font-size:.72rem;font-weight:700;cursor:pointer">Supprimer</button>'
+          +'</div></div>';
+      }).join('')+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+async function approveReview(id){
+  var res=await sb.from('boutique_reviews').update({approved:true}).eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Avis publie');renderAvis();
+}
+async function deleteReview(id){
+  if(!confirm('Supprimer cet avis ?'))return;
+  var res=await sb.from('boutique_reviews').delete().eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Avis supprime');renderAvis();
+}
+
+async function renderPromos(){
+  var el=document.getElementById('promosContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var res=await sb.from('boutique_promos').select('*').eq('boutique_id',SHOP.id).order('created_at',{ascending:false});
+    if(res.error&&res.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_promos');return;}
+    var promos=res.data||[];
+    el.innerHTML=
+      '<div class="card"><div class="card-title">Creer un code promo</div>'
+      +'<div class="f-row"><label class="f-label">Code promo</label>'
+      +'<input class="f-input" id="promoCode" placeholder="Ex: NOEL20" maxlength="20" style="text-transform:uppercase"/></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Type</label>'
+      +'<select class="f-select" id="promoType"><option value="percent">% Reduction</option><option value="fixed">FCFA fixe</option></select></div>'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Valeur</label>'
+      +'<input class="f-input" id="promoVal" type="number" placeholder="Ex: 20" min="1"/></div></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.4rem">'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Commande min (FCFA)</label>'
+      +'<input class="f-input" id="promoMin" type="number" placeholder="0" min="0"/></div>'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Max utilisations</label>'
+      +'<input class="f-input" id="promoMaxUses" type="number" placeholder="100" min="1"/></div></div>'
+      +'<div class="f-row" style="margin-top:.4rem"><label class="f-label">Expiration (optionnel)</label>'
+      +'<input class="f-input" id="promoExpiry" type="date"/></div>'
+      +'<button class="btn-save" onclick="createPromo()" style="margin-top:.8rem;width:100%">Creer le code</button></div>'
+      +'<div class="card" style="margin-top:.8rem"><div class="card-title">Mes codes ('+promos.length+')</div>'
+      +(promos.length===0
+        ?'<div style="text-align:center;padding:1.2rem;color:var(--gray);font-size:.8rem;">Aucun code cree</div>'
+        :promos.map(function(p){
+            var expired=p.expires_at&&new Date(p.expires_at)<new Date();
+            return'<div style="border:1px solid var(--border);border-radius:14px;padding:.9rem;margin-bottom:.6rem;background:white'+(expired?';opacity:.6':'')+'">'
+              +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">'
+              +'<div style="font-family:monospace;font-size:1rem;font-weight:800;color:var(--blue)">'+esc(p.code)+'</div>'
+              +'<label class="toggle"><input type="checkbox"'+(p.actif?' checked':'')+' onchange="togglePromo(\'' +p.id+ '\',this.checked)"/>'
+              +'<span class="toggle-track"></span></label></div>'
+              +'<div style="font-size:.75rem;color:var(--gray);display:flex;gap:.8rem;flex-wrap:wrap">'
+              +'<span>'+(p.type==='percent'?p.value+'%':fmt(p.value)+' FCFA')+'</span>'
+              +(p.min_order?'<span>Min: '+fmt(p.min_order)+' F</span>':'')
+              +'<span>Utilise: '+(p.uses||0)+'/'+(p.max_uses||'inf')+'</span>'
+              +(p.expires_at?'<span>'+(expired?'Expire ':'Expire ')+new Date(p.expires_at).toLocaleDateString('fr-FR')+'</span>':'')
+              +'</div><div style="text-align:right;margin-top:.5rem">'
+              +'<button onclick="deletePromo(\'' +p.id+ '\')" style="padding:.22rem .6rem;border-radius:8px;background:#e830301A;color:#e83030;border:none;font-size:.7rem;cursor:pointer">Supprimer</button>'
+              +'</div></div>';
+          }).join('')
+      )+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+async function createPromo(){
+  var code=(document.getElementById('promoCode').value||'').trim().toUpperCase();
+  var type=document.getElementById('promoType').value;
+  var val=parseFloat(document.getElementById('promoVal').value);
+  var min=parseFloat(document.getElementById('promoMin').value)||0;
+  var maxU=parseInt(document.getElementById('promoMaxUses').value)||100;
+  var exp=document.getElementById('promoExpiry').value;
+  if(!code){toast('Code promo obligatoire','error');return;}
+  if(!val||val<=0){toast('Valeur obligatoire','error');return;}
+  var payload={boutique_id:SHOP.id,code:code,type:type,value:val,min_order:min,max_uses:maxU,uses:0,actif:true};
+  if(exp)payload.expires_at=new Date(exp).toISOString();
+  var res=await sb.from('boutique_promos').insert(payload);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Code promo cree');renderPromos();
+}
+async function togglePromo(id,active){
+  var res=await sb.from('boutique_promos').update({actif:active}).eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast(active?'Code active':'Code desactive');renderPromos();
+}
+async function deletePromo(id){
+  if(!confirm('Supprimer ce code promo ?'))return;
+  var res=await sb.from('boutique_promos').delete().eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Code supprime');renderPromos();
+}
+</script>erLeftColor=cols[type]||cols.success;
   el.classList.add('show'); clearTimeout(_tt);
   _tt=setTimeout(function(){ el.classList.remove('show'); },3500);
 }
