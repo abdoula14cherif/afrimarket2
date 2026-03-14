@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cashback — AfriMarket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{--dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;--gold:#F5B731;--red:#E83030;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--nav-h:72px;--orange:#FF6B1A;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);padding-bottom:calc(var(--nav-h)+1rem);}
+
+/* HEADER */
+.hdr{background:linear-gradient(145deg,#7a3a00 0%,#F5B731 55%,#FF6B1A 100%);padding:1.4rem 1.2rem 2.5rem;position:relative;overflow:hidden;}
+.hdr::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:28px 28px;}
+.hdr-back{display:inline-flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.8);font-size:.8rem;font-weight:600;background:rgba(255,255,255,.15);border:none;padding:.35rem .8rem;border-radius:99px;cursor:pointer;margin-bottom:1rem;position:relative;}
+.hdr-label{font-size:.62rem;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.65);position:relative;margin-bottom:.3rem;}
+.hdr-title{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;color:white;position:relative;margin-bottom:.4rem;}
+.hdr-sub{font-size:.8rem;color:rgba(255,255,255,.7);position:relative;}
+
+/* BALANCE CARD */
+.balance-card{background:white;border-radius:22px;margin:-1.5rem 1.2rem 0;padding:1.5rem;box-shadow:0 8px 32px rgba(245,183,49,.2);position:relative;overflow:hidden;}
+.balance-card::after{content:'🪙';position:absolute;right:1.2rem;top:50%;transform:translateY(-50%);font-size:4rem;opacity:.08;}
+.balance-label{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:.4rem;}
+.balance-amount{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;color:var(--dark);line-height:1;margin-bottom:.3rem;}
+.balance-coins{font-size:.78rem;color:var(--gray);margin-bottom:1.1rem;}
+.balance-coins span{color:var(--orange);font-weight:700;}
+.balance-actions{display:flex;gap:.7rem;}
+.btn-retrait{flex:1;padding:.65rem;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--orange));color:white;font-weight:700;font-size:.82rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;}
+.btn-histo{flex:1;padding:.65rem;border-radius:12px;background:var(--bg);color:var(--dark);font-weight:700;font-size:.82rem;border:1.5px solid var(--border);cursor:pointer;}
+
+/* COMMENT GAGNER */
+.content{padding:1.2rem;}
+.sect-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.8rem;color:var(--dark);}
+
+.earn-ways{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.2rem;}
+.earn-way{background:white;border-radius:16px;padding:.9rem;box-shadow:0 2px 10px rgba(8,14,42,.05);text-align:center;}
+.earn-way-ico{font-size:1.6rem;margin-bottom:.4rem;}
+.earn-way-pts{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--orange);}
+.earn-way-lbl{font-size:.68rem;color:var(--gray);margin-top:.15rem;line-height:1.4;}
+
+/* TAUX CONVERSION */
+.convert-card{background:linear-gradient(135deg,var(--dark),#1B3FE4);border-radius:18px;padding:1.2rem;margin-bottom:1.2rem;color:white;}
+.convert-title{font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.65;margin-bottom:.8rem;}
+.convert-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
+.convert-row:last-child{margin:0;}
+.convert-left{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;}
+.convert-right{font-size:.8rem;opacity:.75;}
+.convert-arrow{font-size:.9rem;opacity:.5;}
+
+/* HISTORIQUE */
+.histo-card{background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);}
+.histo-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.histo-info{flex:1;}
+.histo-note{font-weight:600;font-size:.82rem;}
+.histo-date{font-size:.68rem;color:var(--gray);margin-top:.1rem;}
+.histo-pts{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;}
+
+/* MODAL RETRAIT */
+.modal-ov{position:fixed;inset:0;background:rgba(8,14,42,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);}
+.modal-ov.open{display:flex;}
+.modal-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1.2,.64,1);}
+.modal-ov.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:38px;height:4px;border-radius:99px;background:var(--border);margin:0 auto 1.2rem;}
+.modal-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.3rem;}
+.modal-sub{font-size:.8rem;color:var(--gray);margin-bottom:1.2rem;line-height:1.5;}
+.f-group{margin-bottom:.9rem;}
+.f-label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--gray);margin-bottom:.35rem;}
+.f-input,.f-select{width:100%;padding:.65rem .85rem;border-radius:12px;border:1.5px solid var(--border);font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;background:var(--bg);color:var(--dark);outline:none;transition:border-color .2s;}
+.f-input:focus,.f-select:focus{border-color:var(--gold);}
+.montant-preview{background:var(--bg);border-radius:12px;padding:.8rem;text-align:center;margin-bottom:1rem;}
+.montant-preview-val{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
+.montant-preview-sub{font-size:.7rem;color:var(--gray);margin-top:.2rem;}
+.btn-confirm{width:100%;padding:.85rem;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--orange));color:white;font-weight:700;font-size:.92rem;border:none;cursor:pointer;}
+.btn-confirm:disabled{opacity:.5;}
+.btn-cancel-modal{width:100%;padding:.65rem;border-radius:14px;background:transparent;color:var(--gray);font-weight:600;font-size:.82rem;border:1px solid var(--border);cursor:pointer;margin-top:.6rem;}
+
+/* TABS */
+.tabs{display:flex;background:white;padding:.5rem 1.2rem;gap:.4rem;border-bottom:1px solid var(--border);}
+.tab-btn{flex:1;padding:.45rem .4rem;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:.73rem;font-weight:700;color:var(--gray);border-radius:9px;cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:linear-gradient(135deg,var(--gold),var(--orange));color:white;}
+
+.spin{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin:2rem auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-box{text-align:center;padding:2rem 1rem;}
+.empty-ico{font-size:2.5rem;margin-bottom:.5rem;}
+.empty-title{font-weight:700;margin-bottom:.25rem;}
+.empty-sub{font-size:.78rem;color:var(--gray);}
+#toast{position:fixed;bottom:calc(var(--nav-h)+1rem);left:50%;transform:translateX(-50%) translateY(10px);background:var(--dark);color:white;padding:.65rem 1.2rem;border-radius:12px;font-size:.8rem;font-weight:600;opacity:0;pointer-events:none;transition:all .3s;z-index:999;white-space:nowrap;max-width:90vw;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;background:none;border:none;cursor:pointer;padding:.4rem .6rem;border-radius:12px;flex:1;}
+.nav-ico{font-size:1.25rem;line-height:1;}
+.nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
+.nav-plus-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--turq));border:none;font-size:1.4rem;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(27,63,228,.35);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <button class="hdr-back" onclick="location.href='gagner.html'">← Retour</button>
+  <div class="hdr-label">Récompenses</div>
+  <h1 class="hdr-title">💸 Cashback AfriCoins</h1>
+  <p class="hdr-sub">Gagne des coins à chaque action, convertis-les en FCFA.</p>
+</div>
+
+<!-- BALANCE -->
+<div class="balance-card" id="balanceCard">
+  <div class="balance-label">Ton solde actuel</div>
+  <div class="balance-amount" id="balanceCoins">—</div>
+  <div class="balance-coins">AfriCoins · Valeur : <span id="balanceFcfa">—</span> FCFA</div>
+  <div class="balance-actions">
+    <button class="btn-retrait" onclick="openRetraitModal()">💳 Retirer en FCFA</button>
+    <button class="btn-histo" onclick="switchTab('historique')">📋 Historique</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" style="margin-top:1.2rem;">
+  <button class="tab-btn active" id="tabGagner2" onclick="switchTab('gagner2')">🪙 Comment gagner</button>
+  <button class="tab-btn" id="tabHistorique" onclick="switchTab('historique')">📋 Historique</button>
+  <button class="tab-btn" id="tabRetraits" onclick="switchTab('retraits')">💳 Retraits</button>
+</div>
+
+<div class="content">
+
+  <!-- COMMENT GAGNER -->
+  <div id="secGagner2">
+    <div class="sect-title">🪙 Comment gagner des AfriCoins</div>
+    <div class="earn-ways">
+      <div class="earn-way">
+        <div class="earn-way-ico">🛒</div>
+        <div class="earn-way-pts">+10 coins</div>
+        <div class="earn-way-lbl">Par achat dans une boutique</div>
+      </div>
+      <div class="earn-way">
+        <div class="earn-way-ico">📢</div>
+        <div class="earn-way-pts">+5 coins</div>
+        <div class="earn-way-lbl">Par annonce publiée</div>
+      </div>
+      <div class="earn-way">
+        <div class="earn-way-ico">👥</div>
+        <div class="earn-way-pts">+50 coins</div>
+        <div class="earn-way-lbl">Par ami parrainé inscrit</div>
+      </div>
+      <div class="earn-way">
+        <div class="earn-way-ico">🔐</div>
+        <div class="earn-way-pts">+2 coins</div>
+        <div class="earn-way-lbl">Par connexion quotidienne</div>
+      </div>
+      <div class="earn-way">
+        <div class="earn-way-ico">🎓</div>
+        <div class="earn-way-pts">+20 coins</div>
+        <div class="earn-way-lbl">Par formation achetée</div>
+      </div>
+      <div class="earn-way">
+        <div class="earn-way-ico">⭐</div>
+        <div class="earn-way-pts">+15 coins</div>
+        <div class="earn-way-lbl">Par avis laissé</div>
+      </div>
+    </div>
+
+    <div class="sect-title">💱 Taux de conversion</div>
+    <div class="convert-card">
+      <div class="convert-title">Table de conversion AfriCoins → FCFA</div>
+      <div class="convert-row">
+        <span class="convert-left">100 coins</span>
+        <span class="convert-arrow">→</span>
+        <span class="convert-right">500 FCFA</span>
+      </div>
+      <div class="convert-row">
+        <span class="convert-left">500 coins</span>
+        <span class="convert-arrow">→</span>
+        <span class="convert-right">2 500 FCFA</span>
+      </div>
+      <div class="convert-row">
+        <span class="convert-left">1 000 coins</span>
+        <span class="convert-arrow">→</span>
+        <span class="convert-right">5 000 FCFA</span>
+      </div>
+      <div class="convert-row">
+        <span class="convert-left">5 000 coins</span>
+        <span class="convert-arrow">→</span>
+        <span class="convert-right">25 000 FCFA</span>
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:14px;padding:1rem;box-shadow:0 2px 10px rgba(8,14,42,.05);">
+      <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;">ℹ️ Conditions de retrait</div>
+      <div style="font-size:.72rem;color:var(--gray);line-height:1.7;">
+        · Minimum 100 coins pour un retrait (= 500 FCFA)<br>
+        · Paiement via Mobile Money (MTN, Orange, Wave)<br>
+        · Délai de traitement : 24-48h ouvrables<br>
+        · Les coins ne expirent jamais<br>
+        · 1 retrait par semaine maximum
+      </div>
+    </div>
+
+    <!-- Bouton gagner des coins maintenant -->
+    <div style="margin-top:1rem;display:flex;gap:.6rem;">
+      <button onclick="gagnerCoinsConnexion()" style="flex:1;padding:.7rem;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--orange));color:white;font-weight:700;font-size:.82rem;border:none;cursor:pointer;">🎁 Coin du jour</button>
+      <button onclick="location.href='dashboard.html'" style="flex:1;padding:.7rem;border-radius:12px;background:var(--bg);color:var(--dark);font-weight:700;font-size:.82rem;border:1.5px solid var(--border);cursor:pointer;">🛒 Acheter &amp; gagner</button>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div id="secHistorique" style="display:none;">
+    <div id="listHistorique"><div class="spin"></div></div>
+  </div>
+
+  <!-- RETRAITS -->
+  <div id="secRetraits" style="display:none;">
+    <div id="listRetraits"><div class="spin"></div></div>
+  </div>
+
+</div>
+
+<!-- MODAL RETRAIT -->
+<div class="modal-ov" id="retraitModal" onclick="closeRetraitModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💳 Retirer mes AfriCoins</div>
+    <div class="modal-sub">Convertis tes coins en FCFA sur ton Mobile Money.</div>
+
+    <div class="f-group">
+      <label class="f-label">Nombre de coins à retirer</label>
+      <input class="f-input" id="retraitCoins" type="number" placeholder="Min. 100 coins" min="100" oninput="updateMontantPreview()"/>
+    </div>
+    <div class="montant-preview">
+      <div class="montant-preview-val" id="montantPreview">0 FCFA</div>
+      <div class="montant-preview-sub">Montant que tu recevras</div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">Opérateur Mobile Money</label>
+      <select class="f-select" id="retraitOp">
+        <option value="mtn">MTN Mobile Money</option>
+        <option value="orange">Orange Money</option>
+        <option value="wave">Wave</option>
+        <option value="moov">Moov Money</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label class="f-label">Numéro Mobile Money</label>
+      <input class="f-input" id="retraitNum" type="tel" placeholder="Ex: +237 6XX XXX XXX"/>
+    </div>
+    <button class="btn-confirm" id="btnConfirmRetrait" onclick="demanderRetrait()">✅ Confirmer le retrait</button>
+    <button class="btn-cancel-modal" onclick="closeRetraitModal()">Annuler</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+  <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--blue)">Gagner</span></button>
+  <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
+</nav>
+
+<script>
+'use strict';
+var sb = supabase.createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+var U = null;
+var TOTAL_COINS = 0;
+
+(async function(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){ location.href='index.html'; return; }
+  U = s.data.session.user;
+  loadBalance();
+})();
+
+function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
+var _tt;
+function toast(msg,type){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.className='show';
+  el.style.background=type==='error'?'var(--red)':type==='success'?'#00a86b':'var(--dark)';
+  clearTimeout(_tt); _tt=setTimeout(function(){el.className='';},3500);
+}
+
+function switchTab(t){
+  ['gagner2','historique','retraits'].forEach(function(x){
+    document.getElementById('sec'+x.charAt(0).toUpperCase()+x.slice(1)).style.display=x===t?'block':'none';
+    document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('active',x===t);
+  });
+  if(t==='historique') loadHistorique();
+  if(t==='retraits')   loadRetraits();
+}
+
+// ── BALANCE ──────────────────────────────────────────────────
+async function loadBalance(){
+  try{
+    var r = await sb.from('cashback_points').select('points').eq('user_id',U.id);
+    if(r.error&&r.error.code==='42P01'){
+      document.getElementById('balanceCoins').textContent='0';
+      document.getElementById('balanceFcfa').textContent='0';
+      console.warn('Table cashback_points manquante - execute earn_v3.sql');
+      return;
+    }
+    TOTAL_COINS = (r.data||[]).reduce(function(s,p){return s+(p.points||0);},0);
+    // Déduire les retraits en attente/validés
+    var rr = await sb.from('cashback_retraits').select('points,statut').eq('user_id',U.id);
+    var retires = (rr.data||[]).filter(function(x){return x.statut!=='refuse';}).reduce(function(s,x){return s+(x.points||0);},0);
+    var disponible = Math.max(0, TOTAL_COINS - retires);
+    document.getElementById('balanceCoins').textContent = fmt(disponible);
+    document.getElementById('balanceFcfa').textContent  = fmt(Math.floor(disponible/100)*500);
+  }catch(e){ console.warn(e.message); }
+}
+
+// ── COIN DU JOUR ─────────────────────────────────────────────
+async function gagnerCoinsConnexion(){
+  var today = new Date().toISOString().slice(0,10);
+  var lastKey = 'am_coin_day_'+U.id;
+  var lastDay = localStorage.getItem(lastKey);
+  if(lastDay===today){ toast('Tu as déjà récupéré ton coin du jour aujourd\'hui !','error'); return; }
+  try{
+    var r = await sb.from('cashback_points').insert({user_id:U.id,source:'connexion',points:2,note:'Connexion quotidienne '+today});
+    if(r.error) throw r.error;
+    localStorage.setItem(lastKey, today);
+    toast('+2 AfriCoins ! Reviens demain pour en gagner plus 🎉','success');
+    loadBalance();
+  }catch(e){ toast('Erreur: '+e.message,'error'); }
+}
+
+// ── HISTORIQUE ───────────────────────────────────────────────
+async function loadHistorique(){
+  var el = document.getElementById('listHistorique');
+  el.innerHTML='<div class="spin"></div>';
+  try{
+    var r = await sb.from('cashback_points').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(50);
+    if(r.error&&r.error.code==='42P01'){ el.innerHTML='<div class="empty-box"><div class="empty-ico">🪙</div><div class="empty-title">Table manquante</div><div class="empty-sub">Execute earn_v3.sql</div></div>'; return; }
+    var pts = r.data||[];
+    if(!pts.length){ el.innerHTML='<div class="empty-box"><div class="empty-ico">🪙</div><div class="empty-title">Aucune transaction</div><div class="empty-sub">Commence à gagner des coins dès maintenant !</div></div>'; return; }
+    var srcIcos={achat:'🛒',connexion:'🔐',parrainage:'👥',annonce:'📢',formation:'🎓',avis:'⭐',bonus:'🎁'};
+    var srcBg={achat:'#00C2711A',connexion:'#1B3FE41A',parrainage:'#7C3AED1A',annonce:'#F5B7311A',formation:'#7C3AED1A',avis:'#FF6B1A1A',bonus:'#F5B7311A'};
+    el.innerHTML=pts.map(function(p){
+      var d=new Date(p.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      var ico=srcIcos[p.source]||'🪙';
+      var bg=srcBg[p.source]||'#F5B7311A';
+      return'<div class="histo-card">'+
+        '<div class="histo-ico" style="background:'+bg+'">'+ico+'</div>'+
+        '<div class="histo-info">'+
+          '<div class="histo-note">'+(p.note||p.source)+'</div>'+
+          '<div class="histo-date">'+d+'</div>'+
+        '</div>'+
+        '<div class="histo-pts" style="color:var(--orange)">+'+p.points+'</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">'+e.message+'</div></div>'; }
+}
+
+// ── RETRAITS ─────────────────────────────────────────────────
+async function loadRetraits(){
+  var el = document.getElementById('listRetraits');
+  el.innerHTML='<div class="spin"></div>';
+  try{
+    var r = await sb.from('cashback_retraits').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
+    if(r.error&&r.error.code==='42P01'){ el.innerHTML='<div class="empty-box"><div class="empty-ico">💳</div><div class="empty-title">Table manquante</div><div class="empty-sub">Execute earn_v3.sql</div></div>'; return; }
+    var retraits = r.data||[];
+    if(!retraits.length){ el.innerHTML='<div class="empty-box"><div class="empty-ico">💳</div><div class="empty-title">Aucun retrait encore</div><div class="empty-sub">Accumule des coins et retire-les !</div></div>'; return; }
+    var stColors={en_attente:'#F5B731',traite:'#00C271',refuse:'#E83030'};
+    var stLabels={en_attente:'En attente',traite:'Payé ✅',refuse:'Refusé'};
+    el.innerHTML=retraits.map(function(r2){
+      var d=new Date(r2.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+      return'<div class="histo-card">'+
+        '<div class="histo-ico" style="background:#F5B7311A">💳</div>'+
+        '<div class="histo-info">'+
+          '<div class="histo-note">'+fmt(r2.montant_fcfa)+' FCFA</div>'+
+          '<div class="histo-date">'+r2.points+' coins · '+d+'</div>'+
+        '</div>'+
+        '<span style="font-size:.65rem;font-weight:800;padding:.18rem .55rem;border-radius:99px;background:'+stColors[r2.statut]+'22;color:'+stColors[r2.statut]+'">'+stLabels[r2.statut]+'</span>'+
+      '</div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">'+e.message+'</div></div>'; }
+}
+
+// ── MODAL RETRAIT ─────────────────────────────────────────────
+function openRetraitModal(){ document.getElementById('retraitModal').classList.add('open'); }
+function closeRetraitModal(){ document.getElementById('retraitModal').classList.remove('open'); }
+
+function updateMontantPreview(){
+  var coins = parseInt(document.getElementById('retraitCoins').value)||0;
+  var fcfa = Math.floor(coins/100)*500;
+  document.getElementById('montantPreview').textContent = fmt(fcfa)+' FCFA';
+}
+
+async function demanderRetrait(){
+  var coins  = parseInt(document.getElementById('retraitCoins').value)||0;
+  var op     = document.getElementById('retraitOp').value;
+  var num    = document.getElementById('retraitNum').value.trim();
+  if(coins<100){ toast('Minimum 100 coins pour un retrait','error'); return; }
+  if(!num){ toast('Numéro Mobile Money obligatoire','error'); return; }
+  if(coins>TOTAL_COINS){ toast('Solde insuffisant','error'); return; }
+  var fcfa = Math.floor(coins/100)*500;
+  var btn = document.getElementById('btnConfirmRetrait');
+  btn.disabled=true; btn.textContent='Envoi...';
+  try{
+    var r = await sb.from('cashback_retraits').insert({
+      user_id:U.id, points:coins, montant_fcfa:fcfa, statut:'en_attente',
+      note:op+' '+num
+    });
+    if(r.error) throw r.error;
+    closeRetraitModal();
+    toast('Demande de retrait envoyée ! Traitement sous 24-48h.','success');
+    loadBalance();
+    switchTab('retraits');
+  }catch(e){ toast('Erreur: '+e.message,'error'); }
+  finally{ btn.disabled=false; btn.textContent='✅ Confirmer le retrait'; }
+}
+</script>
+</body>
+</html>
