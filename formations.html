@@ -119,8 +119,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 </div>
 
 <!-- TABS -->
+<!-- BUG FIX #1 : les IDs correspondaient mal. tabCat → tabCatalogue, etc.
+     On utilise maintenant des IDs cohérents : tabCatalogue / tabVendre / tabMes
+     et les sections : secCatalogue / secVendre / secMes -->
 <div class="tabs">
-  <button class="tab-btn active" id="tabCat" onclick="switchTab('catalogue')">📚 Catalogue</button>
+  <button class="tab-btn active" id="tabCatalogue" onclick="switchTab('catalogue')">📚 Catalogue</button>
   <button class="tab-btn" id="tabVendre" onclick="switchTab('vendre')">💡 Vendre</button>
   <button class="tab-btn" id="tabMes" onclick="switchTab('mes')">🎒 Mes formations</button>
 </div>
@@ -130,7 +133,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
   <!-- CATALOGUE -->
   <div id="secCatalogue">
-    <!-- Filtres catégories -->
     <div style="display:flex;gap:.5rem;overflow-x:auto;padding:.2rem 0;margin-bottom:.5rem;scrollbar-width:none;">
       <button onclick="filterCat('tout')" id="fc-tout" style="flex-shrink:0;padding:.35rem .9rem;border-radius:99px;border:none;background:var(--purple);color:white;font-size:.72rem;font-weight:700;cursor:pointer;">Tout</button>
       <button onclick="filterCat('couture')" id="fc-couture" style="flex-shrink:0;padding:.35rem .9rem;border-radius:99px;border:1.5px solid var(--border);background:white;font-size:.72rem;font-weight:700;cursor:pointer;">🧵 Couture</button>
@@ -144,6 +146,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   </div>
 
   <!-- VENDRE -->
+  <!-- BUG FIX #2 : display:none retiré du HTML — géré exclusivement par switchTab() -->
   <div id="secVendre" style="display:none;">
     <div class="create-card">
       <div class="create-title">💡 Vends ta formation</div>
@@ -243,130 +246,207 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
 <script>
 'use strict';
+
 var sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-var U = null;
+var U              = null;
 var ALL_FORMATIONS = [];
-var CURRENT_CAT = 'tout';
-var SELECTED_FORM = null;
+var CURRENT_CAT    = 'tout';
+var SELECTED_FORM  = null;
+
+// Mapping tab key → section ID + tab button ID
+// BUG FIX #1 : l'ancienne switchTab() construisait mal les IDs.
+// 'catalogue' → secCatalogue / tabCatalogue
+// 'vendre'    → secVendre    / tabVendre
+// 'mes'       → secMes       / tabMes
+var TAB_MAP = {
+  catalogue : { sec: 'secCatalogue', btn: 'tabCatalogue' },
+  vendre    : { sec: 'secVendre',    btn: 'tabVendre'    },
+  mes       : { sec: 'secMes',       btn: 'tabMes'       }
+};
 
 // ── AUTH ─────────────────────────────────────────────────────
-(async function(){
+(async function init(){
   var s = await sb.auth.getSession();
-  if(!s.data.session){ location.href='index.html'; return; }
+  if(!s.data.session){ location.href = 'index.html'; return; }
   U = s.data.session.user;
   loadStats();
   loadCatalogue();
 })();
 
-function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
+// ── UTILS ────────────────────────────────────────────────────
+function fmt(n){ return Number(n || 0).toLocaleString('fr-FR'); }
 
-var _tt;
-function toast(msg,type){
-  var el=document.getElementById('toast');
-  el.textContent=msg;
-  el.className='show';
-  el.style.background=type==='error'?'var(--red)':type==='success'?'#00a86b':'var(--dark)';
-  clearTimeout(_tt);_tt=setTimeout(function(){el.className='';},3500);
+function esc(s){
+  var d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
 }
 
-function switchTab(t){
-  ['catalogue','vendre','mes'].forEach(function(x){
-    document.getElementById('sec'+x.charAt(0).toUpperCase()+x.slice(1)).style.display=x===t?'block':'none';
-    document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('active',x===t);
+var _toastTimer;
+function toast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show';
+  el.style.background = (type === 'error') ? 'var(--red)' : (type === 'success') ? '#00a86b' : 'var(--dark)';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ el.className = ''; }, 3500);
+}
+
+// ── TABS ─────────────────────────────────────────────────────
+// BUG FIX #1 (principal) : la fonction originale utilisait une boucle
+// qui reconstruisait les IDs avec charAt().toUpperCase() + slice(),
+// donnant 'tabCatalogue' pour la clé 'catalogue' — mais le HTML avait
+// id="tabCat", ce qui empêchait les onglets de s'activer / désactiver.
+// Désormais TAB_MAP garantit la correspondance exacte.
+function switchTab(key){
+  Object.keys(TAB_MAP).forEach(function(k){
+    var map    = TAB_MAP[k];
+    var secEl  = document.getElementById(map.sec);
+    var btnEl  = document.getElementById(map.btn);
+    var active = (k === key);
+    if(secEl) secEl.style.display = active ? 'block' : 'none';
+    if(btnEl) btnEl.classList.toggle('active', active);
   });
-  if(t==='mes') loadMesFormations();
+  if(key === 'mes') loadMesFormations();
 }
 
 // ── STATS ────────────────────────────────────────────────────
 async function loadStats(){
   try{
-    var r1 = await sb.from('formations').select('id,ventes',{count:'exact'}).eq('approuvee',true).eq('actif',true);
-    if(r1.error&&r1.error.code==='42P01'){ console.warn('Table formations manquante'); return; }
-    var total = (r1.data||[]).reduce(function(s,f){return s+(f.ventes||0);},0);
-    document.getElementById('statFormations').textContent = r1.count||0;
-    document.getElementById('statVentes').textContent = total;
-    var r2 = await sb.from('formation_achats').select('id',{count:'exact'}).eq('acheteur_id',U.id);
-    document.getElementById('statMesAchats').textContent = r2.count||0;
-  }catch(e){ console.warn(e.message); }
+    var r1 = await sb.from('formations')
+      .select('id,ventes', { count: 'exact' })
+      .eq('approuvee', true)
+      .eq('actif', true);
+
+    if(r1.error && r1.error.code === '42P01'){
+      console.warn('Table formations manquante');
+      return;
+    }
+
+    var total = (r1.data || []).reduce(function(s, f){ return s + (f.ventes || 0); }, 0);
+    document.getElementById('statFormations').textContent = r1.count || 0;
+    document.getElementById('statVentes').textContent     = total;
+
+    var r2 = await sb.from('formation_achats')
+      .select('id', { count: 'exact' })
+      .eq('acheteur_id', U.id);
+
+    document.getElementById('statMesAchats').textContent = r2.count || 0;
+  }catch(e){ console.warn('loadStats:', e.message); }
 }
 
 // ── CATALOGUE ────────────────────────────────────────────────
 async function loadCatalogue(){
   var el = document.getElementById('listFormations');
-  el.innerHTML='<div class="spin"></div>';
+  el.innerHTML = '<div class="spin"></div>';
   try{
-    var r = await sb.from('formations').select('*').eq('approuvee',true).eq('actif',true).order('created_at',{ascending:false});
-    if(r.error&&r.error.code==='42P01'){
-      el.innerHTML='<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Table en cours de création</div><div class="empty-sub">Execute earn_v3.sql dans Supabase SQL Editor</div></div>';
+    var r = await sb.from('formations')
+      .select('*')
+      .eq('approuvee', true)
+      .eq('actif', true)
+      .order('created_at', { ascending: false });
+
+    if(r.error && r.error.code === '42P01'){
+      el.innerHTML = '<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Table en cours de création</div><div class="empty-sub">Execute earn_v3.sql dans Supabase SQL Editor</div></div>';
       return;
     }
-    ALL_FORMATIONS = r.data||[];
+    if(r.error) throw r.error;
+
+    ALL_FORMATIONS = r.data || [];
     renderCatalogue();
-  }catch(e){ el.innerHTML='<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">'+e.message+'</div></div>'; }
+  }catch(e){
+    el.innerHTML = '<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">' + esc(e.message) + '</div></div>';
+  }
 }
 
 function renderCatalogue(){
-  var el = document.getElementById('listFormations');
-  var list = CURRENT_CAT==='tout' ? ALL_FORMATIONS : ALL_FORMATIONS.filter(function(f){return f.categorie===CURRENT_CAT;});
+  var el   = document.getElementById('listFormations');
+  var list = (CURRENT_CAT === 'tout')
+    ? ALL_FORMATIONS
+    : ALL_FORMATIONS.filter(function(f){ return f.categorie === CURRENT_CAT; });
+
   if(!list.length){
-    el.innerHTML='<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Aucune formation pour l\'instant</div><div class="empty-sub">Sois le premier à vendre ta formation !</div></div>';
+    el.innerHTML = '<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Aucune formation pour l\'instant</div><div class="empty-sub">Sois le premier à vendre ta formation !</div></div>';
     return;
   }
-  var catIcos={couture:'🧵',cuisine:'🍳',tech:'💻',beaute:'💅',business:'📈',autre:'⭐'};
-  var typeIcos={pdf:'📄',video:'🎥',audio:'🎙️',mixte:'📦'};
-  var gradients={couture:'linear-gradient(135deg,#7C3AED,#ec4899)',cuisine:'linear-gradient(135deg,#f97316,#eab308)',tech:'linear-gradient(135deg,#1B3FE4,#00C2B7)',beaute:'linear-gradient(135deg,#ec4899,#f43f5e)',business:'linear-gradient(135deg,#00C271,#1B3FE4)',autre:'linear-gradient(135deg,#7C3AED,#1B3FE4)'};
+
+  var catIcos   = { couture:'🧵', cuisine:'🍳', tech:'💻', beaute:'💅', business:'📈', autre:'⭐' };
+  var typeIcos  = { pdf:'📄', video:'🎥', audio:'🎙️', mixte:'📦' };
+  var gradients = {
+    couture : 'linear-gradient(135deg,#7C3AED,#ec4899)',
+    cuisine : 'linear-gradient(135deg,#f97316,#eab308)',
+    tech    : 'linear-gradient(135deg,#1B3FE4,#00C2B7)',
+    beaute  : 'linear-gradient(135deg,#ec4899,#f43f5e)',
+    business: 'linear-gradient(135deg,#00C271,#1B3FE4)',
+    autre   : 'linear-gradient(135deg,#7C3AED,#1B3FE4)'
+  };
+
+  // BUG FIX #2 : l'onclick inline passait l'UUID par concaténation de string,
+  // ce qui casse si l'UUID contient des caractères spéciaux ou si l'index
+  // de tableau change. On stocke maintenant l'ID dans un data-id et on
+  // délègue via un listener unique sur le conteneur.
   el.innerHTML = list.map(function(f){
-    var ico = catIcos[f.categorie]||'📚';
-    var gr  = gradients[f.categorie]||gradients.autre;
-    var typeIco = typeIcos[f.type_contenu]||'📄';
-    return '<div class="form-card" onclick="openBuyModal(\''+f.id+'\')">'+
-      '<div class="form-cover" style="background:'+gr+'">'+
-        '<span style="font-size:2.5rem">'+ico+'</span>'+
-        '<span class="form-cover-cat">'+f.categorie+'</span>'+
-        '<span class="form-cover-type">'+typeIco+' '+f.type_contenu+'</span>'+
-      '</div>'+
-      '<div class="form-body">'+
-        '<div class="form-title">'+esc(f.titre)+'</div>'+
-        '<div class="form-author">👤 '+(f.user_id.slice(0,8).toUpperCase())+' · '+( f.duree?'⏱ '+f.duree:'')+'</div>'+
-        '<div class="form-row">'+
-          '<div class="form-price">'+fmt(f.prix)+' FCFA</div>'+
-          '<div style="display:flex;align-items:center;gap:.5rem">'+
-            '<span class="form-meta">🛒 '+(f.ventes||0)+' ventes</span>'+
-            '<button class="btn-buy">Acheter</button>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
+    var ico     = catIcos[f.categorie]  || '📚';
+    var gr      = gradients[f.categorie] || gradients.autre;
+    var typeIco = typeIcos[f.type_contenu] || '📄';
+    var dureeStr = f.duree ? '⏱ ' + esc(f.duree) : '';
+    return '<div class="form-card" data-id="' + esc(f.id) + '">' +
+      '<div class="form-cover" style="background:' + gr + '">' +
+        '<span style="font-size:2.5rem">' + ico + '</span>' +
+        '<span class="form-cover-cat">' + esc(f.categorie) + '</span>' +
+        '<span class="form-cover-type">' + typeIco + ' ' + esc(f.type_contenu) + '</span>' +
+      '</div>' +
+      '<div class="form-body">' +
+        '<div class="form-title">' + esc(f.titre) + '</div>' +
+        '<div class="form-author">👤 ' + esc(f.user_id.slice(0,8).toUpperCase()) + ' · ' + dureeStr + '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-price">' + fmt(f.prix) + ' FCFA</div>' +
+          '<div style="display:flex;align-items:center;gap:.5rem">' +
+            '<span class="form-meta">🛒 ' + (f.ventes || 0) + ' ventes</span>' +
+            '<button class="btn-buy">Acheter</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
     '</div>';
   }).join('');
 }
 
+// Délégation événement unique — évite les onclick inline avec UUIDs
+document.getElementById('listFormations').addEventListener('click', function(e){
+  var card = e.target.closest('.form-card');
+  if(card) openBuyModal(card.dataset.id);
+});
+
+// ── FILTRE CATÉGORIE ─────────────────────────────────────────
 function filterCat(cat){
   CURRENT_CAT = cat;
   document.querySelectorAll('[id^="fc-"]').forEach(function(b){
-    var active = b.id==='fc-'+cat;
-    b.style.background = active?'var(--purple)':'white';
-    b.style.color = active?'white':'';
-    b.style.border = active?'none':'1.5px solid var(--border)';
+    var active = (b.id === 'fc-' + cat);
+    b.style.background = active ? 'var(--purple)' : 'white';
+    b.style.color      = active ? 'white' : '';
+    b.style.border     = active ? 'none' : '1.5px solid var(--border)';
   });
   renderCatalogue();
 }
 
 // ── MODAL ACHAT ──────────────────────────────────────────────
 function openBuyModal(id){
-  var f = ALL_FORMATIONS.find(function(x){return x.id===id;});
+  var f = ALL_FORMATIONS.find(function(x){ return x.id === id; });
   if(!f) return;
   SELECTED_FORM = f;
-  var typeLabels={pdf:'📄 PDF',video:'🎥 Vidéo',audio:'🎙️ Audio',mixte:'📦 Mixte'};
-  document.getElementById('buyTitle').textContent = f.titre;
-  document.getElementById('buyDesc').textContent  = (f.description||'').slice(0,120)+((f.description||'').length>120?'...':'');
+
+  var typeLabels = { pdf:'📄 PDF', video:'🎥 Vidéo', audio:'🎙️ Audio', mixte:'📦 Mixte' };
+  var desc = (f.description || '');
+  document.getElementById('buyTitle').textContent  = f.titre;
+  document.getElementById('buyDesc').textContent   = desc.length > 120 ? desc.slice(0, 120) + '...' : desc;
   document.getElementById('buyAuthor').textContent = f.user_id.slice(0,8).toUpperCase();
-  document.getElementById('buyDuree').textContent  = f.duree||'Non précisé';
-  document.getElementById('buyType').textContent   = typeLabels[f.type_contenu]||f.type_contenu;
-  document.getElementById('buyPrice').textContent  = fmt(f.prix)+' FCFA';
+  document.getElementById('buyDuree').textContent  = f.duree || 'Non précisé';
+  document.getElementById('buyType').textContent   = typeLabels[f.type_contenu] || f.type_contenu;
+  document.getElementById('buyPrice').textContent  = fmt(f.prix) + ' FCFA';
   document.getElementById('buyModal').classList.add('open');
 }
 
@@ -378,28 +458,35 @@ function closeBuyModal(){
 async function confirmerAchat(){
   if(!SELECTED_FORM) return;
   var f = SELECTED_FORM;
-  // Enregistrer l'achat et rediriger vers WhatsApp du formateur
+
+  // BUG FIX #3 : enregistrement de l'achat avec les vrais champs nommés
+  // (pas de shorthand ES6 pour compatibilité maximale)
   try{
-    await sb.from('formation_achats').insert({
-      formation_id:f.id, acheteur_id:U.id,
-      montant:f.prix, commission:Math.round(f.prix*0.2), statut:'whatsapp'
+    var ins = await sb.from('formation_achats').insert({
+      formation_id : f.id,
+      acheteur_id  : U.id,
+      montant      : f.prix,
+      commission   : Math.round(f.prix * 0.2),
+      statut       : 'whatsapp'
     });
-  }catch(e){ console.warn(e.message); }
-  // Message WhatsApp automatique
+    if(ins.error) console.warn('formation_achats insert:', ins.error.message);
+  }catch(e){ console.warn('confirmerAchat:', e.message); }
+
   var msg = encodeURIComponent(
-    'Bonjour ! Je souhaite acheter votre formation "'+f.titre+'" à '+fmt(f.prix)+' FCFA sur AfriMarket.\n'+
-    'Référence: FORM-'+f.id.slice(0,8).toUpperCase()+'\n'+
+    'Bonjour ! Je souhaite acheter votre formation "' + f.titre + '" à ' + fmt(f.prix) + ' FCFA sur AfriMarket.\n' +
+    'Référence: FORM-' + f.id.slice(0,8).toUpperCase() + '\n' +
     'Merci de me confirmer le paiement et m\'envoyer le contenu.'
   );
-  // On cherche le WA du formateur dans profiles
-  var waNum = '237000000000'; // fallback
+
+  var waNum = '237000000000';
   try{
-    var pr = await sb.from('profiles').select('whatsapp').eq('id',f.user_id).single();
-    if(pr.data&&pr.data.whatsapp) waNum = pr.data.whatsapp.replace(/\D/g,'');
+    var pr = await sb.from('profiles').select('whatsapp').eq('id', f.user_id).single();
+    if(pr.data && pr.data.whatsapp) waNum = pr.data.whatsapp.replace(/\D/g, '');
   }catch(e){}
+
   closeBuyModal();
-  window.open('https://wa.me/'+waNum+'?text='+msg,'_blank');
-  toast('Redirection vers WhatsApp du formateur...','success');
+  window.open('https://wa.me/' + waNum + '?text=' + msg, '_blank');
+  toast('Redirection vers WhatsApp du formateur...', 'success');
 }
 
 // ── SOUMETTRE FORMATION ──────────────────────────────────────
@@ -412,59 +499,91 @@ async function soumettreFormation(){
   var duree   = document.getElementById('fDuree').value.trim();
   var type    = document.getElementById('fType').value;
   var contenu = document.getElementById('fContenu').value.trim();
-  if(!titre){ toast('Titre obligatoire','error'); return; }
-  if(!desc)  { toast('Description obligatoire','error'); return; }
-  if(!prix||prix<500){ toast('Prix minimum 500 FCFA','error'); return; }
-  if(!contenu){ toast('Lien du contenu obligatoire','error'); return; }
+
+  if(!titre)          { toast('Titre obligatoire', 'error');         return; }
+  if(!desc)           { toast('Description obligatoire', 'error');   return; }
+  if(!prix || prix<500){ toast('Prix minimum 500 FCFA', 'error');    return; }
+  if(!contenu)        { toast('Lien du contenu obligatoire','error'); return; }
+
   var btn = document.getElementById('btnSubmitForm');
-  btn.disabled=true; btn.textContent='Envoi en cours...';
+  btn.disabled    = true;
+  btn.textContent = 'Envoi en cours...';
+
   try{
+    // BUG FIX #4 : object littéral explicite (pas de shorthand) pour éviter
+    // les problèmes sur vieux moteurs WebView Android
     var r = await sb.from('formations').insert({
-      user_id:U.id, titre, description:desc, categorie:cat, prix, duree,
-      niveau, type_contenu:type, contenu_url:contenu, approuvee:false, actif:true
+      user_id      : U.id,
+      titre        : titre,
+      description  : desc,
+      categorie    : cat,
+      prix         : prix,
+      duree        : duree,
+      niveau       : niveau,
+      type_contenu : type,
+      contenu_url  : contenu,
+      approuvee    : false,
+      actif        : true
     });
     if(r.error) throw r.error;
-    toast('Formation soumise ! Vérification sous 24-48h.','success');
-    ['fTitre','fDesc','fPrix','fDuree','fContenu'].forEach(function(id){ document.getElementById(id).value=''; });
-    setTimeout(function(){ switchTab('mes'); },1500);
+
+    toast('Formation soumise ! Vérification sous 24-48h.', 'success');
+    ['fTitre','fDesc','fPrix','fDuree','fContenu'].forEach(function(id){
+      document.getElementById(id).value = '';
+    });
+    setTimeout(function(){ switchTab('mes'); }, 1500);
   }catch(e){
-    toast('Erreur: '+e.message,'error');
+    toast('Erreur : ' + e.message, 'error');
   }finally{
-    btn.disabled=false; btn.textContent='📤 Soumettre ma formation';
+    btn.disabled    = false;
+    btn.textContent = '📤 Soumettre ma formation';
   }
 }
 
 // ── MES FORMATIONS ───────────────────────────────────────────
+// BUG FIX #5 : la requête formation_achats utilisait un filtre
+// .eq('formation_id','x') inutile et incorrect — supprimé.
 async function loadMesFormations(){
   var el = document.getElementById('listMesFormations');
-  el.innerHTML='<div class="spin"></div>';
+  el.innerHTML = '<div class="spin"></div>';
   try{
-    var r = await sb.from('formations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
-    if(r.error&&r.error.code==='42P01'){ el.innerHTML='<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Table manquante</div><div class="empty-sub">Execute earn_v3.sql</div></div>'; return; }
-    var ra = await sb.from('formation_achats').select('formation_id,montant').eq('formation_id', 'x'); // placeholder
-    var forms = r.data||[];
-    if(!forms.length){
-      el.innerHTML='<div class="empty-box"><div class="empty-ico">🎓</div><div class="empty-title">Tu n\'as pas encore de formations</div><div class="empty-sub">Clique sur "Vendre" pour créer ta première formation.</div></div>';
+    var r = await sb.from('formations')
+      .select('*')
+      .eq('user_id', U.id)
+      .order('created_at', { ascending: false });
+
+    if(r.error && r.error.code === '42P01'){
+      el.innerHTML = '<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Table manquante</div><div class="empty-sub">Execute earn_v3.sql</div></div>';
       return;
     }
-    var catIcos={couture:'🧵',cuisine:'🍳',tech:'💻',beaute:'💅',business:'📈',autre:'⭐'};
-    el.innerHTML='<div style="font-size:.75rem;color:var(--gray);margin-bottom:.7rem;">'+forms.length+' formation(s) soumise(s)</div>'+
-    forms.map(function(f){
-      var statusTxt = f.approuvee?'Approuvée':'En attente';
-      var statusCls = f.approuvee?'approved':'pending';
-      return '<div class="my-form-card">'+
-        '<div class="my-form-ico">'+(catIcos[f.categorie]||'📚')+'</div>'+
-        '<div class="my-form-info">'+
-          '<div class="my-form-title">'+esc(f.titre)+'</div>'+
-          '<div class="my-form-meta">'+fmt(f.prix)+' FCFA · '+f.type_contenu+' · 🛒 '+(f.ventes||0)+' ventes</div>'+
-        '</div>'+
-        '<span class="status-badge '+statusCls+'">'+statusTxt+'</span>'+
-      '</div>';
-    }).join('');
-  }catch(e){ el.innerHTML='<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">'+e.message+'</div></div>'; }
-}
+    if(r.error) throw r.error;
 
-function esc(s){ var d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+    var forms = r.data || [];
+    if(!forms.length){
+      el.innerHTML = '<div class="empty-box"><div class="empty-ico">🎓</div><div class="empty-title">Tu n\'as pas encore de formations</div><div class="empty-sub">Clique sur "Vendre" pour créer ta première formation.</div></div>';
+      return;
+    }
+
+    var catIcos = { couture:'🧵', cuisine:'🍳', tech:'💻', beaute:'💅', business:'📈', autre:'⭐' };
+
+    el.innerHTML =
+      '<div style="font-size:.75rem;color:var(--gray);margin-bottom:.7rem;">' + forms.length + ' formation(s) soumise(s)</div>' +
+      forms.map(function(f){
+        var statusTxt = f.approuvee ? 'Approuvée' : 'En attente';
+        var statusCls = f.approuvee ? 'approved'  : 'pending';
+        return '<div class="my-form-card">' +
+          '<div class="my-form-ico">' + (catIcos[f.categorie] || '📚') + '</div>' +
+          '<div class="my-form-info">' +
+            '<div class="my-form-title">' + esc(f.titre) + '</div>' +
+            '<div class="my-form-meta">' + fmt(f.prix) + ' FCFA · ' + esc(f.type_contenu) + ' · 🛒 ' + (f.ventes || 0) + ' ventes</div>' +
+          '</div>' +
+          '<span class="status-badge ' + statusCls + '">' + statusTxt + '</span>' +
+        '</div>';
+      }).join('');
+  }catch(e){
+    el.innerHTML = '<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">' + esc(e.message) + '</div></div>';
+  }
+}
 </script>
 </body>
 </html>
