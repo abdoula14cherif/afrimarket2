@@ -242,9 +242,71 @@ body{font-family:var(--shop-font);background:var(--shop-bg);min-height:100vh;col
 .cart-fab-badge{position:absolute;top:-4px;right:-4px;background:#FF6B1A;color:white;font-size:.6rem;font-weight:800;border-radius:50%;width:20px;height:20px;display:none;align-items:center;justify-content:center;border:2px solid white;}
 .cart-fab-badge.vis{display:flex;}
 
+
+/* ── DARK MODE ── */
+body.dark-mode {
+  --shop-bg:    #0d1117;
+  --shop-card:  #161b22;
+  --shop-border:#30363d;
+  --shop-gray:  #8b949e;
+}
+body.dark-mode .shop-nav{background:#161b22;border-color:#30363d;}
+body.dark-mode .shop-header{background:#161b22;}
+body.dark-mode .nav-search{background:#0d1117;border-color:#30363d;color:#e6edf3;}
+body.dark-mode .nav-search::placeholder{color:#6e7681;}
+body.dark-mode .nav-sort-btn{background:#161b22;border-color:#30363d;color:#8b949e;}
+body.dark-mode .price-filter-bar{background:#161b22;border-color:#30363d;}
+body.dark-mode .pf-inputs input{background:#0d1117;border-color:#30363d;color:#e6edf3;}
+body.dark-mode .pf-label{color:#8b949e;}
+body.dark-mode .cat-btn{background:#161b22;border-color:#30363d;color:#8b949e;}
+body.dark-mode .cat-btn.active{background:var(--shop-primary);color:white;border-color:var(--shop-primary);}
+body.dark-mode .prod-card{background:#161b22;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+body.dark-mode .prod-name{color:#e6edf3;}
+body.dark-mode .prod-desc{color:#8b949e;}
+body.dark-mode .prod-price{color:#e6edf3;}
+body.dark-mode .shop-name{color:#e6edf3;}
+body.dark-mode .shop-tagline{color:#8b949e;}
+body.dark-mode .shop-stats{color:#8b949e;}
+body.dark-mode .sort-dropdown{background:#161b22;border-color:#30363d;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+body.dark-mode .sort-opt{color:#8b949e;}
+body.dark-mode .sort-opt:hover{background:#21262d;color:#e6edf3;}
+body.dark-mode .modal-sheet{background:#161b22;}
+body.dark-mode .modal-title,.dark-mode .modal-name{color:#e6edf3;}
+body.dark-mode .modal-desc{color:#8b949e;}
+body.dark-mode .modal-price{color:#e6edf3;}
+body.dark-mode .qty-btn{background:#21262d;border-color:#30363d;color:#e6edf3;}
+body.dark-mode .qty-val{color:#e6edf3;}
+body.dark-mode .cart-item{background:#21262d;border-color:#30363d;}
+body.dark-mode .cart-item-name{color:#e6edf3;}
+body.dark-mode .cart-footer{background:#161b22;border-color:#30363d;}
+body.dark-mode .cart-total-label,.dark-mode .cart-total-val{color:#e6edf3;}
+body.dark-mode .branding-footer{background:#0d1117;color:#6e7681;}
+body.dark-mode .promo-bar{background:#161b22;border-color:#30363d;}
+body.dark-mode .promo-input{background:#0d1117;border-color:#30363d;color:#e6edf3;}
+
+/* Bouton toggle */
+.dark-toggle-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--shop-border);
+  background: var(--shop-card);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: all .2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.dark-toggle-btn:hover { transform: scale(1.1); }
+body.dark-mode .dark-toggle-btn {
+  background: #21262d;
+  border-color: #30363d;
+}
+
 </style>
 </head>
 <body>
+<script>try{if(localStorage.getItem('am_boutique_theme')==='dark'){document.body.classList.add('dark-mode');}}catch(e){}</script>
 
 <div class="loader" id="loader">
   <div class="loader-spinner"></div>
@@ -286,6 +348,7 @@ body{font-family:var(--shop-font);background:var(--shop-bg);min-height:100vh;col
       🛒 Panier
       <span class="cart-badge" id="cartBadge">0</span>
     </button>
+    <button class="dark-toggle-btn" id="darkToggleBtn" onclick="toggleDarkMode()" title="Mode sombre / clair">🌙</button>
   </div>
 
   <!-- FILTRE PRIX -->
@@ -984,6 +1047,28 @@ function showNotFound(){ document.getElementById('loader').style.display='none';
 function showError(msg){ document.getElementById('loader').style.display='none'; document.getElementById('notFound').style.display='flex'; document.getElementById('notFound').innerHTML=`<div class="nf-ico">⚠️</div><h2>Problème</h2><p style="color:#6B7A9B;font-size:.82rem;line-height:1.6;max-width:300px">${msg}</p><a href="/">← Retour</a>`; }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmt(n){ return Number(n).toLocaleString('fr-FR'); }
+
+// ── DARK MODE ────────────────────────────────────────────────
+function toggleDarkMode() {
+  var isDark = document.body.classList.toggle('dark-mode');
+  var btn = document.getElementById('darkToggleBtn');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  try { localStorage.setItem('am_boutique_theme', isDark ? 'dark' : 'light'); } catch(e) {}
+}
+
+function initDarkMode() {
+  try {
+    var saved = localStorage.getItem('am_boutique_theme');
+    var isDark = saved === 'dark' || document.body.classList.contains('dark-mode');
+    if (isDark) document.body.classList.add('dark-mode');
+    // Mettre à jour le bouton (peut être appelé après le DOM)
+    setTimeout(function(){
+      var btn = document.getElementById('darkToggleBtn');
+      if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+    }, 0);
+  } catch(e) {}
+}
+
 </script>
 
 <button class="cart-fab" onclick="openCart()" title="Voir le panier">&#128722;<span class="cart-fab-badge" id="cartFabBadge">0</span></button>
