@@ -697,6 +697,9 @@ async function lancerPaiement() {
    MODAL GÉRER ABONNEMENT
 ═══════════════════════════════════════════════ */
 function openManageModal() {
+  location.href = 'pricing.html';
+}
+function openManageModal_unused() {
   if (!P || !P.is_premium) {
     location.href = 'pricing.html';
     return;
