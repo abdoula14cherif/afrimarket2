@@ -41,9 +41,9 @@ body{font-family:var(--shop-font);background:var(--shop-bg);min-height:100vh;col
 .shop-nav{background:white;border-bottom:1px solid var(--shop-border);padding:.6rem 1rem;display:flex;align-items:center;gap:.6rem;position:sticky;top:0;z-index:100;}
 .nav-search{flex:1;padding:.42rem .85rem;border:1.5px solid var(--shop-border);border-radius:99px;font-size:.8rem;outline:none;background:#F5F7FC;transition:border-color .2s;font-family:inherit;}
 .nav-search:focus{border-color:var(--shop-primary);background:white;}
-.nav-cart-btn{position:relative;padding:.42rem .85rem;border-radius:99px;border:1.5px solid var(--shop-border);background:white;font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:.3rem;font-weight:600;transition:all .2s;white-space:nowrap;}
+.nav-cart-btn{position:relative;padding:.5rem 1.1rem;border-radius:99px;border:none;background:linear-gradient(135deg,var(--shop-primary),#1B3FE4);color:white;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;font-weight:700;transition:all .2s;white-space:nowrap;box-shadow:0 4px 14px rgba(0,194,183,.35);}.nav-cart-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,194,183,.45);}
 .nav-cart-btn:hover{border-color:var(--shop-primary);color:var(--shop-primary);}
-.cart-badge{position:absolute;top:-5px;right:-5px;background:var(--shop-primary);color:white;border-radius:50%;width:18px;height:18px;font-size:.6rem;font-weight:800;display:none;align-items:center;justify-content:center;}
+.cart-badge{position:absolute;top:-7px;right:-7px;background:#FF6B1A;color:white;font-size:.62rem;font-weight:800;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:2px solid white;}
 .nav-sort-btn{padding:.42rem .75rem;border-radius:99px;border:1.5px solid var(--shop-border);background:white;font-size:.78rem;cursor:pointer;color:var(--shop-gray);transition:all .2s;white-space:nowrap;}
 .nav-sort-btn:hover,.nav-sort-btn.active{border-color:var(--shop-primary);color:var(--shop-primary);}
 
@@ -235,6 +235,13 @@ body{font-family:var(--shop-font);background:var(--shop-bg);min-height:100vh;col
 
 /* ── WISHLIST TOAST ── */
 .wishlist-count{position:absolute;top:-4px;right:-4px;background:#e83030;color:white;border-radius:50%;width:15px;height:15px;font-size:.52rem;display:none;align-items:center;justify-content:center;font-weight:800;}
+
+/* ── BOUTON PANIER FLOTTANT ── */
+.cart-fab{position:fixed;bottom:1.5rem;right:1.2rem;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--shop-primary),#1B3FE4);color:white;font-size:1.4rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,194,183,.5);z-index:400;transition:transform .2s,box-shadow .2s;}
+.cart-fab:hover{transform:scale(1.1);}
+.cart-fab-badge{position:absolute;top:-4px;right:-4px;background:#FF6B1A;color:white;font-size:.6rem;font-weight:800;border-radius:50%;width:20px;height:20px;display:none;align-items:center;justify-content:center;border:2px solid white;}
+.cart-fab-badge.vis{display:flex;}
+
 </style>
 </head>
 <body>
@@ -628,6 +635,8 @@ function updateCartBadge(){
   const total = Object.values(CART).reduce((a,b)=>a+b, 0);
   const badge = document.getElementById('cartBadge');
   if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+  const fab = document.getElementById('cartFabBadge');
+  if (fab) { fab.textContent = total; fab.classList.toggle('vis', total > 0); }
 }
 function openCart(){ document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartPanel').classList.add('open'); renderCart(); }
 function closeCart(){ document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartPanel').classList.remove('open'); }
@@ -976,5 +985,7 @@ function showError(msg){ document.getElementById('loader').style.display='none';
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmt(n){ return Number(n).toLocaleString('fr-FR'); }
 </script>
+
+<button class="cart-fab" onclick="openCart()" title="Voir le panier">&#128722;<span class="cart-fab-badge" id="cartFabBadge">0</span></button>
 </body>
 </html>
