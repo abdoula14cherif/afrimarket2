@@ -201,7 +201,11 @@
     #toast.show{transform:translateY(0);opacity:1;}
 
     @media(max-width:600px){.plans-grid{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr;}.plan-card.popular{transform:none;}.pay-grid{grid-template-columns:1fr 1fr;}}
-  </style>
+  
+/* ── TABS PAIEMENT 4 COLONNES ── */
+#checkoutModal .mode-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;}
+
+</style>
 </head>
 <body>
 
@@ -373,8 +377,10 @@
 
       <!-- TABS MODE -->
       <div class="mode-tabs">
-        <button class="mode-tab active" id="tabManual" onclick="switchMode('manual')">📱 Paiement Manuel</button>
-        <button class="mode-tab" id="tabAuto" onclick="switchMode('auto')">⚡ Paiement Auto</button>
+        <button class="mode-tab active" id="tabManual" onclick="switchMode('manual')" style="font-size:.7rem;padding:.45rem .2rem;">&#128241; Manuel</button>
+        <button class="mode-tab" id="tabAuto" onclick="switchMode('auto')" style="font-size:.7rem;padding:.45rem .2rem;">&#9889; Auto</button>
+        <button class="mode-tab" id="tabCard" onclick="switchMode('card')" style="font-size:.7rem;padding:.45rem .2rem;">&#128179; Carte</button>
+        <button class="mode-tab" id="tabCrypto" onclick="switchMode('crypto')" style="font-size:.7rem;padding:.45rem .2rem;">&#8383; Crypto</button>
       </div>
 
       <!-- ── MODE MANUEL ── -->
@@ -464,6 +470,107 @@
         </button>
         <div style="text-align:center;font-size:.63rem;color:var(--gray);margin-top:.5rem;">🔒 Paiement sécurisé par Monetbil · Aucune carte requise</div>
       </div>
+      <!-- ── MODE CARTE BANCAIRE ── -->
+      <div id="modeCard" style="display:none;">
+        <div style="text-align:center;margin-bottom:1rem;">
+          <div style="font-size:2rem;margin-bottom:.4rem;">💳</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.2rem;">Paiement par Carte Bancaire</div>
+          <div style="font-size:.75rem;color:var(--gray);">Visa · Mastercard · Carte locale africaine</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#F5A623,#E8850A);border-radius:16px;padding:1rem;margin-bottom:.8rem;">
+          <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;">
+            <div style="width:40px;height:40px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🌊</div>
+            <div>
+              <div style="color:white;font-weight:800;font-size:.9rem;">Flutterwave</div>
+              <div style="color:rgba(255,255,255,.75);font-size:.7rem;">Visa · Mastercard · Mobile Money africain</div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:.6rem .8rem;margin-bottom:.7rem;">
+            <div style="color:white;font-size:.72rem;line-height:1.7;">
+              &#10003; Cameroun, Senegal, Cote d&#39;Ivoire supportes<br/>
+              &#10003; Commission : 1.4% cartes locales<br/>
+              &#10003; Paiement instantane et securise
+            </div>
+          </div>
+          <button onclick="payFlutterwave()" style="width:100%;padding:.75rem;border-radius:12px;background:white;color:#E8850A;font-weight:800;font-size:.88rem;border:none;cursor:pointer;">
+            💳 Payer avec Flutterwave
+          </button>
+        </div>
+        <div style="background:var(--bg);border-radius:12px;padding:.8rem;font-size:.72rem;color:var(--gray);line-height:1.6;text-align:center;">
+          Pas encore de compte Flutterwave ?<br/>
+          <a href="https://app.flutterwave.com/register" target="_blank" style="color:var(--blue);font-weight:700;">Inscription gratuite → flutterwave.com</a>
+        </div>
+      </div>
+
+      <!-- ── MODE CRYPTO ── -->
+      <div id="modeCrypto" style="display:none;">
+        <div style="text-align:center;margin-bottom:1rem;">
+          <div style="font-size:2rem;margin-bottom:.4rem;">&#8383;</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.2rem;">Paiement en Cryptomonnaie</div>
+          <div style="font-size:.75rem;color:var(--gray);">Bitcoin · USDT · Ethereum · BNB</div>
+        </div>
+        <!-- Choix provider -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.9rem;">
+          <div id="cryptoNow" onclick="selectCrypto('now')" style="background:white;border:2px solid var(--border);border-radius:14px;padding:.85rem;cursor:pointer;text-align:center;transition:all .2s;">
+            <div style="font-size:1.4rem;margin-bottom:.3rem;">&#9889;</div>
+            <div style="font-weight:800;font-size:.8rem;margin-bottom:.2rem;">NOWPayments</div>
+            <div style="font-size:.65rem;color:var(--gray);">300+ cryptos<br/>Commission 0.5%</div>
+          </div>
+          <div id="cryptoBinance" onclick="selectCrypto('binance')" style="background:white;border:2px solid var(--border);border-radius:14px;padding:.85rem;cursor:pointer;text-align:center;transition:all .2s;">
+            <div style="font-size:1.4rem;margin-bottom:.3rem;">&#128993;</div>
+            <div style="font-weight:800;font-size:.8rem;margin-bottom:.2rem;">Binance Pay</div>
+            <div style="font-size:.65rem;color:var(--gray);">USDT · BNB · BTC<br/>Commission 0%</div>
+          </div>
+        </div>
+        <!-- Detail NOWPayments -->
+        <div id="detailNow" style="display:none;">
+          <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:1rem;margin-bottom:.7rem;">
+            <div style="color:white;font-weight:800;font-size:.88rem;margin-bottom:.5rem;">&#9889; NOWPayments</div>
+            <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:.7rem;margin-bottom:.7rem;">
+              <div style="color:rgba(255,255,255,.8);font-size:.72rem;line-height:1.7;">
+                &#10003; 300+ cryptomonnaies acceptees<br/>
+                &#10003; Commission seulement 0.5%<br/>
+                &#10003; Conversion automatique en FCFA<br/>
+                &#10003; Inscription email uniquement
+              </div>
+            </div>
+            <button onclick="payNOWPayments()" style="width:100%;padding:.75rem;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:800;font-size:.88rem;border:none;cursor:pointer;">
+              &#9889; Payer avec NOWPayments
+            </button>
+          </div>
+          <div style="font-size:.68rem;color:var(--gray);text-align:center;">
+            <a href="https://nowpayments.io/signup" target="_blank" style="color:var(--blue);font-weight:700;">Creer un compte NOWPayments</a>
+          </div>
+        </div>
+        <!-- Detail Binance Pay -->
+        <div id="detailBinance" style="display:none;">
+          <div style="background:linear-gradient(135deg,#1a1208,#2d2008);border-radius:16px;padding:1rem;margin-bottom:.7rem;">
+            <div style="color:#F5B731;font-weight:800;font-size:.88rem;margin-bottom:.5rem;">&#128993; Binance Pay</div>
+            <div style="background:rgba(245,183,49,.08);border-radius:10px;padding:.7rem;margin-bottom:.7rem;">
+              <div style="color:rgba(255,255,255,.8);font-size:.72rem;line-height:1.7;">
+                &#10003; Commission 0% — totalement gratuit<br/>
+                &#10003; USDT · BNB · Bitcoin · ETH<br/>
+                &#10003; Scan QR code depuis l&#39;app Binance<br/>
+                &#10003; Paiement instantane et securise
+              </div>
+            </div>
+            <div style="background:white;border-radius:12px;padding:1rem;text-align:center;margin-bottom:.7rem;">
+              <div style="font-size:.72rem;color:var(--gray);margin-bottom:.5rem;">Scanne avec l&#39;app Binance</div>
+              <div style="width:140px;height:140px;background:var(--bg);border-radius:10px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:.68rem;color:var(--gray);border:2px dashed var(--border);text-align:center;line-height:1.5;">
+                QR Code<br/>a configurer<br/>dans le code
+              </div>
+              <div style="font-size:.7rem;color:var(--gray);margin-top:.5rem;">Montant : <strong id="binanceAmount">—</strong></div>
+            </div>
+            <button onclick="confirmBinancePay()" style="width:100%;padding:.75rem;border-radius:12px;background:linear-gradient(135deg,#F5B731,#E8850A);color:white;font-weight:800;font-size:.88rem;border:none;cursor:pointer;">
+              &#10003; J&#39;ai effectue le paiement Binance
+            </button>
+          </div>
+          <div style="font-size:.68rem;color:var(--gray);text-align:center;">
+            <a href="https://binance.com" target="_blank" style="color:var(--blue);font-weight:700;">Telecharger l&#39;app Binance</a>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ── ÉTAPE 2 : EN ATTENTE DE VÉRIFICATION ── -->
@@ -758,12 +865,7 @@ function showStep(id){
 }
 
 // ===== MODE TABS =====
-function switchMode(mode){
-  document.getElementById('tabManual').classList.toggle('active',mode==='manual');
-  document.getElementById('tabAuto').classList.toggle('active',mode==='auto');
-  document.getElementById('modeManual').style.display=mode==='manual'?'':'none';
-  document.getElementById('modeAuto').style.display=mode==='auto'?'':'none';
-}
+
 
 // ===== OPERATOR SELECT =====
 function selectOperator(op){
@@ -1125,6 +1227,108 @@ function showToast(msg,type='success'){
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('checkoutModal').classList.remove('open');});
+
+// ── SWITCH MODE ÉTENDU ─────────────────────────────────────
+function switchMode(mode){
+  ['manual','auto','card','crypto'].forEach(function(m){
+    var tab=document.getElementById('tab'+m.charAt(0).toUpperCase()+m.slice(1));
+    var sec=document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1));
+    if(tab) tab.classList.toggle('active',m===mode);
+    if(sec) sec.style.display=m===mode?'':'none';
+  });
+  if(mode==='crypto'){
+    var plan=PLANS[selectedPlan];
+    var amount=isAnnual?plan.annual:plan.monthly;
+    var el=document.getElementById('binanceAmount');
+    if(el) el.textContent=amount.toLocaleString('fr-FR')+' FCFA';
+  }
+}
+
+// ── SÉLECTION CRYPTO ───────────────────────────────────────
+function selectCrypto(type){
+  document.getElementById('detailNow').style.display=type==='now'?'':'none';
+  document.getElementById('detailBinance').style.display=type==='binance'?'':'none';
+  var nowCard=document.getElementById('cryptoNow');
+  var binCard=document.getElementById('cryptoBinance');
+  if(nowCard){ nowCard.style.borderColor=type==='now'?'var(--blue)':'var(--border)'; nowCard.style.background=type==='now'?'#EEF2FF':'white'; }
+  if(binCard){ binCard.style.borderColor=type==='binance'?'#F5B731':'var(--border)'; binCard.style.background=type==='binance'?'#FFFBEB':'white'; }
+}
+
+// ── FLUTTERWAVE ────────────────────────────────────────────
+async function payFlutterwave(){
+  var plan=PLANS[selectedPlan];
+  var amount=isAnnual?plan.annual:plan.monthly;
+  var FLW_PUBLIC_KEY='YOUR_FLW_PUBLIC_KEY';
+  if(FLW_PUBLIC_KEY==='YOUR_FLW_PUBLIC_KEY'){
+    showToast('Configure ta cle Flutterwave dans le fichier','warning');
+    window.open('https://app.flutterwave.com/register','_blank');
+    return;
+  }
+  if(typeof FlutterwaveCheckout==='undefined'){
+    var sc=document.createElement('script');
+    sc.src='https://checkout.flutterwave.com/v3.js';
+    sc.onload=function(){ launchFlutterwave(plan,amount,FLW_PUBLIC_KEY); };
+    document.head.appendChild(sc);
+    return;
+  }
+  launchFlutterwave(plan,amount,FLW_PUBLIC_KEY);
+}
+
+function launchFlutterwave(plan,amount,key){
+  var ref='AM_FLW_'+Date.now()+'_'+(currentUser?currentUser.id.slice(0,8):'x');
+  FlutterwaveCheckout({
+    public_key:key, tx_ref:ref, amount:amount, currency:'XAF', country:'CM',
+    payment_options:'card,mobilemoney',
+    customer:{email:currentUser?currentUser.email:'',name:currentUser?(currentUser.user_metadata.full_name||'Client'):'Client'},
+    customizations:{title:'AfriMarket '+plan.name,description:'Abonnement '+plan.name},
+    callback:async function(data){
+      if(data.status==='successful'){
+        showToast('Paiement confirme ! Activation en cours...','success');
+        await sb.from('payment_requests').insert([{user_id:currentUser.id,plan:selectedPlan+(isAnnual?'_annual':''),amount:amount,payment_ref:ref,status:'paid',method:'flutterwave',created_at:new Date().toISOString()}]);
+        setTimeout(function(){location.href='payment-success.html';},2000);
+      } else { showToast('Paiement annule','warning'); }
+    },
+    onclose:function(){ showToast('Paiement annule','warning'); }
+  });
+}
+
+// ── NOWPAYMENTS ────────────────────────────────────────────
+async function payNOWPayments(){
+  var plan=PLANS[selectedPlan];
+  var amount=isAnnual?plan.annual:plan.monthly;
+  var NOW_API_KEY='YOUR_NOW_API_KEY';
+  if(NOW_API_KEY==='YOUR_NOW_API_KEY'){
+    showToast('Configure ta cle NOWPayments dans le fichier','warning');
+    window.open('https://nowpayments.io/signup','_blank');
+    return;
+  }
+  try{
+    showToast('Creation du paiement crypto...','info');
+    var res=await fetch('https://api.nowpayments.io/v1/payment',{
+      method:'POST',
+      headers:{'x-api-key':NOW_API_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({price_amount:amount,price_currency:'xaf',pay_currency:'usdterc20',order_id:'AM_'+Date.now(),order_description:'AfriMarket '+plan.name})
+    });
+    var data=await res.json();
+    if(data.payment_url||data.invoice_url){
+      await sb.from('payment_requests').insert([{user_id:currentUser.id,plan:selectedPlan+(isAnnual?'_annual':''),amount:amount,payment_ref:String(data.payment_id),status:'pending',method:'nowpayments',created_at:new Date().toISOString()}]);
+      window.open(data.payment_url||data.invoice_url,'_blank');
+    } else { showToast('Erreur NOWPayments: '+(data.message||'Inconnue'),'error'); }
+  }catch(e){ showToast('Erreur: '+e.message,'error'); }
+}
+
+// ── BINANCE PAY ────────────────────────────────────────────
+async function confirmBinancePay(){
+  var plan=PLANS[selectedPlan];
+  var amount=isAnnual?plan.annual:plan.monthly;
+  var ref='AM_BINANCE_'+Date.now()+'_'+(currentUser?currentUser.id.slice(0,8):'x');
+  try{
+    await sb.from('payment_requests').insert([{user_id:currentUser.id,plan:selectedPlan+(isAnnual?'_annual':''),amount:amount,payment_ref:ref,status:'pending_manual',method:'binance_pay',created_at:new Date().toISOString()}]);
+    document.getElementById('checkoutModal').classList.remove('open');
+    showToast('Paiement Binance enregistre ! Verification sous 24h.','success');
+  }catch(e){ showToast('Erreur: '+e.message,'error'); }
+}
+
 </script>
   <script>
     if('serviceWorker' in navigator){
@@ -1138,5 +1342,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementB
 <!-- ★ Monetbil Widget SDK -->
 <script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
 <style>#monetbilSpin{animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<script src="push.js"></script>
 </body>
 </html>
