@@ -312,8 +312,8 @@
 
           <div class="succ-card" id="succCard">
             <div class="succ-ico">📧</div>
-            <div class="succ-title">Vérifiez votre email !</div>
-            <div class="succ-sub">Lien de confirmation envoyé à<br><span class="succ-email" id="succEmail"></span><br><br>Cliquez sur le lien pour activer votre compte.</div>
+            <div class="succ-title">Code envoyé !</div>
+            <div class="succ-sub">Un code de confirmation a été envoyé à<br><span class="succ-email" id="succEmail"></span><br><br>Redirection en cours vers la page de vérification...</div>
           </div>
         </div>
 
@@ -438,10 +438,9 @@ document.getElementById('regForm').addEventListener('submit',async e=>{
     if(authErr)throw authErr;
     const uid=auth?.user?.id;
     if(uid){try{await sb.from('profiles').upsert({id:uid,full_name:name,whatsapp:wa,email,pays,ville,ref_code:uid.substring(0,8),referred_by:refCode,created_at:new Date().toISOString()});localStorage.removeItem('am_ref_code');}catch(dbErr){console.warn('DB:',dbErr.message);}}
-    document.getElementById('succEmail').textContent=email;
-    document.getElementById('regWrap').style.display='none';
-    document.getElementById('succCard').classList.add('show');
-    toast('Compte cr\u00e9\u00e9\u00a0! V\u00e9rifiez votre email.','success');
+    localStorage.setItem('am_verify_email',email);
+    toast('Code envoy\u00e9\u00a0! Redirection...','success');
+    setTimeout(function(){location.href='verify.html';},1200);
   }catch(err){console.error(err);toast(xlErr(err.message),'error');}
   finally{setLoading(btn,false);}
 });
