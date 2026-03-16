@@ -14,40 +14,55 @@
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
-    :root{
-      --blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;
-      --turq:#00C2B7;--bg:#F2F5FF;--card:#FFFFFF;
-      --dark:#080E2A;--gray:#8892A8;--border:#E4E9F8;--gold:#F5B731;--green:#00C271;
-      --nav-h:72px;
-    }
+    :root{--blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;--turq:#00C2B7;--bg:#F2F5FF;--dark:#080E2A;--gray:#8892A8;--border:#E4E9F8;--gold:#F5B731;--green:#00C271;--nav-h:72px;}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{scroll-behavior:smooth;}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h) + 40px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;padding-bottom:calc(var(--nav-h)+40px+env(safe-area-inset-bottom,0px));overflow-x:hidden;}
 
+    /* HEADER */
     .header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);padding:0 1.2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 4px 24px rgba(8,14,42,.35);}
-    .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;transition:all .2s;text-decoration:none;}
+    .h-back{color:rgba(255,255,255,.6);font-size:.82rem;font-weight:600;border:1px solid rgba(255,255,255,.15);padding:.35rem .8rem;border-radius:99px;text-decoration:none;transition:all .2s;}
     .h-back:hover{color:white;border-color:rgba(255,255,255,.4);}
     .h-logo{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-1px;}
     .h-logo .la{color:var(--turq);}.h-logo .lm{color:var(--orange);}
-    .h-right{display:flex;align-items:center;gap:.45rem;}
+    .h-right{display:flex;align-items:center;gap:.5rem;}
     .h-save{background:var(--turq);color:white;border:none;border-radius:99px;padding:.35rem .9rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;opacity:0;pointer-events:none;transition:all .3s;}
     .h-save.show{opacity:1;pointer-events:all;}
-    .h-save:hover{background:#00A89F;}
     .h-save:disabled{opacity:.4;cursor:not-allowed;}
-    .h-dots-wrap{position:relative;}
-    .h-dots{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:white;font-size:1.3rem;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;letter-spacing:-.5px;flex-shrink:0;}
-    .h-dots:hover{background:rgba(255,255,255,.2);}
-    .h-dots-badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:99px;background:var(--red);color:white;font-size:.52rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--dark);line-height:1;}
-    .h-dots-badge.show{display:flex;}
 
-    .dots-menu{position:fixed;top:68px;right:1rem;z-index:500;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(8,14,42,.2);border:1px solid var(--border);min-width:210px;overflow:hidden;transform:scale(.95) translateY(-8px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.56,.64,1);}
-    .dots-menu.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all;}
-    .dm-item{display:flex;align-items:center;gap:.7rem;padding:.8rem 1rem;cursor:pointer;transition:background .15s;font-size:.84rem;font-weight:600;color:var(--dark);text-decoration:none;border:none;background:none;width:100%;font-family:'Plus Jakarta Sans',sans-serif;text-align:left;}
-    .dm-item:not(:last-child){border-bottom:1px solid var(--border);}
-    .dm-item:hover{background:var(--bg);}
-    .dm-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
-    .dm-notif-badge{margin-left:auto;min-width:20px;height:20px;border-radius:99px;background:var(--red);color:white;font-size:.6rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;}
-    .dm-notif-badge.show{display:flex;}
+    /* BURGER BUTTON */
+    .h-burger-wrap{position:relative;flex-shrink:0;}
+    .h-burger{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--blue2),var(--turq));border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:all .22s cubic-bezier(.34,1.56,.64,1);box-shadow:0 3px 12px rgba(45,85,255,.45);}
+    .h-burger:hover{transform:scale(1.08);box-shadow:0 6px 18px rgba(45,85,255,.6);}
+    .h-burger.open{background:linear-gradient(135deg,var(--orange),#FF3E6C);box-shadow:0 3px 12px rgba(255,107,26,.5);}
+    .h-burger-bar{width:17px;height:2px;background:white;border-radius:99px;transition:all .25s cubic-bezier(.34,1.56,.64,1);transform-origin:center;display:block;}
+    .h-burger.open .h-burger-bar:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .h-burger.open .h-burger-bar:nth-child(2){opacity:0;transform:scaleX(0);}
+    .h-burger.open .h-burger-bar:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .h-burger-badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;border-radius:99px;background:var(--red);color:white;font-size:.5rem;font-weight:900;display:none;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--dark);line-height:1;}
+    .h-burger-badge.show{display:flex;}
+
+    /* BURGER MENU */
+    .burger-overlay{position:fixed;inset:0;z-index:498;display:none;}
+    .burger-overlay.show{display:block;}
+    .burger-menu{position:fixed;top:68px;right:1rem;z-index:499;background:white;border-radius:20px;box-shadow:0 16px 48px rgba(8,14,42,.25);border:1.5px solid var(--border);min-width:240px;overflow:hidden;transform:scale(.9) translateY(-16px);transform-origin:top right;opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.34,1.56,.64,1);}
+    .burger-menu.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all;}
+    .bm-hdr{background:linear-gradient(135deg,var(--dark),#1B3FE4);padding:.9rem 1rem;display:flex;align-items:center;gap:.65rem;}
+    .bm-hdr-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:800;color:white;font-family:'Clash Display',sans-serif;border:2px solid rgba(255,255,255,.35);overflow:hidden;flex-shrink:0;}
+    .bm-hdr-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .bm-hdr-info{min-width:0;flex:1;}
+    .bm-hdr-name{font-family:'Clash Display',sans-serif;font-size:.83rem;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .bm-hdr-plan{font-size:.62rem;color:rgba(255,255,255,.5);margin-top:.08rem;}
+    .bm-item{display:flex;align-items:center;gap:.75rem;padding:.84rem 1rem;cursor:pointer;transition:all .15s;font-size:.83rem;font-weight:600;color:var(--dark);text-decoration:none;border:none;background:none;width:100%;font-family:'Plus Jakarta Sans',sans-serif;text-align:left;border-bottom:1px solid var(--border);}
+    .bm-item:last-child{border-bottom:none;}
+    .bm-item:hover{background:var(--bg);padding-left:1.25rem;}
+    .bm-item.red{color:var(--red);}
+    .bm-item.red:hover{background:rgba(232,48,48,.05);}
+    .bm-ico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+    .bm-arrow{margin-left:auto;font-size:.7rem;color:var(--gray);transition:all .15s;}
+    .bm-item:hover .bm-arrow{transform:translateX(3px);color:var(--blue2);}
+    .bm-notif-badge{margin-left:auto;min-width:20px;height:20px;border-radius:99px;background:var(--red);color:white;font-size:.58rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;line-height:1;}
+    .bm-notif-badge.show{display:flex;}
 
     /* PANNEAU NOTIFICATIONS */
     .notif-panel{position:fixed;top:0;right:0;bottom:0;width:min(320px,92vw);background:white;z-index:600;box-shadow:-8px 0 32px rgba(8,14,42,.18);transform:translateX(100%);transition:transform .32s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;}
@@ -67,7 +82,7 @@
     .ni-body{flex:1;min-width:0;}
     .ni-title{font-size:.78rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;line-height:1.3;}
     .ni-msg{font-size:.7rem;color:var(--gray);line-height:1.4;margin-bottom:.2rem;}
-    .ni-date{font-size:.6rem;color:var(--gray);font-weight:500;}
+    .ni-date{font-size:.6rem;color:var(--gray);}
     .ni-dot{width:7px;height:7px;border-radius:50%;background:var(--blue2);flex-shrink:0;margin-top:4px;}
     .np-empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
     .np-empty-ico{font-size:2.5rem;margin-bottom:.6rem;}
@@ -101,7 +116,7 @@
     .hero::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,107,26,.06);left:-50px;bottom:-60px;}
     .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;}
     .avatar-wrap{position:relative;margin-bottom:1rem;cursor:pointer;}
-    .avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:white;border:3px solid rgba(255,255,255,.3);overflow:hidden;transition:all .3s;}
+    .avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:white;border:3px solid rgba(255,255,255,.3);overflow:hidden;}
     .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
     .avatar-edit{position:absolute;bottom:2px;right:2px;width:26px;height:26px;border-radius:50%;background:var(--orange);border:2px solid var(--dark);display:flex;align-items:center;justify-content:center;font-size:.7rem;}
     .avatar-uploading{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;font-size:1.2rem;}
@@ -119,7 +134,7 @@
     .sf{flex:1;text-align:center;padding:.4rem 0;}
     .sf+.sf{border-left:1px solid var(--border);}
     .sf-num{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
-    .sf-lbl{font-size:.6rem;color:var(--gray);font-weight:600;margin-top:.1rem;letter-spacing:.2px;}
+    .sf-lbl{font-size:.6rem;color:var(--gray);font-weight:600;margin-top:.1rem;}
 
     /* COMPLÉTION */
     .complet-card{margin:0 1.2rem .8rem;background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);}
@@ -150,7 +165,7 @@
     .field input.changed,.field select.changed,.field textarea.changed{border-color:var(--orange);}
     .field-hint{font-size:.65rem;color:var(--gray);}
 
-    /* PREMIUM */
+    /* PREMIUM CARD */
     .prem-card{margin:0 1.2rem;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(27,63,228,.1);}
     .prem-card.free-card{background:linear-gradient(135deg,#F8F9FF,#EEF2FF);border:1.5px solid var(--border);}
     .prem-card.prem-active{background:linear-gradient(135deg,#0D1E6B,#1B3FE4);border:none;}
@@ -168,7 +183,6 @@
     .pc-expires{font-size:.72rem;font-weight:600;color:var(--gold);margin-bottom:.8rem;}
     .pc-btn{width:100%;padding:.72rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
     .pc-btn-upgrade{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.3);}
-    .pc-btn-upgrade:hover{transform:translateY(-1px);}
     .pc-btn-manage{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25);}
     .pc-features{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
     .pc-feat{font-size:.75rem;display:flex;align-items:center;gap:.5rem;}
@@ -179,9 +193,9 @@
     .ad-mini-card{background:white;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.06);cursor:pointer;transition:transform .2s;}
     .ad-mini-card:hover{transform:translateY(-3px);}
 
-    /* MES SERVICES */
+    /* SERVICES */
     .services-section{margin:0 1.2rem .4rem;display:flex;flex-direction:column;gap:.6rem;}
-    .service-badge-card{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;align-items:center;gap:.9rem;}
+    .service-badge-card{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;display:flex;align-items:center;gap:.9rem;}
     .sb-ico-wrap{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
     .sb-info{flex:1;min-width:0;}
     .sb-name{font-size:.85rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;}
@@ -199,7 +213,7 @@
     .es-btn{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:10px;padding:.5rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 
     /* DANGER */
-    .danger-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid rgba(232,48,48,.15);padding:1.2rem;box-shadow:0 2px 10px rgba(232,48,48,.05);}
+    .danger-card{margin:0 1.2rem;background:white;border-radius:18px;border:1.5px solid rgba(232,48,48,.15);padding:1.2rem;}
     .dz-ttl{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--red);margin-bottom:.9rem;}
     .dz-btn{width:100%;padding:.7rem;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
     .dz-logout{background:rgba(232,48,48,.06);color:var(--red);border:1.5px solid rgba(232,48,48,.15);}
@@ -208,7 +222,7 @@
     .dz-del:hover{background:#8B0000;color:white;}
 
     /* BOTTOM NAV */
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;height:calc(var(--nav-h)+env(safe-area-inset-bottom,0px));}
     .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;transition:background .2s;min-width:52px;position:relative;}
     .nav-item:hover{background:var(--bg);}
     .nav-ico{font-size:1.25rem;line-height:1;}
@@ -231,7 +245,7 @@
     .modal-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.6rem;}
     .modal-desc{font-size:.8rem;color:var(--gray);line-height:1.5;margin-bottom:1.2rem;}
     .modal-btns{display:flex;gap:.6rem;}
-    .mbtn{flex:1;padding:.72rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .mbtn{flex:1;padding:.72rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;}
     .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
     .mbtn-ok{background:var(--red);color:white;}
 
@@ -260,35 +274,25 @@
     .pay-avantages{background:rgba(245,183,49,.05);border:1px solid rgba(245,183,49,.2);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;}
     .pay-avantages-ttl{font-size:.74rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;}
     .pay-avantages div{font-size:.7rem;color:var(--gray);line-height:1.8;}
-    .pay-btn{width:100%;padding:.82rem;border-radius:14px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(27,63,228,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .pay-btn{width:100%;padding:.82rem;border-radius:14px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(27,63,228,.3);display:flex;align-items:center;justify-content:center;gap:.5rem;}
     .pay-btn:disabled{opacity:.5;cursor:not-allowed;}
-    .pay-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:pspin .6s linear infinite;display:none;}
+    .pay-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none;}
     .pay-btn.loading .pay-spin{display:block;}
     .pay-btn.loading .pay-lbl{display:none;}
-    @keyframes pspin{to{transform:rotate(360deg)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
     .pay-secure{text-align:center;font-size:.63rem;color:var(--gray);margin-top:.5rem;}
 
     /* BANNIÈRE BOUTIQUE */
-    #boutiqueBanner{
-      margin:.8rem 1rem .3rem;
-      background:linear-gradient(135deg,#1B3FE4 0%,#00C2B7 100%);
-      border-radius:18px;padding:1.1rem 1.2rem 1rem;color:white;
-      position:relative;overflow:hidden;
-      box-shadow:0 6px 24px rgba(27,63,228,.25);
-      display:none;
-      animation:bbIn .45s cubic-bezier(.34,1.56,.64,1) both;
-    }
-    @keyframes bbIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    #boutiqueBanner{margin:.8rem 1rem .3rem;background:linear-gradient(135deg,#1B3FE4,#00C2B7);border-radius:18px;padding:1.1rem 1.2rem 1rem;color:white;position:relative;overflow:hidden;box-shadow:0 6px 24px rgba(27,63,228,.25);display:none;}
     #boutiqueBanner::before{content:'🏪';position:absolute;right:-8px;top:-8px;font-size:5rem;opacity:.1;transform:rotate(-10deg);pointer-events:none;}
-    #boutiqueBanner.has-shop{background:linear-gradient(135deg,#00a896 0%,#00C2B7 100%);}
+    #boutiqueBanner.has-shop{background:linear-gradient(135deg,#00a896,#00C2B7);}
     .bb-label{font-size:.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.75;margin-bottom:.2rem;}
     .bb-title{font-size:1rem;font-weight:800;line-height:1.2;margin-bottom:.25rem;}
     .bb-sub{font-size:.73rem;opacity:.85;line-height:1.5;margin-bottom:.75rem;}
     .bb-actions{display:flex;gap:.5rem;flex-wrap:wrap;}
-    .bb-btn-main{padding:.48rem 1.1rem;border-radius:99px;background:white;color:#1B3FE4;font-size:.78rem;font-weight:800;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+    .bb-btn-main{padding:.48rem 1.1rem;border-radius:99px;background:white;color:#1B3FE4;font-size:.78rem;font-weight:800;border:none;cursor:pointer;}
     .bb-btn-later{padding:.48rem 1rem;border-radius:99px;background:rgba(255,255,255,.18);color:white;font-size:.76rem;font-weight:600;border:1px solid rgba(255,255,255,.3);cursor:pointer;}
-    .bb-close{position:absolute;top:.55rem;right:.7rem;background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer;padding:.2rem .4rem;border-radius:6px;line-height:1;}
-    .bb-close:hover{color:white;}
+    .bb-close{position:absolute;top:.55rem;right:.7rem;background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer;padding:.2rem .4rem;line-height:1;}
   </style>
 </head>
 <body>
@@ -299,30 +303,52 @@
   <div class="h-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
   <div class="h-right">
     <button class="h-save" id="hSaveBtn" onclick="saveProfile()">💾 Sauvegarder</button>
-    <div class="h-dots-wrap">
-      <button class="h-dots" id="dotsBtn" onclick="toggleDots(event)">⋮</button>
-      <div class="h-dots-badge" id="hDotsBadge"></div>
+    <div class="h-burger-wrap">
+      <button class="h-burger" id="burgerBtn" onclick="toggleBurger(event)">
+        <span class="h-burger-bar"></span>
+        <span class="h-burger-bar"></span>
+        <span class="h-burger-bar"></span>
+      </button>
+      <div class="h-burger-badge" id="burgerBadge"></div>
     </div>
   </div>
 </div>
 
-<!-- MENU ⋮ -->
-<div class="dots-menu" id="dotsMenu">
-  <button class="dm-item" onclick="closeDots();openNotifPanel()">
-    <div class="dm-ico" style="background:rgba(232,48,48,.1);">🔔</div>Notifications
-    <div class="dm-notif-badge" id="dmNotifBadge"></div>
+<!-- OVERLAY FERMETURE MENU -->
+<div class="burger-overlay" id="burgerOverlay" onclick="closeBurger()"></div>
+
+<!-- MENU BURGER -->
+<div class="burger-menu" id="burgerMenu">
+  <div class="bm-hdr">
+    <div class="bm-hdr-av" id="bmAvatar">?</div>
+    <div class="bm-hdr-info">
+      <div class="bm-hdr-name" id="bmName">Mon compte</div>
+      <div class="bm-hdr-plan" id="bmPlan">🆓 Compte Gratuit</div>
+    </div>
+  </div>
+  <button class="bm-item" onclick="closeBurger();openNotifPanel()">
+    <div class="bm-ico" style="background:rgba(232,48,48,.1)">🔔</div>
+    <span>Notifications</span>
+    <div class="bm-notif-badge" id="bmNotifBadge"></div>
   </button>
-  <a class="dm-item" href="parametres.html" onclick="closeDots()">
-    <div class="dm-ico" style="background:rgba(27,63,228,.1);">⚙️</div>Paramètres
+  <a class="bm-item" href="parametres.html">
+    <div class="bm-ico" style="background:rgba(27,63,228,.1)">⚙️</div>
+    <span>Paramètres</span>
+    <span class="bm-arrow">›</span>
   </a>
-  <button class="dm-item" onclick="shareApp();closeDots()">
-    <div class="dm-ico" style="background:rgba(0,194,183,.1);">📤</div>Partager l'app
+  <button class="bm-item" onclick="shareApp();closeBurger()">
+    <div class="bm-ico" style="background:rgba(0,194,183,.1)">📤</div>
+    <span>Partager l'app</span>
+    <span class="bm-arrow">›</span>
   </button>
-  <a class="dm-item" href="https://wa.me/237689011185?text=Support AfriMarket" target="_blank" onclick="closeDots()">
-    <div class="dm-ico" style="background:rgba(37,211,102,.1);">💬</div>Aide & Support
+  <a class="bm-item" href="https://wa.me/237689011185?text=Support" target="_blank" onclick="closeBurger()">
+    <div class="bm-ico" style="background:rgba(37,211,102,.1)">💬</div>
+    <span>Aide & Support</span>
+    <span class="bm-arrow">›</span>
   </a>
-  <button class="dm-item" onclick="closeDots();logout()" style="color:var(--red);">
-    <div class="dm-ico" style="background:rgba(232,48,48,.08);">🚪</div>Se déconnecter
+  <button class="bm-item red" onclick="closeBurger();logout()">
+    <div class="bm-ico" style="background:rgba(232,48,48,.08)">🚪</div>
+    <span>Se déconnecter</span>
   </button>
 </div>
 
@@ -357,12 +383,12 @@
   </div>
 </div>
 
-<!-- BANNIÈRE BOUTIQUE — dans le flux normal, AVANT </body> -->
+<!-- BANNIÈRE BOUTIQUE -->
 <div id="boutiqueBanner">
   <button class="bb-close" onclick="dismissBoutiqueBanner()">✕</button>
   <div class="bb-label" id="bbLabel">🆕 Nouveau</div>
   <div class="bb-title" id="bbTitle">Créez votre boutique en ligne !</div>
-  <div class="bb-sub" id="bbSub">Vendez vos produits directement sur AfriMarket. Gratuit, sans carte bancaire requise.</div>
+  <div class="bb-sub" id="bbSub">Vendez vos produits directement sur AfriMarket. Gratuit !</div>
   <div class="bb-actions">
     <button class="bb-btn-main" id="bbBtnMain" onclick="location.href='boutique-manager.html'">🚀 Créer ma boutique</button>
     <button class="bb-btn-later" onclick="dismissBoutiqueBanner()">Plus tard</button>
@@ -424,46 +450,22 @@
     <div class="field-wrap"><span class="field-ico">📍</span><input type="text" id="fVille" placeholder="Ex: Yaoundé, Douala…" oninput="markChanged(this)"/></div>
   </div>
   <div class="field">
-    <label>Bio / Description (optionnel)</label>
+    <label>Bio / Description</label>
     <div class="field-wrap"><textarea id="fBio" placeholder="Parle un peu de toi ou de ce que tu vends…" oninput="markChanged(this)" style="padding-left:.9rem"></textarea></div>
     <div class="field-hint">Visible sur tes annonces</div>
   </div>
-
-  <!-- RÉSEAUX SOCIAUX -->
-  <div class="field" style="margin-top:.3rem;">
-    <label style="display:flex;align-items:center;gap:.4rem;">
-      <span style="width:22px;height:22px;background:#1877F2;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;color:white;font-weight:800;flex-shrink:0;">f</span>
-      Facebook
-    </label>
-    <div class="field-wrap">
-      <span class="field-ico">🔗</span>
-      <input type="url" id="fFacebook" placeholder="https://facebook.com/tonprofil" oninput="markChanged(this)"/>
-    </div>
-    <div class="field-hint">Lien vers ton profil ou ta page Facebook</div>
+  <div class="field">
+    <label style="display:flex;align-items:center;gap:.4rem;"><span style="width:22px;height:22px;background:#1877F2;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;color:white;font-weight:800;flex-shrink:0">f</span>Facebook</label>
+    <div class="field-wrap"><span class="field-ico">🔗</span><input type="url" id="fFacebook" placeholder="https://facebook.com/tonprofil" oninput="markChanged(this)"/></div>
   </div>
   <div class="field">
-    <label style="display:flex;align-items:center;gap:.4rem;">
-      <span style="width:22px;height:22px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;color:white;flex-shrink:0;">&#9679;</span>
-      Instagram
-    </label>
-    <div class="field-wrap">
-      <span class="field-ico">🔗</span>
-      <input type="url" id="fInstagram" placeholder="https://instagram.com/tonprofil" oninput="markChanged(this)"/>
-    </div>
-    <div class="field-hint">Lien vers ton compte Instagram</div>
+    <label style="display:flex;align-items:center;gap:.4rem;"><span style="width:22px;height:22px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;color:white;flex-shrink:0">●</span>Instagram</label>
+    <div class="field-wrap"><span class="field-ico">🔗</span><input type="url" id="fInstagram" placeholder="https://instagram.com/tonprofil" oninput="markChanged(this)"/></div>
   </div>
   <div class="field">
-    <label style="display:flex;align-items:center;gap:.4rem;">
-      <span style="width:22px;height:22px;background:#010101;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;color:white;flex-shrink:0;">&#9654;</span>
-      TikTok
-    </label>
-    <div class="field-wrap">
-      <span class="field-ico">🔗</span>
-      <input type="url" id="fTiktok" placeholder="https://tiktok.com/@tonprofil" oninput="markChanged(this)"/>
-    </div>
-    <div class="field-hint">Lien vers ton compte TikTok</div>
+    <label style="display:flex;align-items:center;gap:.4rem;"><span style="width:22px;height:22px;background:#010101;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;color:white;flex-shrink:0">▶</span>TikTok</label>
+    <div class="field-wrap"><span class="field-ico">🔗</span><input type="url" id="fTiktok" placeholder="https://tiktok.com/@tonprofil" oninput="markChanged(this)"/></div>
   </div>
-
   <button onclick="saveProfile()" id="saveBtn" style="width:100%;padding:.78rem;border-radius:12px;border:none;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 4px 14px rgba(27,63,228,.25);">
     💾 Sauvegarder les modifications
   </button>
@@ -473,10 +475,7 @@
 <div class="sec"><div class="sec-ttl">👑 Mon abonnement</div></div>
 <div class="prem-card free-card" id="premCard">
   <div class="pc-inner">
-    <div class="pc-top">
-      <div class="pc-ico">🆓</div>
-      <div class="pc-badge-free" id="planBadge">Compte Gratuit</div>
-    </div>
+    <div class="pc-top"><div class="pc-ico">🆓</div><div class="pc-badge-free" id="planBadge">Compte Gratuit</div></div>
     <div class="pc-title" id="planTitle">Passe à Premium</div>
     <div class="pc-features" id="planFeatures">
       <div class="pc-feat">🆓 10 annonces gratuites / mois</div>
@@ -496,17 +495,17 @@
     <div class="skel" style="height:130px;border-radius:16px;"></div>
   </div>
   <div id="myAdsEmpty" style="display:none;text-align:center;padding:1.8rem 1rem;background:white;border-radius:16px;border:1.5px solid var(--border);">
-    <div style="font-size:2.2rem;margin-bottom:.5rem;">📭</div>
-    <div style="font-size:.85rem;font-weight:700;color:var(--dark);">Aucune annonce publiée</div>
-    <div style="font-size:.75rem;color:var(--gray);margin-top:.3rem;">Publie ta première annonce depuis le tableau de bord !</div>
-    <button onclick="location.href='dashboard.html'" style="margin-top:.8rem;padding:.5rem 1.2rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🛍️ Publier</button>
+    <div style="font-size:2.2rem;margin-bottom:.5rem">📭</div>
+    <div style="font-size:.85rem;font-weight:700;color:var(--dark)">Aucune annonce publiée</div>
+    <div style="font-size:.75rem;color:var(--gray);margin-top:.3rem">Publie ta première annonce depuis le tableau de bord !</div>
+    <button onclick="location.href='dashboard.html'" style="margin-top:.8rem;padding:.5rem 1.2rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">🛍️ Publier</button>
   </div>
 </div>
 
 <!-- AVIS -->
 <div class="sec"><div class="sec-ttl">⭐ Mes avis reçus</div></div>
 <div id="avisSection" style="margin:0 1.2rem .4rem;display:flex;flex-direction:column;gap:.6rem;">
-  <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem;">⏳ Chargement…</div>
+  <div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.5rem">⏳ Chargement…</div>
 </div>
 
 <!-- MES SERVICES -->
@@ -515,29 +514,29 @@
   <div class="empty-services">
     <div class="es-ico">💰</div>
     <div class="es-title">Commence à gagner</div>
-    <div class="es-desc">Tu n'as pas encore rejoint un service.<br>Rejoins une activité et gagne de l'argent !</div>
+    <div class="es-desc">Tu n'as pas encore rejoint un service.</div>
     <button class="es-btn" onclick="location.href='gagner.html'">Voir les opportunités →</button>
   </div>
 </div>
 
 <!-- SERVICE CLIENT -->
 <div class="sec"><div class="sec-ttl">🎧 Service client</div></div>
-<div style="margin:0 1.2rem .4rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;box-shadow:0 2px 10px rgba(27,63,228,.05);display:flex;flex-direction:column;gap:.7rem;">
-  <div style="font-size:.78rem;color:var(--gray);line-height:1.6;">Une question ? Un problème ? Notre équipe est disponible pour t'aider 🙌</div>
-  <a href="https://wa.me/237689011185?text=Bonjour%20AfriMarket%2C%20j%27ai%20besoin%20d%27aide%20%F0%9F%91%8B" target="_blank" style="display:flex;align-items:center;gap:.85rem;background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
-    <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,194,113,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">💬</div>
-    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878;">WhatsApp</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">+237 689 011 185 · Réponse rapide</div></div>
-    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878;">→</div>
+<div style="margin:0 1.2rem .4rem;background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.2rem;display:flex;flex-direction:column;gap:.7rem;">
+  <div style="font-size:.78rem;color:var(--gray);line-height:1.6">Une question ? Notre équipe est disponible 🙌</div>
+  <a href="https://wa.me/237689011185?text=Bonjour%20AfriMarket" target="_blank" style="display:flex;align-items:center;gap:.85rem;background:rgba(0,194,113,.06);border:1.5px solid rgba(0,194,113,.2);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
+    <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,194,113,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">💬</div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:#00A878">WhatsApp</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem">+237 689 011 185</div></div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:#00A878">→</div>
   </a>
   <a href="mailto:abdoula13cherif@gmail.com?subject=Support%20AfriMarket" style="display:flex;align-items:center;gap:.85rem;background:rgba(27,63,228,.04);border:1.5px solid rgba(27,63,228,.12);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
-    <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📧</div>
-    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2);">Email</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">abdoula13cherif@gmail.com</div></div>
-    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2);">→</div>
+    <div style="width:42px;height:42px;border-radius:12px;background:rgba(27,63,228,.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">📧</div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--blue2)">Email</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem">abdoula13cherif@gmail.com</div></div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--blue2)">→</div>
   </a>
   <a href="telecharger.html" style="display:flex;align-items:center;gap:.85rem;background:linear-gradient(135deg,rgba(0,194,183,.06),rgba(27,63,228,.04));border:1.5px solid rgba(0,194,183,.25);border-radius:14px;padding:.9rem 1rem;text-decoration:none;">
-    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📲</div>
-    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq);">Installer l'application</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem;">Ajouter AfriMarket à l'écran d'accueil</div></div>
-    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--turq);">→</div>
+    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">📲</div>
+    <div><div style="font-family:'Clash Display',sans-serif;font-size:.88rem;font-weight:700;color:var(--turq)">Installer l'application</div><div style="font-size:.72rem;color:var(--gray);margin-top:.1rem">Ajouter AfriMarket à l'écran d'accueil</div></div>
+    <div style="margin-left:auto;font-size:.75rem;font-weight:700;color:var(--turq)">→</div>
   </a>
 </div>
 
@@ -564,7 +563,7 @@
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title">🗑️ Supprimer ton compte ?</div>
-    <div class="modal-desc">Cette action est <strong>irréversible</strong>. Toutes tes annonces, ton solde et tes données seront définitivement supprimés.</div>
+    <div class="modal-desc">Cette action est <strong>irréversible</strong>. Toutes tes données seront supprimées.</div>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="document.getElementById('delOv').classList.remove('open')">Annuler</button>
       <button class="mbtn mbtn-ok" onclick="deleteAccount()">Supprimer</button>
@@ -576,54 +575,35 @@
 <div class="modal-ov" id="manageOv" onclick="if(event.target===this)closeManageModal()">
   <div class="manage-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <div class="ms-hdr">
-      <div class="ms-ico">👑</div>
-      <div class="ms-title">Gérer mon abonnement</div>
-      <div class="ms-sub" id="manSubtitle">Compte Premium actif</div>
-    </div>
-    <div class="ms-info-card">
-      <div class="ms-plan-ico">👑</div>
-      <div>
-        <div class="ms-plan-name" id="manPlanName">Premium</div>
-        <div class="ms-plan-exp" id="manPlanExp">Expire le —</div>
-      </div>
-    </div>
+    <div class="ms-hdr"><div class="ms-ico">👑</div><div class="ms-title">Gérer mon abonnement</div><div class="ms-sub" id="manSubtitle">Premium actif</div></div>
+    <div class="ms-info-card"><div class="ms-plan-ico">👑</div><div><div class="ms-plan-name" id="manPlanName">Premium</div><div class="ms-plan-exp" id="manPlanExp">Expire le —</div></div></div>
     <div class="ms-options">
-      <button class="ms-opt" onclick="renewPlan()"><div class="ms-opt-ico" style="background:rgba(27,63,228,.1);">🔄</div><div class="ms-opt-body"><div class="ms-opt-title">Renouveler maintenant</div><div class="ms-opt-desc">Prolonge ton abonnement avant expiration</div></div><span style="color:var(--gray);font-size:.8rem;">→</span></button>
-      <button class="ms-opt" onclick="upgradePlan()"><div class="ms-opt-ico" style="background:rgba(245,183,49,.12);">⬆️</div><div class="ms-opt-body"><div class="ms-opt-title">Passer à l'annuel</div><div class="ms-opt-desc">Économise 17% avec le plan 12 mois</div></div><span style="color:var(--gray);font-size:.8rem;">→</span></button>
-      <button class="ms-opt" onclick="contactSupport()"><div class="ms-opt-ico" style="background:rgba(0,194,113,.1);">💬</div><div class="ms-opt-body"><div class="ms-opt-title">Contacter le support</div><div class="ms-opt-desc">Problème avec ton abonnement ?</div></div><span style="color:var(--gray);font-size:.8rem;">→</span></button>
-      <button class="ms-opt danger" onclick="cancelPlan()"><div class="ms-opt-ico" style="background:rgba(232,48,48,.08);">❌</div><div class="ms-opt-body"><div class="ms-opt-title">Annuler l'abonnement</div><div class="ms-opt-desc">Accès maintenu jusqu'à expiration</div></div><span style="color:var(--gray);font-size:.8rem;">→</span></button>
+      <button class="ms-opt" onclick="renewPlan()"><div class="ms-opt-ico" style="background:rgba(27,63,228,.1)">🔄</div><div class="ms-opt-body"><div class="ms-opt-title">Renouveler</div><div class="ms-opt-desc">Prolonge avant expiration</div></div><span style="color:var(--gray);font-size:.8rem">→</span></button>
+      <button class="ms-opt" onclick="upgradePlan()"><div class="ms-opt-ico" style="background:rgba(245,183,49,.12)">⬆️</div><div class="ms-opt-body"><div class="ms-opt-title">Passer à l'annuel</div><div class="ms-opt-desc">Économise 17%</div></div><span style="color:var(--gray);font-size:.8rem">→</span></button>
+      <button class="ms-opt" onclick="contactSupport()"><div class="ms-opt-ico" style="background:rgba(0,194,113,.1)">💬</div><div class="ms-opt-body"><div class="ms-opt-title">Contacter le support</div><div class="ms-opt-desc">Problème avec l'abonnement ?</div></div><span style="color:var(--gray);font-size:.8rem">→</span></button>
+      <button class="ms-opt danger" onclick="cancelPlan()"><div class="ms-opt-ico" style="background:rgba(232,48,48,.08)">❌</div><div class="ms-opt-body"><div class="ms-opt-title">Annuler</div><div class="ms-opt-desc">Accès maintenu jusqu'à expiration</div></div><span style="color:var(--gray);font-size:.8rem">→</span></button>
     </div>
     <button class="ms-close-btn" onclick="closeManageModal()">Fermer</button>
   </div>
 </div>
 
-<!-- MODAL PAIEMENT PREMIUM -->
+<!-- MODAL PAIEMENT -->
 <div class="modal-ov" id="payOv" onclick="if(event.target===this)closePayModal()">
   <div class="pay-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="pay-title">👑 Passer Premium</div>
-    <div class="pay-sub">Paie en Mobile Money en quelques secondes, activation immédiate 🚀</div>
+    <div class="pay-sub">Paie en Mobile Money en quelques secondes 🚀</div>
     <div class="plan-cards">
       <div class="plan-opt selected" id="optMensuel" onclick="selectPlan('mensuel')">
-        <div class="plan-opt-row">
-          <div><div class="plan-opt-name">📅 Mensuel</div><div class="plan-opt-desc">Accès Premium 30 jours</div></div>
-          <div style="display:flex;align-items:center;"><div class="plan-opt-price">2 000 FCFA</div><div class="plan-radio"></div></div>
-        </div>
+        <div class="plan-opt-row"><div><div class="plan-opt-name">📅 Mensuel</div><div class="plan-opt-desc">Accès Premium 30 jours</div></div><div style="display:flex;align-items:center"><div class="plan-opt-price">2 000 FCFA</div><div class="plan-radio"></div></div></div>
       </div>
       <div class="plan-opt" id="optAnnuel" onclick="selectPlan('annuel')">
         <div class="plan-eco">🎉 −17%</div>
-        <div class="plan-opt-row">
-          <div><div class="plan-opt-name">📆 Annuel</div><div class="plan-opt-desc">Accès Premium 12 mois</div></div>
-          <div style="display:flex;align-items:center;"><div class="plan-opt-price">20 000 FCFA</div><div class="plan-radio"></div></div>
-        </div>
+        <div class="plan-opt-row"><div><div class="plan-opt-name">📆 Annuel</div><div class="plan-opt-desc">Accès Premium 12 mois</div></div><div style="display:flex;align-items:center"><div class="plan-opt-price">20 000 FCFA</div><div class="plan-radio"></div></div></div>
       </div>
     </div>
-    <div style="font-size:.7rem;color:var(--gray);font-weight:600;margin-bottom:.35rem;">Opérateurs acceptés :</div>
-    <div class="pay-ops">
-      <span class="pay-op">📱 MTN MoMo</span><span class="pay-op">🟠 Orange Money</span>
-      <span class="pay-op">🔵 Moov Money</span><span class="pay-op">🟡 Wave</span>
-    </div>
+    <div style="font-size:.7rem;color:var(--gray);font-weight:600;margin-bottom:.35rem">Opérateurs acceptés :</div>
+    <div class="pay-ops"><span class="pay-op">📱 MTN MoMo</span><span class="pay-op">🟠 Orange Money</span><span class="pay-op">🔵 Moov Money</span><span class="pay-op">🟡 Wave</span></div>
     <div class="pay-avantages">
       <div class="pay-avantages-ttl">✨ Ce que tu débloques</div>
       <div>✅ Annonces illimitées</div><div>✅ Mise en avant prioritaire</div>
@@ -632,418 +612,311 @@
     <button class="pay-btn" id="payBtn" onclick="lancerPaiement()">
       <div class="pay-spin"></div><span class="pay-lbl">💳 Payer 2 000 FCFA</span>
     </button>
-    <div class="pay-secure">🔒 Paiement sécurisé par Monetbil · Aucune carte bancaire requise</div>
-    <div style="text-align:center;margin-top:.8rem;">
-      <button onclick="closePayModal()" style="background:none;border:none;color:var(--gray);font-size:.78rem;cursor:pointer;">Fermer ✕</button>
-    </div>
+    <div class="pay-secure">🔒 Paiement sécurisé par Monetbil</div>
+    <div style="text-align:center;margin-top:.8rem"><button onclick="closePayModal()" style="background:none;border:none;color:var(--gray);font-size:.78rem;cursor:pointer">Fermer ✕</button></div>
   </div>
 </div>
 
 <div id="toast"></div>
 
-<script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
+<script src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
 <script>
 'use strict';
 
-/* ══ HELPERS ══ */
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+/* ── HELPERS ── */
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-/* ══ SUPABASE ══ */
+/* ── SUPABASE ── */
 var _sb = supabase.createClient(
   'https://elgbvitijyjriozvzqpf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
 );
 
-/* ══ STATE ══ */
-var U = null, P = null, hasChanges = false;
-var _notifData = [];
+var U = null, P = null, hasChanges = false, _notifData = [];
 
 /* ══ MONETBIL ══ */
-var MONETBIL_KEY    = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
-var MONETBIL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
-var PLANS = {
-  mensuel: { amount:2000,  label:'2 000',  months:1,  dbPlan:'premium' },
-  annuel:  { amount:20000, label:'20 000', months:12, dbPlan:'premium_annual' }
-};
-var _selectedPlan = 'mensuel';
+var MBL_KEY = 'xNWoLFAokADNyFO6xwgvv8eWXdjriILZ';
+var MBL_NOTIFY = 'https://elgbvitijyjriozvzqpf.supabase.co/functions/v1/monetbil-notify';
+var PLANS = { mensuel:{amount:2000,label:'2 000',dbPlan:'premium'}, annuel:{amount:20000,label:'20 000',dbPlan:'premium_annual'} };
+var _selPlan = 'mensuel';
 
-function openPayModal() {
-  if (P&&P.is_premium) { showToast('👑 Ton compte est déjà Premium !','info'); return; }
-  selectPlan('mensuel');
-  document.getElementById('payOv').classList.add('open');
-}
-function closePayModal() { document.getElementById('payOv').classList.remove('open'); }
+function openPayModal(){ if(P&&P.is_premium){showToast('👑 Déjà Premium !','info');return;} selectPlan('mensuel'); document.getElementById('payOv').classList.add('open'); }
+function closePayModal(){ document.getElementById('payOv').classList.remove('open'); }
+function selectPlan(k){ _selPlan=k; document.getElementById('optMensuel').classList.toggle('selected',k==='mensuel'); document.getElementById('optAnnuel').classList.toggle('selected',k==='annuel'); document.querySelector('#payBtn .pay-lbl').textContent='💳 Payer '+PLANS[k].label+' FCFA'; }
 
-function selectPlan(key) {
-  _selectedPlan = key;
-  document.getElementById('optMensuel').classList.toggle('selected', key==='mensuel');
-  document.getElementById('optAnnuel').classList.toggle('selected',  key==='annuel');
-  document.querySelector('#payBtn .pay-lbl').textContent = '💳 Payer ' + PLANS[key].label + ' FCFA';
-}
-
-async function lancerPaiement() {
-  if (!U) { showToast('Connecte-toi pour payer','warning'); return; }
-  var plan = PLANS[_selectedPlan];
-  var ref  = 'AM_' + Date.now() + '_' + U.id.slice(0,8);
-  var btn  = document.getElementById('payBtn');
-  btn.disabled=true; btn.classList.add('loading');
-  try {
-    await _sb.from('payment_requests').insert([{ user_id:U.id, plan:plan.dbPlan, amount:plan.amount, payment_ref:ref, status:'pending', created_at:new Date().toISOString() }]);
+async function lancerPaiement(){
+  if(!U){showToast('Connecte-toi','warning');return;}
+  var plan=PLANS[_selPlan], ref='AM_'+Date.now()+'_'+U.id.slice(0,8);
+  var btn=document.getElementById('payBtn'); btn.disabled=true; btn.classList.add('loading');
+  try{
+    await _sb.from('payment_requests').insert([{user_id:U.id,plan:plan.dbPlan,amount:plan.amount,payment_ref:ref,status:'pending',created_at:new Date().toISOString()}]);
     closePayModal();
-    if (typeof monetbil !== 'undefined') {
-      monetbil.launch({
-        service:MONETBIL_KEY, amount:plan.amount, currency:'XAF', locale:'fr',
-        phone:(P&&P.whatsapp)?P.whatsapp.replace(/\D/g,''):'',
-        item_ref:U.id, payment_ref:ref, notify_url:MONETBIL_NOTIFY, return_url:window.location.href,
-        onComplete:function(data) {
-          if (data&&data.status==='success') {
-            showToast('✅ Paiement reçu ! Activation sous 24h par l\'administrateur.','success');
-          } else showToast('Paiement annulé ou échoué','warning');
-        }
-      });
-    } else {
-      var p=new URLSearchParams({amount:plan.amount,currency:'XAF',locale:'fr',item_ref:U.id,payment_ref:ref,notify_url:MONETBIL_NOTIFY,return_url:window.location.href});
-      window.location.href='https://www.monetbil.com/widget/v2.1/'+MONETBIL_KEY+'?'+p.toString();
+    if(typeof monetbil!=='undefined'){
+      monetbil.launch({service:MBL_KEY,amount:plan.amount,currency:'XAF',locale:'fr',phone:(P&&P.whatsapp)?P.whatsapp.replace(/\D/g,''):'',item_ref:U.id,payment_ref:ref,notify_url:MBL_NOTIFY,return_url:window.location.href,
+        onComplete:function(d){showToast(d&&d.status==='success'?'✅ Paiement reçu ! Activation sous 24h.':'Paiement annulé',d&&d.status==='success'?'success':'warning');}});
+    }else{
+      var p=new URLSearchParams({amount:plan.amount,currency:'XAF',locale:'fr',item_ref:U.id,payment_ref:ref,notify_url:MBL_NOTIFY,return_url:window.location.href});
+      window.location.href='https://www.monetbil.com/widget/v2.1/'+MBL_KEY+'?'+p;
     }
-  } catch(err) { showToast('Erreur : '+(err.message||'Inconnue'),'error'); }
-  finally { btn.disabled=false; btn.classList.remove('loading'); }
+  }catch(e){showToast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.classList.remove('loading');}
 }
 
 /* ══ MODAL GÉRER ABONNEMENT ══ */
-function openManageModal() {
-  if (!P||!P.is_premium) { openPayModal(); return; }
-  var exp = P.plan_expires ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
-  document.getElementById('manPlanName').textContent = P.plan==='premium_annual' ? 'Premium Annuel' : 'Premium Mensuel';
-  document.getElementById('manPlanExp').textContent  = 'Expire le ' + exp;
-  document.getElementById('manSubtitle').textContent = 'Actif jusqu\'au ' + exp;
+function openManageModal(){
+  if(!P||!P.is_premium){openPayModal();return;}
+  var exp=P.plan_expires?new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}):'—';
+  document.getElementById('manPlanName').textContent=P.plan==='premium_annual'?'Premium Annuel':'Premium Mensuel';
+  document.getElementById('manPlanExp').textContent='Expire le '+exp;
+  document.getElementById('manSubtitle').textContent='Actif jusqu\'au '+exp;
   document.getElementById('manageOv').classList.add('open');
 }
-function closeManageModal() { document.getElementById('manageOv').classList.remove('open'); }
-function renewPlan()    { closeManageModal(); selectPlan('mensuel'); document.getElementById('payOv').classList.add('open'); }
-function upgradePlan()  { closeManageModal(); selectPlan('annuel');  document.getElementById('payOv').classList.add('open'); }
-function contactSupport(){ closeManageModal(); window.open('https://wa.me/237689011185?text=Probl%C3%A8me+abonnement+AfriMarket','_blank'); }
-function cancelPlan()  { closeManageModal(); showToast('Contacte notre support WhatsApp pour annuler','info'); setTimeout(function(){ window.open('https://wa.me/237689011185?text=Annulation+abonnement+AfriMarket','_blank'); },1500); }
+function closeManageModal(){ document.getElementById('manageOv').classList.remove('open'); }
+function renewPlan(){ closeManageModal(); selectPlan('mensuel'); document.getElementById('payOv').classList.add('open'); }
+function upgradePlan(){ closeManageModal(); selectPlan('annuel'); document.getElementById('payOv').classList.add('open'); }
+function contactSupport(){ closeManageModal(); window.open('https://wa.me/237689011185?text=Probl%C3%A8me+abonnement','_blank'); }
+function cancelPlan(){ closeManageModal(); showToast('Contacte le support WhatsApp','info'); setTimeout(function(){window.open('https://wa.me/237689011185','_blank');},1500); }
 
-/* ══════════════════════════════════════════════════
-   INIT — appelé une seule fois
-══════════════════════════════════════════════════ */
-(async function() {
-  /* 1. Auth */
-  try {
-    var s = await _sb.auth.getSession();
-    var session = s.data && s.data.session;
-    if (!session) { location.href = 'auth.html'; return; }
-    U = session.user;
-  } catch(e) { showToast('Erreur connexion : '+e.message,'error'); return; }
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+(async function(){
+  try{
+    var s=await _sb.auth.getSession();
+    if(!s.data||!s.data.session){location.href='auth.html';return;}
+    U=s.data.session.user;
+  }catch(e){showToast('Erreur connexion','error');return;}
 
-  /* 2. Affichage immédiat depuis user_metadata */
-  var meta = U.user_metadata || {};
-  P = {
-    full_name:  meta.full_name || meta.name || U.email.split('@')[0],
-    email:      U.email,
-    avatar_url: meta.avatar_url || ''
-  };
+  var meta=U.user_metadata||{};
+  P={full_name:meta.full_name||meta.name||U.email.split('@')[0],email:U.email,avatar_url:meta.avatar_url||''};
   fillForm(); updateHero();
 
-  /* 3. Charger le profil DB */
-  try {
-    var pr = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
-    if (pr.error) throw pr.error;
-    if (pr.data) {
-      P = Object.assign({}, P, pr.data);
-    } else {
-      /* Créer le profil si absent */
-      var np = { id:U.id, full_name:P.full_name, email:U.email, created_at:new Date().toISOString() };
-      var ins = await _sb.from('profiles').upsert(np, {onConflict:'id'}).select().maybeSingle();
-      if (ins.data) P = Object.assign({}, P, ins.data);
+  try{
+    var pr=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+    if(pr.error) throw pr.error;
+    if(pr.data){ P=Object.assign({},P,pr.data); }
+    else{
+      var ins=await _sb.from('profiles').upsert({id:U.id,full_name:P.full_name,email:U.email,created_at:new Date().toISOString()},{onConflict:'id'}).select().maybeSingle();
+      if(ins.data) P=Object.assign({},P,ins.data);
     }
-  } catch(e) { console.warn('Profile fetch:', e.message); }
+  }catch(e){console.warn('Profile:',e.message);}
 
-  /* 4. Tout afficher (une seule fois après le fetch) */
   fillForm(); updateHero(); updateCompletion(); updatePremiumCard();
   loadStats(); loadMyAds(); loadMyAvis(U.id); loadUnreadMessages();
   loadMyServices(); loadNotifications(); setupRealtime();
-
-  /* 5. Bannière boutique (séparée, après le reste) */
   initBoutiqueBanner();
 })();
 
-/* ══ FILL FORM — définition unique ══ */
-function fillForm() {
-  if (!P) return;
-  document.getElementById('fName').value    = P.full_name  || '';
-  document.getElementById('fWa').value      = P.whatsapp   || '';
-  document.getElementById('fPays').value    = P.pays       || '';
-  document.getElementById('fVille').value   = P.ville      || '';
-  document.getElementById('fBio').value     = P.bio        || '';
-  document.getElementById('fFacebook').value  = P.facebook  || '';
-  document.getElementById('fInstagram').value = P.instagram || '';
-  document.getElementById('fTiktok').value    = P.tiktok    || '';
+/* ══ FILL FORM ══ */
+function fillForm(){
+  if(!P)return;
+  document.getElementById('fName').value    = P.full_name  ||'';
+  document.getElementById('fWa').value      = P.whatsapp   ||'';
+  document.getElementById('fPays').value    = P.pays       ||'';
+  document.getElementById('fVille').value   = P.ville      ||'';
+  document.getElementById('fBio').value     = P.bio        ||'';
+  document.getElementById('fFacebook').value  = P.facebook  ||'';
+  document.getElementById('fInstagram').value = P.instagram ||'';
+  document.getElementById('fTiktok').value    = P.tiktok    ||'';
 }
 
 /* ══ HERO ══ */
-function updateHero() {
-  if (!P) return;
-  var name = P.full_name || (U&&U.email ? U.email.split('@')[0] : 'Utilisateur');
+function updateHero(){
+  if(!P)return;
+  var name=P.full_name||(U&&U.email?U.email.split('@')[0]:'Utilisateur');
   document.getElementById('heroName').textContent  = name;
   document.getElementById('heroEmail').textContent = (U&&U.email)||'';
-  var avEl = document.getElementById('avatarEl');
-  if (P.avatar_url && P.avatar_url.startsWith('http')) {
-    avEl.innerHTML = '<img src="'+escHtml(P.avatar_url)+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\'"/>';
-  } else {
-    avEl.innerHTML = '<span id="avatarInitial">'+escHtml((name[0]||'?').toUpperCase())+'</span>';
+  var av=document.getElementById('avatarEl');
+  if(P.avatar_url&&P.avatar_url.startsWith('http')){
+    av.innerHTML='<img src="'+escHtml(P.avatar_url)+'" alt="av" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\'"/>';
+  }else{
+    av.innerHTML='<span id="avatarInitial">'+escHtml((name[0]||'?').toUpperCase())+'</span>';
   }
-  var pl = document.getElementById('heroPlan');
-  if (P.is_premium) {
-    pl.className   = 'hero-plan '+(P.plan==='elite'?'elite':'premium');
-    pl.textContent = P.plan==='elite' ? '⚡ Compte Elite' : '👑 Compte Premium';
-  } else { pl.className='hero-plan free'; pl.textContent='🆓 Compte Gratuit'; }
+  var pl=document.getElementById('heroPlan');
+  if(P.is_premium){pl.className='hero-plan '+(P.plan==='elite'?'elite':'premium');pl.textContent=P.plan==='elite'?'⚡ Elite':'👑 Premium';}
+  else{pl.className='hero-plan free';pl.textContent='🆓 Compte Gratuit';}
+  updateBurgerHeader();
 }
 
+/* ══ BURGER MENU ══ */
+function toggleBurger(e){
+  e.stopPropagation();
+  var btn=document.getElementById('burgerBtn'),menu=document.getElementById('burgerMenu'),ov=document.getElementById('burgerOverlay');
+  if(menu.classList.contains('open')){closeBurger();}
+  else{btn.classList.add('open');menu.classList.add('open');ov.classList.add('show');updateBurgerHeader();}
+}
+function closeBurger(){
+  var btn=document.getElementById('burgerBtn'),menu=document.getElementById('burgerMenu'),ov=document.getElementById('burgerOverlay');
+  if(btn)btn.classList.remove('open');if(menu)menu.classList.remove('open');if(ov)ov.classList.remove('show');
+}
+function updateBurgerHeader(){
+  if(!P&&!U)return;
+  var name=(P&&P.full_name)||(U&&U.email?U.email.split('@')[0]:'Mon compte');
+  var nm=document.getElementById('bmName'), pl=document.getElementById('bmPlan'), av=document.getElementById('bmAvatar');
+  if(nm)nm.textContent=name;
+  if(pl)pl.textContent=P&&P.is_premium?'👑 Premium actif':'🆓 Compte Gratuit';
+  if(av){
+    if(P&&P.avatar_url&&P.avatar_url.startsWith('http')){
+      av.innerHTML='<img src="'+escHtml(P.avatar_url)+'" alt="" onerror="this.style.display=\'none\'"/>';
+    }else{
+      av.textContent=(name[0]||'?').toUpperCase();
+    }
+  }
+}
+document.addEventListener('click',function(e){
+  var menu=document.getElementById('burgerMenu'),btn=document.getElementById('burgerBtn');
+  if(menu&&menu.classList.contains('open')&&!menu.contains(e.target)&&!btn.contains(e.target))closeBurger();
+});
+
 /* ══ COMPLÉTION ══ */
-function updateCompletion() {
-  if (!P) return;
-  var checks = [
-    {ok:!!(P.full_name), label:'Nom'},
-    {ok:!!(P.whatsapp),  label:'WhatsApp'},
-    {ok:!!(P.ville),     label:'Ville'},
-    {ok:!!(P.avatar_url&&P.avatar_url.startsWith('http')), label:'Photo'},
-    {ok:!!(P.pays),      label:'Pays'},
-    {ok:!!(P.bio),       label:'Bio'}
-  ];
-  var done = checks.filter(function(c){return c.ok;}).length;
-  var pct  = Math.round(done/checks.length*100);
-  document.getElementById('ccPct').textContent = pct+'%';
-  var fill = document.getElementById('ccFill');
-  fill.style.width = pct+'%';
-  if (pct>=100) fill.classList.add('done'); else fill.classList.remove('done');
-  document.getElementById('ccDots').innerHTML = checks.map(function(c){
-    return '<span class="cc-dot '+(c.ok?'ok':'ko')+'">'+(c.ok?'✅':'❌')+' '+escHtml(c.label)+'</span>';
-  }).join('');
+function updateCompletion(){
+  if(!P)return;
+  var c=[{ok:!!(P.full_name),label:'Nom'},{ok:!!(P.whatsapp),label:'WhatsApp'},{ok:!!(P.ville),label:'Ville'},{ok:!!(P.avatar_url&&P.avatar_url.startsWith('http')),label:'Photo'},{ok:!!(P.pays),label:'Pays'},{ok:!!(P.bio),label:'Bio'}];
+  var done=c.filter(function(x){return x.ok;}).length, pct=Math.round(done/c.length*100);
+  document.getElementById('ccPct').textContent=pct+'%';
+  var f=document.getElementById('ccFill');f.style.width=pct+'%';if(pct>=100)f.classList.add('done');else f.classList.remove('done');
+  document.getElementById('ccDots').innerHTML=c.map(function(x){return'<span class="cc-dot '+(x.ok?'ok':'ko')+'">'+(x.ok?'✅':'❌')+' '+escHtml(x.label)+'</span>';}).join('');
 }
 
 /* ══ PREMIUM CARD ══ */
-function updatePremiumCard() {
-  if (!P) return;
-  var card  = document.getElementById('premCard');
-  var badge = document.getElementById('planBadge');
-  var title = document.getElementById('planTitle');
-  var feats = document.getElementById('planFeatures');
-  var desc  = document.getElementById('planDesc');
-  var btn   = document.getElementById('planBtn');
-  /* Nettoyer le bouton boutique s'il existe */
-  var old = document.getElementById('boutiqueCardBtn');
-  if (old) old.remove();
-
-  if (P.is_premium) {
-    card.className    = 'prem-card prem-active';
-    badge.className   = 'pc-badge-prem';
-    badge.textContent = P.plan==='elite' ? '⚡ Elite' : '👑 Premium';
-    title.textContent = P.plan==='elite' ? 'Compte Elite Actif' : 'Compte Premium Actif';
-    feats.innerHTML   = '<div class="pc-feat">✅ Annonces illimitées</div><div class="pc-feat">✅ Mise en avant prioritaire</div><div class="pc-feat">✅ Badge vendeur vérifié</div><div class="pc-feat">✅ Statistiques avancées</div>';
-    var exp = P.plan_expires ? new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
-    desc.innerHTML    = '<div class="pc-expires">⏰ Expire le '+escHtml(exp)+'</div>';
-    btn.className     = 'pc-btn pc-btn-manage';
-    btn.textContent   = '⚙️ Gérer mon abonnement';
-    btn.onclick       = openManageModal;
-    /* Bouton boutique pour premium */
-    var boutBtn = document.createElement('button');
-    boutBtn.id = 'boutiqueCardBtn';
-    boutBtn.textContent = '🏪 Gérer ma boutique';
-    boutBtn.style.cssText = 'width:100%;margin-top:.6rem;padding:.55rem;border-radius:11px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:white;font-size:.75rem;font-weight:700;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;';
-    boutBtn.onclick = function(){ location.href='boutique-manager.html'; };
-    btn.parentNode.appendChild(boutBtn);
-    card.querySelector('.pc-top').children[0].textContent = '👑';
-  } else {
-    card.className    = 'prem-card free-card';
-    badge.className   = 'pc-badge-free';
-    badge.textContent = 'Compte Gratuit';
-    title.textContent = 'Passe à Premium';
-    feats.innerHTML   = '<div class="pc-feat">🆓 10 annonces gratuites / mois</div><div class="pc-feat">❌ Pas de mise en avant</div><div class="pc-feat">❌ Pas de badge vendeur vérifié</div>';
-    desc.innerHTML    = 'Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.';
-    btn.className     = 'pc-btn pc-btn-upgrade';
-    btn.textContent   = '👑 Passer Premium — Mobile Money';
-    btn.onclick       = openPayModal;
-    card.querySelector('.pc-top').children[0].textContent = '🆓';
+function updatePremiumCard(){
+  if(!P)return;
+  var card=document.getElementById('premCard'),badge=document.getElementById('planBadge'),title=document.getElementById('planTitle');
+  var feats=document.getElementById('planFeatures'),desc=document.getElementById('planDesc'),btn=document.getElementById('planBtn');
+  var old=document.getElementById('boutiqueCardBtn');if(old)old.remove();
+  if(P.is_premium){
+    card.className='prem-card prem-active';badge.className='pc-badge-prem';badge.textContent=P.plan==='elite'?'⚡ Elite':'👑 Premium';
+    title.textContent=P.plan==='elite'?'Compte Elite Actif':'Compte Premium Actif';
+    feats.innerHTML='<div class="pc-feat">✅ Annonces illimitées</div><div class="pc-feat">✅ Mise en avant prioritaire</div><div class="pc-feat">✅ Badge vendeur vérifié</div><div class="pc-feat">✅ Statistiques avancées</div>';
+    var exp=P.plan_expires?new Date(P.plan_expires).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}):'—';
+    desc.innerHTML='<div class="pc-expires">⏰ Expire le '+escHtml(exp)+'</div>';
+    btn.className='pc-btn pc-btn-manage';btn.textContent='⚙️ Gérer mon abonnement';btn.onclick=openManageModal;
+    card.querySelector('.pc-top').children[0].textContent='👑';
+  }else{
+    card.className='prem-card free-card';badge.className='pc-badge-free';badge.textContent='Compte Gratuit';
+    title.textContent='Passe à Premium';
+    feats.innerHTML='<div class="pc-feat">🆓 10 annonces / mois</div><div class="pc-feat">❌ Pas de mise en avant</div><div class="pc-feat">❌ Pas de badge vérifié</div>';
+    desc.innerHTML='Débloque les annonces illimitées, la mise en avant et le badge vendeur dès 2 000 FCFA/mois.';
+    btn.className='pc-btn pc-btn-upgrade';btn.textContent='👑 Passer Premium — Mobile Money';btn.onclick=openPayModal;
+    card.querySelector('.pc-top').children[0].textContent='🆓';
   }
 }
 
 /* ══ STATS ══ */
-async function loadStats() {
-  try {
-    var adsRes  = await _sb.from('annonces').select('id',{count:'exact',head:true}).eq('user_id',U.id);
-    var refCode = (P&&P.ref_code) ? P.ref_code : U.id.substring(0,8);
-    var refsRes = await _sb.from('profiles').select('id',{count:'exact',head:true}).eq('referred_by',refCode);
-    var earnRes = await _sb.from('referral_earnings').select('amount,status').eq('user_id',U.id);
-    var solde   = 0;
-    if (earnRes.data) solde = earnRes.data.filter(function(e){return e.status==='available';}).reduce(function(s,e){return s+(e.amount||0);},0);
-    var days = (P&&P.created_at) ? Math.floor((Date.now()-new Date(P.created_at).getTime())/86400000) : 0;
-    document.getElementById('statAds').textContent   = adsRes.count||0;
-    document.getElementById('statRefs').textContent  = refsRes.count||0;
-    document.getElementById('statSolde').textContent = solde.toLocaleString('fr-FR');
-    document.getElementById('statDays').textContent  = days;
-  } catch(e) { console.warn('loadStats:',e); }
+async function loadStats(){
+  try{
+    var ar=await _sb.from('annonces').select('id',{count:'exact',head:true}).eq('user_id',U.id);
+    var rc=(P&&P.ref_code)?P.ref_code:U.id.substring(0,8);
+    var rr=await _sb.from('profiles').select('id',{count:'exact',head:true}).eq('referred_by',rc);
+    var er=await _sb.from('referral_earnings').select('amount,status').eq('user_id',U.id);
+    var solde=0;if(er.data)solde=er.data.filter(function(e){return e.status==='available';}).reduce(function(s,e){return s+(e.amount||0);},0);
+    var days=(P&&P.created_at)?Math.floor((Date.now()-new Date(P.created_at).getTime())/86400000):0;
+    document.getElementById('statAds').textContent=ar.count||0;document.getElementById('statRefs').textContent=rr.count||0;
+    document.getElementById('statSolde').textContent=solde.toLocaleString('fr-FR');document.getElementById('statDays').textContent=days;
+  }catch(e){console.warn('stats:',e);}
 }
 
 /* ══ MES ANNONCES ══ */
-async function loadMyAds() {
-  try {
-    var res   = await _sb.from('annonces').select('id,titre,prix,categorie,ville,image_url,created_at').eq('user_id',U.id).order('created_at',{ascending:false}).limit(20);
-    var grid  = document.getElementById('myAdsGrid');
-    var empty = document.getElementById('myAdsEmpty');
-    if (!res.data||!res.data.length) { grid.style.display='none'; empty.style.display='block'; return; }
-    var EMAP = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
-    grid.style.display='grid'; empty.style.display='none';
-    grid.innerHTML = res.data.map(function(ad) {
-      var em=EMAP[ad.categorie]||'📦', prix=ad.prix?Number(ad.prix).toLocaleString('fr-FR')+' FCFA':'Prix libre';
-      var imgH=ad.image_url
-        ?'<img src="'+escHtml(ad.image_url)+'" alt="" style="width:100%;height:95px;object-fit:cover;" loading="lazy">'
-        :'<div style="width:100%;height:95px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">'+em+'</div>';
-      return '<div class="ad-mini-card">'+imgH+'<div style="padding:.5rem .65rem .6rem;"><div style="font-size:.76rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escHtml(ad.titre||'Sans titre')+'</div><div style="font-family:\'Clash Display\',sans-serif;font-size:.8rem;font-weight:700;color:var(--blue2);margin-top:1px;">'+escHtml(prix)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:.35rem;"><span style="font-size:.6rem;color:var(--gray);">📍 '+escHtml(ad.ville||'—')+'</span><button onclick="event.stopPropagation();deleteAd(\''+ad.id+'\')" style="font-size:.6rem;color:var(--red);background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.12rem .45rem;cursor:pointer;font-weight:700;">🗑️</button></div></div></div>';
+async function loadMyAds(){
+  try{
+    var res=await _sb.from('annonces').select('id,titre,prix,categorie,ville,image_url,created_at').eq('user_id',U.id).order('created_at',{ascending:false}).limit(20);
+    var grid=document.getElementById('myAdsGrid'),empty=document.getElementById('myAdsEmpty');
+    if(!res.data||!res.data.length){grid.style.display='none';empty.style.display='block';return;}
+    var EM={immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
+    grid.style.display='grid';empty.style.display='none';
+    grid.innerHTML=res.data.map(function(ad){
+      var em=EM[ad.categorie]||'📦',prix=ad.prix?Number(ad.prix).toLocaleString('fr-FR')+' FCFA':'Prix libre';
+      var img=ad.image_url?'<img src="'+escHtml(ad.image_url)+'" alt="" style="width:100%;height:95px;object-fit:cover;" loading="lazy">'
+        :'<div style="width:100%;height:95px;background:linear-gradient(135deg,#E8EEFF,#F0F4FF);display:flex;align-items:center;justify-content:center;font-size:1.8rem">'+em+'</div>';
+      return '<div class="ad-mini-card">'+img+'<div style="padding:.5rem .65rem .6rem"><div style="font-size:.76rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(ad.titre||'Sans titre')+'</div><div style="font-family:\'Clash Display\',sans-serif;font-size:.8rem;font-weight:700;color:var(--blue2);margin-top:1px">'+escHtml(prix)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:.35rem"><span style="font-size:.6rem;color:var(--gray)">📍 '+escHtml(ad.ville||'—')+'</span><button onclick="event.stopPropagation();deleteAd(\''+ad.id+'\')" style="font-size:.6rem;color:var(--red);background:rgba(232,48,48,.08);border:none;border-radius:6px;padding:.12rem .45rem;cursor:pointer;font-weight:700">🗑️</button></div></div></div>';
     }).join('');
-  } catch(e) { console.warn('loadMyAds:',e); }
+  }catch(e){console.warn('ads:',e);}
 }
-
-async function deleteAd(id) {
-  if (!confirm('Supprimer cette annonce ?')) return;
-  try { var r=await _sb.from('annonces').delete().eq('id',id).eq('user_id',U.id); if(r.error)throw r.error; showToast('Annonce supprimée ✅','success'); loadMyAds(); loadStats(); }
-  catch(e) { showToast('Erreur : '+e.message,'error'); }
+async function deleteAd(id){
+  if(!confirm('Supprimer cette annonce ?'))return;
+  try{var r=await _sb.from('annonces').delete().eq('id',id).eq('user_id',U.id);if(r.error)throw r.error;showToast('Supprimée ✅','success');loadMyAds();loadStats();}
+  catch(e){showToast('Erreur : '+e.message,'error');}
 }
 
 /* ══ AVIS ══ */
-async function loadMyAvis(uid) {
-  try {
+async function loadMyAvis(uid){
+  try{
     var res=await _sb.from('avis').select('note,commentaire,created_at,reviewer_id').eq('seller_id',uid).order('created_at',{ascending:false}).limit(20);
     var sec=document.getElementById('avisSection');
     if(!res.data||!res.data.length){sec.innerHTML='<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.2rem;text-align:center"><div style="font-size:2rem;margin-bottom:.4rem">🌟</div><div style="font-size:.8rem;color:var(--gray)">Aucun avis pour l\'instant.</div></div>';return;}
-    var rids=res.data.map(function(a){return a.reviewer_id;}).filter(Boolean), nm={};
+    var rids=res.data.map(function(a){return a.reviewer_id;}).filter(Boolean),nm={};
     if(rids.length){var pr=await _sb.from('profiles').select('id,full_name').in('id',rids);if(pr.data)pr.data.forEach(function(p){nm[p.id]=p.full_name||'Anonyme';});}
     var avg=(res.data.reduce(function(s,a){return s+a.note;},0)/res.data.length).toFixed(1);
-    var fl=Math.round(parseFloat(avg)), stars='⭐'.repeat(fl)+'☆'.repeat(Math.max(0,5-fl));
-    var bars=[5,4,3,2,1].map(function(n){var c=res.data.filter(function(a){return a.note===n;}).length,p2=Math.round(c/res.data.length*100);return '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem"><span style="font-size:.62rem;color:var(--gray);width:12px">'+n+'</span><div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+p2+'%;background:var(--gold);border-radius:99px"></div></div><span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">'+c+'</span></div>';}).join('');
-    var cards=res.data.slice(0,5).map(function(a){var name=nm[a.reviewer_id]||'Anonyme',init=(name[0]||'?').toUpperCase(),d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}),s2='⭐'.repeat(a.note)+'☆'.repeat(Math.max(0,5-a.note)),cmt=a.commentaire?'<div style="font-size:.76rem;color:var(--dark);line-height:1.5;background:var(--bg);border-radius:10px;padding:.5rem .7rem">"'+escHtml(a.commentaire)+'"</div>':'';return '<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;"><div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;">'+escHtml(init)+'</div><div><div style="font-size:.78rem;font-weight:700;color:var(--dark)">'+escHtml(name)+'</div><div style="font-size:.62rem;color:var(--gray)">'+escHtml(d)+'</div></div><div style="margin-left:auto;font-size:.85rem">'+s2+'</div></div>'+cmt+'</div>';}).join('');
-    sec.innerHTML='<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem;"><div style="text-align:center;flex-shrink:0"><div style="font-family:\'Clash Display\',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">'+avg+'</div><div style="font-size:1rem;margin:.2rem 0">'+stars+'</div><div style="font-size:.65rem;color:var(--gray)">'+res.data.length+' avis</div></div><div style="flex:1">'+bars+'</div></div>'+cards;
-  } catch(e) { console.warn('avis:',e); }
+    var fl=Math.round(parseFloat(avg)),stars='⭐'.repeat(fl)+'☆'.repeat(Math.max(0,5-fl));
+    var bars=[5,4,3,2,1].map(function(n){var c=res.data.filter(function(a){return a.note===n;}).length,p2=Math.round(c/res.data.length*100);return'<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem"><span style="font-size:.62rem;color:var(--gray);width:12px">'+n+'</span><div style="flex:1;height:5px;background:var(--bg);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+p2+'%;background:var(--gold);border-radius:99px"></div></div><span style="font-size:.6rem;color:var(--gray);width:20px;text-align:right">'+c+'</span></div>';}).join('');
+    var cards=res.data.slice(0,5).map(function(a){var name=nm[a.reviewer_id]||'Anonyme',init=(name[0]||'?').toUpperCase(),d=new Date(a.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}),s2='⭐'.repeat(a.note)+'☆'.repeat(Math.max(0,5-a.note)),cmt=a.commentaire?'<div style="font-size:.76rem;color:var(--dark);background:var(--bg);border-radius:10px;padding:.5rem .7rem">"'+escHtml(a.commentaire)+'"</div>':'';return'<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem"><div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white">'+escHtml(init)+'</div><div><div style="font-size:.78rem;font-weight:700;color:var(--dark)">'+escHtml(name)+'</div><div style="font-size:.62rem;color:var(--gray)">'+escHtml(d)+'</div></div><div style="margin-left:auto;font-size:.85rem">'+s2+'</div></div>'+cmt+'</div>';}).join('');
+    sec.innerHTML='<div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.1rem;display:flex;align-items:center;gap:1rem"><div style="text-align:center;flex-shrink:0"><div style="font-family:\'Clash Display\',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dark);line-height:1">'+avg+'</div><div style="font-size:1rem;margin:.2rem 0">'+stars+'</div><div style="font-size:.65rem;color:var(--gray)">'+res.data.length+' avis</div></div><div style="flex:1">'+bars+'</div></div>'+cards;
+  }catch(e){console.warn('avis:',e);}
 }
 
 /* ══ BADGE MESSAGES ══ */
-async function loadUnreadMessages() {
-  if (!U) return;
-  try {
-    var count=0, r1=await _sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',U.id).eq('read',false);
+async function loadUnreadMessages(){
+  if(!U)return;
+  try{
+    var count=0,r1=await _sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',U.id).eq('read',false);
     if(!r1.error){count=r1.count||0;}else{var r2=await _sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',U.id).eq('lu',false);if(!r2.error)count=r2.count||0;}
-    var el=document.getElementById('navMessages'), ex=el.querySelector('.nav-badge'); if(ex)ex.remove();
+    var el=document.getElementById('navMessages'),ex=el.querySelector('.nav-badge');if(ex)ex.remove();
     if(count>0){var b=document.createElement('span');b.className='nav-badge';b.textContent=count>99?'99+':String(count);el.appendChild(b);}
-  } catch(e) { console.warn('msgs:',e); }
+  }catch(e){console.warn('msgs:',e);}
 }
 
 /* ══ NOTIFICATIONS ══ */
-async function loadNotifications() {
-  if (!U) return;
-  try {
-    var res = await _sb.from('notifications').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(30);
-    _notifData = res.data || [];
-    renderNotifPanel(); updateNotifBadge();
-  } catch(e) { console.warn('notifs:',e); }
+async function loadNotifications(){
+  if(!U)return;
+  try{var res=await _sb.from('notifications').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(30);_notifData=res.data||[];renderNotifPanel();updateNotifBadge();}
+  catch(e){console.warn('notifs:',e);}
 }
-
-function updateNotifBadge() {
-  var unread = _notifData.filter(function(n){return !n.read;}).length;
-  var hb=document.getElementById('hDotsBadge'), db=document.getElementById('dmNotifBadge');
-  if (unread>0) { var lbl=unread>9?'9+':String(unread); hb.textContent=lbl; hb.classList.add('show'); db.textContent=lbl; db.classList.add('show'); }
-  else { hb.classList.remove('show'); db.classList.remove('show'); }
+function updateNotifBadge(){
+  var unread=_notifData.filter(function(n){return !n.read;}).length;
+  var hb=document.getElementById('burgerBadge'),db=document.getElementById('bmNotifBadge');
+  if(unread>0){var lbl=unread>9?'9+':String(unread);if(hb){hb.textContent=lbl;hb.classList.add('show');}if(db){db.textContent=lbl;db.classList.add('show');}}
+  else{if(hb)hb.classList.remove('show');if(db)db.classList.remove('show');}
 }
-
-function renderNotifPanel() {
-  var list = document.getElementById('notifList');
-  if (!_notifData.length) { list.innerHTML='<div class="np-empty"><div class="np-empty-ico">🔔</div><div class="np-empty-txt">Aucune notification pour l\'instant</div></div>'; return; }
-  var COLS = {success:'rgba(0,194,113,.12)',error:'rgba(232,48,48,.1)',info:'rgba(27,63,228,.08)',warning:'rgba(245,183,49,.1)'};
-  list.innerHTML = _notifData.map(function(n){
-    var col=COLS[n.type]||'rgba(27,63,228,.08)', ago=fmtAgo(new Date(n.created_at));
-    return '<div class="notif-item '+(n.read?'':'unread')+'" onclick="markNotifRead(\''+n.id+'\',this)">'
-      +'<div class="ni-ico" style="background:'+col+';">'+(n.icon||'🔔')+'</div>'
-      +'<div class="ni-body"><div class="ni-title">'+escHtml(n.title||'Notification')+'</div>'
-      +'<div class="ni-msg">'+escHtml(n.message||'')+'</div>'
-      +'<div class="ni-date">'+ago+'</div></div>'
-      +(!n.read?'<div class="ni-dot"></div>':'')
-      +'</div>';
-  }).join('');
+function renderNotifPanel(){
+  var list=document.getElementById('notifList');
+  if(!_notifData.length){list.innerHTML='<div class="np-empty"><div class="np-empty-ico">🔔</div><div class="np-empty-txt">Aucune notification</div></div>';return;}
+  var COLS={success:'rgba(0,194,113,.12)',error:'rgba(232,48,48,.1)',info:'rgba(27,63,228,.08)',warning:'rgba(245,183,49,.1)'};
+  list.innerHTML=_notifData.map(function(n){var col=COLS[n.type]||'rgba(27,63,228,.08)',ago=fmtAgo(new Date(n.created_at));return'<div class="notif-item '+(n.read?'':'unread')+'" onclick="markNotifRead(\''+n.id+'\',this)"><div class="ni-ico" style="background:'+col+'">'+(n.icon||'🔔')+'</div><div class="ni-body"><div class="ni-title">'+escHtml(n.title||'Notification')+'</div><div class="ni-msg">'+escHtml(n.message||'')+'</div><div class="ni-date">'+ago+'</div></div>'+(!n.read?'<div class="ni-dot"></div>':'')+'</div>';}).join('');
 }
-
-function fmtAgo(d) {
-  var diff=(Date.now()-d.getTime())/1000;
-  if(diff<60) return 'À l\'instant';
-  if(diff<3600) return Math.floor(diff/60)+' min';
-  if(diff<86400) return Math.floor(diff/3600)+'h';
-  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
-}
-
-async function markNotifRead(id,el) {
-  try { await _sb.from('notifications').update({read:true}).eq('id',id); var n=_notifData.find(function(x){return x.id===id;}); if(n)n.read=true; el.classList.remove('unread'); var dot=el.querySelector('.ni-dot'); if(dot)dot.remove(); updateNotifBadge(); }
-  catch(e) {}
-}
-
-async function markAllNotifRead() {
-  if (!U) return;
-  try { await _sb.from('notifications').update({read:true}).eq('user_id',U.id).eq('read',false); _notifData.forEach(function(n){n.read=true;}); renderNotifPanel(); updateNotifBadge(); showToast('Notifications marquées comme lues','success'); }
-  catch(e) { showToast('Erreur : '+e.message,'error'); }
-}
-
-function openNotifPanel()  { document.getElementById('notifPanel').classList.add('open'); document.getElementById('notifOverlay').classList.add('open'); loadNotifications(); }
-function closeNotifPanel() { document.getElementById('notifPanel').classList.remove('open'); document.getElementById('notifOverlay').classList.remove('open'); }
+function fmtAgo(d){var diff=(Date.now()-d.getTime())/1000;if(diff<60)return'À l\'instant';if(diff<3600)return Math.floor(diff/60)+' min';if(diff<86400)return Math.floor(diff/3600)+'h';return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});}
+async function markNotifRead(id,el){try{await _sb.from('notifications').update({read:true}).eq('id',id);var n=_notifData.find(function(x){return x.id===id;});if(n)n.read=true;el.classList.remove('unread');var d=el.querySelector('.ni-dot');if(d)d.remove();updateNotifBadge();}catch(e){}}
+async function markAllNotifRead(){if(!U)return;try{await _sb.from('notifications').update({read:true}).eq('user_id',U.id).eq('read',false);_notifData.forEach(function(n){n.read=true;});renderNotifPanel();updateNotifBadge();showToast('Toutes lues ✅','success');}catch(e){showToast('Erreur : '+e.message,'error');}}
+function openNotifPanel(){document.getElementById('notifPanel').classList.add('open');document.getElementById('notifOverlay').classList.add('open');loadNotifications();}
+function closeNotifPanel(){document.getElementById('notifPanel').classList.remove('open');document.getElementById('notifOverlay').classList.remove('open');}
 
 /* ══ MES SERVICES ══ */
-var SVC_INFO = {
-  'gagner-chasseur'    :{label:'Chasseur de Vendeurs',  icon:'🎯',color:'#E8960A'},
-  'gagner-verificateur':{label:'Vérificateur Certifié', icon:'🕵️',color:'#00A8A0'},
-  'gagner-negociateur' :{label:'Négociateur Pro',       icon:'🗣️',color:'#D4561A'},
-  'gagner-livreur'     :{label:'Livreur Indépendant',   icon:'📦',color:'#009958'},
-  'gagner-formateur'   :{label:'Formateur Certifié',    icon:'🎓',color:'#1B3FE4'},
-  'gagner-courtier'    :{label:'Courtier Import-Export',icon:'🌍',color:'#8B2FD4'},
-  'gagner-encheres'    :{label:'Enchères Inversées',    icon:'🎰',color:'#C42020'}
-};
-
-async function loadMyServices() {
-  if (!U) return;
-  var container = document.getElementById('servicesSection'); if (!container) return;
-  try {
-    var res = await _sb.from('service_registrations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
-    if (res.error) throw res.error;
-    var records = res.data||[];
-    if (!records.length) { container.innerHTML='<div class="empty-services"><div class="es-ico">💰</div><div class="es-title">Commence à gagner</div><div class="es-desc">Tu n\'as pas encore rejoint un service.<br>Rejoins une activité et gagne de l\'argent !</div><button class="es-btn" onclick="location.href=\'gagner.html\'">Voir les opportunités →</button></div>'; return; }
-    container.innerHTML = records.map(function(r) {
-      var s=SVC_INFO[r.service]||{label:r.service,icon:'📋',color:'#888'};
-      var statusLabel={pending:'⏳ En attente de validation',approved:'✅ Actif',rejected:'❌ Non retenu'}[r.status]||r.status;
-      var actionBtn='';
-      if(r.status==='approved') actionBtn='<button class="sb-btn" onclick="location.href=\'mes-missions.html?service='+r.service+'\'">Voir mes missions →</button>';
-      if(r.status==='pending')  actionBtn='<button class="sb-btn" disabled>En cours de traitement</button>';
-      if(r.status==='rejected') actionBtn='<button class="sb-btn" style="background:#f5f5f5;color:#888;" onclick="location.href=\'gagner.html\'">Recandidater</button>';
-      return '<div class="service-badge-card"><div class="sb-ico-wrap" style="background:'+s.color+'20;border:1.5px solid '+s.color+'40;">'+s.icon+'</div><div class="sb-info"><div class="sb-name">'+s.label+'</div><span class="sb-status '+r.status+'">'+statusLabel+'</span>'+(r.status==='pending'?'<div class="sb-pending-info">Réponse sous 24h — vérifie tes notifications</div>':'')+'</div>'+actionBtn+'</div>';
-    }).join('');
-  } catch(e) { console.warn('loadMyServices:',e.message); }
+var SVC_INFO={'gagner-chasseur':{label:'Chasseur de Vendeurs',icon:'🎯',color:'#E8960A'},'gagner-verificateur':{label:'Vérificateur Certifié',icon:'🕵️',color:'#00A8A0'},'gagner-negociateur':{label:'Négociateur Pro',icon:'🗣️',color:'#D4561A'},'gagner-livreur':{label:'Livreur Indépendant',icon:'📦',color:'#009958'},'gagner-formateur':{label:'Formateur Certifié',icon:'🎓',color:'#1B3FE4'},'gagner-courtier':{label:'Courtier Import-Export',icon:'🌍',color:'#8B2FD4'},'gagner-encheres':{label:'Enchères Inversées',icon:'🎰',color:'#C42020'}};
+async function loadMyServices(){
+  if(!U)return;var c=document.getElementById('servicesSection');if(!c)return;
+  try{
+    var res=await _sb.from('service_registrations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
+    if(res.error)throw res.error;var records=res.data||[];
+    if(!records.length){c.innerHTML='<div class="empty-services"><div class="es-ico">💰</div><div class="es-title">Commence à gagner</div><div class="es-desc">Tu n\'as pas encore rejoint un service.</div><button class="es-btn" onclick="location.href=\'gagner.html\'">Voir les opportunités →</button></div>';return;}
+    c.innerHTML=records.map(function(r){var s=SVC_INFO[r.service]||{label:r.service,icon:'📋',color:'#888'};var sl={pending:'⏳ En attente',approved:'✅ Actif',rejected:'❌ Non retenu'}[r.status]||r.status;var ab='';if(r.status==='approved')ab='<button class="sb-btn" onclick="location.href=\'mes-missions.html?service='+r.service+'\'">Missions →</button>';if(r.status==='pending')ab='<button class="sb-btn" disabled>En traitement</button>';if(r.status==='rejected')ab='<button class="sb-btn" style="background:#f5f5f5;color:#888" onclick="location.href=\'gagner.html\'">Recandidater</button>';return'<div class="service-badge-card"><div class="sb-ico-wrap" style="background:'+s.color+'20;border:1.5px solid '+s.color+'40">'+s.icon+'</div><div class="sb-info"><div class="sb-name">'+s.label+'</div><span class="sb-status '+r.status+'">'+sl+'</span>'+(r.status==='pending'?'<div class="sb-pending-info">Réponse sous 24h</div>':'')+'</div>'+ab+'</div>';}).join('');
+  }catch(e){console.warn('services:',e.message);}
 }
 
 /* ══ MARQUER CHANGEMENTS ══ */
-function markChanged(el) {
-  el.classList.add('changed'); hasChanges=true;
-  document.getElementById('hSaveBtn').classList.add('show');
-}
+function markChanged(el){el.classList.add('changed');hasChanges=true;document.getElementById('hSaveBtn').classList.add('show');}
 
 /* ══ UPLOAD AVATAR ══ */
-async function uploadAvatar(input) {
-  var file=input.files[0]; if(!file)return;
-  if(file.size>3*1024*1024){showToast('Image trop grande (max 3 Mo)','warning');return;}
+async function uploadAvatar(input){
+  var file=input.files[0];if(!file)return;
+  if(file.size>3*1024*1024){showToast('Max 3 Mo','warning');return;}
   var reader=new FileReader();
-  reader.onload=function(e){document.getElementById('avatarEl').innerHTML='<img src="'+e.target.result+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';};
+  reader.onload=function(e){document.getElementById('avatarEl').innerHTML='<img src="'+e.target.result+'" alt="av" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';};
   reader.readAsDataURL(file);
   document.getElementById('avatarUploading').classList.add('show');
-  try {
+  try{
     var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace('jpeg','jpg');
     var path='avatars/'+U.id+'_'+Date.now()+'.'+ext;
     var up=await _sb.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
-    if(up.error){showToast('Photo affichée localement uniquement','warning');return;}
+    if(up.error){showToast('Photo locale uniquement','warning');return;}
     var pub=_sb.storage.from('avatars').getPublicUrl(path);
     var url=(pub.data&&pub.data.publicUrl)?pub.data.publicUrl+'?t='+Date.now():null;
     if(!url){var sig=await _sb.storage.from('avatars').createSignedUrl(path,31536000);url=(sig.data&&sig.data.signedUrl)?sig.data.signedUrl:null;}
@@ -1051,104 +924,84 @@ async function uploadAvatar(input) {
     var ur=await _sb.from('profiles').upsert({id:U.id,avatar_url:url},{onConflict:'id'});
     if(ur.error){showToast('Erreur sauvegarde photo','error');return;}
     P.avatar_url=url;
-    document.getElementById('avatarEl').innerHTML='<img src="'+escHtml(url)+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\'"/>';
-    updateCompletion(); showToast('Photo mise à jour ! 🎉','success');
-  } catch(e){showToast('Erreur : '+e.message,'error');}
+    document.getElementById('avatarEl').innerHTML='<img src="'+escHtml(url)+'" alt="av" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\'"/>';
+    updateCompletion();updateBurgerHeader();showToast('Photo mise à jour 🎉','success');
+  }catch(e){showToast('Erreur : '+e.message,'error');}
   finally{document.getElementById('avatarUploading').classList.remove('show');input.value='';}
 }
 
-/* ══════════════════════════════════════════════════
-   SAUVEGARDER — bug principal corrigé
-   - Un seul upsert avec toutes les colonnes de base
-   - Réseaux sociaux tentés dans le même payload
-   - Pas de re-fetch qui peut écraser les données locales
-   - Mise à jour locale de P directement
-══════════════════════════════════════════════════ */
-async function saveProfile() {
-  var name    = document.getElementById('fName').value.trim();
-  var wa      = document.getElementById('fWa').value.trim();
-  var pays    = document.getElementById('fPays').value;
-  var ville   = document.getElementById('fVille').value.trim();
-  var bio     = document.getElementById('fBio').value.trim();
-  var facebook  = document.getElementById('fFacebook').value.trim();
-  var instagram = document.getElementById('fInstagram').value.trim();
-  var tiktok    = document.getElementById('fTiktok').value.trim();
+/* ══════════════════════════════════════
+   SAUVEGARDER — version finale robuste
+══════════════════════════════════════ */
+async function saveProfile(){
+  var name      = document.getElementById('fName').value.trim();
+  var wa        = document.getElementById('fWa').value.trim();
+  var pays      = document.getElementById('fPays').value;
+  var ville     = document.getElementById('fVille').value.trim();
+  var bio       = document.getElementById('fBio').value.trim();
+  var facebook  = (document.getElementById('fFacebook')||{value:''}).value.trim();
+  var instagram = (document.getElementById('fInstagram')||{value:''}).value.trim();
+  var tiktok    = (document.getElementById('fTiktok')||{value:''}).value.trim();
 
-  if (!name) { showToast('Le nom est obligatoire','warning'); return; }
+  if(!name){showToast('Le nom est obligatoire','warning');return;}
+  if(!U){showToast('Non connecté','error');return;}
 
-  var btn  = document.getElementById('saveBtn');
-  var hBtn = document.getElementById('hSaveBtn');
-  btn.disabled=true; btn.textContent='⏳ Sauvegarde…';
-  hBtn.disabled=true; hBtn.textContent='⏳…';
+  var btn=document.getElementById('saveBtn'),hBtn=document.getElementById('hSaveBtn');
+  btn.disabled=true;btn.textContent='⏳ Sauvegarde…';
+  hBtn.disabled=true;hBtn.textContent='⏳…';
 
-  try {
-    /* ── Payload complet avec toutes les colonnes ── */
-    var payload = {
-      id:         U.id,
-      full_name:  name,
-      whatsapp:   wa,
-      pays:       pays,
-      ville:      ville,
-      bio:        bio,
-      facebook:   facebook,
-      instagram:  instagram,
-      tiktok:     tiktok,
-      updated_at: new Date().toISOString()
-    };
-    /* Conserver l'avatar si déjà défini */
-    if (P && P.avatar_url) payload.avatar_url = P.avatar_url;
+  /* Payload de base — colonnes garanties */
+  var base={id:U.id,full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio,updated_at:new Date().toISOString()};
+  if(P&&P.avatar_url)base.avatar_url=P.avatar_url;
 
-    var res = await _sb.from('profiles').upsert(payload, { onConflict:'id' });
+  /* Payload avec réseaux sociaux (colonnes optionnelles) */
+  var full=Object.assign({},base,{facebook:facebook,instagram:instagram,tiktok:tiktok});
 
-    if (res.error) {
-      /* Si erreur sur colonnes inconnues (réseaux sociaux pas encore créés),
-         réessayer SANS les colonnes optionnelles */
-      if (res.error.message && (res.error.message.indexOf('facebook')!==-1 || res.error.message.indexOf('instagram')!==-1 || res.error.message.indexOf('tiktok')!==-1 || res.error.message.indexOf('column')!==-1)) {
-        var payloadBase = {
-          id: U.id, full_name:name, whatsapp:wa, pays:pays,
-          ville:ville, bio:bio, updated_at:new Date().toISOString()
-        };
-        if (P && P.avatar_url) payloadBase.avatar_url = P.avatar_url;
-        var res2 = await _sb.from('profiles').upsert(payloadBase, {onConflict:'id'});
-        if (res2.error) throw res2.error;
-        showToast('Profil sauvegardé ✅ (réseaux sociaux non disponibles — ajoute les colonnes Supabase)','success');
-      } else {
-        throw res.error;
-      }
-    } else {
-      showToast('Profil sauvegardé ✅','success');
+  var ok=false;
+
+  /* Tentative 1 : payload complet */
+  try{
+    var r1=await _sb.from('profiles').upsert(full,{onConflict:'id'});
+    if(r1.error)throw r1.error;
+    ok=true;
+  }catch(e1){
+    /* Si c'est une erreur de colonne inconnue, réessayer sans réseaux */
+    var msg=e1.message||'';
+    var isColErr=msg.indexOf('column')!==-1||msg.indexOf('facebook')!==-1||msg.indexOf('instagram')!==-1||msg.indexOf('tiktok')!==-1||msg.indexOf('42703')!==-1;
+    if(isColErr){
+      try{
+        var r2=await _sb.from('profiles').upsert(base,{onConflict:'id'});
+        if(r2.error)throw r2.error;
+        ok=true;
+        console.warn('Colonnes réseaux sociaux manquantes dans la DB Supabase.');
+      }catch(e2){showToast('Erreur sauvegarde : '+(e2.message||'Inconnue'),'error');}
+    }else{
+      showToast('Erreur : '+msg,'error');
     }
-
-    /* ── Mettre à jour P localement (sans re-fetch) ── */
-    P = Object.assign({}, P, {
-      full_name: name, whatsapp: wa, pays: pays, ville: ville, bio: bio,
-      facebook: facebook, instagram: instagram, tiktok: tiktok
-    });
-
-    /* ── Nettoyer l'état "modifié" ── */
-    document.querySelectorAll('.changed').forEach(function(el){ el.classList.remove('changed'); });
-    hasChanges = false;
-    hBtn.classList.remove('show');
-
-    /* ── Rafraîchir l'affichage ── */
-    updateHero();
-    updateCompletion();
-
-  } catch(e) {
-    console.error('saveProfile error:', e);
-    showToast('Erreur : '+(e.message||'Inconnue'),'error');
-  } finally {
-    btn.disabled=false; btn.textContent='💾 Sauvegarder les modifications';
-    hBtn.disabled=false; hBtn.textContent='💾 Sauvegarder';
   }
+
+  if(ok){
+    /* Mettre P à jour localement */
+    P=Object.assign({},P,{full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio,facebook:facebook,instagram:instagram,tiktok:tiktok});
+    /* Nettoyer les champs */
+    document.querySelectorAll('.changed').forEach(function(el){el.classList.remove('changed');});
+    hasChanges=false;hBtn.classList.remove('show');
+    /* Rafraîchir l'UI */
+    updateHero();updateCompletion();updateBurgerHeader();
+    showToast('Profil sauvegardé ✅','success');
+  }
+
+  btn.disabled=false;btn.textContent='💾 Sauvegarder les modifications';
+  hBtn.disabled=false;hBtn.textContent='💾 Sauvegarder';
 }
 
-/* ══ DÉCONNEXION + SUPPRESSION ══ */
-async function logout() { try{await _sb.auth.signOut();}catch(e){} location.href='auth.html'; }
+/* ══ DÉCONNEXION ══ */
+async function logout(){try{await _sb.auth.signOut();}catch(e){}location.href='auth.html';}
 
-async function deleteAccount() {
-  var btn=document.querySelector('#delOv .mbtn-ok'); if(btn){btn.disabled=true;btn.textContent='⏳…';}
-  try {
+/* ══ SUPPRESSION COMPTE ══ */
+async function deleteAccount(){
+  var btn=document.querySelector('#delOv .mbtn-ok');if(btn){btn.disabled=true;btn.textContent='⏳…';}
+  try{
     await _sb.from('work_submissions').delete().eq('user_id',U.id);
     await _sb.from('service_registrations').delete().eq('user_id',U.id);
     await _sb.from('notifications').delete().eq('user_id',U.id);
@@ -1157,92 +1010,69 @@ async function deleteAccount() {
     await _sb.from('profiles').delete().eq('id',U.id);
     await _sb.auth.signOut();
     showToast('Compte supprimé. Au revoir !','success');
-    setTimeout(function(){ location.href='auth.html'; },1500);
-  } catch(e) { if(btn){btn.disabled=false;btn.textContent='Supprimer';} showToast('Erreur : '+e.message,'error'); }
+    setTimeout(function(){location.href='auth.html';},1500);
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='Supprimer';}showToast('Erreur : '+e.message,'error');}
 }
 
 /* ══ REALTIME ══ */
-function setupRealtime() {
-  _sb.channel('profile-'+U.id)
+function setupRealtime(){
+  _sb.channel('prof-'+U.id)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:'id=eq.'+U.id},async function(){
-      /* Ne re-fetcher QUE si on n'est pas en train de sauvegarder */
-      if (document.getElementById('saveBtn').disabled) return;
+      if(document.getElementById('saveBtn').disabled)return;
       var fr=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
-      if(fr.data){P=Object.assign({},P,fr.data);updateHero();updatePremiumCard();updateCompletion();loadStats();showToast(P.is_premium?'👑 Premium activé !':'🔒 Plan mis à jour','info');}
+      if(fr.data){P=Object.assign({},P,fr.data);updateHero();updatePremiumCard();updateCompletion();fillForm();loadStats();showToast(P.is_premium?'👑 Premium activé !':'Plan mis à jour','info');}
     }).subscribe();
-
-  _sb.channel('notifs-'+U.id)
+  _sb.channel('notif-'+U.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+U.id},function(payload){
-      var n=payload.new; showToast((n.icon||'🔔')+' '+(n.title||'Notification'),'info');
-      _notifData.unshift(n); updateNotifBadge();
-      if(n.title&&(n.title.indexOf('Candidature')!==-1||n.title.indexOf('approuv')!==-1||n.title.indexOf('rejet')!==-1)) loadMyServices();
-      if(n.title&&(n.title.indexOf('Premium')!==-1||n.title.indexOf('Retrait')!==-1)) { setTimeout(async function(){var fr=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();if(fr.data){P=Object.assign({},P,fr.data);updateHero();updatePremiumCard();}},1000); }
+      var n=payload.new;showToast((n.icon||'🔔')+' '+(n.title||'Notification'),'info');
+      _notifData.unshift(n);updateNotifBadge();
+      if(n.title&&(n.title.indexOf('Candidature')!==-1||n.title.indexOf('approuv')!==-1||n.title.indexOf('rejet')!==-1))loadMyServices();
+      if(n.title&&n.title.indexOf('Premium')!==-1){setTimeout(async function(){var fr=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();if(fr.data){P=Object.assign({},P,fr.data);updateHero();updatePremiumCard();}},1000);}
     }).subscribe();
-
   _sb.channel('svc-'+U.id)
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'service_registrations',filter:'user_id=eq.'+U.id},function(payload){
-      var r=payload.new, s=SVC_INFO[r.service]||{label:r.service,icon:'📋'};
-      showToast(r.status==='approved'?'✅ '+s.icon+' '+s.label+' approuvé !':r.status==='rejected'?'❌ '+s.label+' non retenu.':'🔄 Statut '+s.label+' mis à jour.',r.status==='approved'?'success':r.status==='rejected'?'error':'info');
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'service_registrations',filter:'user_id=eq.'+U.id},function(p){
+      var r=p.new,s=SVC_INFO[r.service]||{label:r.service,icon:'📋'};
+      showToast(r.status==='approved'?'✅ '+s.icon+' '+s.label+' approuvé !':r.status==='rejected'?'❌ '+s.label+' non retenu.':'🔄 Statut mis à jour.',r.status==='approved'?'success':r.status==='rejected'?'error':'info');
       loadMyServices();
     }).subscribe();
-
   _sb.channel('msgs-'+U.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'receiver_id=eq.'+U.id},function(){loadUnreadMessages();}).subscribe();
-
-  setInterval(async function(){
-    try { loadMyServices(); loadNotifications(); loadUnreadMessages(); }
-    catch(e){}
-  }, 30000);
+  setInterval(function(){try{loadMyServices();loadNotifications();loadUnreadMessages();}catch(e){}},30000);
 }
 
 /* ══ BANNIÈRE BOUTIQUE ══ */
-async function initBoutiqueBanner() {
-  try {
-    var res = await _sb.from('boutiques').select('id,actif').eq('user_id',U.id).maybeSingle();
-    var shop = res.data;
-    var banner = document.getElementById('boutiqueBanner'); if (!banner) return;
-    if (shop) {
+async function initBoutiqueBanner(){
+  try{
+    var res=await _sb.from('boutiques').select('id,actif').eq('user_id',U.id).maybeSingle();
+    var shop=res.data,banner=document.getElementById('boutiqueBanner');if(!banner)return;
+    if(shop){
       banner.classList.add('has-shop');
-      document.getElementById('bbLabel').textContent  = '🏪 Ta boutique';
-      document.getElementById('bbTitle').textContent  = shop.actif ? 'Ta boutique est en ligne ✅' : 'Ta boutique est désactivée';
-      document.getElementById('bbSub').textContent    = shop.actif ? 'Gère tes produits, commandes et avis clients.' : 'Réactive-la pour que tes clients puissent te trouver.';
-      document.getElementById('bbBtnMain').textContent = '📦 Gérer ma boutique';
+      document.getElementById('bbLabel').textContent='🏪 Ta boutique';
+      document.getElementById('bbTitle').textContent=shop.actif?'Ta boutique est en ligne ✅':'Ta boutique est désactivée';
+      document.getElementById('bbSub').textContent=shop.actif?'Gère tes produits, commandes et avis.':'Réactive-la pour que tes clients te trouvent.';
+      document.getElementById('bbBtnMain').textContent='📦 Gérer ma boutique';
     }
-    banner.style.display = 'block';
-  } catch(e) { console.warn('boutiqueBanner:', e); }
+    banner.style.display='block';
+  }catch(e){console.warn('boutique:',e);}
 }
+function dismissBoutiqueBanner(){var b=document.getElementById('boutiqueBanner');if(b){b.style.transition='all .25s';b.style.opacity='0';b.style.transform='translateY(-8px)';setTimeout(function(){b.remove();},260);}}
 
-function dismissBoutiqueBanner() {
-  var b=document.getElementById('boutiqueBanner');
-  if(b){b.style.transition='all .25s';b.style.opacity='0';b.style.transform='translateY(-8px)';setTimeout(function(){b.remove();},260);}
-}
-
-/* ══ MENU ══ */
-function toggleDots(e){e.stopPropagation();document.getElementById('dotsMenu').classList.toggle('open');}
-function closeDots(){document.getElementById('dotsMenu').classList.remove('open');}
-document.addEventListener('click',function(e){
-  var m=document.getElementById('dotsMenu'),b=document.getElementById('dotsBtn');
-  if(m&&!m.contains(e.target)&&e.target!==b)m.classList.remove('open');
-});
-function shareApp(){var url='https://afrimarket2.vercel.app';if(navigator.share){navigator.share({title:'AfriMarket',text:'🛒 La marketplace africaine !',url:url}).catch(function(){});}else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){showToast('Lien copié ! 📋','success');}).catch(function(){});}}
+/* ══ PARTAGE ══ */
+function shareApp(){var url='https://afrimarket2.vercel.app';if(navigator.share){navigator.share({title:'AfriMarket',text:'🛒 La marketplace africaine !',url:url}).catch(function(){});}else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){showToast('Lien copié 📋','success');}).catch(function(){});}}
 
 /* ══ TOAST ══ */
 var _tt;
 function showToast(msg,type){
   type=type||'success';
-  var ic={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
-  var co={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
-  var el=document.getElementById('toast'); if(!el)return;
-  el.textContent=(ic[type]||'ℹ️')+' '+msg;
-  el.style.borderLeftColor=co[type]||'var(--turq)';
-  el.classList.add('show');
-  clearTimeout(_tt); _tt=setTimeout(function(){el.classList.remove('show');},3800);
+  var ic={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'},co={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
+  var el=document.getElementById('toast');if(!el)return;
+  el.textContent=(ic[type]||'ℹ️')+' '+msg;el.style.borderLeftColor=co[type]||'var(--turq)';el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(function(){el.classList.remove('show');},3800);
 }
 
 /* ══ ALERTE DÉPART ══ */
 window.addEventListener('beforeunload',function(e){if(hasChanges){e.preventDefault();e.returnValue='';}});
 </script>
-
 <script src="push.js"></script>
 </body>
 </html>
