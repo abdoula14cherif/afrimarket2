@@ -666,7 +666,7 @@ async function init() {
   try {
     var res=await _sb.auth.getSession();
     var session=res.data&&res.data.session;
-    if (!session){location.href='index.html';return;}
+    if (!session){location.href='auth.html';return;}
     currentUser=session.user;
   } catch(e){ toast('Erreur auth : '+e.message,'error'); return; }
 
@@ -790,7 +790,7 @@ function buyAnnonce() {
   if (currentUser && currentAd.user_id === currentUser.id) {
     toast("Tu ne peux pas acheter ton propre produit", "warning"); return;
   }
-  if (!currentUser) { location.href = 'index.html'; return; }
+  if (!currentUser) { location.href = 'auth.html'; return; }
   document.getElementById('detailOverlay').classList.remove('open');
   location.href = 'acheter.html?id=' + currentAd.id;
 }
