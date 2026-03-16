@@ -774,7 +774,7 @@ function cancelPlan() {
   try {
     var res = await _sb.auth.getSession();
     var session = res.data && res.data.session;
-    if (!session) { location.href = 'index.html'; return; }
+    if (!session) { location.href = 'auth.html'; return; }
     U = session.user;
   } catch(e) { showToast('Erreur connexion : '+e.message,'error'); return; }
 
@@ -1177,27 +1177,65 @@ async function saveProfile() {
   var btn=document.getElementById('saveBtn'),hBtn=document.getElementById('hSaveBtn');
   btn.disabled=true;btn.textContent='⏳ Sauvegarde…';hBtn.disabled=true;hBtn.textContent='⏳…';
   try {
-    var facebook = document.getElementById('fFacebook').value.trim();
-    var instagram= document.getElementById('fInstagram').value.trim();
-    var tiktok   = document.getElementById('fTiktok').value.trim();
-    var payload={id:U.id,full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio,
-      facebook:facebook,instagram:instagram,tiktok:tiktok,
-      updated_at:new Date().toISOString()};
-    if(P.avatar_url)payload.avatar_url=P.avatar_url;
-    var res=await _sb.from('profiles').upsert(payload,{onConflict:'id'});
-    if(res.error)throw res.error;
-    P=Object.assign({},P,{full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio,facebook:facebook,instagram:instagram,tiktok:tiktok});
+    var facebook = document.getElementById('fFacebook') ? document.getElementById('fFacebook').value.trim() : '';
+    var instagram= document.getElementById('fInstagram') ? document.getElementById('fInstagram').value.trim() : '';
+    var tiktok   = document.getElementById('fTiktok') ? document.getElementById('fTiktok').value.trim() : '';
+
+    // Payload de base (colonnes toujours présentes)
+    var payload = {
+      id: U.id,
+      full_name: name,
+      whatsapp:  wa,
+      pays:      pays,
+      ville:     ville,
+      bio:       bio,
+      updated_at: new Date().toISOString()
+    };
+    if(P.avatar_url) payload.avatar_url = P.avatar_url;
+
+    // Sauvegarder d'abord les champs de base
+    var res = await _sb.from('profiles').upsert(payload, {onConflict:'id'});
+    if(res.error) throw res.error;
+
+    // Essayer d'ajouter les réseaux sociaux séparément (au cas où colonnes manquantes)
+    if(facebook || instagram || tiktok) {
+      var socialPayload = { id: U.id };
+      if(facebook)  socialPayload.facebook  = facebook;
+      if(instagram) socialPayload.instagram = instagram;
+      if(tiktok)    socialPayload.tiktok    = tiktok;
+      var socialRes = await _sb.from('profiles').upsert(socialPayload, {onConflict:'id'});
+      if(socialRes.error) {
+        console.warn('Colonnes réseaux manquantes. Execute social_columns.sql dans Supabase.');
+      }
+    }
+
+    // Re-fetch depuis la base pour être sûr
+    var fresh = await _sb.from('profiles').select('*').eq('id', U.id).maybeSingle();
+    if(fresh.data) {
+      P = Object.assign({}, P, fresh.data);
+    } else {
+      P = Object.assign({}, P, {full_name:name, whatsapp:wa, pays:pays, ville:ville, bio:bio,
+        facebook:facebook, instagram:instagram, tiktok:tiktok});
+    }
+
     document.querySelectorAll('.changed').forEach(function(el){el.classList.remove('changed');});
-    hasChanges=false;hBtn.classList.remove('show');
-    updateHero();updateCompletion();showToast('Profil sauvegardé ✅','success');
-  } catch(e){showToast('Erreur : '+(e.message||'Inconnue'),'error');}
+    hasChanges = false;
+    hBtn.classList.remove('show');
+    fillForm();
+    updateHero();
+    updateCompletion();
+    showToast('Profil mis à jour ✅','success');
+  } catch(e) {
+    console.error('saveProfile error:', e);
+    showToast('Erreur : '+(e.message||'Inconnue'),'error');
+  }
   finally{btn.disabled=false;btn.textContent='💾 Sauvegarder les modifications';hBtn.disabled=false;hBtn.textContent='💾 Sauvegarder';}
 }
 
 /* ═══════════════════════════════════════════════
    DÉCONNEXION + SUPPRESSION
 ═══════════════════════════════════════════════ */
-async function logout() { try{await _sb.auth.signOut();}catch(e){} location.href='index.html'; }
+async function logout() { try{await _sb.auth.signOut();}catch(e){} location.href='auth.html'; }
 
 async function deleteAccount() {
   var btn = document.querySelector('#delOv .mbtn-ok');
@@ -1213,7 +1251,7 @@ async function deleteAccount() {
     // Déconnexion (la suppression du compte auth se fait côté Edge Function si dispo)
     await _sb.auth.signOut();
     showToast('Compte supprimé. Au revoir !', 'success');
-    setTimeout(function(){ location.href = 'index.html'; }, 1500);
+    setTimeout(function(){ location.href = 'auth.html'; }, 1500);
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = 'Supprimer'; }
     showToast('Erreur : ' + e.message, 'error');
