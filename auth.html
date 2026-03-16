@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AfriMarket — Connexion</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --blue:#1B3FE4; --blue2:#2D55FF; --turq:#00C2B7;
+      --dark:#060D24; --card:#0C1535; --input:#111E3E;
+      --red:#E83030; --orange:#FF6B1A;
+      --muted:#8892A8; --border:rgba(255,255,255,.08);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{height:100%;}
+    body{min-height:100%;font-family:'DM Sans',sans-serif;background:var(--dark);color:#fff;}
+
+    /* ═══════ DESKTOP SPLIT ═══════ */
+    .auth-wrap{display:flex;width:100%;min-height:100vh;}
+
+    .panel-left{
+      position:relative;width:45%;flex-shrink:0;
+      display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+      padding:3rem 4rem;overflow:hidden;
+      clip-path:polygon(0 0,88% 0,100% 100%,0 100%);
+      transition:clip-path .5s cubic-bezier(.77,0,.175,1);
+      background:linear-gradient(145deg,#00C2B7 0%,#1B3FE4 55%,#080E2A 100%);
+    }
+    .auth-wrap.login-active .panel-left{clip-path:polygon(0 0,100% 0,88% 100%,0 100%);}
+    .panel-left::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;}
+    .panel-left::after{content:'';position:absolute;width:420px;height:420px;border-radius:50%;border:1px solid rgba(255,255,255,.1);bottom:-160px;right:-100px;}
+
+    .pl-logo{display:flex;align-items:center;gap:.8rem;margin-bottom:3.5rem;position:relative;z-index:1;}
+    .pl-logo-ico{width:50px;height:50px;background:rgba(255,255,255,.15);border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;border:1px solid rgba(255,255,255,.2);}
+    .pl-logo-name{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;}
+    .pl-content{position:relative;z-index:1;}
+    .pl-eyebrow{font-size:.68rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;opacity:.6;margin-bottom:.6rem;}
+    .pl-title{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:800;line-height:1.1;margin-bottom:1.2rem;}
+    .pl-desc{font-size:.88rem;line-height:1.75;opacity:.7;max-width:270px;margin-bottom:2.5rem;position:relative;z-index:1;}
+    .pl-stats{display:flex;gap:2rem;position:relative;z-index:1;}
+    .pl-stat-n{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;}
+    .pl-stat-l{font-size:.7rem;opacity:.55;margin-top:.15rem;}
+
+    .panel-right{flex:1;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;position:relative;overflow:hidden;}
+    .panel-right::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,194,183,.07) 0%,transparent 70%);top:-150px;right:-100px;}
+
+    /* ═══════ TABS ═══════ */
+    .tabs-row{display:flex;background:rgba(255,255,255,.06);border-radius:14px;padding:5px;width:100%;max-width:360px;margin-bottom:2.2rem;border:1px solid var(--border);}
+    .tab-btn{flex:1;padding:.6rem .8rem;border:none;background:transparent;color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;border-radius:10px;cursor:pointer;transition:all .28s cubic-bezier(.34,1.56,.64,1);}
+    .tab-btn.active{background:linear-gradient(135deg,var(--turq) 0%,var(--blue2) 100%);color:#fff;box-shadow:0 4px 18px rgba(0,194,183,.35);transform:scale(1.03);}
+
+    /* ═══════ FORM ═══════ */
+    .form-wrap{width:100%;max-width:360px;position:relative;z-index:1;}
+    .form-sec{display:none;}
+    .form-sec.active{display:block;}
+    .form-title{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;line-height:1.15;margin-bottom:.35rem;}
+    .form-sub{font-size:.83rem;color:var(--muted);margin-bottom:1.8rem;}
+    .f-group{margin-bottom:1.3rem;}
+    .f-group label{display:block;font-size:.68rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
+    .f-field{display:flex;align-items:center;background:var(--input);border-radius:12px;border:1.5px solid rgba(255,255,255,.06);padding:.75rem 1rem;transition:border-color .22s,box-shadow .22s;}
+    .f-field:focus-within{border-color:var(--turq);box-shadow:0 0 0 3px rgba(0,194,183,.15);}
+    .f-field.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(232,48,48,.12);}
+    .f-field input,.f-field select{flex:1;background:none;border:none;outline:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:500;min-width:0;}
+    .f-field input::placeholder{color:rgba(255,255,255,.25);}
+    .f-field select{color:rgba(255,255,255,.4);}
+    .f-field select.has-val{color:#fff;}
+    .f-field select option{background:var(--card);color:#fff;}
+    .f-ico{font-size:.9rem;opacity:.3;margin-left:.5rem;flex-shrink:0;}
+    .f-ico.btn{cursor:pointer;opacity:.5;}
+    .f-ico.btn:hover{opacity:.9;}
+    .f-err{font-size:.71rem;color:var(--red);margin-top:.3rem;margin-left:.2rem;display:none;}
+    .f-err.show{display:block;}
+    .f-grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem;}
+    .pwd-bars{display:flex;gap:4px;margin-top:.5rem;margin-bottom:.3rem;}
+    .pwd-bar{flex:1;height:3px;border-radius:99px;background:rgba(255,255,255,.1);transition:background .3s;}
+    .pwd-bar.weak{background:var(--red);}
+    .pwd-bar.fair{background:var(--orange);}
+    .pwd-bar.good{background:#FACC15;}
+    .pwd-bar.strong{background:var(--turq);}
+    .pwd-hint{font-size:.7rem;color:var(--muted);}
+    .check-row{display:flex;align-items:flex-start;gap:.55rem;margin-bottom:1.1rem;}
+    .check-row input{width:17px;height:17px;margin-top:1px;accent-color:var(--turq);cursor:pointer;flex-shrink:0;}
+    .check-row span{font-size:.78rem;color:var(--muted);line-height:1.5;}
+    .check-row a{color:var(--turq);text-decoration:none;font-weight:600;}
+    .f-err-i{font-size:.71rem;color:var(--red);display:none;margin-bottom:.9rem;}
+    .f-err-i.show{display:block;}
+    .btn-main{width:100%;padding:.92rem;border:none;border-radius:14px;background:linear-gradient(135deg,var(--turq) 0%,var(--blue2) 100%);color:#fff;font-family:'DM Sans',sans-serif;font-size:.97rem;font-weight:700;cursor:pointer;margin-bottom:1.3rem;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s;box-shadow:0 6px 24px rgba(0,194,183,.3);}
+    .btn-main:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,194,183,.4);}
+    .btn-main:active{transform:translateY(0);}
+    .btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+    .btn-main.loading::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 25%,rgba(255,255,255,.15) 50%,transparent 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;}
+    @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+    .form-footer{text-align:center;font-size:.8rem;color:var(--muted);}
+    .form-footer a{color:var(--turq);font-weight:700;text-decoration:none;cursor:pointer;}
+    .forgot-a{display:block;text-align:right;font-size:.78rem;color:var(--turq);font-weight:600;text-decoration:none;margin-top:-.4rem;margin-bottom:1.4rem;}
+    .succ-card{display:none;text-align:center;padding:1.5rem 0;}
+    .succ-card.show{display:block;}
+    .succ-ico{font-size:3.5rem;margin-bottom:.8rem;}
+    .succ-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:.6rem;}
+    .succ-sub{font-size:.83rem;color:var(--muted);line-height:1.7;}
+    .succ-email{color:var(--turq);font-weight:600;}
+
+    /* ═══════ TOAST ═══════ */
+    #toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--card);border:1px solid rgba(255,255,255,.1);color:#fff;padding:.7rem 1.3rem;border-radius:14px;font-size:.83rem;font-weight:500;display:flex;align-items:center;gap:.5rem;opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.34,1.56,.64,1);z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.4);white-space:nowrap;max-width:90vw;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    #toast.error{border-color:rgba(232,48,48,.4);}
+    #toast.success{border-color:rgba(0,194,183,.4);}
+    #toast.warning{border-color:rgba(255,107,26,.4);}
+
+    /* ═══════ MOBILE ═══════ */
+    @media(max-width:720px){
+      body{overflow-x:hidden;}
+      .auth-wrap{flex-direction:column;min-height:100vh;}
+
+      /* Header gradient compact */
+      .panel-left{
+        width:100%;
+        clip-path:none !important;
+        background:linear-gradient(145deg,#00C2B7 0%,#1B3FE4 60%,#0a1540 100%);
+        padding:1.8rem 1.4rem 4rem;
+        position:relative;
+      }
+      .panel-left::before{border-radius:0;}
+      .panel-left::after{display:none;}
+      .pl-logo{margin-bottom:1.2rem;}
+      .pl-logo-ico{width:40px;height:40px;font-size:1.25rem;border-radius:11px;}
+      .pl-logo-name{font-size:1.15rem;}
+      .pl-eyebrow{font-size:.62rem;letter-spacing:2px;}
+      .pl-title{font-size:1.65rem !important;line-height:1.2;}
+      .pl-desc,.pl-stats{display:none;}
+
+      /* Orbe lumineux déco */
+      .pl-orb{
+        position:absolute;right:1.2rem;top:50%;transform:translateY(-50%);
+        width:90px;height:90px;border-radius:50%;
+        background:radial-gradient(circle,rgba(255,255,255,.3) 0%,rgba(0,194,183,.15) 40%,transparent 70%);
+        filter:blur(2px);
+      }
+
+      /* Card formulaire remonte sur le header */
+      .panel-right{
+        flex:1;background:transparent;
+        padding:0;display:block;overflow:visible;
+        margin-top:-28px;position:relative;z-index:10;
+      }
+      .panel-right::before,.panel-right::after{display:none;}
+
+      .form-card{
+        background:var(--dark);
+        border-radius:28px 28px 0 0;
+        padding:1.4rem 1.3rem 4rem;
+        min-height:calc(100vh - 160px);
+        box-shadow:0 -10px 50px rgba(0,0,0,.5);
+        position:relative;
+      }
+
+      /* Petite barre drag */
+      .form-card::before{
+        content:'';display:block;
+        width:38px;height:4px;border-radius:99px;
+        background:rgba(255,255,255,.12);
+        margin:0 auto 1.5rem;
+      }
+
+      .tabs-row{max-width:100%;margin-bottom:1.8rem;}
+      .form-wrap{max-width:100%;}
+      .form-title{font-size:1.45rem;}
+      .f-field{padding:.8rem 1rem;border-radius:14px;}
+      .f-field input,.f-field select{font-size:.95rem;}
+      .btn-main{padding:1rem;border-radius:16px;font-size:1rem;}
+      .f-grid2{gap:0 .6rem;}
+    }
+
+    @media(max-width:380px){
+      .f-grid2{grid-template-columns:1fr;}
+      .pl-orb{display:none;}
+    }
+
+    @media(min-width:721px) and (max-width:960px){
+      .panel-left{padding:2.5rem;}
+      .pl-title{font-size:2rem;}
+      .pl-desc,.pl-stats{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrap" id="authWrap">
+
+  <!-- ════ HEADER / PANNEAU GAUCHE ════════════ -->
+  <div class="panel-left">
+    <div class="pl-orb"></div><!-- orbe mobile uniquement -->
+
+    <div class="pl-logo">
+      <div class="pl-logo-ico">🏪</div>
+      <div class="pl-logo-name">AfriMarket</div>
+    </div>
+
+    <div class="pl-content">
+      <div class="pl-eyebrow" id="plEyebrow">Bienvenue</div>
+      <h1 class="pl-title" id="plTitle">Rejoignez<br>AfriMarket&nbsp;!</h1>
+    </div>
+
+    <!-- Desktop seulement -->
+    <p class="pl-desc">La plateforme des petites annonces africaines. Achetez, vendez, gagnez en toute confiance.</p>
+    <div class="pl-stats">
+      <div><div class="pl-stat-n">100%</div><div class="pl-stat-l">Gratuit</div></div>
+      <div><div class="pl-stat-n">🌍</div><div class="pl-stat-l">Afrique</div></div>
+      <div><div class="pl-stat-n">⚡</div><div class="pl-stat-l">Instantané</div></div>
+    </div>
+  </div>
+
+  <!-- ════ FORMULAIRE ═════════════════════════ -->
+  <div class="panel-right">
+    <div class="form-card" id="formCard">
+
+      <div class="tabs-row">
+        <button class="tab-btn active" id="tabR" onclick="switchTab('register')">Créer un compte</button>
+        <button class="tab-btn"        id="tabL" onclick="switchTab('login')">Se connecter</button>
+      </div>
+
+      <div class="form-wrap">
+
+        <!-- INSCRIPTION -->
+        <div class="form-sec active" id="secR">
+          <div id="regWrap">
+            <div class="form-title">Nouveau compte</div>
+            <div class="form-sub">Rejoignez la communauté AfriMarket</div>
+            <form id="regForm" autocomplete="off">
+
+              <div class="f-group">
+                <label>Nom complet</label>
+                <div class="f-field" id="fi_name">
+                  <input id="r_name" type="text" placeholder="Ex: Aminata Diallo" autocomplete="name"/>
+                  <span class="f-ico">👤</span>
+                </div>
+                <div class="f-err" id="e_name">Nom obligatoire</div>
+              </div>
+
+              <div class="f-group">
+                <label>Email</label>
+                <div class="f-field" id="fi_email">
+                  <input id="r_email" type="email" placeholder="votre@email.com" autocomplete="email"/>
+                  <span class="f-ico">✉️</span>
+                </div>
+                <div class="f-err" id="e_email">Email invalide</div>
+              </div>
+
+              <div class="f-group">
+                <label>WhatsApp</label>
+                <div class="f-field" id="fi_wa">
+                  <input id="r_wa" type="tel" placeholder="+237 6XX XXX XXX"/>
+                  <span class="f-ico">📱</span>
+                </div>
+                <div class="f-err" id="e_wa">Numéro obligatoire</div>
+              </div>
+
+              <div class="f-grid2">
+                <div class="f-group">
+                  <label>Pays</label>
+                  <div class="f-field" id="fi_pays">
+                    <select id="r_pays" onchange="this.classList.add('has-val')">
+                      <option value="">Pays…</option>
+                      <option>Cameroun</option><option>Sénégal</option>
+                      <option>Côte d'Ivoire</option><option>Mali</option>
+                      <option>Burkina Faso</option><option>Niger</option>
+                      <option>Guinée</option><option>Bénin</option>
+                      <option>Togo</option><option>Congo</option>
+                      <option>RDC</option><option>Gabon</option>
+                      <option>Autre</option>
+                    </select>
+                  </div>
+                  <div class="f-err" id="e_pays">Requis</div>
+                </div>
+                <div class="f-group">
+                  <label>Ville</label>
+                  <div class="f-field" id="fi_ville">
+                    <input id="r_ville" type="text" placeholder="Ex: Douala"/>
+                  </div>
+                  <div class="f-err" id="e_ville">Requise</div>
+                </div>
+              </div>
+
+              <div class="f-group">
+                <label>Mot de passe</label>
+                <div class="f-field" id="fi_pwd">
+                  <input id="r_pwd" type="password" placeholder="6 caractères minimum" oninput="checkPwd(this.value)"/>
+                  <span class="f-ico btn" id="tbR" onclick="togglePwd('r_pwd','tbR')">👁️</span>
+                </div>
+                <div class="pwd-bars">
+                  <div class="pwd-bar" id="pb1"></div><div class="pwd-bar" id="pb2"></div>
+                  <div class="pwd-bar" id="pb3"></div><div class="pwd-bar" id="pb4"></div>
+                </div>
+                <div class="pwd-hint" id="pwdHint">Entrez un mot de passe</div>
+                <div class="f-err" id="e_pwd">Minimum 6 caractères</div>
+              </div>
+
+              <div class="check-row">
+                <input type="checkbox" id="r_terms"/>
+                <span>J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a></span>
+              </div>
+              <div class="f-err-i" id="e_terms">Vous devez accepter les conditions</div>
+
+              <button class="btn-main" type="submit" id="btnR">🚀 Créer mon compte</button>
+              <div class="form-footer">Déjà un compte ? <a onclick="switchTab('login')">Se connecter</a></div>
+            </form>
+          </div>
+
+          <div class="succ-card" id="succCard">
+            <div class="succ-ico">📧</div>
+            <div class="succ-title">Vérifiez votre email !</div>
+            <div class="succ-sub">Lien de confirmation envoyé à<br><span class="succ-email" id="succEmail"></span><br><br>Cliquez sur le lien pour activer votre compte.</div>
+          </div>
+        </div>
+
+        <!-- CONNEXION -->
+        <div class="form-sec" id="secL">
+          <div class="form-title">Bon retour !</div>
+          <div class="form-sub">Connectez-vous à votre compte</div>
+          <form id="logForm" autocomplete="off">
+
+            <div class="f-group">
+              <label>Email</label>
+              <div class="f-field" id="fi_lemail">
+                <input id="l_email" type="email" placeholder="votre@email.com" autocomplete="email"/>
+                <span class="f-ico">✉️</span>
+              </div>
+              <div class="f-err" id="e_lemail">Email invalide</div>
+            </div>
+
+            <div class="f-group">
+              <label>Mot de passe</label>
+              <div class="f-field" id="fi_lpwd">
+                <input id="l_pwd" type="password" placeholder="Votre mot de passe" autocomplete="current-password"/>
+                <span class="f-ico btn" id="tbL" onclick="togglePwd('l_pwd','tbL')">👁️</span>
+              </div>
+              <div class="f-err" id="e_lpwd">Mot de passe requis</div>
+            </div>
+
+            <a href="forgot-password.html" class="forgot-a">Mot de passe oublié ?</a>
+            <button class="btn-main" type="submit" id="btnL">Se connecter →</button>
+            <div class="form-footer">Pas de compte ? <a onclick="switchTab('register')">Créer un compte</a></div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><span id="tIco"></span><span id="tMsg"></span></div>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient('https://elgbvitijyjriozvzqpf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM');
+
+const urlRef=new URLSearchParams(window.location.search).get('ref');
+if(urlRef){localStorage.setItem('am_ref_code',urlRef);setTimeout(()=>switchTab('register'),300);}
+
+function switchTab(t){
+  const isR=t==='register';
+  document.getElementById('tabR').classList.toggle('active',isR);
+  document.getElementById('tabL').classList.toggle('active',!isR);
+  document.getElementById('secR').classList.toggle('active',isR);
+  document.getElementById('secL').classList.toggle('active',!isR);
+  document.getElementById('authWrap').classList.toggle('login-active',!isR);
+  document.getElementById('plEyebrow').textContent=isR?'Bienvenue':'Bon retour';
+  document.getElementById('plTitle').innerHTML=isR?'Rejoignez<br>AfriMarket\u00a0!':'Content<br>de te revoir\u00a0\uD83D\uDC4B';
+  clearErrs();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+let _tt;
+function toast(msg,type='success'){
+  const icons={success:'\u2705',error:'\u274C',warning:'\u26A0\uFE0F',info:'\u2139\uFE0F'};
+  document.getElementById('tIco').textContent=icons[type]||'\uD83D\uDCAC';
+  document.getElementById('tMsg').textContent=msg;
+  const el=document.getElementById('toast');
+  el.className='show '+type;
+  clearTimeout(_tt);_tt=setTimeout(()=>el.className='',4500);
+}
+function setLoading(b,on){b.disabled=on;b.classList.toggle('loading',on);}
+function showErr(id,show,msg){const el=document.getElementById(id);if(!el)return;if(msg)el.textContent=msg;el.classList.toggle('show',show);}
+function markF(id,on){const el=document.getElementById(id);if(el)el.classList.toggle('err',on);}
+function clearErrs(){document.querySelectorAll('.f-err,.f-err-i').forEach(e=>e.classList.remove('show'));document.querySelectorAll('.f-field').forEach(e=>e.classList.remove('err'));}
+function isEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+function togglePwd(id,btnId){const i=document.getElementById(id),b=document.getElementById(btnId);if(i.type==='password'){i.type='text';b.textContent='\uD83D\uDE48';}else{i.type='password';b.textContent='\uD83D\uDC41\uFE0F';}}
+function checkPwd(v){
+  const bars=['pb1','pb2','pb3','pb4'].map(id=>document.getElementById(id));
+  const hint=document.getElementById('pwdHint');
+  bars.forEach(b=>b.className='pwd-bar');
+  if(!v){hint.textContent='Entrez un mot de passe';return;}
+  let s=0;
+  if(v.length>=6)s++;if(v.length>=10)s++;
+  if(/[A-Z]/.test(v)&&/[0-9]/.test(v))s++;
+  if(/[^A-Za-z0-9]/.test(v))s++;
+  const lvl=['weak','fair','good','strong'];
+  const lbl=['Trop faible','Moyen','Bon','Excellent \uD83D\uDCAA'];
+  for(let i=0;i<s;i++)bars[i].classList.add(lvl[s-1]);
+  hint.textContent=lbl[s-1]||'Entrez un mot de passe';
+}
+function xlErr(msg){
+  if(!msg)return 'Une erreur est survenue.';
+  if(msg.includes('already registered'))return 'Cet email est d\u00e9j\u00e0 utilis\u00e9. Connectez-vous.';
+  if(msg.includes('Invalid login credentials'))return 'Email ou mot de passe incorrect.';
+  if(msg.includes('Email not confirmed'))return 'Confirmez votre email avant de vous connecter.';
+  if(msg.includes('Password should be'))return 'Le mot de passe doit avoir au moins 6 caract\u00e8res.';
+  if(msg.includes('rate limit')||msg.includes('too many'))return 'Trop de tentatives. R\u00e9essayez plus tard.';
+  return msg;
+}
+
+document.getElementById('regForm').addEventListener('submit',async e=>{
+  e.preventDefault();clearErrs();
+  const name=document.getElementById('r_name').value.trim();
+  const email=document.getElementById('r_email').value.trim();
+  const wa=document.getElementById('r_wa').value.trim();
+  const pwd=document.getElementById('r_pwd').value;
+  const pays=document.getElementById('r_pays').value;
+  const ville=document.getElementById('r_ville').value.trim();
+  const terms=document.getElementById('r_terms').checked;
+  let ok=true;
+  if(!name){showErr('e_name',true);markF('fi_name',true);ok=false;}
+  if(!isEmail(email)){showErr('e_email',true);markF('fi_email',true);ok=false;}
+  if(!wa){showErr('e_wa',true);markF('fi_wa',true);ok=false;}
+  if(pwd.length<6){showErr('e_pwd',true);markF('fi_pwd',true);ok=false;}
+  if(!pays){showErr('e_pays',true);markF('fi_pays',true);ok=false;}
+  if(!ville){showErr('e_ville',true);markF('fi_ville',true);ok=false;}
+  if(!terms){showErr('e_terms',true,'Vous devez accepter les conditions');ok=false;}
+  if(!ok){toast('Veuillez corriger les erreurs.','warning');return;}
+  const btn=document.getElementById('btnR');setLoading(btn,true);
+  try{
+    const refCode=urlRef||localStorage.getItem('am_ref_code')||null;
+    const{data:auth,error:authErr}=await sb.auth.signUp({email,password:pwd,options:{data:{full_name:name,whatsapp:wa,pays,ville,referred_by:refCode}}});
+    if(authErr)throw authErr;
+    const uid=auth?.user?.id;
+    if(uid){try{await sb.from('profiles').upsert({id:uid,full_name:name,whatsapp:wa,email,pays,ville,ref_code:uid.substring(0,8),referred_by:refCode,created_at:new Date().toISOString()});localStorage.removeItem('am_ref_code');}catch(dbErr){console.warn('DB:',dbErr.message);}}
+    document.getElementById('succEmail').textContent=email;
+    document.getElementById('regWrap').style.display='none';
+    document.getElementById('succCard').classList.add('show');
+    toast('Compte cr\u00e9\u00e9\u00a0! V\u00e9rifiez votre email.','success');
+  }catch(err){console.error(err);toast(xlErr(err.message),'error');}
+  finally{setLoading(btn,false);}
+});
+
+document.getElementById('logForm').addEventListener('submit',async e=>{
+  e.preventDefault();clearErrs();
+  const email=document.getElementById('l_email').value.trim();
+  const pwd=document.getElementById('l_pwd').value;
+  let ok=true;
+  if(!isEmail(email)){showErr('e_lemail',true);markF('fi_lemail',true);ok=false;}
+  if(!pwd){showErr('e_lpwd',true);markF('fi_lpwd',true);ok=false;}
+  if(!ok)return;
+  const btn=document.getElementById('btnL');setLoading(btn,true);
+  try{
+    const{data,error}=await sb.auth.signInWithPassword({email,password:pwd});
+    if(error)throw error;
+    const prenom=data?.user?.user_metadata?.full_name?.split(' ')[0]||'';
+    toast('Bienvenue'+(prenom?' '+prenom:'')+'! Redirection\u2026','success');
+    setTimeout(()=>{window.location.href='dashboard.html';},1000);
+  }catch(err){console.error(err);toast(xlErr(err.message),'error');}
+  finally{setLoading(btn,false);}
+});
+
+(async()=>{try{const{data:{session}}=await sb.auth.getSession();if(session)window.location.href='dashboard.html';}catch(e){}})();
+</script>
+<script>
+if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').then(r=>console.log('[SW]',r.scope)).catch(e=>console.warn('[SW]',e));});}
+</script>
+</body>
+</html>
