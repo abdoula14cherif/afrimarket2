@@ -1,536 +1,553 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Parrainage — AfriMarket</title>
-<link rel="manifest" href="/manifest.json"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Parrainage AfriMarket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-:root{
-  --blue:#1B3FE4;--blue2:#4F6EFF;--turq:#00C2B7;
-  --green:#00C271;--gold:#F5B731;--gold2:#C8901A;
-  --red:#E4341B;--dark:#0D1117;--gray:#8A94A6;
-  --border:#E8ECF4;--bg:#F5F7FC;--white:#fff;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;padding-bottom:90px;font-size:15px;}
-
-/* TOP BAR */
-.topbar{position:sticky;top:0;z-index:99;height:52px;background:var(--dark);display:flex;align-items:center;padding:0 1rem;gap:.7rem;border-bottom:1px solid rgba(255,255,255,.06);}
-.back{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.75);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.topbar-title{font-size:.95rem;font-weight:700;color:white;flex:1;}
-.topbar-btn{padding:.35rem .85rem;border-radius:9px;background:var(--gold);color:var(--dark);font-size:.73rem;font-weight:700;border:none;cursor:pointer;}
-
-/* HERO */
-.hero{background:var(--dark);padding:2rem 1.2rem 1.8rem;text-align:center;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(245,183,49,.15),transparent 70%);top:-80px;right:-60px;pointer-events:none;}
-.hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,194,183,.12),transparent 70%);bottom:-50px;left:-30px;pointer-events:none;}
-.hero-emoji{font-size:2.5rem;margin-bottom:.7rem;display:block;animation:bob 3s ease-in-out infinite;}
-@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
-.hero-title{font-size:1.55rem;font-weight:800;color:white;margin-bottom:.5rem;line-height:1.2;}
-.hero-title em{color:var(--gold);font-style:normal;}
-.hero-sub{font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.65;max-width:290px;margin:0 auto 1.6rem;}
-.gains-chip{display:inline-flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.06);border:1.5px solid rgba(245,183,49,.2);border-radius:16px;padding:.9rem 2.2rem;position:relative;}
-.gains-chip::before{content:'';position:absolute;top:.65rem;right:.65rem;width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
-.gains-lbl{font-size:.62rem;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:.25rem;}
-.gains-val{font-size:2rem;font-weight:800;color:var(--gold);line-height:1;}
-.gains-cur{font-size:.85rem;color:rgba(245,183,49,.65);font-weight:600;margin-left:.2rem;}
-
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;padding:.9rem 1.1rem;}
-.stat{background:white;border:1px solid var(--border);border-radius:14px;padding:.8rem .5rem;text-align:center;}
-.stat-n{font-size:1.5rem;font-weight:800;color:var(--dark);}
-.stat-n.gold{color:var(--gold2);}
-.stat-n.green{color:var(--green);}
-.stat-l{font-size:.62rem;color:var(--gray);margin-top:.1rem;line-height:1.3;}
-
-/* SECTION HEADER */
-.sh{padding:.5rem 1.1rem .65rem;display:flex;align-items:center;gap:.6rem;}
-.sh h2{font-size:.9rem;font-weight:700;color:var(--dark);}
-.sh::after{content:'';flex:1;height:1px;background:var(--border);}
-
-/* LIEN */
-.lien-card{margin:0 1.1rem .9rem;background:white;border:1.5px solid var(--border);border-radius:16px;padding:1.1rem;}
-.lien-lbl{font-size:.67rem;font-weight:600;color:var(--gray);letter-spacing:.6px;margin-bottom:.6rem;}
-.lien-row{display:flex;gap:.5rem;align-items:center;background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:.5rem .75rem;margin-bottom:.8rem;}
-.lien-txt{flex:1;font-size:.72rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace;}
-.btn-copy{padding:.38rem .9rem;border-radius:8px;background:var(--blue);color:white;border:none;font-size:.72rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .18s;}
-.btn-copy:active{background:var(--blue2);}
-.btn-copy.ok{background:var(--green);}
-.share-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
-.sbtn{display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem;border-radius:10px;border:1.5px solid var(--border);background:white;font-size:.75rem;font-weight:600;color:var(--dark);cursor:pointer;transition:background .15s;}
-.sbtn:hover{background:var(--bg);}
-.sbtn.wa{border-color:rgba(37,211,102,.3);color:#128C7E;}
-.sbtn.wa:hover{background:rgba(37,211,102,.05);}
-
-/* EXPLICATION ÉTAPES */
-.steps{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.5rem;}
-.step{background:white;border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;display:flex;gap:.85rem;}
-.step-n{width:32px;height:32px;border-radius:9px;background:var(--blue);color:white;font-size:.82rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.step-body{}
-.step-body b{font-size:.82rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.1rem;}
-.step-body p{font-size:.75rem;color:var(--gray);line-height:1.5;}
-.badge-earn{display:inline-block;background:rgba(245,183,49,.12);border:1px solid rgba(245,183,49,.3);color:var(--gold2);font-size:.68rem;font-weight:700;padding:.12rem .5rem;border-radius:6px;margin-top:.3rem;margin-right:.2rem;}
-
-/* PALIERS */
-.paliers{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.5rem;}
-.palier{background:white;border:1.5px solid var(--border);border-radius:14px;padding:.9rem 1rem;display:flex;gap:.85rem;}
-.palier.done{border-color:rgba(0,194,113,.3);background:rgba(0,194,113,.03);}
-.palier.active{border-color:rgba(245,183,49,.4);background:rgba(245,183,49,.03);}
-.palier-ico{width:38px;height:38px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
-.palier.active .palier-ico{background:rgba(245,183,49,.1);border-color:rgba(245,183,49,.3);animation:glow 2s ease-in-out infinite;}
-.palier.done   .palier-ico{background:rgba(0,194,113,.1);border-color:rgba(0,194,113,.25);}
-@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(245,183,49,0);}50%{box-shadow:0 0 14px rgba(245,183,49,.4);}}
-.palier-info{}
-.palier-name{font-size:.8rem;font-weight:700;color:var(--dark);margin-bottom:.1rem;}
-.palier-desc{font-size:.72rem;color:var(--gray);line-height:1.45;margin-bottom:.3rem;}
-.palier-gain{font-size:.82rem;font-weight:800;color:var(--gold2);}
-.palier.done .palier-gain{color:var(--green);}
-.prog{height:5px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border);margin-top:.5rem;}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width 1s ease;}
-.prog-txt{font-size:.62rem;color:var(--gray);margin-top:.25rem;}
-
-/* CLASSEMENT */
-.ranking{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.45rem;}
-.rk{background:white;border:1px solid var(--border);border-radius:13px;padding:.72rem .9rem;display:flex;align-items:center;gap:.7rem;}
-.rk.me{border-color:rgba(245,183,49,.4);background:rgba(245,183,49,.04);}
-.rk-pos{font-size:.95rem;font-weight:800;min-width:26px;text-align:center;}
-.rk-pos.p1{color:var(--gold);}
-.rk-pos.p2{color:#aaa;}
-.rk-pos.p3{color:#CD7F32;}
-.rk-av{width:34px;height:34px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;overflow:hidden;flex-shrink:0;}
-.rk-av img{width:100%;height:100%;object-fit:cover;}
-.rk-info{flex:1;}
-.rk-name{font-size:.78rem;font-weight:700;color:var(--dark);}
-.rk-sub{font-size:.63rem;color:var(--gray);margin-top:.04rem;}
-.rk-amt{font-size:.85rem;font-weight:800;color:var(--gold2);}
-
-/* HISTORIQUE */
-.hist{padding:0 1.1rem .9rem;display:flex;flex-direction:column;gap:.45rem;}
-.hi{background:white;border:1px solid var(--border);border-radius:13px;padding:.7rem .9rem;display:flex;align-items:center;gap:.7rem;}
-.hi-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
-.hi-ico.earn{background:rgba(0,194,113,.1);}
-.hi-ico.bonus{background:rgba(245,183,49,.1);}
-.hi-ico.out{background:rgba(228,52,27,.08);}
-.hi-desc{flex:1;}
-.hi-desc b{font-size:.76rem;font-weight:600;color:var(--dark);display:block;}
-.hi-desc span{font-size:.63rem;color:var(--gray);}
-.hi-amt{font-size:.85rem;font-weight:800;}
-.hi-amt.p{color:var(--green);}
-.hi-amt.m{color:var(--red);}
-.empty{background:white;border:1px solid var(--border);border-radius:13px;padding:2rem 1rem;text-align:center;color:var(--gray);font-size:.78rem;}
-
-/* RETRAIT */
-.wd-card{margin:0 1.1rem .9rem;background:white;border:1.5px solid var(--border);border-radius:16px;padding:1.1rem;}
-.wd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;}
-.wd-lbl{font-size:.63rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.2rem;}
-.wd-amount{font-size:1.9rem;font-weight:800;color:var(--green);}
-.wd-min{font-size:.68rem;color:var(--gray);margin-top:.15rem;}
-.btn-wd{width:100%;padding:.76rem;border-radius:12px;background:linear-gradient(135deg,var(--green),#00A860);color:white;border:none;font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .18s;}
-.btn-wd:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06);}
-.btn-wd:disabled{background:#cdd3de;color:#9aa0ae;cursor:not-allowed;transform:none;}
-
-/* MODAL */
-.ov{position:fixed;inset:0;background:rgba(13,17,23,.55);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .24s;backdrop-filter:blur(3px);}
-.ov.open{opacity:1;pointer-events:all;}
-.sheet{background:white;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:1.3rem 1.2rem calc(1.6rem + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
-.ov.open .sheet{transform:translateY(0);}
-.handle{width:34px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1rem;}
-.sheet-title{font-size:.95rem;font-weight:800;color:var(--dark);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;}
-.sheet-close{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);color:var(--gray);cursor:pointer;font-size:.8rem;}
-.f-lbl{font-size:.72rem;font-weight:600;color:var(--dark);margin-bottom:.32rem;display:block;}
-.f-inp,.f-sel{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.58rem .85rem;font-size:.82rem;color:var(--dark);background:white;margin-bottom:.8rem;outline:none;font-family:inherit;}
-.f-inp:focus,.f-sel:focus{border-color:var(--blue);}
-.f-hint{font-size:.67rem;color:var(--gray);margin-top:-.5rem;margin-bottom:.8rem;line-height:1.5;}
-.btn-ok{width:100%;padding:.76rem;border-radius:12px;background:linear-gradient(135deg,var(--green),#00A860);color:white;border:none;font-size:.88rem;font-weight:700;cursor:pointer;}
-.btn-ok:disabled{opacity:.5;cursor:not-allowed;}
-
-/* NAV */
-.nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:.5rem 0 calc(.5rem + env(safe-area-inset-bottom));z-index:90;}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:.15rem;cursor:pointer;background:none;border:none;padding:.3rem 0;}
-.ni-ico{font-size:1.3rem;line-height:1;}
-.ni-lbl{font-size:.6rem;color:var(--gray);font-weight:600;}
-.ni.on .ni-lbl{color:var(--blue);}
-.nav-plus{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:1.4rem;cursor:pointer;}
-
-/* TOAST */
-#toast{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(10px);background:var(--dark);color:white;padding:.58rem 1.2rem;border-radius:11px;font-size:.77rem;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;border-left:3px solid var(--green);}
+:root{--dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;--gold:#F5B731;--red:#E83030;--orange:#FF6B1A;--green:#00C271;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--nav-h:72px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);padding-bottom:calc(var(--nav-h)+1rem);}
+.hdr{background:linear-gradient(145deg,#00C271 0%,#1B3FE4 55%,#080E2A 100%);padding:1.4rem 1.2rem 3rem;position:relative;overflow:hidden;}
+.hdr::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:28px 28px;}
+.hdr-back{display:inline-flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.75);font-size:.8rem;font-weight:600;background:rgba(255,255,255,.12);border:none;padding:.35rem .8rem;border-radius:99px;cursor:pointer;margin-bottom:1rem;position:relative;}
+.hdr-title{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;color:white;position:relative;margin-bottom:.4rem;}
+.hdr-sub{font-size:.8rem;color:rgba(255,255,255,.65);position:relative;}
+/* ACTIVATION */
+.act-card{background:white;border-radius:24px;margin:-1.8rem 1.2rem 0;padding:1.5rem;box-shadow:0 8px 32px rgba(8,14,42,.12);position:relative;z-index:10;}
+.act-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.3rem;}
+.act-sub{font-size:.8rem;color:var(--gray);line-height:1.6;margin-bottom:1.2rem;}
+.act-price{display:flex;align-items:center;justify-content:center;gap:.5rem;background:linear-gradient(135deg,rgba(0,194,183,.08),rgba(27,63,228,.08));border:1.5px solid rgba(0,194,183,.2);border-radius:16px;padding:1rem;margin-bottom:1.2rem;text-align:center;}
+.act-price-n{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--blue);}
+.act-price-l{font-size:.75rem;color:var(--gray);margin-top:.2rem;}
+.act-levels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:1.2rem;}
+.act-level{background:var(--bg);border-radius:12px;padding:.7rem .5rem;text-align:center;}
+.act-level-n{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;}
+.act-level-l{font-size:.6rem;color:var(--gray);margin-top:.15rem;line-height:1.3;}
+.btn-act{width:100%;padding:.9rem;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--blue));color:white;font-weight:800;font-size:.95rem;border:none;cursor:pointer;box-shadow:0 5px 20px rgba(0,194,183,.3);}
+/* PENDING */
+.pend-card{background:white;border-radius:24px;margin:-1.8rem 1.2rem 0;padding:1.5rem;box-shadow:0 8px 32px rgba(8,14,42,.12);position:relative;z-index:10;text-align:center;display:none;}
+.pend-card.show{display:block;}
+.pend-ico{font-size:2.5rem;margin-bottom:.7rem;}
+.pend-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem;}
+.pend-sub{font-size:.8rem;color:var(--gray);line-height:1.6;margin-bottom:1rem;}
+.pend-ref{background:var(--bg);border-radius:10px;padding:.7rem;font-family:monospace;font-size:.85rem;font-weight:700;color:var(--blue);margin-bottom:1rem;}
+/* DASHBOARD */
+.dash{display:none;}
+.dash.show{display:block;}
+.solde-hero{background:linear-gradient(135deg,var(--green),var(--blue));margin:-1.8rem 1.2rem 0;border-radius:20px;padding:1.4rem;color:white;position:relative;overflow:hidden;z-index:10;}
+.solde-hero::after{content:'';position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:4rem;opacity:.1;}
+.solde-label{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:.3rem;}
+.solde-amount{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;margin-bottom:.3rem;}
+.solde-sub{font-size:.72rem;opacity:.7;margin-bottom:1rem;}
+.solde-btns{display:flex;gap:.6rem;}
+.btn-ret{flex:1;padding:.6rem;border-radius:10px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:white;font-weight:700;font-size:.78rem;cursor:pointer;}
+.btn-part{flex:1;padding:.6rem;border-radius:10px;background:white;border:none;color:var(--blue);font-weight:700;font-size:.78rem;cursor:pointer;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:1rem 1.2rem 0;}
+.stat-card{background:white;border-radius:16px;padding:.9rem;box-shadow:0 2px 10px rgba(8,14,42,.05);}
+.stat-n{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;}
+.stat-l{font-size:.68rem;color:var(--gray);margin-top:.15rem;}
+.code-card{background:white;border-radius:18px;margin:1rem 1.2rem 0;padding:1.1rem;box-shadow:0 2px 10px rgba(8,14,42,.05);}
+.code-lbl{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:.6rem;}
+.code-val{font-family:monospace;font-size:1.2rem;font-weight:800;color:var(--blue);letter-spacing:2px;background:var(--bg);border-radius:10px;padding:.6rem 1rem;margin-bottom:.6rem;text-align:center;}
+.code-btns{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+.code-btn{padding:.55rem;border-radius:10px;border:1.5px solid var(--border);background:white;font-size:.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.3rem;}
+/* TABS */
+.tab-nav{display:flex;background:white;border-radius:99px;margin:1rem 1.2rem 0;padding:.25rem;box-shadow:0 2px 10px rgba(8,14,42,.06);}
+.tab-btn{flex:1;padding:.55rem .3rem;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:700;color:var(--gray);border-radius:99px;cursor:pointer;transition:all .25s;}
+.tab-btn.active{background:linear-gradient(135deg,var(--green),var(--blue));color:white;box-shadow:0 3px 12px rgba(0,194,183,.3);}
+.tab-ct{padding:1rem 1.2rem;display:none;}
+.tab-ct.active{display:block;}
+.sec-title{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.7rem;}
+/* Filleuls */
+.fil-card{background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);}
+.fil-ico{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;font-weight:800;color:white;}
+.fil-info{flex:1;}
+.fil-name{font-weight:700;font-size:.85rem;}
+.fil-meta{font-size:.68rem;color:var(--gray);}
+.fil-gain{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;}
+.nb-badge{font-size:.6rem;font-weight:800;padding:.15rem .5rem;border-radius:99px;}
+.n1{background:rgba(0,194,183,.12);color:var(--green);}
+/* Gains */
+.gain-row{display:flex;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--border);}
+.gain-row:last-child{border:none;}
+.gain-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;margin-right:.6rem;}
+.gain-txt{flex:1;font-size:.78rem;font-weight:600;}
+.gain-sub{font-size:.65rem;color:var(--gray);}
+.gain-amount{font-weight:800;font-size:.9rem;color:var(--green);}
+/* Formations */
+.form-card{background:white;border-radius:16px;margin-bottom:.8rem;overflow:hidden;box-shadow:0 2px 10px rgba(8,14,42,.05);}
+.form-cover{height:80px;display:flex;align-items:center;justify-content:center;font-size:2rem;position:relative;}
+.form-cat{position:absolute;top:.5rem;left:.5rem;font-size:.6rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.2);color:white;padding:.15rem .5rem;border-radius:99px;}
+.form-body{padding:.8rem .9rem;}
+.form-title{font-weight:700;font-size:.88rem;margin-bottom:.3rem;}
+.form-row{display:flex;align-items:center;justify-content:space-between;}
+.form-price{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--blue);}
+.btn-ach{padding:.4rem .9rem;border-radius:10px;background:linear-gradient(135deg,var(--turq),var(--blue));color:white;font-size:.72rem;font-weight:700;border:none;cursor:pointer;}
+/* Ebooks */
+.ebook-card{background:white;border-radius:14px;padding:.9rem;margin-bottom:.7rem;display:flex;gap:.8rem;align-items:center;box-shadow:0 2px 8px rgba(8,14,42,.04);}
+.ebook-cov{width:52px;height:68px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
+.ebook-info{flex:1;}
+.ebook-title{font-weight:700;font-size:.85rem;margin-bottom:.2rem;}
+.ebook-desc{font-size:.7rem;color:var(--gray);line-height:1.4;margin-bottom:.4rem;}
+.ebook-row{display:flex;align-items:center;justify-content:space-between;}
+.ebook-price{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--blue);}
+.btn-lire{padding:.35rem .8rem;border-radius:8px;background:var(--bg);color:var(--blue);font-size:.7rem;font-weight:700;border:1.5px solid var(--border);cursor:pointer;}
+/* Info */
+.info-sec{background:white;border-radius:18px;padding:1.2rem;margin-bottom:.8rem;box-shadow:0 2px 10px rgba(8,14,42,.05);}
+.info-ttl{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.8rem;}
+.step-row{display:flex;gap:.7rem;margin-bottom:.7rem;}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));color:white;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-txt{font-size:.8rem;line-height:1.55;flex:1;}
+.lvl-row{display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border);}
+.lvl-row:last-child{border:none;}
+.lvl-name{font-size:.82rem;font-weight:700;}
+.lvl-comm{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--green);}
+.lvl-desc{font-size:.68rem;color:var(--gray);}
+.ex-box{background:linear-gradient(135deg,rgba(0,194,183,.07),rgba(27,63,228,.07));border-radius:14px;padding:1rem;border:1px solid rgba(0,194,183,.15);}
+.ex-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;font-size:.78rem;flex-wrap:wrap;}
+.ex-row:last-child{margin:0;}
+.ex-gain{background:rgba(0,194,183,.12);color:var(--green);font-weight:800;font-size:.7rem;padding:.15rem .5rem;border-radius:99px;margin-left:auto;}
+/* Modals */
+.modal-ov{position:fixed;inset:0;background:rgba(8,14,42,.55);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-ov.open{display:flex;}
+.modal-sh{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 3rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1.2,.64,1);}
+.modal-ov.open .modal-sh{transform:translateY(0);}
+.m-handle{width:38px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.2rem;}
+.m-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.3rem;}
+.m-sub{font-size:.8rem;color:var(--gray);margin-bottom:1.3rem;line-height:1.5;}
+.op-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:1.1rem;}
+.op-card{background:var(--bg);border-radius:12px;padding:.7rem .5rem;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.op-card.sel{border-color:var(--blue);background:rgba(27,63,228,.05);}
+.op-ico{font-size:1.3rem;margin-bottom:.3rem;}
+.op-nm{font-size:.7rem;font-weight:700;}
+.pay-box{background:linear-gradient(135deg,rgba(27,63,228,.06),rgba(0,194,183,.06));border:1.5px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:1rem;text-align:center;}
+.pay-lbl{font-size:.68rem;color:var(--gray);margin-bottom:.3rem;}
+.pay-num{font-family:monospace;font-size:1.2rem;font-weight:800;color:var(--blue);letter-spacing:2px;}
+.pay-amt{font-size:.72rem;color:var(--gray);margin-top:.3rem;}
+.f-gr{margin-bottom:.8rem;}
+.f-lbl{display:block;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray);margin-bottom:.35rem;}
+.f-inp{width:100%;padding:.7rem .9rem;border-radius:12px;border:1.5px solid var(--border);font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;background:var(--bg);outline:none;transition:border-color .2s;}
+.f-inp:focus{border-color:var(--blue);}
+.btn-conf{width:100%;padding:.88rem;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--blue));color:white;font-weight:800;font-size:.95rem;border:none;cursor:pointer;box-shadow:0 5px 20px rgba(0,194,183,.3);}
+.btn-conf:disabled{opacity:.5;cursor:not-allowed;}
+.m-prev{background:var(--bg);border-radius:12px;padding:.8rem;text-align:center;margin-bottom:1rem;}
+.m-prev-val{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dark);}
+.m-prev-sub{font-size:.7rem;color:var(--gray);margin-top:.2rem;}
+/* Toast */
+#toast{position:fixed;bottom:calc(var(--nav-h)+1rem);left:50%;transform:translateX(-50%) translateY(10px);background:var(--dark);color:white;padding:.65rem 1.2rem;border-radius:12px;font-size:.8rem;font-weight:600;opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;max-width:90vw;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* SKELETON */
-.sk{background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:sk 1.4s infinite;border-radius:10px;}
-@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-/* ANIMATIONS */
-@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.u1{animation:up .4s .05s ease both;}
-.u2{animation:up .4s .1s ease both;}
-.u3{animation:up .4s .15s ease both;}
-.u4{animation:up .4s .2s ease both;}
-.u5{animation:up .4s .25s ease both;}
-.u6{animation:up .4s .3s ease both;}
+#toast.success{background:#00a86b;}#toast.error{background:var(--red);}#toast.warning{background:var(--orange);}
+.empty-box{text-align:center;padding:2rem 1rem;}
+.empty-ico{font-size:2.5rem;margin-bottom:.5rem;}
+.empty-title{font-weight:700;margin-bottom:.25rem;}
+.empty-sub{font-size:.78rem;color:var(--gray);}
+.spin{width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:2rem auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 .5rem;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;background:none;border:none;cursor:pointer;padding:.4rem .6rem;border-radius:12px;flex:1;}
+.nav-ico{font-size:1.25rem;line-height:1;}
+.nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
+.nav-plus-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--turq));border:none;font-size:1.4rem;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(27,63,228,.35);}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <button class="back" onclick="history.back()">←</button>
-  <div class="topbar-title">💰 Parrainage</div>
-  <button class="topbar-btn" onclick="document.getElementById('lienCard').scrollIntoView({behavior:'smooth'})">Mon lien</button>
+<div class="hdr">
+  <button class="hdr-back" onclick="location.href='gagner.html'">&#8592; Retour</button>
+  <div style="font-size:.62rem;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.6);position:relative;margin-bottom:.3rem;">Revenus MLM</div>
+  <h1 class="hdr-title">&#129309; Parrainage AfriMarket</h1>
+  <p class="hdr-sub">Active ton compte et gagne sur 3 niveaux de filleuls.</p>
 </div>
 
-<!-- HERO -->
-<div class="hero">
-  <span class="hero-emoji">💰</span>
-  <div class="hero-title">Partage, <em>gagne.</em></div>
-  <div class="hero-sub">Tes amis s'inscrivent via ton lien. Quand ils passent Premium, tu reçois une commission automatiquement.</div>
-  <div class="gains-chip">
-    <div class="gains-lbl">Gains disponibles</div>
-    <div class="gains-val"><span id="gainsDisplay">0</span><span class="gains-cur">FCFA</span></div>
-  </div>
-</div>
-
-<!-- STATS -->
-<div class="stats">
-  <div class="stat u1"><div class="stat-n gold" id="statFilleuls">—</div><div class="stat-l">Filleuls<br/>Premium</div></div>
-  <div class="stat u2"><div class="stat-n" id="statTotal">—</div><div class="stat-l">Total<br/>gagné (F)</div></div>
-  <div class="stat u3"><div class="stat-n green" id="statRang">—</div><div class="stat-l">Rang<br/>classement</div></div>
-</div>
-
-<!-- LIEN -->
-<div class="sh u2"><h2>🔗 Ton lien de parrainage</h2></div>
-<div class="lien-card u3" id="lienCard">
-  <div class="lien-lbl">Partage ce lien à tes amis</div>
-  <div class="lien-row">
-    <div class="lien-txt" id="linkDisplay">Chargement…</div>
-    <button class="btn-copy" id="copyBtn" onclick="copyLink()">Copier</button>
-  </div>
-  <div class="share-grid">
-    <button class="sbtn wa" onclick="shareWA()">💬 WhatsApp</button>
-    <button class="sbtn" onclick="shareTelegram()">✈️ Telegram</button>
-    <button class="sbtn" onclick="shareNative()">📤 Partager</button>
-    <button class="sbtn" onclick="shareText()">📱 SMS</button>
-  </div>
-</div>
-
-<!-- COMMENT ÇA MARCHE -->
-<div class="sh u2"><h2>⚡ Comment ça marche</h2></div>
-<div class="steps">
-  <div class="step u3">
-    <div class="step-n">1</div>
-    <div class="step-body">
-      <b>Copie et partage ton lien</b>
-      <p>WhatsApp, groupes, statuts, Facebook… chaque partage est une opportunité de gagner.</p>
-    </div>
-  </div>
-  <div class="step u4">
-    <div class="step-n">2</div>
-    <div class="step-body">
-      <b>Ton ami s'inscrit</b>
-      <p>Il s'inscrit sur AfriMarket via ton lien. Il est lié à toi pour toujours.</p>
-    </div>
-  </div>
-  <div class="step u5">
-    <div class="step-n">3</div>
-    <div class="step-body">
-      <b>Il passe Premium → tu es payé</b>
-      <p>Commission automatique créditée sur ton compte dès activation.</p>
-      <span class="badge-earn">+200 FCFA — Plan 1 000F</span>
-      <span class="badge-earn">+500 FCFA — Plan 2 500F</span>
-    </div>
-  </div>
-  <div class="step u6">
-    <div class="step-n">4</div>
-    <div class="step-body">
-      <b>Tu retires sur Mobile Money</b>
-      <p>Dès 2 000 FCFA accumulés, tu demandes ton retrait. Paiement sous 24h.</p>
-    </div>
-  </div>
-</div>
-
-<!-- PALIERS -->
-<div class="sh u3"><h2>🏆 Paliers bonus</h2></div>
-<div class="paliers">
-  <div class="palier u3" id="pc-prem">
-    <div class="palier-ico">👑</div>
-    <div class="palier-info">
-      <div class="palier-name">Filleul passe Premium — 1 000 FCFA</div>
-      <div class="palier-desc">Niveau 1 : +200 FCFA · Niveau 2 (ami de ton ami) : +50 FCFA</div>
-      <div class="palier-gain">+200 FCFA par filleul</div>
-    </div>
-  </div>
-  <div class="palier u4" id="pc-elite">
-    <div class="palier-ico">🚀</div>
-    <div class="palier-info">
-      <div class="palier-name">Filleul passe Elite — 2 500 FCFA</div>
-      <div class="palier-desc">Niveau 1 : +500 FCFA · Niveau 2 (ami de ton ami) : +100 FCFA</div>
-      <div class="palier-gain">+500 FCFA par filleul</div>
-    </div>
-  </div>
-  <div class="palier u5" id="pc-5">
-    <div class="palier-ico">🎁</div>
-    <div class="palier-info">
-      <div class="palier-name">Bonus — 5 filleuls Premium</div>
-      <div class="palier-desc">Bonus automatique débloqué dès 5 filleuls.</div>
-      <div class="palier-gain">+500 FCFA bonus</div>
-      <div class="prog"><div class="prog-fill" id="prog5" style="width:0%"></div></div>
-      <div class="prog-txt"><span id="prog5txt">0</span>/5 filleuls</div>
-    </div>
-  </div>
-  <div class="palier u6" id="pc-20">
-    <div class="palier-ico">🌟</div>
-    <div class="palier-info">
-      <div class="palier-name">Bonus — 20 filleuls Premium</div>
-      <div class="palier-desc">Statut Ambassador AfriMarket.</div>
-      <div class="palier-gain">+2 000 FCFA bonus</div>
-      <div class="prog"><div class="prog-fill" id="prog20" style="width:0%"></div></div>
-      <div class="prog-txt"><span id="prog20txt">0</span>/20 filleuls</div>
-    </div>
-  </div>
-</div>
-
-<!-- CLASSEMENT -->
-<div class="sh u3"><h2>🏅 Top parrains</h2></div>
-<div class="ranking" id="rankList">
-  <div class="sk" style="height:54px;"></div>
-  <div class="sk" style="height:54px;margin-top:.45rem;"></div>
-  <div class="sk" style="height:54px;margin-top:.45rem;"></div>
-</div>
-
-<!-- HISTORIQUE -->
-<div class="sh u4"><h2>📋 Mes gains</h2></div>
-<div class="hist" id="histList">
-  <div class="sk" style="height:54px;"></div>
-  <div class="sk" style="height:54px;margin-top:.45rem;"></div>
-</div>
-
-<!-- RETRAIT -->
-<div class="sh u5"><h2>💳 Retrait Mobile Money</h2></div>
-<div class="wd-card u6">
-  <div class="wd-top">
+<!-- ACTIVATION -->
+<div class="act-card" id="stateAct" style="display:none;">
+  <div class="act-title">&#127381; Active ton compte de parrainage</div>
+  <div class="act-sub">Une seule activation de <strong>2 500 FCFA</strong> pour rejoindre le réseau et gagner sur 3 niveaux.</div>
+  <div class="act-price">
     <div>
-      <div class="wd-lbl">Solde disponible</div>
-      <div class="wd-amount" id="balDisplay">0 F</div>
-      <div class="wd-min">Minimum de retrait : 2 000 FCFA</div>
+      <div class="act-price-n">2 500 FCFA</div>
+      <div class="act-price-l">Activation unique &middot; Accès à vie</div>
     </div>
-    <div style="font-size:2rem;">💳</div>
   </div>
-  <button class="btn-wd" id="wdBtn" onclick="openWd()" disabled>💸 Demander un retrait</button>
+  <div class="act-levels">
+    <div class="act-level"><div class="act-level-n" style="color:var(--green);">1 250F</div><div class="act-level-l">Niveau 1 Filleul direct</div></div>
+    <div class="act-level"><div class="act-level-n" style="color:var(--blue);">625F</div><div class="act-level-l">Niveau 2 Filleul indirect</div></div>
+    <div class="act-level"><div class="act-level-n" style="color:var(--gold);">300F</div><div class="act-level-l">Niveau 3 3e génération</div></div>
+  </div>
+  <button class="btn-act" onclick="ouvrirPaiement()">&#128178; Activer mon compte — 2 500 FCFA</button>
 </div>
 
-<!-- NAV -->
-<nav class="nav">
-  <button class="ni" onclick="location.href='dashboard.html'"><span class="ni-ico">🏠</span><span class="ni-lbl">Accueil</span></button>
-  <button class="ni" onclick="location.href='messages.html'"><span class="ni-ico">💬</span><span class="ni-lbl">Messages</span></button>
-  <div class="ni"><button class="nav-plus" onclick="location.href='dashboard.html'">➕</button><span class="ni-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
-  <button class="ni on" onclick="location.href='gagner.html'"><span class="ni-ico">💰</span><span class="ni-lbl" style="color:var(--blue);font-weight:700">Gagner</span></button>
-  <button class="ni" onclick="location.href='profil.html'"><span class="ni-ico">👤</span><span class="ni-lbl">Profil</span></button>
-</nav>
+<!-- PENDING -->
+<div class="pend-card" id="statePend">
+  <div class="pend-ico">&#9203;</div>
+  <div class="pend-title">Paiement en cours de vérification</div>
+  <div class="pend-sub">Ton paiement a été enregistré. Vérification sous <strong>24h maximum</strong>. Tu recevras une notification dès que ton compte est activé.</div>
+  <div class="pend-ref" id="pendRef">REF-XXXXXXXX</div>
+  <button onclick="window.open('https://wa.me/237689011185?text=Bonjour+activation+parrainage','_blank')" style="width:100%;padding:.75rem;border-radius:12px;background:#25D366;color:white;font-weight:700;border:none;cursor:pointer;font-size:.88rem;">&#128172; Contacter le support</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="stateDash">
+  <div class="solde-hero">
+    <div class="solde-label">Mon solde parrainage</div>
+    <div class="solde-amount" id="soldeMontant">0 FCFA</div>
+    <div class="solde-sub">Total gagné : <span id="totalGains">0 FCFA</span></div>
+    <div class="solde-btns">
+      <button class="btn-ret" onclick="ouvrirRetrait()">&#128179; Retirer</button>
+      <button class="btn-part" onclick="partagerLien()">&#128279; Partager mon lien</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-n" id="nbF1" style="color:var(--green);">0</div><div class="stat-l">Filleuls directs N1</div></div>
+    <div class="stat-card"><div class="stat-n" id="nbF2" style="color:var(--blue);">0</div><div class="stat-l">Filleuls N2 &amp; N3</div></div>
+    <div class="stat-card"><div class="stat-n" id="nbGains" style="color:var(--gold);">0</div><div class="stat-l">Transactions</div></div>
+    <div class="stat-card"><div class="stat-n" id="nbRet" style="color:var(--red);">0</div><div class="stat-l">Retraits</div></div>
+  </div>
+
+  <div class="code-card">
+    <div class="code-lbl">Mon code parrainage</div>
+    <div class="code-val" id="monCode">...</div>
+    <div class="code-btns">
+      <button class="code-btn" onclick="copierCode()">&#128203; Copier le code</button>
+      <button class="code-btn" onclick="copierLien()">&#128279; Copier le lien</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tabParr" onclick="switchTab('Parr')">&#129309; Parrainage</button>
+    <button class="tab-btn" id="tabForm" onclick="switchTab('Form')">&#127891; Formations</button>
+    <button class="tab-btn" id="tabEbook" onclick="switchTab('Ebook')">&#128218; Ebooks</button>
+    <button class="tab-btn" id="tabInfo" onclick="switchTab('Info')">&#8505;&#65039; Info</button>
+  </div>
+
+  <!-- TAB PARRAINAGE -->
+  <div class="tab-ct active" id="tabCtParr">
+    <div style="background:linear-gradient(135deg,var(--gold),var(--orange));border-radius:16px;padding:.9rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;cursor:pointer;" onclick="location.href='cashback.html'">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <div style="font-size:1.3rem;">&#129683;</div>
+        <div><div style="font-size:.82rem;font-weight:800;color:white;">Mes AfriCoins</div><div style="font-size:.65rem;color:rgba(255,255,255,.75);">100 coins = 500 FCFA</div></div>
+      </div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:white;" id="coinsVal">—</div>
+    </div>
+    <div class="sec-title">&#128101; Mes filleuls directs (Niveau 1)</div>
+    <div id="listFil"><div class="spin"></div></div>
+    <div class="sec-title" style="margin-top:1rem;">&#128202; Historique des gains</div>
+    <div style="background:white;border-radius:16px;padding:.9rem 1rem;box-shadow:0 2px 8px rgba(8,14,42,.05);"><div id="listGains"><div class="spin"></div></div></div>
+  </div>
+
+  <!-- TAB FORMATIONS -->
+  <div class="tab-ct" id="tabCtForm">
+    <div id="listForms"><div class="spin"></div></div>
+  </div>
+
+  <!-- TAB EBOOKS -->
+  <div class="tab-ct" id="tabCtEbook">
+    <div id="listEbooks"></div>
+  </div>
+
+  <!-- TAB INFO -->
+  <div class="tab-ct" id="tabCtInfo">
+    <div class="info-sec">
+      <div class="info-ttl">&#127381; Comment ça marche</div>
+      <div class="step-row"><div class="step-num">1</div><div class="step-txt">Tu actives ton compte pour <strong>2 500 FCFA</strong> une seule fois.</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-txt">Tu partages ton <strong>code ou lien personnel</strong> à tes contacts.</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-txt">Chaque fois qu'un filleul <strong>active son compte</strong>, tu reçois une commission.</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-txt">Tu gagnes aussi sur les filleuls de <strong>tes filleuls</strong> (niveaux 2 et 3) !</div></div>
+    </div>
+    <div class="info-sec">
+      <div class="info-ttl">&#128176; Les 3 niveaux de commission</div>
+      <div class="lvl-row"><div><div class="lvl-name">&#129351; Niveau 1 — Filleul direct</div><div class="lvl-desc">Personne que tu as invitée directement</div></div><div class="lvl-comm">1 250F</div></div>
+      <div class="lvl-row"><div><div class="lvl-name">&#129352; Niveau 2 — Filleul indirect</div><div class="lvl-desc">Filleul du filleul de ta recrue</div></div><div class="lvl-comm">625F</div></div>
+      <div class="lvl-row"><div><div class="lvl-name">&#129353; Niveau 3 — 3e génération</div><div class="lvl-desc">Filleul du filleul du filleul</div></div><div class="lvl-comm">300F</div></div>
+    </div>
+    <div class="info-sec">
+      <div class="info-ttl">&#128161; Exemple concret</div>
+      <div class="ex-box">
+        <div class="ex-row"><span>&#128100; <strong>Jean</strong> invite Paul &#8594; Paul active</span><span class="ex-gain">Jean +1 250F</span></div>
+        <div class="ex-row"><span>&#128100; <strong>Paul</strong> invite Marie &#8594; Marie active</span><span class="ex-gain">Paul +1 250F &nbsp; Jean +625F</span></div>
+        <div class="ex-row"><span>&#128100; <strong>Marie</strong> invite Dupont &#8594; Dupont active</span><span class="ex-gain">Marie +1 250F &nbsp; Paul +625F &nbsp; Jean +300F</span></div>
+      </div>
+    </div>
+    <div class="info-sec">
+      <div class="info-ttl">&#128179; Conditions de retrait</div>
+      <div style="font-size:.78rem;color:var(--gray);line-height:1.7;">&#183; Minimum 2 000 FCFA par retrait<br/>&#183; MTN Money, Orange Money, Wave<br/>&#183; Délai de traitement : 24-48h<br/>&#183; 1 retrait par semaine maximum</div>
+    </div>
+  </div>
+
+</div><!-- /dash -->
+
+<!-- MODAL PAIEMENT -->
+<div class="modal-ov" id="payModal" onclick="fermerPaiement()">
+  <div class="modal-sh" onclick="event.stopPropagation()">
+    <div class="m-handle"></div>
+    <div class="m-title">&#128178; Activer mon compte</div>
+    <div class="m-sub">Envoie exactement <strong>2 500 FCFA</strong> au numéro ci-dessous via Mobile Money.</div>
+    <div class="op-grid">
+      <div class="op-card sel" id="opMTN" onclick="selOp('mtn')"><div class="op-ico">&#128241;</div><div class="op-nm">MTN</div></div>
+      <div class="op-card" id="opOrange" onclick="selOp('orange')"><div class="op-ico">&#127818;</div><div class="op-nm">Orange</div></div>
+      <div class="op-card" id="opWave" onclick="selOp('wave')"><div class="op-ico">&#127754;</div><div class="op-nm">Wave</div></div>
+    </div>
+    <div class="pay-box">
+      <div class="pay-lbl">Envoie le montant à ce numéro</div>
+      <div class="pay-num" id="payNum">+237 689 011 185</div>
+      <div class="pay-amt">&#128178; 2 500 FCFA — Nom : AfriMarket</div>
+    </div>
+    <div class="f-gr"><label class="f-lbl">Référence / N° de transaction *</label><input class="f-inp" id="fRef" placeholder="Ex: 1234567890 (reçu MTN/Orange)"/></div>
+    <div class="f-gr"><label class="f-lbl">Ton numéro Mobile Money *</label><input class="f-inp" id="fNum" type="tel" placeholder="+237 6XX XXX XXX"/></div>
+    <button class="btn-conf" id="btnConf" onclick="confirmerPay()">&#10003; J'ai effectué le paiement</button>
+    <button onclick="fermerPaiement()" style="width:100%;margin-top:.6rem;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
+  </div>
+</div>
 
 <!-- MODAL RETRAIT -->
-<div class="ov" id="wdModal">
-  <div class="sheet">
-    <div class="handle"></div>
-    <div class="sheet-title">
-      💸 Demander un retrait
-      <button class="sheet-close" onclick="closeWd()">✕</button>
-    </div>
-    <label class="f-lbl">Opérateur Mobile Money</label>
-    <select class="f-sel" id="wOp">
-      <option value="orange">Orange Money</option>
-      <option value="mtn">MTN Mobile Money</option>
-    </select>
-    <label class="f-lbl">Numéro Mobile Money</label>
-    <input class="f-inp" id="wPhone" type="tel" placeholder="+237 6XX XXX XXX"/>
-    <label class="f-lbl">Ton nom complet</label>
-    <input class="f-inp" id="wName" placeholder="Prénom Nom"/>
-    <label class="f-lbl">Montant à retirer (FCFA)</label>
-    <input class="f-inp" id="wAmt" type="number" placeholder="2000"/>
-    <div class="f-hint">Minimum 2 000 FCFA · Disponible : <span id="wAvail">0</span> FCFA</div>
-    <button class="btn-ok" id="wOkBtn" onclick="submitWd()">✅ Confirmer le retrait</button>
+<div class="modal-ov" id="retModal" onclick="fermerRetrait()">
+  <div class="modal-sh" onclick="event.stopPropagation()">
+    <div class="m-handle"></div>
+    <div class="m-title">&#128179; Retirer mes gains</div>
+    <div class="m-sub">Minimum 2 000 FCFA par retrait.</div>
+    <div class="m-prev"><div class="m-prev-val" id="retSolde">0 FCFA</div><div class="m-prev-sub">Solde disponible</div></div>
+    <div class="f-gr"><label class="f-lbl">Montant (FCFA)</label><input class="f-inp" id="retMont" type="number" placeholder="Min. 2 000 FCFA" min="2000"/></div>
+    <div class="f-gr"><label class="f-lbl">Opérateur</label><select class="f-inp" id="retOp"><option value="mtn">MTN Mobile Money</option><option value="orange">Orange Money</option><option value="wave">Wave</option></select></div>
+    <div class="f-gr"><label class="f-lbl">Numéro Mobile Money</label><input class="f-inp" id="retNum" type="tel" placeholder="+237 6XX XXX XXX"/></div>
+    <button class="btn-conf" onclick="confirmerRet()">&#10003; Confirmer le retrait</button>
+    <button onclick="fermerRetrait()" style="width:100%;margin-top:.6rem;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">&#127968;</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">&#128172;</span><span class="nav-lbl">Messages</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">&#10133;</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+  <button class="nav-item active"><span class="nav-ico">&#128176;</span><span class="nav-lbl" style="color:var(--blue)">Gagner</span></button>
+  <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">&#128100;</span><span class="nav-lbl">Profil</span></button>
+</nav>
+
 <script>
 'use strict';
-var sb = supabase.createClient(
-  'https://elgbvitijyjriozvzqpf.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
-);
-
-var U=null, P=null, earnings=[], board=[];
-var solde=0, total=0, filleuls=0;
+var sb=supabase.createClient('https://elgbvitijyjriozvzqpf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM');
+var U=null,COMPTE=null,SOLDE=0,OP='mtn';
+var OP_NUMS={mtn:'+237 689 011 185',orange:'+237 689 011 185',wave:'+237 689 011 185'};
 
 (async function(){
-  var r = await sb.auth.getSession();
-  if(!r.data||!r.data.session){ location.href='index.html'; return; }
-  U = r.data.session.user;
-  var pr = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
-  P = pr.data||{};
-  var code = P.ref_code||U.id.substring(0,8);
-  document.getElementById('linkDisplay').textContent = location.origin+'/index.html?ref='+code;
-  await Promise.all([loadEarnings(), loadBoard()]);
-  refreshStats();
-  refreshPaliers();
-  renderHist();
-  renderBoard();
+  var s=await sb.auth.getSession();
+  if(!s.data.session){location.href='auth.html';return;}
+  U=s.data.session.user;
+  await chargerCompte();
 })();
 
-async function loadEarnings(){
-  var r = await sb.from('referral_earnings').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
-  earnings = r.data||[];
-  solde   = earnings.filter(function(e){return e.status==='available';}).reduce(function(s,e){return s+e.amount;},0);
-  total   = earnings.reduce(function(s,e){return s+e.amount;},0);
-  filleuls= earnings.filter(function(e){return e.type==='premium_commission'&&e.level===1;}).length;
-}
-async function loadBoard(){
-  try{ var r=await sb.from('referral_leaderboard').select('*').limit(10); board=r.data||[]; }catch(e){ board=[]; }
-}
-
-function refreshStats(){
-  count('gainsDisplay', solde, 900);
-  count('statFilleuls', filleuls, 700);
-  count('statTotal', total, 800);
-  var rang = board.findIndex(function(l){return l.id===U.id;});
-  document.getElementById('statRang').textContent = rang>=0?'#'+(rang+1):'—';
-  document.getElementById('balDisplay').textContent = fmt(solde)+' F';
-  document.getElementById('wAvail').textContent = fmt(solde);
-  document.getElementById('wdBtn').disabled = solde<2000;
-}
-
-function refreshPaliers(){
-  var n = filleuls;
-  document.getElementById('prog5').style.width  = Math.min(n/5*100,100)+'%';
-  document.getElementById('prog20').style.width = Math.min(n/20*100,100)+'%';
-  document.getElementById('prog5txt').textContent  = Math.min(n,5);
-  document.getElementById('prog20txt').textContent = Math.min(n,20);
-  var c5=document.getElementById('pc-5'), c20=document.getElementById('pc-20');
-  if(n>=5){  c5.classList.add('done'); c5.querySelector('.palier-ico').textContent='✅'; }
-  else if(n>0){ c5.classList.add('active'); }
-  if(n>=20){ c20.classList.add('done'); c20.querySelector('.palier-ico').textContent='✅'; }
-  else if(n>=5){ c20.classList.add('active'); }
-}
-
-function renderHist(){
-  var el=document.getElementById('histList');
-  if(!earnings.length){ el.innerHTML='<div class="empty">Aucun gain pour l\'instant.<br/>Partage ton lien pour commencer !</div>'; return; }
-  var ico={'bonus':'🎁','withdrawal':'💸'};
-  var cls={'bonus':'bonus','withdrawal':'out'};
-  el.innerHTML = earnings.slice(0,20).map(function(e){
-    var t=e.type; var plus=t!=='withdrawal';
-    var d=new Date(e.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
-    return '<div class="hi">'+
-      '<div class="hi-ico '+(cls[t]||'earn')+'">'+(ico[t]||'💰')+'</div>'+
-      '<div class="hi-desc"><b>'+esc(e.description||'Gain parrainage')+'</b><span>'+d+'</span></div>'+
-      '<div class="hi-amt '+(plus?'p':'m')+'">'+(plus?'+':'-')+fmt(e.amount)+' F</div>'+
-    '</div>';
-  }).join('');
-}
-
-function renderBoard(){
-  var el=document.getElementById('rankList');
-  if(!board.length){ el.innerHTML='<div class="empty">Sois le premier à parrainer !</div>'; return; }
-  var m=['🥇','🥈','🥉'], pc=['p1','p2','p3'];
-  el.innerHTML = board.slice(0,10).map(function(l,i){
-    var me=l.id===U.id;
-    var av=l.avatar_url
-      ?'<img src="'+esc(l.avatar_url)+'" onerror="this.outerHTML=\'<span>'+(l.full_name||'?')[0].toUpperCase()+'</span>\'">'
-      :'<span>'+(l.full_name||'?')[0].toUpperCase()+'</span>';
-    return '<div class="rk'+(me?' me':'')+'">'+
-      '<div class="rk-pos '+(pc[i]||'')+'">'+(i<3?m[i]:'#'+(i+1))+'</div>'+
-      '<div class="rk-av">'+av+'</div>'+
-      '<div class="rk-info"><div class="rk-name">'+(me?'👤 Toi':esc(l.full_name||'Anonyme'))+'</div>'+
-      '<div class="rk-sub">'+l.filleuls_premium+' filleul'+(l.filleuls_premium>1?'s':'')+'</div></div>'+
-      '<div class="rk-amt">'+fmt(l.gains_totaux)+' F</div>'+
-    '</div>';
-  }).join('');
-}
-
-/* PARTAGE */
-function getLink(){
-  return location.origin+'/index.html?ref='+(P.ref_code||U.id.substring(0,8));
-}
-function copyLink(){
-  var btn=document.getElementById('copyBtn');
-  navigator.clipboard.writeText(getLink()).then(function(){
-    btn.textContent='✅ Copié !'; btn.classList.add('ok');
-    setTimeout(function(){btn.textContent='Copier';btn.classList.remove('ok');},2200);
-    toast('Lien copié ! 🚀');
-  }).catch(function(){toast(getLink(),'info');});
-}
-function shareWA(){
-  var msg='Rejoins AfriMarket — la marketplace africaine !\nInscription gratuite : '+getLink();
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-}
-function shareTelegram(){
-  window.open('https://t.me/share/url?url='+encodeURIComponent(getLink())+'&text='+encodeURIComponent('Rejoins AfriMarket !'),'_blank');
-}
-function shareNative(){
-  if(navigator.share){navigator.share({title:'AfriMarket',text:'Rejoins AfriMarket !',url:getLink()}).catch(function(){});}
-  else copyLink();
-}
-function shareText(){ window.open('sms:?body='+encodeURIComponent('Rejoins AfriMarket : '+getLink())); }
-
-/* RETRAIT */
-function openWd(){
-  document.getElementById('wAmt').value=Math.max(solde,2000);
-  document.getElementById('wdModal').classList.add('open');
-}
-function closeWd(){ document.getElementById('wdModal').classList.remove('open'); }
-
-async function submitWd(){
-  var op=document.getElementById('wOp').value;
-  var ph=document.getElementById('wPhone').value.trim();
-  var nm=document.getElementById('wName').value.trim();
-  var am=parseInt(document.getElementById('wAmt').value);
-  if(!ph){toast('Numéro obligatoire','error');return;}
-  if(!nm){toast('Nom obligatoire','error');return;}
-  if(isNaN(am)||am<2000){toast('Minimum 2 000 FCFA','error');return;}
-  if(am>solde){toast('Solde insuffisant','error');return;}
-  var btn=document.getElementById('wOkBtn');
-  btn.disabled=true; btn.textContent='⏳ Envoi…';
-  try{
-    var r=await sb.from('withdrawal_requests').insert({user_id:U.id,amount:am,operator:op,phone:ph,name:nm,status:'pending'});
-    if(r.error)throw r.error;
-    var ids=[],run=0;
-    for(var i=0;i<earnings.length;i++){
-      if(earnings[i].status==='available'&&run<am){ids.push(earnings[i].id);run+=earnings[i].amount;}
-    }
-    if(ids.length) await sb.from('referral_earnings').update({status:'withdrawn'}).in('id',ids);
-    closeWd();
-    solde=Math.max(0,solde-am);
-    document.getElementById('balDisplay').textContent=fmt(solde)+' F';
-    document.getElementById('gainsDisplay').textContent=fmt(solde);
-    document.getElementById('wdBtn').disabled=solde<2000;
-    toast('Demande envoyée ✅ Paiement sous 24h');
-  }catch(e){toast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;btn.textContent='✅ Confirmer le retrait';}
-}
-
-/* UTILS */
-function count(id,to,dur){
-  var el=document.getElementById(id); if(!el)return;
-  var t0=performance.now();
-  (function go(now){
-    var p=Math.min((now-t0)/dur,1);
-    el.textContent=fmt(Math.round(to*(1-Math.pow(1-p,3))));
-    if(p<1)requestAnimationFrame(go); else el.textContent=fmt(to);
-  })(t0);
-}
 function fmt(n){return Number(n||0).toLocaleString('fr-FR');}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+async function chargerCompte(){
+  try{
+    var r=await sb.from('parrainage_comptes').select('*').eq('user_id',U.id).maybeSingle();
+    if(r.error&&r.error.code==='42P01'){
+      affEtat('act');
+      toast('Execute parrainage_sql.sql dans Supabase','warning');
+      return;
+    }
+    if(!r.data){
+      var rp=await sb.from('parrainage_paiements').select('*').eq('user_id',U.id).eq('statut','en_attente').maybeSingle();
+      if(rp.data){document.getElementById('pendRef').textContent=rp.data.ref_paiement||'REF-'+rp.data.id.slice(0,8).toUpperCase();affEtat('pend');}
+      else affEtat('act');
+      return;
+    }
+    COMPTE=r.data;
+    if(COMPTE.statut!=='actif'){
+      var rp2=await sb.from('parrainage_paiements').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(1);
+      if(rp2.data&&rp2.data.length&&rp2.data[0].statut==='en_attente'){
+        document.getElementById('pendRef').textContent=rp2.data[0].ref_paiement||'REF-'+rp2.data[0].id.slice(0,8).toUpperCase();
+        affEtat('pend');
+      }else affEtat('act');
+      return;
+    }
+    affEtat('dash');
+    chargerDash();
+  }catch(e){console.error(e);affEtat('act');}
+}
+
+function affEtat(e){
+  document.getElementById('stateAct').style.display=e==='act'?'block':'none';
+  document.getElementById('statePend').classList.toggle('show',e==='pend');
+  document.getElementById('stateDash').classList.toggle('show',e==='dash');
+}
+
+async function chargerDash(){
+  if(!COMPTE)return;
+  document.getElementById('monCode').textContent=COMPTE.code_parrain;
+  SOLDE=COMPTE.solde||0;
+  document.getElementById('soldeMontant').textContent=fmt(SOLDE)+' FCFA';
+  document.getElementById('totalGains').textContent=fmt(COMPTE.total_gains||0)+' FCFA';
+  try{var rc=await sb.from('cashback_points').select('points').eq('user_id',U.id);if(!rc.error){var coins=(rc.data||[]).reduce(function(s,p){return s+(p.points||0);},0);document.getElementById('coinsVal').textContent=coins;}}catch(e){}
+  chargerFilleuls();chargerGains();chargerStats();chargerForms();chargerEbooks();
+}
+
+async function chargerFilleuls(){
+  var el=document.getElementById('listFil');
+  try{
+    var r=await sb.from('parrainage_comptes').select('*, profiles:user_id(full_name)').eq('parrain_id',COMPTE.id).order('created_at',{ascending:false});
+    if(r.error||!r.data||!r.data.length){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#128101;</div><div class="empty-title">Aucun filleul encore</div><div class="empty-sub">Partage ton lien pour recruter !</div></div>';document.getElementById('nbF1').textContent='0';return;}
+    document.getElementById('nbF1').textContent=r.data.length;
+    var colors=['#00C271','#1B3FE4','#F5B731','#FF6B1A','#00C2B7'];
+    el.innerHTML=r.data.map(function(f,i){
+      var name=(f.profiles&&f.profiles.full_name)||'Filleul #'+(i+1);
+      var d=new Date(f.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+      var actif=f.statut==='actif';
+      return'<div class="fil-card"><div class="fil-ico" style="background:'+colors[i%colors.length]+'">'+name[0].toUpperCase()+'</div>'+
+        '<div class="fil-info"><div class="fil-name">'+esc(name)+'</div><div class="fil-meta">'+d+' &middot; '+(actif?'Actif &#10003;':'En attente')+'</div></div>'+
+        '<div><div class="fil-gain" style="color:var(--green)">'+(actif?'+1 250F':'—')+'</div><span class="nb-badge n1">N1</span></div></div>';
+    }).join('');
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--gray);font-size:.8rem;">Erreur</div>';}
+}
+
+async function chargerGains(){
+  var el=document.getElementById('listGains');
+  try{
+    var r=await sb.from('parrainage_gains').select('*').eq('beneficiaire_id',COMPTE.id).order('created_at',{ascending:false}).limit(20);
+    if(r.error||!r.data||!r.data.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--gray);font-size:.78rem;">Aucun gain encore</div>';document.getElementById('nbGains').textContent='0';return;}
+    document.getElementById('nbGains').textContent=r.data.length;
+    var nC={1:'#00C271',2:'#1B3FE4',3:'#F5B731'};
+    el.innerHTML=r.data.map(function(g){
+      var d=new Date(g.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+      return'<div class="gain-row"><div class="gain-ico" style="background:'+nC[g.niveau||1]+'15">&#128176;</div>'+
+        '<div class="gain-txt">Niveau '+(g.niveau||1)+' — Filleul activé<br/><span class="gain-sub">'+d+'</span></div>'+
+        '<div class="gain-amount">+'+fmt(g.montant)+' F</div></div>';
+    }).join('');
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--gray);font-size:.78rem;">Erreur</div>';}
+}
+
+async function chargerStats(){
+  try{
+    var rr=await sb.from('parrainage_retraits').select('id',{count:'exact',head:true}).eq('compte_id',COMPTE.id);
+    document.getElementById('nbRet').textContent=rr.count||0;
+    var rf=await sb.from('parrainage_comptes').select('id').eq('parrain_id',COMPTE.id);
+    if(rf.data&&rf.data.length){
+      var ids=rf.data.map(function(x){return x.id;});
+      var rn2=await sb.from('parrainage_comptes').select('id',{count:'exact',head:true}).in('parrain_id',ids);
+      document.getElementById('nbF2').textContent=rn2.count||0;
+    }
+  }catch(e){}
+}
+
+async function chargerForms(){
+  var el=document.getElementById('listForms');
+  try{
+    var r=await sb.from('formations').select('*').eq('approuvee',true).eq('actif',true).order('created_at',{ascending:false}).limit(10);
+    if(r.error&&r.error.code==='42P01'){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#127891;</div><div class="empty-title">Formations bientot disponibles</div><div class="empty-sub">Execute earn_v3.sql dans Supabase</div></div>';return;}
+    var forms=r.data||[];
+    if(!forms.length){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#127891;</div><div class="empty-title">Aucune formation</div><div class="empty-sub">Sois le premier a vendre !</div></div>';return;}
+    var grads={couture:'linear-gradient(135deg,#7C3AED,#ec4899)',cuisine:'linear-gradient(135deg,#f97316,#eab308)',tech:'linear-gradient(135deg,#1B3FE4,#00C2B7)',beaute:'linear-gradient(135deg,#ec4899,#f43f5e)',business:'linear-gradient(135deg,#00C271,#1B3FE4)',autre:'linear-gradient(135deg,#7C3AED,#1B3FE4)'};
+    var icos={couture:'&#129523;',cuisine:'&#127859;',tech:'&#128187;',beaute:'&#128133;',business:'&#128200;',autre:'&#11088;'};
+    el.innerHTML=forms.map(function(f){
+      var gr=grads[f.categorie]||grads.autre;var ico=icos[f.categorie]||'&#127891;';
+      return'<div class="form-card"><div class="form-cover" style="background:'+gr+'"><span style="font-size:2rem">'+ico+'</span><span class="form-cat">'+f.categorie+'</span></div>'+
+        '<div class="form-body"><div class="form-title">'+esc(f.titre)+'</div><div class="form-row"><div class="form-price">'+fmt(f.prix)+' FCFA</div><button class="btn-ach" onclick="location.href=\'formations.html\'">Acheter</button></div></div></div>';
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#9888;&#65039;</div><div class="empty-title">Erreur</div></div>';}
+}
+
+function chargerEbooks(){
+  var ebooks=[
+    {ico:'&#128218;',titre:'Guide du vendeur AfriMarket',desc:'Tout savoir pour vendre efficacement sur AfriMarket.',prix:1500,gr:'linear-gradient(135deg,#1B3FE4,#00C2B7)'},
+    {ico:'&#128200;',titre:'Business en ligne en Afrique',desc:'Stratégies pour lancer ton business depuis l\'Afrique.',prix:2000,gr:'linear-gradient(135deg,#00C271,#1B3FE4)'},
+    {ico:'&#129309;',titre:'Maîtriser le parrainage MLM',desc:'Construire un réseau solide et générer des revenus passifs.',prix:2500,gr:'linear-gradient(135deg,#F5B731,#FF6B1A)'},
+    {ico:'&#128242;',titre:'Marketing WhatsApp efficace',desc:'Utiliser WhatsApp pour vendre plus et fidéliser tes clients.',prix:1500,gr:'linear-gradient(135deg,#25D366,#1B3FE4)'},
+  ];
+  document.getElementById('listEbooks').innerHTML=ebooks.map(function(e){
+    return'<div class="ebook-card"><div class="ebook-cov" style="background:'+e.gr+'">'+e.ico+'</div>'+
+      '<div class="ebook-info"><div class="ebook-title">'+e.titre+'</div><div class="ebook-desc">'+e.desc+'</div>'+
+      '<div class="ebook-row"><div class="ebook-price">'+fmt(e.prix)+' FCFA</div><button class="btn-lire" onclick="achetEbook()">Obtenir</button></div></div></div>';
+  }).join('');
+}
+function achetEbook(){window.open('https://wa.me/237689011185?text=Bonjour+ebook+AfriMarket','_blank');}
+
+function switchTab(t){
+  var tabs=['Parr','Form','Ebook','Info'];
+  tabs.forEach(function(x){
+    document.getElementById('tab'+x).classList.toggle('active',x===t);
+    document.getElementById('tabCt'+x).classList.toggle('active',x===t);
+  });
+}
+
+function selOp(op){
+  OP=op;
+  ['MTN','Orange','Wave'].forEach(function(x){document.getElementById('op'+x).classList.toggle('sel',x.toLowerCase()===op);});
+  document.getElementById('payNum').textContent=OP_NUMS[op]||'+237 689 011 185';
+}
+function ouvrirPaiement(){document.getElementById('payModal').classList.add('open');}
+function fermerPaiement(){document.getElementById('payModal').classList.remove('open');}
+
+async function confirmerPay(){
+  var ref=document.getElementById('fRef').value.trim();
+  var num=document.getElementById('fNum').value.trim();
+  if(!ref){toast('Référence obligatoire','error');return;}
+  if(!num){toast('Numéro Mobile Money obligatoire','error');return;}
+  var btn=document.getElementById('btnConf');
+  btn.disabled=true;btn.textContent='Enregistrement...';
+  try{
+    var code='AM-'+U.id.substring(0,8).toUpperCase();
+    var urlRef=new URLSearchParams(window.location.search).get('ref');
+    var parrainId=null;
+    if(urlRef){var pr=await sb.from('parrainage_comptes').select('id').eq('code_parrain',urlRef).maybeSingle();if(pr.data)parrainId=pr.data.id;}
+    var existing=await sb.from('parrainage_comptes').select('id').eq('user_id',U.id).maybeSingle();
+    if(!existing.data){
+      var ins=await sb.from('parrainage_comptes').insert({user_id:U.id,code_parrain:code,statut:'inactif',parrain_id:parrainId,solde:0,total_gains:0,total_filleuls:0});
+      if(ins.error&&!ins.error.message.includes('duplicate'))throw ins.error;
+    }
+    var payR=await sb.from('parrainage_paiements').insert({user_id:U.id,montant:2500,methode:OP,ref_paiement:ref,statut:'en_attente',numero_paiement:num});
+    if(payR.error)throw payR.error;
+    fermerPaiement();
+    document.getElementById('pendRef').textContent=ref;
+    affEtat('pend');
+    toast('Paiement enregistré ! Vérification sous 24h.','success');
+    var msg=encodeURIComponent('Bonjour ! Paiement activation parrainage AfriMarket.\nOperateur: '+OP+'\nRef: '+ref+'\nNumero: '+num+'\nEmail: '+U.email);
+    setTimeout(function(){window.open('https://wa.me/237689011185?text='+msg,'_blank');},1500);
+  }catch(e){toast('Erreur: '+e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='Confirmer le paiement';}
+}
+
+function ouvrirRetrait(){document.getElementById('retSolde').textContent=fmt(SOLDE)+' FCFA disponible';document.getElementById('retModal').classList.add('open');}
+function fermerRetrait(){document.getElementById('retModal').classList.remove('open');}
+
+async function confirmerRet(){
+  var montant=parseInt(document.getElementById('retMont').value)||0;
+  var op=document.getElementById('retOp').value;
+  var num=document.getElementById('retNum').value.trim();
+  if(montant<2000){toast('Minimum 2 000 FCFA','error');return;}
+  if(montant>SOLDE){toast('Solde insuffisant','error');return;}
+  if(!num){toast('Numéro obligatoire','error');return;}
+  try{
+    var r=await sb.from('parrainage_retraits').insert({compte_id:COMPTE.id,montant:montant,operateur:op,numero:num,statut:'en_attente'});
+    if(r.error)throw r.error;
+    fermerRetrait();toast('Demande envoyée ! Traitement sous 24-48h.','success');chargerStats();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+}
+
+function copierCode(){if(!COMPTE)return;if(navigator.clipboard){navigator.clipboard.writeText(COMPTE.code_parrain).then(function(){toast('Code copié !','success');});}}
+function copierLien(){if(!COMPTE)return;var l='https://afrimarket2.vercel.app/parrainage.html?ref='+COMPTE.code_parrain;if(navigator.clipboard){navigator.clipboard.writeText(l).then(function(){toast('Lien copié !','success');});}}
+function partagerLien(){
+  if(!COMPTE)return;
+  var url='https://afrimarket2.vercel.app/parrainage.html?ref='+COMPTE.code_parrain;
+  var msg='Rejoins le parrainage AfriMarket ! Code: '+COMPTE.code_parrain+' — Lien: '+url;
+  if(navigator.share){navigator.share({title:'AfriMarket Parrainage',text:msg,url:url}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){toast('Lien copié !','success');});}
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 var _tt;
 function toast(msg,type){
-  type=type||'success';
-  var el=document.getElementById('toast');
-  var c={success:'var(--green)',error:'var(--red)',warning:'var(--gold)',info:'var(--blue2)'};
-  el.textContent=msg; el.style.borderLeftColor=c[type]||c.success;
-  el.classList.add('show'); clearTimeout(_tt);
-  _tt=setTimeout(function(){el.classList.remove('show');},3500);
+  var el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'');
+  if(type==='success')el.style.background='#00a86b';
+  else if(type==='error')el.style.background='var(--red)';
+  else if(type==='warning')el.style.background='var(--orange)';
+  else el.style.background='var(--dark)';
+  clearTimeout(_tt);_tt=setTimeout(function(){el.className='';},4000);
 }
 </script>
 </body>
