@@ -9,7 +9,7 @@
 <style>
 :root{--dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;--gold:#F5B731;--red:#E83030;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--nav-h:72px;--orange:#FF6B1A;--green:#00C271;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);padding-bottom:calc(var(--nav-h)+1rem);}
+html{scroll-behavior:smooth;}body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);padding-bottom:calc(var(--nav-h)+2rem);min-height:100vh;}
 /* HEADER */
 .hdr{background:linear-gradient(145deg,#080E2A 0%,#1B3FE4 60%,#00C2B7 100%);padding:2rem 1.2rem 3rem;position:relative;overflow:hidden;}
 .hdr::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:30px 30px;}
@@ -41,6 +41,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
 .nav-item.active .nav-lbl{color:var(--blue);}
 .nav-plus-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--turq));border:none;font-size:1.4rem;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(27,63,228,.35);}
+
+/* ── FIX GLOBAL SPACING ── */
+html,body{height:100%;overflow-x:hidden;}
+body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
+.content,.tab-ct,.tab-content{overflow-y:visible !important;}
+.tabs,.tabs-row{position:sticky;top:0;z-index:50;}
+
 </style>
 </head>
 <body>
