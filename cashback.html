@@ -9,7 +9,7 @@
 <style>
 :root{--dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;--gold:#F5B731;--red:#E83030;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--nav-h:72px;--orange:#FF6B1A;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);padding-bottom:calc(var(--nav-h)+1rem);}
+html{scroll-behavior:smooth;}body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);padding-bottom:calc(var(--nav-h)+2rem);min-height:100vh;}
 
 /* HEADER */
 .hdr{background:linear-gradient(145deg,#7a3a00 0%,#F5B731 55%,#FF6B1A 100%);padding:1.4rem 1.2rem 2.5rem;position:relative;overflow:hidden;}
@@ -96,6 +96,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .nav-ico{font-size:1.25rem;line-height:1;}
 .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
 .nav-plus-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--turq));border:none;font-size:1.4rem;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(27,63,228,.35);}
+
+/* ── FIX GLOBAL SPACING ── */
+html,body{height:100%;overflow-x:hidden;}
+body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
+.content,.tab-ct,.tab-content{overflow-y:visible !important;}
+.tabs,.tabs-row{position:sticky;top:0;z-index:50;}
+
 </style>
 </head>
 <body>
@@ -274,9 +281,10 @@ var TOTAL_COINS = 0;
 
 (async function(){
   var s = await sb.auth.getSession();
-  if(!s.data.session){ location.href='index.html'; return; }
+  if(!s.data.session){ location.href='auth.html'; return; }
   U = s.data.session.user;
   loadBalance();
+  autoGainConnexion();
 })();
 
 function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
@@ -304,16 +312,19 @@ async function loadBalance(){
     if(r.error&&r.error.code==='42P01'){
       document.getElementById('balanceCoins').textContent='0';
       document.getElementById('balanceFcfa').textContent='0';
-      console.warn('Table cashback_points manquante - execute earn_v3.sql');
       return;
     }
-    TOTAL_COINS = (r.data||[]).reduce(function(s,p){return s+(p.points||0);},0);
-    // Déduire les retraits en attente/validés
+    var totalGagne = (r.data||[]).reduce(function(s,p){return s+(p.points||0);},0);
+    TOTAL_COINS = totalGagne;
+
+    // Déduire retraits non refusés
     var rr = await sb.from('cashback_retraits').select('points,statut').eq('user_id',U.id);
     var retires = (rr.data||[]).filter(function(x){return x.statut!=='refuse';}).reduce(function(s,x){return s+(x.points||0);},0);
-    var disponible = Math.max(0, TOTAL_COINS - retires);
+    var disponible = Math.max(0, totalGagne - retires);
+
     document.getElementById('balanceCoins').textContent = fmt(disponible);
     document.getElementById('balanceFcfa').textContent  = fmt(Math.floor(disponible/100)*500);
+    TOTAL_COINS = disponible;
   }catch(e){ console.warn(e.message); }
 }
 
@@ -322,14 +333,28 @@ async function gagnerCoinsConnexion(){
   var today = new Date().toISOString().slice(0,10);
   var lastKey = 'am_coin_day_'+U.id;
   var lastDay = localStorage.getItem(lastKey);
-  if(lastDay===today){ toast('Tu as déjà récupéré ton coin du jour aujourd\'hui !','error'); return; }
+  if(lastDay===today){ toast('Coin du jour déjà récupéré. Reviens demain !','warning'); return; }
   try{
-    var r = await sb.from('cashback_points').insert({user_id:U.id,source:'connexion',points:2,note:'Connexion quotidienne '+today});
+    var r = await sb.from('cashback_points').insert({
+      user_id:U.id, source:'connexion', points:2,
+      note:'Connexion quotidienne '+today
+    });
     if(r.error) throw r.error;
     localStorage.setItem(lastKey, today);
     toast('+2 AfriCoins ! Reviens demain pour en gagner plus 🎉','success');
     loadBalance();
   }catch(e){ toast('Erreur: '+e.message,'error'); }
+}
+
+// Gagner coins auto à la connexion du jour (silencieux)
+async function autoGainConnexion(){
+  var today = new Date().toISOString().slice(0,10);
+  var lastKey = 'am_coin_day_'+U.id;
+  if(localStorage.getItem(lastKey)===today) return;
+  try{
+    var r = await sb.from('cashback_points').insert({user_id:U.id,source:'connexion',points:2,note:'Connexion quotidienne '+today});
+    if(!r.error) localStorage.setItem(lastKey, today);
+  }catch(e){}
 }
 
 // ── HISTORIQUE ───────────────────────────────────────────────
@@ -400,7 +425,7 @@ async function demanderRetrait(){
   var num    = document.getElementById('retraitNum').value.trim();
   if(coins<100){ toast('Minimum 100 coins pour un retrait','error'); return; }
   if(!num){ toast('Numéro Mobile Money obligatoire','error'); return; }
-  if(coins>TOTAL_COINS){ toast('Solde insuffisant','error'); return; }
+  if(coins>TOTAL_COINS){ toast('Solde insuffisant ('+fmt(TOTAL_COINS)+' coins disponibles)','error'); return; }
   var fcfa = Math.floor(coins/100)*500;
   var btn = document.getElementById('btnConfirmRetrait');
   btn.disabled=true; btn.textContent='Envoi...';
@@ -411,11 +436,12 @@ async function demanderRetrait(){
     });
     if(r.error) throw r.error;
     closeRetraitModal();
-    toast('Demande de retrait envoyée ! Traitement sous 24-48h.','success');
+    toast('Demande envoyée ! Traitement sous 24-48h.','success');
     loadBalance();
     switchTab('retraits');
+    loadRetraits();
   }catch(e){ toast('Erreur: '+e.message,'error'); }
-  finally{ btn.disabled=false; btn.textContent='✅ Confirmer le retrait'; }
+  finally{ btn.disabled=false; btn.textContent='Confirmer le retrait'; }
 }
 </script>
 </body>
