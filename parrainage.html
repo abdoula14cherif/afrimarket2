@@ -337,10 +337,12 @@ body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
 </nav>
 
 <script>
+
 'use strict';
 var sb=supabase.createClient('https://elgbvitijyjriozvzqpf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM');
-var U=null,COMPTE=null,SOLDE=0,OP='mtn';
+var U=null, COMPTE=null, SOLDE=0, OP='mtn';
 var OP_NUMS={mtn:'+237 689 011 185',orange:'+237 689 011 185',wave:'+237 689 011 185'};
+var ACTIVATION_TIMER=null;
 
 (async function(){
   var s=await sb.auth.getSession();
@@ -350,33 +352,17 @@ var OP_NUMS={mtn:'+237 689 011 185',orange:'+237 689 011 185',wave:'+237 689 011
 })();
 
 function fmt(n){return Number(n||0).toLocaleString('fr-FR');}
-
-async function chargerCompte(){
-  try{
-    var r=await sb.from('parrainage_comptes').select('*').eq('user_id',U.id).maybeSingle();
-    if(r.error&&r.error.code==='42P01'){
-      affEtat('act');
-      toast('Execute parrainage_sql.sql dans Supabase','warning');
-      return;
-    }
-    if(!r.data){
-      var rp=await sb.from('parrainage_paiements').select('*').eq('user_id',U.id).eq('statut','en_attente').maybeSingle();
-      if(rp.data){document.getElementById('pendRef').textContent=rp.data.ref_paiement||'REF-'+rp.data.id.slice(0,8).toUpperCase();affEtat('pend');}
-      else affEtat('act');
-      return;
-    }
-    COMPTE=r.data;
-    if(COMPTE.statut!=='actif'){
-      var rp2=await sb.from('parrainage_paiements').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(1);
-      if(rp2.data&&rp2.data.length&&rp2.data[0].statut==='en_attente'){
-        document.getElementById('pendRef').textContent=rp2.data[0].ref_paiement||'REF-'+rp2.data[0].id.slice(0,8).toUpperCase();
-        affEtat('pend');
-      }else affEtat('act');
-      return;
-    }
-    affEtat('dash');
-    chargerDash();
-  }catch(e){console.error(e);affEtat('act');}
+var _tt;
+function toast(msg,type){
+  var el=document.getElementById('toast');
+  if(!el)return;
+  el.textContent=msg;el.className='show';
+  if(type==='success')el.style.background='#00a86b';
+  else if(type==='error')el.style.background='#E83030';
+  else if(type==='warning')el.style.background='#FF6B1A';
+  else el.style.background='#080E2A';
+  clearTimeout(_tt);
+  _tt=setTimeout(function(){el.className='';el.textContent='';el.style.background='';},4000);
 }
 
 function affEtat(e){
@@ -385,142 +371,350 @@ function affEtat(e){
   document.getElementById('stateDash').classList.toggle('show',e==='dash');
 }
 
+async function chargerCompte(){
+  try{
+    var r=await sb.from('parrainage_comptes').select('*').eq('user_id',U.id).maybeSingle();
+    if(r.error&&r.error.code==='42P01'){affEtat('act');toast('Execute parrainage_sql.sql dans Supabase','warning');return;}
+
+    if(!r.data){
+      // Pas de compte - vérifier paiement en attente
+      var rp=await sb.from('parrainage_paiements').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(1);
+      if(rp.data&&rp.data.length){
+        var pay=rp.data[0];
+        var el_ref=document.getElementById('pendRef');
+        if(el_ref)el_ref.textContent=pay.ref_paiement||'REF-'+pay.id.slice(0,8).toUpperCase();
+        affEtat('pend');
+        verifierActivationAuto(pay);
+      }else{
+        affEtat('act');
+      }
+      return;
+    }
+
+    COMPTE=r.data;
+    if(COMPTE.statut==='actif'){
+      affEtat('dash');
+      chargerDash();
+    }else{
+      var rp2=await sb.from('parrainage_paiements').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(1);
+      if(rp2.data&&rp2.data.length&&rp2.data[0].statut==='en_attente'){
+        var pay2=rp2.data[0];
+        var el_ref2=document.getElementById('pendRef');
+        if(el_ref2)el_ref2.textContent=pay2.ref_paiement||'REF-'+pay2.id.slice(0,8).toUpperCase();
+        affEtat('pend');
+        verifierActivationAuto(pay2);
+      }else{
+        affEtat('act');
+      }
+    }
+  }catch(e){console.error(e);affEtat('act');}
+}
+
+function verifierActivationAuto(pay){
+  var payTime=new Date(pay.created_at).getTime();
+  var elapsed=Math.floor((Date.now()-payTime)/1000);
+  var restant=Math.max(0,120-elapsed);
+  if(restant===0){
+    activerCompteAuto();
+  }else{
+    demarrerCompteur(restant);
+  }
+}
+
+function demarrerCompteur(secondes){
+  clearInterval(ACTIVATION_TIMER);
+  var el=document.getElementById('statePend');
+  if(!el)return;
+  var cptEl=document.getElementById('activationCpt');
+  if(!cptEl){
+    cptEl=document.createElement('div');
+    cptEl.id='activationCpt';
+    cptEl.style.cssText='margin:.8rem 0;background:rgba(27,63,228,.08);border-radius:12px;padding:.8rem;text-align:center;';
+    var waBtn=el.querySelector('button');
+    if(waBtn)el.insertBefore(cptEl,waBtn);else el.appendChild(cptEl);
+  }
+  var remaining=secondes;
+  function tick(){
+    var m=Math.floor(remaining/60);
+    var s=remaining%60;
+    cptEl.innerHTML='<div style="font-size:.72rem;color:#8892A4;margin-bottom:.25rem;">Activation automatique dans</div>'+
+      '<div style="font-size:1.5rem;font-weight:800;color:#1B3FE4;">'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'</div>';
+    if(remaining<=0){clearInterval(ACTIVATION_TIMER);activerCompteAuto();return;}
+    remaining--;
+  }
+  tick();
+  ACTIVATION_TIMER=setInterval(tick,1000);
+}
+
+async function activerCompteAuto(){
+  try{
+    // Récupérer ou créer le compte
+    var rc=await sb.from('parrainage_comptes').select('*').eq('user_id',U.id).maybeSingle();
+    if(!rc.data){
+      var code='AM-'+U.id.substring(0,8).toUpperCase();
+      var ins=await sb.from('parrainage_comptes').insert({user_id:U.id,code_parrain:code,statut:'actif',solde:0,total_gains:0,total_filleuls:0,activated_at:new Date().toISOString()}).select().single();
+      if(ins.error)throw ins.error;
+      COMPTE=ins.data;
+    }else{
+      var ru=await sb.from('parrainage_comptes').update({statut:'actif',activated_at:new Date().toISOString()}).eq('user_id',U.id).select().single();
+      if(ru.error)throw ru.error;
+      COMPTE=ru.data||rc.data;
+      COMPTE.statut='actif';
+    }
+    // Valider le paiement
+    await sb.from('parrainage_paiements').update({statut:'valide',validated_at:new Date().toISOString()}).eq('user_id',U.id).eq('statut','en_attente');
+    // Distribuer commissions
+    if(COMPTE)await distribuerCommissions(COMPTE);
+    clearInterval(ACTIVATION_TIMER);
+    toast('Compte active avec succes !','success');
+    // Recharger vers dashboard
+    setTimeout(function(){
+      affEtat('dash');
+      chargerDash();
+    },1500);
+  }catch(e){toast('Erreur activation: '+e.message,'error');console.error(e);}
+}
+
+async function distribuerCommissions(compte){
+  if(!compte.parrain_id)return;
+  var niveaux=[{id:compte.parrain_id,n:1,m:1250}];
+  try{
+    var rN1=await sb.from('parrainage_comptes').select('parrain_id').eq('id',compte.parrain_id).single();
+    if(!rN1.error&&rN1.data&&rN1.data.parrain_id){
+      niveaux.push({id:rN1.data.parrain_id,n:2,m:625});
+      var rN2=await sb.from('parrainage_comptes').select('parrain_id').eq('id',rN1.data.parrain_id).single();
+      if(!rN2.error&&rN2.data&&rN2.data.parrain_id)
+        niveaux.push({id:rN2.data.parrain_id,n:3,m:300});
+    }
+  }catch(e){console.warn(e.message);}
+  for(var x=0;x<niveaux.length;x++){
+    var niv=niveaux[x];
+    try{
+      await sb.from('parrainage_gains').insert({beneficiaire_id:niv.id,source_id:compte.id,niveau:niv.n,montant:niv.m,statut:'disponible'});
+      var rs=await sb.from('parrainage_comptes').select('solde,total_gains,total_filleuls').eq('id',niv.id).single();
+      if(!rs.error&&rs.data){
+        await sb.from('parrainage_comptes').update({
+          solde:(rs.data.solde||0)+niv.m,
+          total_gains:(rs.data.total_gains||0)+niv.m,
+          total_filleuls:(rs.data.total_filleuls||0)+(niv.n===1?1:0)
+        }).eq('id',niv.id);
+      }
+    }catch(e){console.warn('N'+niv.n+':',e.message);}
+  }
+}
+
 async function chargerDash(){
   if(!COMPTE)return;
-  document.getElementById('monCode').textContent=COMPTE.code_parrain;
+  var elCode=document.getElementById('monCode');
+  if(elCode)elCode.textContent=COMPTE.code_parrain||'AM-'+U.id.substring(0,8).toUpperCase();
   SOLDE=COMPTE.solde||0;
-  document.getElementById('soldeMontant').textContent=fmt(SOLDE)+' FCFA';
-  document.getElementById('totalGains').textContent=fmt(COMPTE.total_gains||0)+' FCFA';
-  try{var rc=await sb.from('cashback_points').select('points').eq('user_id',U.id);if(!rc.error){var coins=(rc.data||[]).reduce(function(s,p){return s+(p.points||0);},0);document.getElementById('coinsVal').textContent=coins;}}catch(e){}
-  chargerFilleuls();chargerGains();chargerStats();chargerForms();chargerEbooks();
+  var elSolde=document.getElementById('soldeMontant');
+  var elTotal=document.getElementById('totalGains');
+  if(elSolde)elSolde.textContent=fmt(SOLDE)+' FCFA';
+  if(elTotal)elTotal.textContent=fmt(COMPTE.total_gains||0)+' FCFA';
+  // AfriCoins
+  try{
+    var rc=await sb.from('cashback_points').select('points').eq('user_id',U.id);
+    if(!rc.error){
+      var coins=(rc.data||[]).reduce(function(s,p){return s+(p.points||0);},0);
+      var el_c=document.getElementById('coinsVal');
+      if(el_c)el_c.textContent=coins;
+    }
+  }catch(e){}
+  chargerFilleuls();
+  chargerGains();
+  chargerStats();
+  chargerForms();
+  chargerEbooks();
 }
 
 async function chargerFilleuls(){
   var el=document.getElementById('listFil');
+  if(!el||!COMPTE)return;
   try{
     var r=await sb.from('parrainage_comptes').select('*, profiles:user_id(full_name)').eq('parrain_id',COMPTE.id).order('created_at',{ascending:false});
-    if(r.error||!r.data||!r.data.length){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#128101;</div><div class="empty-title">Aucun filleul encore</div><div class="empty-sub">Partage ton lien pour recruter !</div></div>';document.getElementById('nbF1').textContent='0';return;}
-    document.getElementById('nbF1').textContent=r.data.length;
+    var nb1=document.getElementById('nbF1');
+    if(r.error||!r.data||!r.data.length){
+      el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucun filleul. Partage ton lien !</div>';
+      if(nb1)nb1.textContent='0';
+      return;
+    }
+    if(nb1)nb1.textContent=r.data.length;
     var colors=['#00C271','#1B3FE4','#F5B731','#FF6B1A','#00C2B7'];
     el.innerHTML=r.data.map(function(f,i){
       var name=(f.profiles&&f.profiles.full_name)||'Filleul #'+(i+1);
       var d=new Date(f.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
       var actif=f.statut==='actif';
-      return'<div class="fil-card"><div class="fil-ico" style="background:'+colors[i%colors.length]+'">'+name[0].toUpperCase()+'</div>'+
-        '<div class="fil-info"><div class="fil-name">'+esc(name)+'</div><div class="fil-meta">'+d+' &middot; '+(actif?'Actif &#10003;':'En attente')+'</div></div>'+
-        '<div><div class="fil-gain" style="color:var(--green)">'+(actif?'+1 250F':'—')+'</div><span class="nb-badge n1">N1</span></div></div>';
+      return '<div style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
+        '<div style="width:40px;height:40px;border-radius:50%;background:'+colors[i%colors.length]+';display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:1rem;flex-shrink:0;">'+esc(name[0].toUpperCase())+'</div>'+
+        '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;">'+esc(name)+'</div><div style="font-size:.68rem;color:#8892A4;">'+d+' &middot; '+(actif?'Actif':'En attente')+'</div></div>'+
+        '<div style="text-align:right;"><div style="font-weight:800;font-size:.95rem;color:#00C271;">'+(actif?'+1 250F':'&mdash;')+'</div><span style="font-size:.6rem;font-weight:800;padding:.15rem .5rem;border-radius:99px;background:rgba(0,194,183,.12);color:#00C271;">N1</span></div>'+
+      '</div>';
     }).join('');
-  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--gray);font-size:.8rem;">Erreur</div>';}
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur</div>';}
 }
 
 async function chargerGains(){
   var el=document.getElementById('listGains');
+  if(!el||!COMPTE)return;
   try{
     var r=await sb.from('parrainage_gains').select('*').eq('beneficiaire_id',COMPTE.id).order('created_at',{ascending:false}).limit(20);
-    if(r.error||!r.data||!r.data.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--gray);font-size:.78rem;">Aucun gain encore</div>';document.getElementById('nbGains').textContent='0';return;}
-    document.getElementById('nbGains').textContent=r.data.length;
+    var nb=document.getElementById('nbGains');
+    if(r.error||!r.data||!r.data.length){
+      el.innerHTML='<div style="text-align:center;padding:1rem;color:#8892A4;font-size:.78rem;">Aucun gain encore</div>';
+      if(nb)nb.textContent='0';
+      return;
+    }
+    if(nb)nb.textContent=r.data.length;
     var nC={1:'#00C271',2:'#1B3FE4',3:'#F5B731'};
     el.innerHTML=r.data.map(function(g){
       var d=new Date(g.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
-      return'<div class="gain-row"><div class="gain-ico" style="background:'+nC[g.niveau||1]+'15">&#128176;</div>'+
-        '<div class="gain-txt">Niveau '+(g.niveau||1)+' — Filleul activé<br/><span class="gain-sub">'+d+'</span></div>'+
-        '<div class="gain-amount">+'+fmt(g.montant)+' F</div></div>';
+      return '<div style="display:flex;align-items:center;padding:.65rem 0;border-bottom:1px solid #E8EDF5;">'+
+        '<div style="width:34px;height:34px;border-radius:10px;background:'+(nC[g.niveau||1]||'#00C271')+'15;display:flex;align-items:center;justify-content:center;margin-right:.6rem;font-size:.9rem;">&#128176;</div>'+
+        '<div style="flex:1;font-size:.78rem;font-weight:600;">Niveau '+(g.niveau||1)+' &mdash; Filleul activ&eacute;<br/><span style="font-size:.65rem;color:#8892A4;">'+d+'</span></div>'+
+        '<div style="font-weight:800;font-size:.9rem;color:#00C271;">+'+fmt(g.montant)+' F</div>'+
+      '</div>';
     }).join('');
-  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--gray);font-size:.78rem;">Erreur</div>';}
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#8892A4;font-size:.78rem;">Erreur</div>';}
 }
 
 async function chargerStats(){
+  if(!COMPTE)return;
   try{
     var rr=await sb.from('parrainage_retraits').select('id',{count:'exact',head:true}).eq('compte_id',COMPTE.id);
-    document.getElementById('nbRet').textContent=rr.count||0;
+    var nbR=document.getElementById('nbRet');
+    if(nbR)nbR.textContent=rr.count||0;
     var rf=await sb.from('parrainage_comptes').select('id').eq('parrain_id',COMPTE.id);
     if(rf.data&&rf.data.length){
       var ids=rf.data.map(function(x){return x.id;});
       var rn2=await sb.from('parrainage_comptes').select('id',{count:'exact',head:true}).in('parrain_id',ids);
-      document.getElementById('nbF2').textContent=rn2.count||0;
+      var nb2=document.getElementById('nbF2');
+      if(nb2)nb2.textContent=rn2.count||0;
     }
   }catch(e){}
 }
 
 async function chargerForms(){
   var el=document.getElementById('listForms');
+  if(!el)return;
   try{
-    var r=await sb.from('formations').select('*').eq('approuvee',true).eq('actif',true).order('created_at',{ascending:false}).limit(10);
-    if(r.error&&r.error.code==='42P01'){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#127891;</div><div class="empty-title">Formations bientot disponibles</div><div class="empty-sub">Execute earn_v3.sql dans Supabase</div></div>';return;}
+    var r=await sb.from('formations').select('*').eq('approuvee',true).eq('actif',true).order('created_at',{ascending:false}).limit(8);
+    if(r.error&&r.error.code==='42P01'){el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.8rem;">Execute earn_v3.sql dans Supabase</div>';return;}
     var forms=r.data||[];
-    if(!forms.length){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#127891;</div><div class="empty-title">Aucune formation</div><div class="empty-sub">Sois le premier a vendre !</div></div>';return;}
-    var grads={couture:'linear-gradient(135deg,#7C3AED,#ec4899)',cuisine:'linear-gradient(135deg,#f97316,#eab308)',tech:'linear-gradient(135deg,#1B3FE4,#00C2B7)',beaute:'linear-gradient(135deg,#ec4899,#f43f5e)',business:'linear-gradient(135deg,#00C271,#1B3FE4)',autre:'linear-gradient(135deg,#7C3AED,#1B3FE4)'};
-    var icos={couture:'&#129523;',cuisine:'&#127859;',tech:'&#128187;',beaute:'&#128133;',business:'&#128200;',autre:'&#11088;'};
+    if(!forms.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation disponible</div>';return;}
     el.innerHTML=forms.map(function(f){
-      var gr=grads[f.categorie]||grads.autre;var ico=icos[f.categorie]||'&#127891;';
-      return'<div class="form-card"><div class="form-cover" style="background:'+gr+'"><span style="font-size:2rem">'+ico+'</span><span class="form-cat">'+f.categorie+'</span></div>'+
-        '<div class="form-body"><div class="form-title">'+esc(f.titre)+'</div><div class="form-row"><div class="form-price">'+fmt(f.prix)+' FCFA</div><button class="btn-ach" onclick="location.href=\'formations.html\'">Acheter</button></div></div></div>';
+      var btnId='fb-'+f.id.slice(0,8);
+      return '<div style="background:white;border-radius:16px;margin-bottom:.8rem;overflow:hidden;box-shadow:0 2px 10px rgba(8,14,42,.05);">'+
+        '<div style="height:60px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);display:flex;align-items:center;justify-content:center;"><span style="font-size:1.5rem;">&#127891;</span></div>'+
+        '<div style="padding:.7rem .9rem;display:flex;align-items:center;justify-content:space-between;">'+
+          '<div><div style="font-weight:700;font-size:.85rem;">'+esc(f.titre)+'</div><div style="font-size:.7rem;color:#8892A4;">'+fmt(f.prix)+' FCFA</div></div>'+
+          '<button id="'+btnId+'" style="padding:.4rem .8rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-size:.72rem;font-weight:700;border:none;cursor:pointer;">Voir</button>'+
+        '</div>'+
+      '</div>';
     }).join('');
-  }catch(e){el.innerHTML='<div class="empty-box"><div class="empty-ico">&#9888;&#65039;</div><div class="empty-title">Erreur</div></div>';}
+    forms.forEach(function(f){
+      var btn=document.getElementById('fb-'+f.id.slice(0,8));
+      if(btn)btn.onclick=function(){location.href='formations.html';};
+    });
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur</div>';}
 }
 
 function chargerEbooks(){
+  var el=document.getElementById('listEbooks');
+  if(!el)return;
   var ebooks=[
-    {ico:'&#128218;',titre:'Guide du vendeur AfriMarket',desc:'Tout savoir pour vendre efficacement sur AfriMarket.',prix:1500,gr:'linear-gradient(135deg,#1B3FE4,#00C2B7)'},
-    {ico:'&#128200;',titre:'Business en ligne en Afrique',desc:'Stratégies pour lancer ton business depuis l\'Afrique.',prix:2000,gr:'linear-gradient(135deg,#00C271,#1B3FE4)'},
-    {ico:'&#129309;',titre:'Maîtriser le parrainage MLM',desc:'Construire un réseau solide et générer des revenus passifs.',prix:2500,gr:'linear-gradient(135deg,#F5B731,#FF6B1A)'},
-    {ico:'&#128242;',titre:'Marketing WhatsApp efficace',desc:'Utiliser WhatsApp pour vendre plus et fidéliser tes clients.',prix:1500,gr:'linear-gradient(135deg,#25D366,#1B3FE4)'},
+    {ico:'&#128218;',titre:'Guide du vendeur AfriMarket',desc:'Tout savoir pour vendre efficacement.',prix:1500,gr:'linear-gradient(135deg,#1B3FE4,#00C2B7)'},
+    {ico:'&#128200;',titre:'Business en ligne en Afrique',desc:'Strategies pour lancer ton business.',prix:2000,gr:'linear-gradient(135deg,#00C271,#1B3FE4)'},
+    {ico:'&#129309;',titre:'Maitriser le parrainage MLM',desc:'Construire un reseau solide.',prix:2500,gr:'linear-gradient(135deg,#F5B731,#FF6B1A)'},
+    {ico:'&#128242;',titre:'Marketing WhatsApp efficace',desc:'Utiliser WhatsApp pour vendre plus.',prix:1500,gr:'linear-gradient(135deg,#25D366,#1B3FE4)'},
   ];
-  document.getElementById('listEbooks').innerHTML=ebooks.map(function(e){
-    return'<div class="ebook-card"><div class="ebook-cov" style="background:'+e.gr+'">'+e.ico+'</div>'+
-      '<div class="ebook-info"><div class="ebook-title">'+e.titre+'</div><div class="ebook-desc">'+e.desc+'</div>'+
-      '<div class="ebook-row"><div class="ebook-price">'+fmt(e.prix)+' FCFA</div><button class="btn-lire" onclick="achetEbook()">Obtenir</button></div></div></div>';
+  el.innerHTML=ebooks.map(function(e,idx){
+    return '<div style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.7rem;display:flex;gap:.8rem;align-items:center;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
+      '<div style="width:52px;height:68px;border-radius:8px;background:'+e.gr+';display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">'+e.ico+'</div>'+
+      '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;margin-bottom:.2rem;">'+e.titre+'</div>'+
+      '<div style="font-size:.7rem;color:#8892A4;line-height:1.4;margin-bottom:.4rem;">'+e.desc+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+        '<span style="font-weight:700;font-size:.9rem;color:#1B3FE4;">'+fmt(e.prix)+' FCFA</span>'+
+        '<button id="ebook-btn-'+idx+'" style="padding:.35rem .8rem;border-radius:8px;background:#F2F5FF;color:#1B3FE4;font-size:.7rem;font-weight:700;border:1.5px solid #E4E9F8;cursor:pointer;">Obtenir</button>'+
+      '</div></div>'+
+    '</div>';
   }).join('');
+  ebooks.forEach(function(e,idx){
+    var btn=document.getElementById('ebook-btn-'+idx);
+    if(btn)btn.onclick=function(){window.open('https://wa.me/237689011185?text=Ebook+AfriMarket','_blank');};
+  });
 }
-function achetEbook(){window.open('https://wa.me/237689011185?text=Bonjour+ebook+AfriMarket','_blank');}
 
 function switchTab(t){
   var tabs=['Parr','Form','Ebook','Info'];
   tabs.forEach(function(x){
-    document.getElementById('tab'+x).classList.toggle('active',x===t);
-    document.getElementById('tabCt'+x).classList.toggle('active',x===t);
+    var btn=document.getElementById('tab'+x);
+    var ct=document.getElementById('tabCt'+x);
+    if(btn)btn.classList.toggle('active',x===t);
+    if(ct)ct.classList.toggle('active',x===t);
   });
 }
 
 function selOp(op){
   OP=op;
-  ['MTN','Orange','Wave'].forEach(function(x){document.getElementById('op'+x).classList.toggle('sel',x.toLowerCase()===op);});
-  document.getElementById('payNum').textContent=OP_NUMS[op]||'+237 689 011 185';
+  ['MTN','Orange','Wave'].forEach(function(x){
+    var el=document.getElementById('op'+x);
+    if(el)el.classList.toggle('sel',x.toLowerCase()===op);
+  });
+  var pn=document.getElementById('payNum');
+  if(pn)pn.textContent=OP_NUMS[op]||'+237 689 011 185';
 }
-function ouvrirPaiement(){document.getElementById('payModal').classList.add('open');}
-function fermerPaiement(){document.getElementById('payModal').classList.remove('open');}
+
+function ouvrirPaiement(){var m=document.getElementById('payModal');if(m)m.classList.add('open');}
+function fermerPaiement(){var m=document.getElementById('payModal');if(m)m.classList.remove('open');}
 
 async function confirmerPay(){
   var ref=document.getElementById('fRef').value.trim();
   var num=document.getElementById('fNum').value.trim();
-  if(!ref){toast('Référence obligatoire','error');return;}
-  if(!num){toast('Numéro Mobile Money obligatoire','error');return;}
+  if(!ref){toast('Reference de paiement obligatoire','error');return;}
+  if(!num){toast('Numero Mobile Money obligatoire','error');return;}
   var btn=document.getElementById('btnConf');
-  btn.disabled=true;btn.textContent='Enregistrement...';
+  if(btn){btn.disabled=true;btn.textContent='Enregistrement...';}
   try{
+    // Créer code parrain
     var code='AM-'+U.id.substring(0,8).toUpperCase();
+    // Récupérer parrain si URL ?ref=
     var urlRef=new URLSearchParams(window.location.search).get('ref');
     var parrainId=null;
-    if(urlRef){var pr=await sb.from('parrainage_comptes').select('id').eq('code_parrain',urlRef).maybeSingle();if(pr.data)parrainId=pr.data.id;}
+    if(urlRef){
+      var pr=await sb.from('parrainage_comptes').select('id').eq('code_parrain',urlRef).maybeSingle();
+      if(pr.data)parrainId=pr.data.id;
+    }
+    // Créer ou récupérer le compte
     var existing=await sb.from('parrainage_comptes').select('id').eq('user_id',U.id).maybeSingle();
     if(!existing.data){
       var ins=await sb.from('parrainage_comptes').insert({user_id:U.id,code_parrain:code,statut:'inactif',parrain_id:parrainId,solde:0,total_gains:0,total_filleuls:0});
       if(ins.error&&!ins.error.message.includes('duplicate'))throw ins.error;
     }
+    // Enregistrer le paiement
     var payR=await sb.from('parrainage_paiements').insert({user_id:U.id,montant:2500,methode:OP,ref_paiement:ref,statut:'en_attente',numero_paiement:num});
     if(payR.error)throw payR.error;
     fermerPaiement();
-    document.getElementById('pendRef').textContent=ref;
+    var el_ref=document.getElementById('pendRef');
+    if(el_ref)el_ref.textContent=ref;
     affEtat('pend');
-    toast('Paiement enregistré ! Vérification sous 24h.','success');
-    var msg=encodeURIComponent('Bonjour ! Paiement activation parrainage AfriMarket.\nOperateur: '+OP+'\nRef: '+ref+'\nNumero: '+num+'\nEmail: '+U.email);
-    setTimeout(function(){window.open('https://wa.me/237689011185?text='+msg,'_blank');},1500);
-  }catch(e){toast('Erreur: '+e.message,'error');}
-  finally{btn.disabled=false;btn.textContent='Confirmer le paiement';}
+    toast('Paiement enregistre ! Activation dans 2 minutes...','success');
+    // Démarrer le compteur 2 min
+    demarrerCompteur(120);
+    // WhatsApp support
+    var msg=encodeURIComponent('Bonjour ! Paiement parrainage AfriMarket. Op: '+OP+' Ref: '+ref+' Num: '+num+' Email: '+U.email);
+    setTimeout(function(){window.open('https://wa.me/237689011185?text='+msg,'_blank');},2000);
+  }catch(e){toast('Erreur: '+e.message,'error');console.error(e);}
+  finally{if(btn){btn.disabled=false;btn.textContent='Confirmer le paiement';}}
 }
 
-function ouvrirRetrait(){document.getElementById('retSolde').textContent=fmt(SOLDE)+' FCFA disponible';document.getElementById('retModal').classList.add('open');}
-function fermerRetrait(){document.getElementById('retModal').classList.remove('open');}
+function ouvrirRetrait(){
+  var m=document.getElementById('retModal');
+  var el=document.getElementById('retSolde');
+  if(el)el.textContent=fmt(SOLDE)+' FCFA disponible';
+  if(m)m.classList.add('open');
+}
+function fermerRetrait(){var m=document.getElementById('retModal');if(m)m.classList.remove('open');}
 
 async function confirmerRet(){
   var montant=parseInt(document.getElementById('retMont').value)||0;
@@ -528,112 +722,36 @@ async function confirmerRet(){
   var num=document.getElementById('retNum').value.trim();
   if(montant<2000){toast('Minimum 2 000 FCFA','error');return;}
   if(montant>SOLDE){toast('Solde insuffisant','error');return;}
-  if(!num){toast('Numéro obligatoire','error');return;}
+  if(!num){toast('Numero obligatoire','error');return;}
   try{
     var r=await sb.from('parrainage_retraits').insert({compte_id:COMPTE.id,montant:montant,operateur:op,numero:num,statut:'en_attente'});
     if(r.error)throw r.error;
-    fermerRetrait();toast('Demande envoyée ! Traitement sous 24-48h.','success');chargerStats();
+    fermerRetrait();
+    toast('Demande de retrait envoyee ! Traitement sous 24-48h.','success');
+    chargerStats();
   }catch(e){toast('Erreur: '+e.message,'error');}
 }
 
-function copierCode(){if(!COMPTE)return;if(navigator.clipboard){navigator.clipboard.writeText(COMPTE.code_parrain).then(function(){toast('Code copié !','success');});}}
-function copierLien(){if(!COMPTE)return;var l='https://afrimarket2.vercel.app/parrainage.html?ref='+COMPTE.code_parrain;if(navigator.clipboard){navigator.clipboard.writeText(l).then(function(){toast('Lien copié !','success');});}}
-function partagerLien(){
+function copierCode(){
   if(!COMPTE)return;
-  var url='https://afrimarket2.vercel.app/parrainage.html?ref='+COMPTE.code_parrain;
-  var msg='Rejoins le parrainage AfriMarket ! Code: '+COMPTE.code_parrain+' — Lien: '+url;
+  var code=COMPTE.code_parrain||'AM-'+U.id.substring(0,8).toUpperCase();
+  if(navigator.clipboard){navigator.clipboard.writeText(code).then(function(){toast('Code copie !','success');});}
+}
+function copierLien(){
+  if(!COMPTE)return;
+  var lien='https://afrimarket2.vercel.app/parrainage.html?ref='+(COMPTE.code_parrain||'AM-'+U.id.substring(0,8).toUpperCase());
+  if(navigator.clipboard){navigator.clipboard.writeText(lien).then(function(){toast('Lien copie !','success');});}
+}
+function partagerLien(){
+  var code=COMPTE?(COMPTE.code_parrain||'AM-'+U.id.substring(0,8).toUpperCase()):'';
+  var url='https://afrimarket2.vercel.app/parrainage.html?ref='+code;
+  var msg='Rejoins le parrainage AfriMarket ! Code: '+code+' — '+url;
   if(navigator.share){navigator.share({title:'AfriMarket Parrainage',text:msg,url:url}).catch(function(){});}
-  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){toast('Lien copié !','success');});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){toast('Lien copie !','success');});}
 }
 
 function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-var _tt;
-function toast(msg,type){
-  var el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'');
-  if(type==='success')el.style.background='#00a86b';
-  else if(type==='error')el.style.background='var(--red)';
-  else if(type==='warning')el.style.background='var(--orange)';
-  else el.style.background='var(--dark)';
-  clearTimeout(_tt);_tt=setTimeout(function(){el.className='';},4000);
-}
 
-
-// ── ACTIVATION AUTO 2 MIN ────────────────────────────────────
-function demarrerCompteurActivation(compteId, secondes){
-  var el = document.getElementById('statePend');
-  if(!el) return;
-  var cptEl = document.getElementById('activationCpt');
-  if(!cptEl){
-    cptEl = document.createElement('div');
-    cptEl.id = 'activationCpt';
-    cptEl.style.cssText = 'margin:.8rem 0;background:rgba(27,63,228,.08);border-radius:12px;padding:.8rem;text-align:center;';
-    var wa = el.querySelector('button');
-    if(wa) el.insertBefore(cptEl, wa);
-    else el.appendChild(cptEl);
-  }
-  var remaining = secondes;
-  var interval = setInterval(function(){
-    remaining--;
-    var m = Math.floor(remaining/60);
-    var s = remaining%60;
-    cptEl.innerHTML =
-      '<div style="font-size:.75rem;color:var(--gray);margin-bottom:.3rem;">Activation automatique dans</div>'+
-      '<div style="font-family:Clash Display,sans-serif;font-size:1.5rem;font-weight:700;color:var(--blue);">'+
-        String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+
-      '</div>';
-    if(remaining <= 0){
-      clearInterval(interval);
-      activerCompteAuto(compteId);
-    }
-  }, 1000);
-}
-
-async function activerCompteAuto(compteId){
-  try{
-    var r = await sb.from('parrainage_comptes').update({
-      statut:'actif', activated_at:new Date().toISOString()
-    }).eq('id',compteId).eq('user_id',U.id);
-    if(r.error) throw r.error;
-
-    await sb.from('parrainage_paiements').update({
-      statut:'valide', validated_at:new Date().toISOString()
-    }).eq('user_id',U.id).eq('statut','en_attente');
-
-    var rcompte = await sb.from('parrainage_comptes').select('*').eq('id',compteId).single();
-    if(!rcompte.error && rcompte.data) await distribuerCommissionsClient(rcompte.data);
-
-    toast('Compte active avec succes !','success');
-    setTimeout(function(){ chargerCompte(); }, 1000);
-  }catch(e){ toast('Erreur activation: '+e.message,'error'); console.error(e); }
-}
-
-async function distribuerCommissionsClient(compte){
-  if(!compte.parrain_id) return;
-  var niveaux = [{id:compte.parrain_id, n:1, m:1250}];
-  try{
-    var rN1 = await sb.from('parrainage_comptes').select('parrain_id').eq('id',compte.parrain_id).single();
-    if(!rN1.error && rN1.data && rN1.data.parrain_id){
-      niveaux.push({id:rN1.data.parrain_id, n:2, m:625});
-      var rN2 = await sb.from('parrainage_comptes').select('parrain_id').eq('id',rN1.data.parrain_id).single();
-      if(!rN2.error && rN2.data && rN2.data.parrain_id)
-        niveaux.push({id:rN2.data.parrain_id, n:3, m:300});
-    }
-  }catch(e){ console.warn('Niveaux:', e.message); }
-  for(var x=0; x<niveaux.length; x++){
-    var niv = niveaux[x];
-    try{
-      await sb.from('parrainage_gains').insert({beneficiaire_id:niv.id,source_id:compte.id,niveau:niv.n,montant:niv.m,statut:'disponible'});
-      var rs = await sb.from('parrainage_comptes').select('solde,total_gains,total_filleuls').eq('id',niv.id).single();
-      if(!rs.error && rs.data){
-        await sb.from('parrainage_comptes').update({
-          solde:         (rs.data.solde||0)+niv.m,
-          total_gains:   (rs.data.total_gains||0)+niv.m,
-          total_filleuls:(rs.data.total_filleuls||0)+(niv.n===1?1:0)
-        }).eq('id',niv.id);
-      }
-    }catch(e){ console.warn('Commission N'+niv.n+':', e.message); }
-  }
-}
 </script>
 </body>
 </html>
