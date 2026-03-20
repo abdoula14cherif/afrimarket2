@@ -250,258 +250,259 @@ body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
 
 <script>
 'use strict';
-var sb = supabase.createClient(
-  'https://elgbvitijyjriozvzqpf.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
-);
+var sb=supabase.createClient('https://elgbvitijyjriozvzqpf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM');
+var U=null, ALL_FORMATIONS=[], CURRENT_CAT='tout', SELECTED_FORM=null;
 
-var U = null;
-var ALL_FORMATIONS = [];
-var CURRENT_CAT = 'tout';
-var SELECTED_FORM = null;
-
-// ── AUTH ─────────────────────────────────────────────────────
 (async function(){
-  var s = await sb.auth.getSession();
-  if(!s.data.session){ location.href='auth.html'; return; }
-  U = s.data.session.user;
+  var s=await sb.auth.getSession();
+  if(!s.data.session){location.href='auth.html';return;}
+  U=s.data.session.user;
   loadStats();
   loadCatalogue();
 })();
 
-function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
-
+function fmt(n){return Number(n||0).toLocaleString('fr-FR');}
 var _tt;
 function toast(msg,type){
   var el=document.getElementById('toast');
-  el.textContent=msg;
-  el.className='show';
-  el.style.background=type==='error'?'var(--red)':type==='success'?'#00a86b':'var(--dark)';
-  clearTimeout(_tt);_tt=setTimeout(function(){el.className='';},3500);
+  if(!el)return;
+  el.textContent=msg;el.className='show';
+  if(type==='success')el.style.background='#00a86b';
+  else if(type==='error')el.style.background='#E83030';
+  else if(type==='warning')el.style.background='#FF6B1A';
+  else el.style.background='#080E2A';
+  clearTimeout(_tt);
+  _tt=setTimeout(function(){el.className='';el.textContent='';el.style.background='';},4000);
 }
 
 function switchTab(t){
   ['catalogue','vendre','mes'].forEach(function(x){
-    document.getElementById('sec'+x.charAt(0).toUpperCase()+x.slice(1)).style.display=x===t?'block':'none';
-    document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('active',x===t);
+    var btn=document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1));
+    var ct=document.getElementById('ct'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(btn)btn.classList.toggle('active',x===t);
+    if(ct)ct.style.display=x===t?'':'none';
   });
-  if(t==='mes') loadMesFormations();
+  if(t==='mes')loadMesFormations();
 }
 
-// ── STATS ────────────────────────────────────────────────────
 async function loadStats(){
   try{
-    var r1 = await sb.from('formations').select('id,ventes',{count:'exact'}).eq('approuvee',true).eq('actif',true);
-    if(r1.error&&r1.error.code==='42P01'){ console.warn('Table formations manquante'); return; }
-    var total = (r1.data||[]).reduce(function(s,f){return s+(f.ventes||0);},0);
-    document.getElementById('statFormations').textContent = r1.count||0;
-    document.getElementById('statVentes').textContent = total;
-    var r2 = await sb.from('formation_achats').select('id',{count:'exact'}).eq('acheteur_id',U.id);
-    document.getElementById('statMesAchats').textContent = r2.count||0;
-  }catch(e){ console.warn(e.message); }
+    var r1=await sb.from('formations').select('id',{count:'exact',head:true}).eq('approuvee',true).eq('actif',true);
+    var r2=await sb.from('formation_achats').select('id',{count:'exact',head:true}).eq('acheteur_id',U.id);
+    var el1=document.getElementById('statFormations');
+    var el2=document.getElementById('statMesAchats');
+    if(el1)el1.textContent=r1.count||0;
+    if(el2)el2.textContent=r2.count||0;
+  }catch(e){console.warn(e.message);}
 }
 
-// ── CATALOGUE ────────────────────────────────────────────────
 async function loadCatalogue(){
-  var el = document.getElementById('listFormations');
-  el.innerHTML='<div class="spin"></div>';
+  var el=document.getElementById('listCatalogue');
+  if(!el)return;
+  el.innerHTML='<div style="text-align:center;padding:2rem;"><div class="spin"></div></div>';
   try{
-    var r = await sb.from('formations').select('*').eq('approuvee',true).eq('actif',true).order('created_at',{ascending:false});
+    var r=await sb.from('formations').select('*').eq('approuvee',true).eq('actif',true).order('created_at',{ascending:false});
     if(r.error&&r.error.code==='42P01'){
-      el.innerHTML='<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Table en cours de création</div><div class="empty-sub">Execute earn_v3.sql dans Supabase SQL Editor</div></div>';
+      el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.8rem;">Execute earn_v3.sql dans Supabase</div>';
       return;
     }
-    ALL_FORMATIONS = r.data||[];
+    ALL_FORMATIONS=r.data||[];
     renderCatalogue();
-  }catch(e){ el.innerHTML='<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">'+e.message+'</div></div>'; }
-}
-
-function renderCatalogue(){
-  var el = document.getElementById('listFormations');
-  var list = CURRENT_CAT==='tout' ? ALL_FORMATIONS : ALL_FORMATIONS.filter(function(f){return f.categorie===CURRENT_CAT;});
-  if(!list.length){
-    el.innerHTML='<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Aucune formation pour l\'instant</div><div class="empty-sub">Sois le premier à vendre ta formation !</div></div>';
-    return;
-  }
-  var catIcos={couture:'🧵',cuisine:'🍳',tech:'💻',beaute:'💅',business:'📈',autre:'⭐'};
-  var typeIcos={pdf:'📄',video:'🎥',audio:'🎙️',mixte:'📦'};
-  var gradients={couture:'linear-gradient(135deg,#7C3AED,#ec4899)',cuisine:'linear-gradient(135deg,#f97316,#eab308)',tech:'linear-gradient(135deg,#1B3FE4,#00C2B7)',beaute:'linear-gradient(135deg,#ec4899,#f43f5e)',business:'linear-gradient(135deg,#00C271,#1B3FE4)',autre:'linear-gradient(135deg,#7C3AED,#1B3FE4)'};
-  el.innerHTML = list.map(function(f){
-    var ico = catIcos[f.categorie]||'📚';
-    var gr  = gradients[f.categorie]||gradients.autre;
-    var typeIco = typeIcos[f.type_contenu]||'📄';
-    return '<div class="form-card" onclick="openBuyModal(\''+f.id+'\')">'+
-      '<div class="form-cover" style="background:'+gr+'">'+
-        '<span style="font-size:2.5rem">'+ico+'</span>'+
-        '<span class="form-cover-cat">'+f.categorie+'</span>'+
-        '<span class="form-cover-type">'+typeIco+' '+f.type_contenu+'</span>'+
-      '</div>'+
-      '<div class="form-body">'+
-        '<div class="form-title">'+esc(f.titre)+'</div>'+
-        '<div class="form-author">👤 '+(f.user_id.slice(0,8).toUpperCase())+' · '+( f.duree?'⏱ '+f.duree:'')+'</div>'+
-        '<div class="form-row">'+
-          '<div class="form-price">'+fmt(f.prix)+' FCFA</div>'+
-          '<div style="display:flex;align-items:center;gap:.5rem">'+
-            '<span class="form-meta">🛒 '+(f.ventes||0)+' ventes</span>'+
-            '<button class="btn-buy">Acheter</button>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur: '+esc(e.message)+'</div>';}
 }
 
 function filterCat(cat){
-  CURRENT_CAT = cat;
-  document.querySelectorAll('[id^="fc-"]').forEach(function(b){
-    var active = b.id==='fc-'+cat;
-    b.style.background = active?'var(--purple)':'white';
-    b.style.color = active?'white':'';
-    b.style.border = active?'none':'1.5px solid var(--border)';
+  CURRENT_CAT=cat;
+  document.querySelectorAll('.cat-btn').forEach(function(b){
+    b.classList.toggle('active',b.dataset.cat===cat);
   });
   renderCatalogue();
 }
 
-// ── MODAL ACHAT ──────────────────────────────────────────────
-function openBuyModal(id){
-  var f = ALL_FORMATIONS.find(function(x){return x.id===id;});
-  if(!f) return;
-  SELECTED_FORM = f;
-  var typeLabels={pdf:'📄 PDF',video:'🎥 Vidéo',audio:'🎙️ Audio',mixte:'📦 Mixte'};
-  document.getElementById('buyTitle').textContent = f.titre;
-  document.getElementById('buyDesc').textContent  = (f.description||'').slice(0,120)+((f.description||'').length>120?'...':'');
-  document.getElementById('buyAuthor').textContent = f.user_id.slice(0,8).toUpperCase();
-  document.getElementById('buyDuree').textContent  = f.duree||'Non précisé';
-  document.getElementById('buyType').textContent   = typeLabels[f.type_contenu]||f.type_contenu;
-  document.getElementById('buyPrice').textContent  = fmt(f.prix)+' FCFA';
-  document.getElementById('buyModal').classList.add('open');
+function renderCatalogue(){
+  var el=document.getElementById('listCatalogue');
+  if(!el)return;
+  var list=CURRENT_CAT==='tout'?ALL_FORMATIONS:ALL_FORMATIONS.filter(function(f){return f.categorie===CURRENT_CAT;});
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation disponible</div>';return;}
+  var grads={couture:'linear-gradient(135deg,#7C3AED,#ec4899)',cuisine:'linear-gradient(135deg,#f97316,#eab308)',tech:'linear-gradient(135deg,#1B3FE4,#00C2B7)',beaute:'linear-gradient(135deg,#ec4899,#f43f5e)',business:'linear-gradient(135deg,#00C271,#1B3FE4)',autre:'linear-gradient(135deg,#7C3AED,#1B3FE4)'};
+  var icos={couture:'&amp;#9986;',cuisine:'&amp;#127859;',tech:'&amp;#128187;',beaute:'&amp;#128132;',business:'&amp;#128200;',autre:'&amp;#11088;'};
+  el.innerHTML=list.map(function(f){
+    var gr=grads[f.categorie]||grads.autre;
+    var btnId='btn-'+f.id.slice(0,8);
+    return '<div style="background:white;border-radius:16px;margin-bottom:.8rem;overflow:hidden;box-shadow:0 2px 10px rgba(8,14,42,.05);">'+
+      '<div style="height:80px;background:'+gr+';display:flex;align-items:center;justify-content:center;position:relative;">'+
+        '<span style="font-size:2rem;">&#127891;</span>'+
+        '<span style="position:absolute;top:.5rem;left:.5rem;font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(255,255,255,.2);color:white;padding:.15rem .5rem;border-radius:99px;">'+esc(f.categorie)+'</span>'+
+        '<span style="position:absolute;top:.5rem;right:.5rem;font-size:.65rem;font-weight:700;background:rgba(255,255,255,.9);color:#7C3AED;padding:.15rem .5rem;border-radius:99px;">'+fmt(f.ventes||0)+' ventes</span>'+
+      '</div>'+
+      '<div style="padding:.8rem .9rem;">'+
+        '<div style="font-weight:700;font-size:.88rem;margin-bottom:.2rem;">'+esc(f.titre)+'</div>'+
+        '<div style="font-size:.72rem;color:#8892A4;margin-bottom:.5rem;line-height:1.4;">'+esc((f.description||'').slice(0,80))+'</div>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+          '<span style="font-size:1rem;font-weight:700;color:#1B3FE4;">'+fmt(f.prix)+' FCFA</span>'+
+          '<button id="'+btnId+'" style="padding:.4rem .9rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-size:.72rem;font-weight:700;border:none;cursor:pointer;">Acheter</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  // Attacher les events après rendu
+  list.forEach(function(f){
+    var btn=document.getElementById('btn-'+f.id.slice(0,8));
+    if(btn) btn.onclick=function(){openBuyModal(f.id);};
+  });
+}
+
+async function openBuyModal(id){
+  var f=ALL_FORMATIONS.find(function(x){return x.id===id;});
+  if(!f)return;
+  SELECTED_FORM=f;
+  var typeLabels={pdf:'PDF',video:'Video',audio:'Audio',mixte:'Mixte'};
+  var els={title:'buyTitle',desc:'buyDesc',price:'buyPrice',duree:'buyDuree',type:'buyType'};
+  if(document.getElementById(els.title))document.getElementById(els.title).textContent=f.titre;
+  if(document.getElementById(els.desc))document.getElementById(els.desc).textContent=(f.description||'').slice(0,150);
+  if(document.getElementById(els.price))document.getElementById(els.price).textContent=fmt(f.prix)+' FCFA';
+  if(document.getElementById(els.duree))document.getElementById(els.duree).textContent=f.duree||'Non precis';
+  if(document.getElementById(els.type))document.getElementById(els.type).textContent=typeLabels[f.type_contenu]||'PDF';
+  var btn=document.getElementById('btnConfirmBuy');
+  if(btn){
+    try{
+      var chk=await sb.from('formation_achats').select('id').eq('formation_id',f.id).eq('acheteur_id',U.id).maybeSingle();
+      if(chk.data){btn.textContent='Acceder a ma formation';btn.style.background='linear-gradient(135deg,#00C271,#1B3FE4)';}
+      else{btn.textContent='Confirmer l achat — '+fmt(f.prix)+' FCFA';btn.style.background='';}
+    }catch(e){btn.textContent='Acheter — '+fmt(f.prix)+' FCFA';}
+  }
+  var modal=document.getElementById('buyModal');
+  if(modal)modal.classList.add('open');
 }
 
 function closeBuyModal(){
-  document.getElementById('buyModal').classList.remove('open');
-  SELECTED_FORM = null;
+  var modal=document.getElementById('buyModal');
+  if(modal)modal.classList.remove('open');
 }
 
 async function confirmerAchat(){
-  if(!SELECTED_FORM) return;
-  var f = SELECTED_FORM;
-  // Enregistrer l'achat et rediriger vers WhatsApp du formateur
+  if(!SELECTED_FORM)return;
+  var f=SELECTED_FORM;
+  var btn=document.getElementById('btnConfirmBuy');
+  if(btn){btn.disabled=true;btn.textContent='Traitement...';}
   try{
-    await sb.from('formation_achats').insert({
-      formation_id:f.id, acheteur_id:U.id,
-      montant:f.prix, commission:Math.round(f.prix*0.2), statut:'whatsapp'
-    });
-  }catch(e){ console.warn(e.message); }
-  // Message WhatsApp automatique
-  var msg = encodeURIComponent(
-    'Bonjour ! Je souhaite acheter votre formation "'+f.titre+'" à '+fmt(f.prix)+' FCFA sur AfriMarket.\n'+
-    'Référence: FORM-'+f.id.slice(0,8).toUpperCase()+'\n'+
-    'Merci de me confirmer le paiement et m\'envoyer le contenu.'
-  );
-  // On cherche le WA du formateur dans profiles
-  var waNum = '237000000000'; // fallback
-  try{
-    var pr = await sb.from('profiles').select('whatsapp').eq('id',f.user_id).single();
-    if(pr.data&&pr.data.whatsapp) waNum = pr.data.whatsapp.replace(/\D/g,'');
-  }catch(e){}
-  closeBuyModal();
-  window.open('https://wa.me/'+waNum+'?text='+msg,'_blank');
-  toast('Redirection vers WhatsApp du formateur...','success');
+    var chk=await sb.from('formation_achats').select('id').eq('formation_id',f.id).eq('acheteur_id',U.id).maybeSingle();
+    if(chk.data){closeBuyModal();afficherContenu(f);return;}
+    var r=await sb.from('formation_achats').insert({formation_id:f.id,acheteur_id:U.id,montant:f.prix,commission:Math.round(f.prix*0.2),statut:'paye'});
+    if(r.error)throw r.error;
+    await sb.from('cashback_points').insert({user_id:U.id,source:'formation',points:20,note:'Achat: '+f.titre}).catch(function(){});
+    await sb.from('formations').update({ventes:(f.ventes||0)+1}).eq('id',f.id).catch(function(){});
+    closeBuyModal();
+    toast('Achat reussi ! Acces au contenu accorde.','success');
+    afficherContenu(f);
+    loadStats();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Acheter';}}
 }
 
-// ── SOUMETTRE FORMATION ──────────────────────────────────────
-async function soumettreFormation(){
-  var titre   = document.getElementById('fTitre').value.trim();
-  var desc    = document.getElementById('fDesc').value.trim();
-  var cat     = document.getElementById('fCat').value;
-  var niveau  = document.getElementById('fNiveau').value;
-  var prix    = parseFloat(document.getElementById('fPrix').value);
-  var duree   = document.getElementById('fDuree').value.trim();
-  var type    = document.getElementById('fType').value;
-  var contenu = document.getElementById('fContenu').value.trim();
-  if(!titre){ toast('Titre obligatoire','error'); return; }
-  if(!desc)  { toast('Description obligatoire','error'); return; }
-  if(!prix||prix<500){ toast('Prix minimum 500 FCFA','error'); return; }
-  if(!contenu){ toast('Lien du contenu obligatoire','error'); return; }
-  var btn = document.getElementById('btnSubmitForm');
-  btn.disabled=true; btn.textContent='Envoi en cours...';
-  try{
-    var r = await sb.from('formations').insert({
-      user_id:U.id, titre, description:desc, categorie:cat, prix, duree,
-      niveau, type_contenu:type, contenu_url:contenu, approuvee:false, actif:true
-    });
-    if(r.error) throw r.error;
-    toast('Formation soumise ! Vérification sous 24-48h.','success');
-    ['fTitre','fDesc','fPrix','fDuree','fContenu'].forEach(function(id){ document.getElementById(id).value=''; });
-    setTimeout(function(){ switchTab('mes'); },1500);
-  }catch(e){
-    toast('Erreur: '+e.message,'error');
-  }finally{
-    btn.disabled=false; btn.textContent='📤 Soumettre ma formation';
-  }
-}
-
-// ── MES FORMATIONS ───────────────────────────────────────────
-async function loadMesFormations(){
-  var el = document.getElementById('listMesFormations');
-  el.innerHTML='<div class="spin"></div>';
-  try{
-    var r = await sb.from('formations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
-    if(r.error&&r.error.code==='42P01'){ el.innerHTML='<div class="empty-box"><div class="empty-ico">📚</div><div class="empty-title">Table manquante</div><div class="empty-sub">Execute earn_v3.sql</div></div>'; return; }
-    var ra = await sb.from('formation_achats').select('formation_id,montant').eq('formation_id', 'x'); // placeholder
-    var forms = r.data||[];
-    if(!forms.length){
-      el.innerHTML='<div class="empty-box"><div class="empty-ico">🎓</div><div class="empty-title">Tu n\'as pas encore de formations</div><div class="empty-sub">Clique sur "Vendre" pour créer ta première formation.</div></div>';
-      return;
-    }
-    var catIcos={couture:'🧵',cuisine:'🍳',tech:'💻',beaute:'💅',business:'📈',autre:'⭐'};
-    el.innerHTML='<div style="font-size:.75rem;color:var(--gray);margin-bottom:.7rem;">'+forms.length+' formation(s) soumise(s)</div>'+
-    forms.map(function(f){
-      var statusTxt = f.approuvee?'Approuvée':'En attente';
-      var statusCls = f.approuvee?'approved':'pending';
-      return '<div class="my-form-card">'+
-        '<div class="my-form-ico">'+(catIcos[f.categorie]||'📚')+'</div>'+
-        '<div class="my-form-info">'+
-          '<div class="my-form-title">'+esc(f.titre)+'</div>'+
-          '<div class="my-form-meta">'+fmt(f.prix)+' FCFA · '+f.type_contenu+' · 🛒 '+(f.ventes||0)+' ventes</div>'+
-        '</div>'+
-        '<span class="status-badge '+statusCls+'">'+statusTxt+'</span>'+
-      '</div>';
-    }).join('');
-  }catch(e){ el.innerHTML='<div class="empty-box"><div class="empty-ico">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">'+e.message+'</div></div>'; }
-}
-
-function esc(s){ var d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
-
-function ouvrirContenu(f){
-  var existing = document.getElementById('contenuModal');
-  if(existing) existing.remove();
-  var typeIcons = {pdf:'PDF',video:'Video',audio:'Audio',mixte:'Mixte'};
-  var icon = '📄';
-  if(f.type_contenu==='video') icon='🎥';
-  if(f.type_contenu==='audio') icon='🎙️';
-  if(f.type_contenu==='mixte') icon='📦';
-  var lien = f.contenu_url||'';
-  var titre = f.titre||'Formation';
-  var modal = document.createElement('div');
-  modal.id = 'contenuModal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(8,14,42,.7);z-index:300;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
-  var btnFermer = '<button id="closeCModal" style="width:100%;padding:.7rem;border-radius:12px;background:transparent;border:1.5px solid #E4E9F8;color:#8892A4;font-size:.82rem;cursor:pointer;">Fermer</button>';
-  var btnAcceder = lien && lien.startsWith('http')
-    ? '<a href="'+lien+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-weight:800;font-size:.95rem;text-decoration:none;margin-bottom:.6rem;">'+icon+' Acceder au contenu</a>'
-    : '<div style="background:#F2F5FF;border-radius:12px;padding:1rem;text-align:center;font-size:.82rem;color:#8892A4;margin-bottom:.8rem;">Le formateur te contactera sous 24h.</div>';
-  modal.innerHTML =
-    '<div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 3rem;">'+
-    '<div style="width:38px;height:4px;background:#E4E9F8;border-radius:99px;margin:0 auto 1.2rem;"></div>'+
+function afficherContenu(f){
+  var existing=document.getElementById('contenuModal');
+  if(existing)existing.remove();
+  var lien=f.contenu_url||'';
+  var modal=document.createElement('div');
+  modal.id='contenuModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(8,14,42,.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
+  var inner=document.createElement('div');
+  inner.style.cssText='background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 3rem;';
+  inner.addEventListener('click',function(e){e.stopPropagation();});
+  var accederHtml=lien&&lien.startsWith('http')
+    ?'<a href="'+lien+'" target="_blank" id="lienContenu" style="display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-weight:800;font-size:.95rem;text-decoration:none;margin-bottom:.8rem;">Acceder au contenu</a>'
+    :'<div style="background:#F2F5FF;border-radius:12px;padding:1rem;text-align:center;font-size:.82rem;color:#8892A4;margin-bottom:.8rem;">Le formateur te contactera sous 24h.</div>';
+  inner.innerHTML='<div style="width:38px;height:4px;background:#E4E9F8;border-radius:99px;margin:0 auto 1.2rem;"></div>'+
     '<div style="text-align:center;margin-bottom:1.2rem;">'+
-      '<div style="font-size:2.5rem;margin-bottom:.5rem;">'+icon+'</div>'+
-      '<div style="font-size:1rem;font-weight:700;margin-bottom:.3rem;">'+esc(titre)+'</div>'+
-      '<div style="font-size:.78rem;color:#8892A4;margin-bottom:1rem;">Acces confirme !</div>'+
-    '</div>'+btnAcceder+btnFermer+'</div>';
-  modal.querySelector('#closeCModal').onclick = function(){ modal.remove(); };
-  modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+      '<div style="font-size:2.5rem;margin-bottom:.5rem;">&#127891;</div>'+
+      '<div style="font-size:1rem;font-weight:700;margin-bottom:.25rem;">'+esc(f.titre)+'</div>'+
+      '<div style="font-size:.78rem;color:#00C271;font-weight:700;">Acces confirme !</div>'+
+    '</div>'+accederHtml+
+    '<button id="btnFermerCM" style="width:100%;padding:.7rem;border-radius:12px;background:transparent;border:1.5px solid #E4E9F8;color:#8892A4;font-size:.82rem;cursor:pointer;">Fermer</button>';
+  modal.appendChild(inner);
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
   document.body.appendChild(modal);
+  document.getElementById('btnFermerCM').addEventListener('click',function(){modal.remove();});
 }
+
+async function soumettreFormation(){
+  var titre=document.getElementById('fTitre').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+  var cat=document.getElementById('fCat').value;
+  var niveau=document.getElementById('fNiveau').value;
+  var prix=parseFloat(document.getElementById('fPrix').value)||0;
+  var duree=document.getElementById('fDuree').value.trim();
+  var type=document.getElementById('fType').value;
+  var contenu=document.getElementById('fContenu').value.trim();
+  if(!titre){toast('Titre obligatoire','error');return;}
+  if(!desc){toast('Description obligatoire','error');return;}
+  if(prix<500){toast('Prix minimum 500 FCFA','error');return;}
+  if(!contenu){toast('Lien du contenu obligatoire','error');return;}
+  var btn=document.getElementById('btnSubmitForm');
+  if(btn){btn.disabled=true;btn.textContent='Envoi...';}
+  try{
+    var r=await sb.from('formations').insert({user_id:U.id,titre:titre,description:desc,categorie:cat,niveau:niveau,prix:prix,duree:duree,type_contenu:type,contenu_url:contenu,approuvee:false,actif:true,ventes:0});
+    if(r.error)throw r.error;
+    toast('Formation soumise ! Verification sous 24-48h.','success');
+    ['fTitre','fDesc','fPrix','fDuree','fContenu'].forEach(function(id){document.getElementById(id).value='';});
+    loadStats();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Soumettre ma formation';}}
+}
+
+async function loadMesFormations(){
+  var el=document.getElementById('listMesFormations');
+  if(!el)return;
+  el.innerHTML='<div style="text-align:center;padding:2rem;"><div class="spin"></div></div>';
+  try{
+    var r1=await sb.from('formations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
+    var r2=await sb.from('formation_achats').select('formation_id').eq('acheteur_id',U.id);
+    var acheteeIds=(r2.data||[]).map(function(x){return x.formation_id;});
+    var formAchetees=[];
+    if(acheteeIds.length){
+      var r3=await sb.from('formations').select('*').in('id',acheteeIds);
+      formAchetees=r3.data||[];
+    }
+    var html='';
+    var formsVendre=r1.data||[];
+    if(formsVendre.length){
+      html+='<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8892A4;margin-bottom:.5rem;">Mes formations en vente ('+formsVendre.length+')</div>';
+      html+=formsVendre.map(function(f){
+        var sa=f.approuvee?'Approuvee':'En attente';
+        var sc=f.approuvee?'#00C271':'#FF6B1A';
+        return '<div style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
+          '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">&#127891;</div>'+
+          '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;margin-bottom:.15rem;">'+esc(f.titre)+'</div>'+
+          '<div style="font-size:.7rem;color:#8892A4;">'+fmt(f.prix)+' FCFA &middot; '+fmt(f.ventes||0)+' ventes &middot; <span style="color:'+sc+';">'+sa+'</span></div></div>'+
+        '</div>';
+      }).join('');
+    }
+    if(formAchetees.length){
+      html+='<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8892A4;margin:.8rem 0 .5rem;">Formations achetees ('+formAchetees.length+')</div>';
+      formAchetees.forEach(function(f,idx){
+        var divId='achete-'+idx;
+        html+='<div id="'+divId+'" style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
+          '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#00C271,#1B3FE4);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">&#128218;</div>'+
+          '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;margin-bottom:.15rem;">'+esc(f.titre)+'</div>'+
+          '<div style="font-size:.7rem;color:#8892A4;">'+fmt(f.prix)+' FCFA &middot; Achetee</div></div>'+
+          '<button id="acc-'+divId+'" style="padding:.35rem .75rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-size:.7rem;font-weight:700;border:none;cursor:pointer;">Acceder</button>'+
+        '</div>';
+      });
+    }
+    if(!html)html='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation encore</div>';
+    el.innerHTML=html;
+    // Attacher les events pour accéder
+    formAchetees.forEach(function(f,idx){
+      var divId='achete-'+idx;
+      var btnEl=document.getElementById('acc-'+divId);
+      if(btnEl) btnEl.addEventListener('click',function(){afficherContenu(f);});
+    });
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur: '+esc(e.message)+'</div>';}
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
 </script>
 </body>
 </html>
