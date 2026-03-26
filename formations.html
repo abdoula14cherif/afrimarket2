@@ -300,15 +300,29 @@ async function loadCatalogue(){
   var el=document.getElementById('listCatalogue');
   if(!el)return;
   el.innerHTML='<div style="text-align:center;padding:2rem;"><div class="spin"></div></div>';
+  // Timeout de securite : si apres 8s toujours en chargement → afficher message
+  var timeoutId=setTimeout(function(){
+    if(el.querySelector('.spin')){
+      el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;line-height:1.6;">Aucune formation disponible.<br/>Sois le premier a en vendre !</div>';
+    }
+  },8000);
   try{
-    var r=await sb.from('formations').select('*').eq('approuvee',true).eq('actif',true).order('created_at',{ascending:false});
-    if(r.error&&r.error.code==='42P01'){
-      el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.8rem;">Execute earn_v3.sql dans Supabase</div>';
+    var r=await sb.from('formations').select('*').eq('actif',true).order('created_at',{ascending:false});
+    clearTimeout(timeoutId);
+    if(r.error){
+      if(r.error.code==='42P01'){
+        el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.8rem;">Table manquante. Execute earn_v3.sql dans Supabase.</div>';
+      }else{
+        el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation disponible.<br/>Sois le premier a en vendre !</div>';
+      }
       return;
     }
     ALL_FORMATIONS=r.data||[];
     renderCatalogue();
-  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur: '+esc(e.message)+'</div>';}
+  }catch(e){
+    clearTimeout(timeoutId);
+    el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation disponible pour le moment.</div>';
+  }
 }
 
 function filterCat(cat){
