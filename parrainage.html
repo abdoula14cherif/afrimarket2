@@ -290,24 +290,120 @@ body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
 
 <!-- MODAL PAIEMENT -->
 <div class="modal-ov" id="payModal" onclick="fermerPaiement()">
-  <div class="modal-sh" onclick="event.stopPropagation()">
+  <div class="modal-sh" onclick="event.stopPropagation()" style="max-height:92vh;overflow-y:auto;">
     <div class="m-handle"></div>
     <div class="m-title">&#128178; Activer mon compte</div>
-    <div class="m-sub">Envoie exactement <strong>2 500 FCFA</strong> au numéro ci-dessous via Mobile Money.</div>
-    <div class="op-grid">
-      <div class="op-card sel" id="opMTN" onclick="selOp('mtn')"><div class="op-ico">&#128241;</div><div class="op-nm">MTN</div></div>
-      <div class="op-card" id="opOrange" onclick="selOp('orange')"><div class="op-ico">&#127818;</div><div class="op-nm">Orange</div></div>
-      <div class="op-card" id="opWave" onclick="selOp('wave')"><div class="op-ico">&#127754;</div><div class="op-nm">Wave</div></div>
+    <div class="m-sub">Choisis ton mode de paiement pour activer ton compte parrainage (<strong>2 500 FCFA</strong>).</div>
+
+    <!-- ONGLETS MODE -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:1.1rem;">
+      <button id="modeMobile" onclick="switchPayMode('mobile')" style="padding:.55rem .3rem;border-radius:12px;background:linear-gradient(135deg,#00C271,#1B3FE4);color:white;font-size:.72rem;font-weight:700;border:none;cursor:pointer;">&#128241; Mobile Money</button>
+      <button id="modeCrypto" onclick="switchPayMode('crypto')" style="padding:.55rem .3rem;border-radius:12px;background:var(--bg);color:var(--gray);font-size:.72rem;font-weight:700;border:1.5px solid var(--border);cursor:pointer;">&#8383; Crypto</button>
+      <button id="modeCarte" onclick="switchPayMode('carte')" style="padding:.55rem .3rem;border-radius:12px;background:var(--bg);color:var(--gray);font-size:.72rem;font-weight:700;border:1.5px solid var(--border);cursor:pointer;">&#128179; Carte</button>
     </div>
-    <div class="pay-box">
-      <div class="pay-lbl">Envoie le montant à ce numéro</div>
-      <div class="pay-num" id="payNum">+237 689 011 185</div>
-      <div class="pay-amt">&#128178; 2 500 FCFA — Nom : AfriMarket</div>
+
+    <!-- ── SECTION MOBILE MONEY ── -->
+    <div id="sectionMobile">
+      <!-- Cameroun -->
+      <div id="mobilesCameroun">
+        <div style="font-size:.72rem;color:var(--gray);margin-bottom:.6rem;text-align:center;">Cameroun &#127464;&#127474; — Envoie exactement <strong>2 500 FCFA</strong></div>
+        <!-- Choix opérateur -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
+          <div id="opCMR_MTN" onclick="selOpCMR('mtn')" style="background:var(--bg);border:2px solid #FFCC00;border-radius:12px;padding:.7rem;text-align:center;cursor:pointer;">
+            <div style="font-size:1.3rem;">&#128241;</div>
+            <div style="font-weight:800;font-size:.78rem;color:#080E2A;">MTN Money</div>
+          </div>
+          <div id="opCMR_Orange" onclick="selOpCMR('orange')" style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:.7rem;text-align:center;cursor:pointer;">
+            <div style="font-size:1.3rem;">&#127818;</div>
+            <div style="font-weight:800;font-size:.78rem;color:#080E2A;">Orange Money</div>
+          </div>
+        </div>
+        <!-- Numéro à payer -->
+        <div class="pay-box" style="margin-bottom:.8rem;">
+          <div class="pay-lbl" id="cmrLabel">Numéro MTN Money</div>
+          <div class="pay-num" id="cmrNum">651 461 777</div>
+          <div style="font-size:.72rem;color:var(--gray);margin-top:.25rem;">Nom : <strong id="cmrNom">Jean Jacques Rousseau</strong></div>
+          <div class="pay-amt">&#128178; 2 500 FCFA exactement</div>
+        </div>
+        <div class="f-gr"><label class="f-lbl">N° de transaction (reçu SMS) *</label><input class="f-inp" id="fRef" placeholder="Ex: 1234567890"/></div>
+        <div class="f-gr"><label class="f-lbl">Ton numéro Mobile Money *</label><input class="f-inp" id="fNum" type="tel" placeholder="+237 6XX XXX XXX"/></div>
+        <button class="btn-conf" id="btnConf" onclick="confirmerPay()">&#10003; J'ai effectué le paiement</button>
+      </div>
+      <!-- Autres pays -->
+      <div id="mobilesAutres" style="display:none;">
+        <div style="background:rgba(245,183,49,.1);border:1.5px solid rgba(245,183,49,.3);border-radius:16px;padding:1.2rem;text-align:center;margin-bottom:1rem;">
+          <div style="font-size:2rem;margin-bottom:.5rem;">&#9203;</div>
+          <div style="font-weight:800;font-size:.88rem;margin-bottom:.3rem;">Paiement Mobile en cours d'intégration pour votre pays</div>
+          <div style="font-size:.78rem;color:var(--gray);line-height:1.6;">Nous n'acceptons pas encore le Mobile Money pour votre pays. Utilisez le paiement crypto ci-dessous — c'est instantané et sans frontières.</div>
+        </div>
+        <button onclick="switchPayMode('crypto')" style="width:100%;padding:.8rem;border-radius:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;font-weight:800;font-size:.88rem;border:none;cursor:pointer;">&#8383; Payer par Crypto →</button>
+      </div>
     </div>
-    <div class="f-gr"><label class="f-lbl">Référence / N° de transaction *</label><input class="f-inp" id="fRef" placeholder="Ex: 1234567890 (reçu MTN/Orange)"/></div>
-    <div class="f-gr"><label class="f-lbl">Ton numéro Mobile Money *</label><input class="f-inp" id="fNum" type="tel" placeholder="+237 6XX XXX XXX"/></div>
-    <button class="btn-conf" id="btnConf" onclick="confirmerPay()">&#10003; J'ai effectué le paiement</button>
-    <button onclick="fermerPaiement()" style="width:100%;margin-top:.6rem;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
+
+    <!-- ── SECTION CRYPTO ── -->
+    <div id="sectionCrypto" style="display:none;">
+      <div style="font-size:.72rem;color:var(--gray);margin-bottom:.8rem;text-align:center;">Envoie l'équivalent de <strong>2 500 FCFA</strong> (~4 USDT) à l'une de ces adresses</div>
+
+      <!-- BNB BSC -->
+      <div style="background:linear-gradient(135deg,#1a1208,#2d2008);border-radius:16px;padding:1rem;margin-bottom:.7rem;">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#F5B731;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">&#127819;</div>
+          <div><div style="color:#F5B731;font-weight:800;font-size:.85rem;">BNB / BSC (BEP-20)</div><div style="color:rgba(255,255,255,.5);font-size:.65rem;">Binance Smart Chain</div></div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;word-break:break-all;font-family:monospace;font-size:.7rem;color:white;">0x44C9170272c7eA2c99f5dC28d955AdFE8b4AA3CB</div>
+        <button onclick="copierAdresse('0x44C9170272c7eA2c99f5dC28d955AdFE8b4AA3CB','BNB')" style="width:100%;padding:.55rem;border-radius:10px;background:rgba(245,183,49,.2);color:#F5B731;font-weight:700;font-size:.75rem;border:1px solid rgba(245,183,49,.3);cursor:pointer;">&#128203; Copier l'adresse BNB</button>
+      </div>
+
+      <!-- BTC -->
+      <div style="background:linear-gradient(135deg,#1a0f00,#2d1800);border-radius:16px;padding:1rem;margin-bottom:.7rem;">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#F7931A;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">&#8383;</div>
+          <div><div style="color:#F7931A;font-weight:800;font-size:.85rem;">Bitcoin (BTC)</div><div style="color:rgba(255,255,255,.5);font-size:.65rem;">Réseau Bitcoin natif</div></div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;word-break:break-all;font-family:monospace;font-size:.68rem;color:white;">bc1pygygqdjmj60mph9yrn05extn3n4h22fv5ynt3w72hjd7arx64l4qdkp32x</div>
+        <button onclick="copierAdresse('bc1pygygqdjmj60mph9yrn05extn3n4h22fv5ynt3w72hjd7arx64l4qdkp32x','BTC')" style="width:100%;padding:.55rem;border-radius:10px;background:rgba(247,147,26,.2);color:#F7931A;font-weight:700;font-size:.75rem;border:1px solid rgba(247,147,26,.3);cursor:pointer;">&#128203; Copier l'adresse BTC</button>
+      </div>
+
+      <!-- SOL -->
+      <div style="background:linear-gradient(135deg,#0a0520,#140838);border-radius:16px;padding:1rem;margin-bottom:.9rem;">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#9945FF,#14F195);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;color:white;font-weight:800;">S</div>
+          <div><div style="color:#14F195;font-weight:800;font-size:.85rem;">Solana (SOL)</div><div style="color:rgba(255,255,255,.5);font-size:.65rem;">Réseau Solana</div></div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;word-break:break-all;font-family:monospace;font-size:.68rem;color:white;">JBe5kePCCj3tG5RciCaNCEaJjtziycdrtKwz64Csx2VJ</div>
+        <button onclick="copierAdresse('JBe5kePCCj3tG5RciCaNCEaJjtziycdrtKwz64Csx2VJ','SOL')" style="width:100%;padding:.55rem;border-radius:10px;background:rgba(20,241,149,.1);color:#14F195;font-weight:700;font-size:.75rem;border:1px solid rgba(20,241,149,.2);cursor:pointer;">&#128203; Copier l'adresse SOL</button>
+      </div>
+
+      <div style="background:rgba(27,63,228,.08);border-radius:12px;padding:.8rem;font-size:.72rem;color:var(--gray);line-height:1.6;margin-bottom:.9rem;">
+        &#128276; Après envoi, copie le <strong>hash/TxID</strong> de ta transaction et colle-le ci-dessous.
+      </div>
+      <div class="f-gr"><label class="f-lbl">Hash de transaction (TxID) *</label><input class="f-inp" id="fRefCrypto" placeholder="Ex: 0xabc123... ou txhash"/></div>
+      <div class="f-gr"><label class="f-lbl">Crypto utilisée</label>
+        <select class="f-inp" id="cryptoUsed">
+          <option value="bnb">BNB / BSC</option>
+          <option value="btc">Bitcoin (BTC)</option>
+          <option value="sol">Solana (SOL)</option>
+        </select>
+      </div>
+      <button class="btn-conf" id="btnConfCrypto" onclick="confirmerPayCrypto()">&#10003; J'ai envoyé le paiement crypto</button>
+    </div>
+
+    <!-- ── SECTION CARTE ── -->
+    <div id="sectionCarte" style="display:none;">
+      <div style="background:linear-gradient(135deg,rgba(27,63,228,.08),rgba(0,194,183,.06));border:1.5px solid rgba(27,63,228,.15);border-radius:16px;padding:1.5rem;text-align:center;">
+        <div style="font-size:2.5rem;margin-bottom:.7rem;">&#128179;</div>
+        <div style="font-weight:800;font-size:.95rem;margin-bottom:.4rem;">Paiement par carte</div>
+        <div style="font-size:.8rem;color:var(--gray);line-height:1.6;margin-bottom:1rem;">L'intégration du paiement par carte bancaire (Visa / Mastercard) est en cours. Disponible très prochainement.</div>
+        <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;">
+          <span style="background:#1A1F71;color:white;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;">VISA</span>
+          <span style="background:#EB001B;color:white;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;">Mastercard</span>
+          <span style="background:#003087;color:white;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;">PayPal</span>
+        </div>
+        <button onclick="switchPayMode('crypto')" style="width:100%;padding:.75rem;border-radius:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;font-weight:800;font-size:.85rem;border:none;cursor:pointer;">&#8383; Utiliser le paiement Crypto en attendant</button>
+      </div>
+    </div>
+
+    <button onclick="fermerPaiement()" style="width:100%;margin-top:.7rem;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
   </div>
 </div>
 
@@ -686,6 +782,8 @@ async function confirmerPay(){
   var num=document.getElementById('fNum').value.trim();
   if(!ref){toast('Reference de paiement obligatoire','error');return;}
   if(!num){toast('Numero Mobile Money obligatoire','error');return;}
+  // Utiliser l'opérateur Cameroun sélectionné
+  OP = CMR_OP||OP;
   var btn=document.getElementById('btnConf');
   if(btn){btn.disabled=true;btn.textContent='Enregistrement...';}
   try{
@@ -765,6 +863,108 @@ function partagerLien(){
 
 function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 
+
+// ── SWITCH MODE PAIEMENT ─────────────────────────────────────
+function switchPayMode(mode){
+  var modes=['mobile','crypto','carte'];
+  var labels={mobile:'Mobile Money',crypto:'Crypto',carte:'Carte'};
+  modes.forEach(function(m){
+    var btn=document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1));
+    var sec=document.getElementById('section'+m.charAt(0).toUpperCase()+m.slice(1));
+    var isActive=m===mode;
+    if(btn){
+      btn.style.background=isActive?'linear-gradient(135deg,#00C271,#1B3FE4)':'var(--bg)';
+      btn.style.color=isActive?'white':'var(--gray)';
+      btn.style.border=isActive?'none':'1.5px solid var(--border)';
+    }
+    if(sec)sec.style.display=isActive?'':'none';
+  });
+  // Si mobile : détecter le pays de l'utilisateur
+  if(mode==='mobile') detecterPaysMobile();
+}
+
+// ── DÉTECTER LE PAYS POUR MOBILE MONEY ──────────────────────
+async function detecterPaysMobile(){
+  var elCMR=document.getElementById('mobilesCameroun');
+  var elAutres=document.getElementById('mobilesAutres');
+  try{
+    var rp=await sb.from('profiles').select('pays').eq('id',U.id).single();
+    var pays=(rp.data&&rp.data.pays)||'';
+    var estCameroun=pays.toLowerCase().includes('cameroun')||pays.toLowerCase().includes('cameroon')||pays==='';
+    if(elCMR) elCMR.style.display=estCameroun?'':'none';
+    if(elAutres) elAutres.style.display=estCameroun?'none':'';
+  }catch(e){
+    // Par défaut afficher Cameroun
+    if(elCMR) elCMR.style.display='';
+    if(elAutres) elAutres.style.display='none';
+  }
+}
+
+// ── SÉLECTION OPÉRATEUR CAMEROUN ────────────────────────────
+var CMR_OP='mtn';
+var CMR_INFO={
+  mtn:{num:'651 461 777',nom:'Jean Jacques Rousseau',label:'MTN Mobile Money'},
+  orange:{num:'658 033 690',nom:'Alirou Moun',label:'Orange Money'}
+};
+function selOpCMR(op){
+  CMR_OP=op;
+  var info=CMR_INFO[op];
+  var elLabel=document.getElementById('cmrLabel');
+  var elNum=document.getElementById('cmrNum');
+  var elNom=document.getElementById('cmrNom');
+  if(elLabel) elLabel.textContent=info.label;
+  if(elNum)   elNum.textContent=info.num;
+  if(elNom)   elNom.textContent=info.nom;
+  var mtn=document.getElementById('opCMR_MTN');
+  var orange=document.getElementById('opCMR_Orange');
+  if(mtn){mtn.style.borderColor=op==='mtn'?'#FFCC00':'var(--border)';mtn.style.background=op==='mtn'?'rgba(255,204,0,.1)':'var(--bg)';}
+  if(orange){orange.style.borderColor=op==='orange'?'#FF6600':'var(--border)';orange.style.background=op==='orange'?'rgba(255,102,0,.08)':'var(--bg)';}
+}
+
+// ── COPIER ADRESSE CRYPTO ────────────────────────────────────
+function copierAdresse(adresse, crypto){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(adresse).then(function(){
+      toast('Adresse '+crypto+' copiée !','success');
+    });
+  }else{
+    toast(crypto+': '+adresse,'info');
+  }
+}
+
+// ── CONFIRMER PAIEMENT CRYPTO ────────────────────────────────
+async function confirmerPayCrypto(){
+  var txid=document.getElementById('fRefCrypto').value.trim();
+  var crypto=document.getElementById('cryptoUsed').value;
+  if(!txid){toast('Hash de transaction obligatoire','error');return;}
+  var btn=document.getElementById('btnConfCrypto');
+  if(btn){btn.disabled=true;btn.textContent='Enregistrement...';}
+  try{
+    var code='AM-'+U.id.substring(0,8).toUpperCase();
+    var urlRef=new URLSearchParams(window.location.search).get('ref');
+    var parrainId=null;
+    if(urlRef){
+      var pr=await sb.from('parrainage_comptes').select('id').eq('code_parrain',urlRef).maybeSingle();
+      if(pr.data) parrainId=pr.data.id;
+    }
+    var existing=await sb.from('parrainage_comptes').select('id').eq('user_id',U.id).maybeSingle();
+    if(!existing.data){
+      var ins=await sb.from('parrainage_comptes').insert({user_id:U.id,code_parrain:code,statut:'inactif',parrain_id:parrainId,solde:0,total_gains:0,total_filleuls:0});
+      if(ins.error&&!ins.error.message.includes('duplicate'))throw ins.error;
+    }
+    var payR=await sb.from('parrainage_paiements').insert({user_id:U.id,montant:2500,methode:'crypto_'+crypto,ref_paiement:txid,statut:'en_attente',numero_paiement:crypto});
+    if(payR.error)throw payR.error;
+    fermerPaiement();
+    var el_ref=document.getElementById('pendRef');
+    if(el_ref)el_ref.textContent=txid.slice(0,20)+'...';
+    affEtat('pend');
+    toast('Paiement crypto enregistre ! Activation dans 2 minutes...','success');
+    demarrerCompteur(120);
+    var msg=encodeURIComponent('Bonjour ! Paiement parrainage AfriMarket. Crypto: '+crypto+' TxID: '+txid+' Email: '+U.email);
+    setTimeout(function(){window.open('https://wa.me/237689011185?text='+msg,'_blank');},2000);
+  }catch(e){toast('Erreur: '+e.message,'error');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Confirmer le paiement crypto';}}
+}
 </script>
 </body>
 </html>
