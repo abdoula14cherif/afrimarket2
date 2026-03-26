@@ -504,23 +504,36 @@ async function distribuerCommissions(compte){
 }
 
 async function chargerDash(){
+  // RE-FETCH frais depuis Supabase pour avoir le solde à jour
+  try{
+    var rfresh=await sb.from('parrainage_comptes').select('*').eq('user_id',U.id).single();
+    if(!rfresh.error&&rfresh.data) COMPTE=rfresh.data;
+  }catch(e){ console.warn('refresh compte:',e.message); }
+
   if(!COMPTE)return;
   var elCode=document.getElementById('monCode');
   if(elCode)elCode.textContent=COMPTE.code_parrain||'AM-'+U.id.substring(0,8).toUpperCase();
+
+  // Solde parrainage (FCFA)
   SOLDE=COMPTE.solde||0;
   var elSolde=document.getElementById('soldeMontant');
   var elTotal=document.getElementById('totalGains');
   if(elSolde)elSolde.textContent=fmt(SOLDE)+' FCFA';
   if(elTotal)elTotal.textContent=fmt(COMPTE.total_gains||0)+' FCFA';
-  // AfriCoins
+
+  // AfriCoins cashback (points)
   try{
     var rc=await sb.from('cashback_points').select('points').eq('user_id',U.id);
+    var rr=await sb.from('cashback_retraits').select('points,statut').eq('user_id',U.id);
     if(!rc.error){
-      var coins=(rc.data||[]).reduce(function(s,p){return s+(p.points||0);},0);
+      var totalCoins=(rc.data||[]).reduce(function(s,pt){return s+(pt.points||0);},0);
+      var retCoins=(rr.data||[]).filter(function(x){return x.statut!=='refuse';}).reduce(function(s,x){return s+(x.points||0);},0);
+      var coinsDisp=Math.max(0,totalCoins-retCoins);
       var el_c=document.getElementById('coinsVal');
-      if(el_c)el_c.textContent=coins;
+      if(el_c)el_c.textContent=fmt(coinsDisp);
     }
   }catch(e){}
+
   chargerFilleuls();
   chargerGains();
   chargerStats();
