@@ -5,7 +5,439 @@
 <title>Formations — AfriMarket</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+
+'use strict';
+var sb=supabase.createClient('https://elgbvitijyjriozvzqpf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM');
+var U=null, ALL_FORMATIONS=[], CURRENT_CAT='tout', SELECTED_FORM=null;
+
+(async function(){
+  var s=await sb.auth.getSession();
+  if(!s.data.session){location.href='auth.html';return;}
+  U=s.data.session.user;
+  loadStats();
+  loadCatalogue();
+})();
+
+function fmt(n){return Number(n||0).toLocaleString('fr-FR');}
+var _tt;
+function toast(msg,type){
+  var el=document.getElementById('toast');
+  if(!el)return;
+  el.textContent=msg;el.className='show';
+  if(type==='success')el.style.background='#00a86b';
+  else if(type==='error')el.style.background='#E83030';
+  else if(type==='warning')el.style.background='#FF6B1A';
+  else el.style.background='#080E2A';
+  clearTimeout(_tt);
+  _tt=setTimeout(function(){el.className='';el.textContent='';el.style.background='';},4000);
+}
+
+function switchTab(t){
+  var map={catalogue:{btn:'tabCat',sec:'secCatalogue'},vendre:{btn:'tabVendre',sec:'secVendre'},mes:{btn:'tabMes',sec:'secMes'}};
+  Object.keys(map).forEach(function(x){
+    var m=map[x];
+    var btn=document.getElementById(m.btn);
+    var sec=document.getElementById(m.sec);
+    var active=x===t;
+    if(btn)btn.classList.toggle('active',active);
+    if(sec)sec.style.display=active?'':'none';
+  });
+  if(t==='mes')loadMesFormations();
+}
+
+async function loadStats(){
+  try{
+    var r1=await sb.from('formations').select('id',{count:'exact',head:true}).eq('actif',true);
+    var r2=await sb.from('formation_achats').select('id',{count:'exact',head:true}).eq('acheteur_id',U.id);
+    var r3=await sb.from('formations').select('ventes').eq('user_id',U.id);
+    var el1=document.getElementById('statFormations');
+    var el2=document.getElementById('statMesAchats');
+    var el3=document.getElementById('statVentes');
+    if(el1)el1.textContent=r1.count||0;
+    if(el2)el2.textContent=r2.count||0;
+    if(el3)el3.textContent=(r3.data||[]).reduce(function(s,f){return s+(f.ventes||0);},0);
+  }catch(e){console.warn(e.message);}
+}
+
+async function loadCatalogue(){
+  var el=document.getElementById('listFormations');
+  if(!el)return;
+  el.innerHTML='<div style="text-align:center;padding:3rem 0;"><div class="spin"></div></div>';
+  try{
+    var r=await sb.from('formations').select('*').eq('actif',true).order('created_at',{ascending:false});
+    if(r.error){
+      el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation disponible.<br/>Sois le premier a en vendre !</div>';
+      return;
+    }
+    ALL_FORMATIONS=r.data||[];
+    renderCatalogue();
+  }catch(e){
+    el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation disponible.<br/>Sois le premier a en vendre !</div>';
+  }
+}
+
+function filterCat(cat){
+  CURRENT_CAT=cat;
+  ['tout','couture','cuisine','tech','beaute','business','autre'].forEach(function(c){
+    var btn=document.getElementById('fc-'+c);
+    if(!btn)return;
+    if(c===cat){btn.style.background='var(--purple)';btn.style.color='white';btn.style.border='none';}
+    else{btn.style.background='white';btn.style.color='var(--dark)';btn.style.border='1.5px solid var(--border)';}
+  });
+  renderCatalogue();
+}
+
+function renderCatalogue(){
+  var el=document.getElementById('listFormations');
+  if(!el)return;
+  var list=CURRENT_CAT==='tout'?ALL_FORMATIONS:ALL_FORMATIONS.filter(function(f){return f.categorie===CURRENT_CAT;});
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2.5rem;color:#8892A4;font-size:.82rem;">Aucune formation dans cette categorie.</div>';return;}
+  var grads={couture:'linear-gradient(135deg,#7C3AED,#ec4899)',cuisine:'linear-gradient(135deg,#f97316,#eab308)',tech:'linear-gradient(135deg,#1B3FE4,#00C2B7)',beaute:'linear-gradient(135deg,#ec4899,#f43f5e)',business:'linear-gradient(135deg,#00C271,#1B3FE4)',autre:'linear-gradient(135deg,#7C3AED,#1B3FE4)'};
+  el.innerHTML=list.map(function(f){
+    var gr=grads[f.categorie]||grads.autre;
+    var bid='fbtn-'+f.id.slice(0,8);
+    var nomVendeur=f.nom_vendeur||'Formateur';
+    return '<div style="background:white;border-radius:16px;margin-bottom:.8rem;overflow:hidden;box-shadow:0 2px 10px rgba(8,14,42,.05);">'+
+      '<div style="height:80px;background:'+gr+';display:flex;align-items:center;justify-content:center;position:relative;">'+
+        '<span style="font-size:2rem;">&#127891;</span>'+
+        '<span style="position:absolute;top:.5rem;left:.5rem;font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(255,255,255,.2);color:white;padding:.15rem .5rem;border-radius:99px;">'+esc(f.categorie||'autre')+'</span>'+
+        '<span style="position:absolute;top:.5rem;right:.5rem;font-size:.65rem;font-weight:700;background:rgba(255,255,255,.9);color:#7C3AED;padding:.15rem .5rem;border-radius:99px;">'+fmt(f.ventes||0)+' ventes</span>'+
+      '</div>'+
+      '<div style="padding:.85rem .9rem;">'+
+        '<div style="font-weight:700;font-size:.9rem;margin-bottom:.15rem;">'+esc(f.titre)+'</div>'+
+        '<div style="font-size:.7rem;color:#8892A4;margin-bottom:.1rem;">par '+esc(nomVendeur)+' &nbsp;·&nbsp; '+esc(f.duree||'Duree non precisee')+'</div>'+
+        '<div style="font-size:.73rem;color:#8892A4;margin-bottom:.55rem;line-height:1.4;">'+esc((f.description||'').slice(0,80))+'</div>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+          '<span style="font-size:1.1rem;font-weight:800;color:#7C3AED;">'+fmt(f.prix)+' FCFA</span>'+
+          '<button id="'+bid+'" style="padding:.45rem 1rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-size:.73rem;font-weight:700;border:none;cursor:pointer;">Acheter →</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  list.forEach(function(f){
+    var btn=document.getElementById('fbtn-'+f.id.slice(0,8));
+    if(btn)btn.addEventListener('click',function(){openBuyModal(f.id);});
+  });
+}
+
+/* ── OUVRIR MODAL ACHAT ───────────────────────────────────── */
+async function openBuyModal(id){
+  var f=ALL_FORMATIONS.find(function(x){return x.id===id;});
+  if(!f)return;
+  SELECTED_FORM=f;
+  var typeLabels={pdf:'PDF / Document',video:'Video (YouTube/Drive)',audio:'Audio',mixte:'Mixte (PDF + Video)'};
+
+  var set=function(elId,val){var el=document.getElementById(elId);if(el)el.textContent=val;};
+  set('buyTitle',f.titre);
+  set('buyDesc',f.description||'');
+  set('buyPrice',fmt(f.prix)+' FCFA');
+  set('buyPriceStep',fmt(f.prix)+' FCFA');
+  set('buyDuree',f.duree||'Non precise');
+  set('buyType',typeLabels[f.type_contenu]||'PDF');
+  set('buyAuthor','par '+(f.nom_vendeur||'Formateur'));
+
+  /* Afficher le numéro Mobile Money du vendeur */
+  var elMM=document.getElementById('buyMM');
+  var elMMNom=document.getElementById('buyMMNom');
+  if(elMM)elMM.textContent=f.mobile_money||'Contacter le vendeur';
+  if(elMMNom)elMMNom.textContent=f.nom_vendeur||'';
+
+  /* Préremplir le WhatsApp de l'acheteur depuis son profil */
+  try{
+    var rp=await sb.from('profiles').select('whatsapp,full_name').eq('id',U.id).single();
+    var elWa=document.getElementById('buyWaAcheteur');
+    if(elWa&&rp.data&&rp.data.whatsapp)elWa.value=rp.data.whatsapp;
+  }catch(e){}
+
+  /* Vider la référence */
+  var elRef=document.getElementById('buyRef');
+  if(elRef)elRef.value='';
+
+  /* Vérifier si déjà acheté */
+  var btn=document.getElementById('btnConfirmBuy');
+  if(btn){
+    try{
+      var chk=await sb.from('formation_achats').select('id').eq('formation_id',f.id).eq('acheteur_id',U.id).maybeSingle();
+      if(chk.data){
+        btn.textContent='&#10003; Deja achete — Acceder au contenu';
+        btn.style.background='linear-gradient(135deg,#00C271,#1B3FE4)';
+      }else{
+        btn.textContent='&#10003; Confirmer mon paiement';
+        btn.style.background='linear-gradient(135deg,#7C3AED,#1B3FE4)';
+      }
+    }catch(e){}
+  }
+
+  var modal=document.getElementById('buyModal');
+  if(modal)modal.classList.add('open');
+}
+
+function closeBuyModal(){
+  var modal=document.getElementById('buyModal');
+  if(modal)modal.classList.remove('open');
+}
+
+function copierMM(){
+  if(!SELECTED_FORM)return;
+  var num=SELECTED_FORM.mobile_money||'';
+  if(!num){toast('Numero non disponible','warning');return;}
+  if(navigator.clipboard){navigator.clipboard.writeText(num).then(function(){toast('Numero copie : '+num,'success');});}
+}
+
+/* ── CONFIRMER ACHAT ─────────────────────────────────────── */
+/* Logique : l'acheteur a payé sur le Mobile Money du vendeur,
+   il entre sa référence + son WhatsApp.
+   On enregistre la transaction → le vendeur reçoit un message WA
+   → il confirme et envoie le contenu */
+async function confirmerAchat(){
+  if(!SELECTED_FORM)return;
+  var f=SELECTED_FORM;
+
+  /* Si déjà acheté → afficher le contenu directement */
+  try{
+    var chk=await sb.from('formation_achats').select('id').eq('formation_id',f.id).eq('acheteur_id',U.id).maybeSingle();
+    if(chk.data){closeBuyModal();afficherContenu(f);return;}
+  }catch(e){}
+
+  var ref=document.getElementById('buyRef').value.trim();
+  var waAcheteur=document.getElementById('buyWaAcheteur').value.trim();
+  if(!ref){toast('Entrez le numero de transaction (recu par SMS)','error');return;}
+  if(!waAcheteur){toast('Entrez votre numero WhatsApp','error');return;}
+
+  var btn=document.getElementById('btnConfirmBuy');
+  if(btn){btn.disabled=true;btn.textContent='Envoi en cours...';}
+
+  try{
+    /* Enregistrer l'achat avec statut "en_attente_confirmation" */
+    var r=await sb.from('formation_achats').insert({
+      formation_id:   f.id,
+      acheteur_id:    U.id,
+      montant:        f.prix,
+      commission:     Math.round(f.prix*0.2),
+      statut:         'en_attente_confirmation',
+      ref_paiement:   ref,
+      wa_acheteur:    waAcheteur
+    });
+    if(r.error)throw r.error;
+
+    /* +20 AfriCoins pour l'acheteur */
+    await sb.from('cashback_points').insert({user_id:U.id,source:'formation',points:20,note:'Achat: '+f.titre}).catch(function(){});
+
+    /* Incrémenter les ventes */
+    await sb.from('formations').update({ventes:(f.ventes||0)+1}).eq('id',f.id).catch(function(){});
+
+    closeBuyModal();
+    toast('Paiement enregistre ! Le vendeur va te contacter sur WhatsApp.','success');
+
+    /* Ouvrir WhatsApp du vendeur avec le message pré-rempli */
+    if(f.wa_vendeur){
+      var waNum=f.wa_vendeur.replace(/\D/g,'');
+      var msg=encodeURIComponent('Achat AfriMarket - '+f.titre+' - Ref: '+ref+' - Montant: '+fmt(f.prix)+' FCFA - WA: '+waAcheteur);
+      setTimeout(function(){
+        window.open('https://wa.me/'+waNum+'?text='+msg,'_blank');
+      },1000);
+    }
+
+    loadStats();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Confirmer mon paiement';}}
+}
+
+/* ── AFFICHER CONTENU (si vendeur a validé) ──────────────── */
+function afficherContenu(f){
+  var existing=document.getElementById('contenuModal');
+  if(existing)existing.remove();
+  var lien=f.contenu_url||'';
+  var modal=document.createElement('div');
+  modal.id='contenuModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(8,14,42,.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
+  var inner=document.createElement('div');
+  inner.style.cssText='background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 3rem;';
+  inner.addEventListener('click',function(e){e.stopPropagation();});
+  var btnA=lien&&lien.startsWith('http')
+    ?'<a href="'+lien+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-weight:800;font-size:.95rem;text-decoration:none;margin-bottom:.8rem;">&#127891; Acceder au contenu de la formation</a>'
+    :'<div style="background:#F2F5FF;border-radius:12px;padding:1rem;text-align:center;font-size:.82rem;color:#8892A4;margin-bottom:.8rem;">Le formateur va te contacter sur WhatsApp pour t envoyer le contenu sous peu.</div>';
+  inner.innerHTML='<div style="width:38px;height:4px;background:#E4E9F8;border-radius:99px;margin:0 auto 1.2rem;"></div>'+
+    '<div style="text-align:center;margin-bottom:1.2rem;">'+
+      '<div style="font-size:2.5rem;margin-bottom:.5rem;">&#127891;</div>'+
+      '<div style="font-size:1rem;font-weight:700;margin-bottom:.25rem;">'+esc(f.titre)+'</div>'+
+      '<div style="font-size:.78rem;color:#00C271;font-weight:700;">&#10003; Achat confirme !</div>'+
+    '</div>'+btnA+
+    '<button id="btnFermerCM" style="width:100%;padding:.7rem;border-radius:12px;background:transparent;border:1.5px solid #E4E9F8;color:#8892A4;font-size:.82rem;cursor:pointer;">Fermer</button>';
+  modal.appendChild(inner);
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+  document.getElementById('btnFermerCM').addEventListener('click',function(){modal.remove();});
+}
+
+/* ── VENDRE UNE FORMATION ────────────────────────────────── */
+async function soumettreFormation(){
+  var titre=document.getElementById('fTitre').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+  var cat=document.getElementById('fCat').value;
+  var niveau=document.getElementById('fNiveau').value;
+  var prix=parseFloat(document.getElementById('fPrix').value)||0;
+  var duree=document.getElementById('fDuree').value.trim();
+  var type=document.getElementById('fType').value;
+  var contenu=document.getElementById('fContenu').value.trim();
+  var waVendeur=document.getElementById('fWaVendeur').value.trim();
+  var mmVendeur=document.getElementById('fMMVendeur').value.trim();
+  if(!titre){toast('Titre obligatoire','error');return;}
+  if(!desc){toast('Description obligatoire','error');return;}
+  if(prix<500){toast('Prix minimum 500 FCFA','error');return;}
+  if(!contenu){toast('Lien du contenu obligatoire','error');return;}
+  if(!waVendeur){toast('Ton WhatsApp est obligatoire','error');return;}
+  if(!mmVendeur){toast('Ton numero Mobile Money est obligatoire','error');return;}
+
+  var btn=document.getElementById('btnSubmitForm');
+  if(btn){btn.disabled=true;btn.textContent='Publication en cours...';}
+  try{
+    /* Récupérer le nom du vendeur depuis son profil */
+    var nomVendeur='Formateur';
+    try{
+      var rp=await sb.from('profiles').select('full_name').eq('id',U.id).single();
+      if(rp.data)nomVendeur=rp.data.full_name||nomVendeur;
+    }catch(e){}
+
+    var r=await sb.from('formations').insert({
+      user_id:U.id,titre:titre,description:desc,categorie:cat,
+      niveau:niveau,prix:prix,duree:duree,type_contenu:type,
+      contenu_url:contenu,approuvee:false,actif:true,ventes:0,
+      wa_vendeur:waVendeur,
+      mobile_money:mmVendeur,
+      nom_vendeur:nomVendeur
+    });
+    if(r.error)throw r.error;
+    toast('Formation publiee ! Elle est maintenant visible dans le catalogue.','success');
+    ['fTitre','fDesc','fPrix','fDuree','fContenu','fWaVendeur','fMMVendeur'].forEach(function(id){
+      var el=document.getElementById(id);if(el)el.value='';
+    });
+    loadStats();
+    setTimeout(function(){loadCatalogue();switchTab('catalogue');},1500);
+  }catch(e){toast('Erreur: '+e.message,'error');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Publier ma formation';}}
+}
+
+/* ── MES FORMATIONS ──────────────────────────────────────── */
+async function loadMesFormations(){
+  var el=document.getElementById('listMesFormations');
+  if(!el)return;
+  el.innerHTML='<div style="text-align:center;padding:2rem;"><div class="spin"></div></div>';
+  try{
+    var r1=await sb.from('formations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
+    var r2=await sb.from('formation_achats').select('formation_id,statut,ref_paiement,wa_acheteur').eq('acheteur_id',U.id);
+    var acheteeIds=(r2.data||[]).map(function(x){return x.formation_id;});
+    var formAchetees=[];
+    if(acheteeIds.length){
+      var r3=await sb.from('formations').select('*').in('id',acheteeIds);
+      formAchetees=r3.data||[];
+    }
+    var html='';
+    var formsVendre=r1.data||[];
+    if(formsVendre.length){
+      /* Récupérer les achats en attente pour chaque formation */
+      var fIds=formsVendre.map(function(f){return f.id;});
+      var rachats=await sb.from('formation_achats').select('*').in('formation_id',fIds).eq('statut','en_attente_confirmation');
+      var achatsPend={};
+      (rachats.data||[]).forEach(function(a){
+        if(!achatsPend[a.formation_id])achatsPend[a.formation_id]=[];
+        achatsPend[a.formation_id].push(a);
+      });
+
+      html+='<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8892A4;margin-bottom:.5rem;">MES FORMATIONS EN VENTE ('+formsVendre.length+')</div>';
+      formsVendre.forEach(function(f,idx){
+        var pend=achatsPend[f.id]||[];
+        html+='<div id="fvd-'+idx+'" style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
+          '<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:'+(pend.length?'.7rem':0)+'">' +
+          '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">&#127891;</div>'+
+          '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;margin-bottom:.1rem;">'+esc(f.titre)+'</div>'+
+          '<div style="font-size:.7rem;color:#8892A4;">'+fmt(f.prix)+' FCFA &nbsp;&#183;&nbsp; '+fmt(f.ventes||0)+' ventes</div></div>'+
+          (pend.length?'<span style="background:#FF6B1A;color:white;font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:99px;">'+pend.length+' paiement(s)</span>':'')+
+          '</div>'+
+          /* Achats en attente de confirmation */
+          pend.map(function(a,ai){
+            return '<div id="achat-'+idx+'-'+ai+'" style="background:rgba(255,107,26,.06);border:1px solid rgba(255,107,26,.2);border-radius:10px;padding:.65rem;margin-bottom:.4rem;">'+
+              '<div style="font-size:.73rem;font-weight:700;margin-bottom:.2rem;">&#128178; Paiement en attente de confirmation</div>'+
+              '<div style="font-size:.68rem;color:#8892A4;margin-bottom:.5rem;">Ref: '+esc(a.ref_paiement||'—')+' &nbsp;&#183;&nbsp; WA: '+esc(a.wa_acheteur||'—')+'</div>'+
+              '<div style="display:flex;gap:.4rem;">'+
+                '<button id="confbtn-'+idx+'-'+ai+'" style="flex:1;padding:.4rem;border-radius:8px;background:#00C271;color:white;font-size:.7rem;font-weight:700;border:none;cursor:pointer;">&#10003; Confirmer & Envoyer</button>'+
+                '<button id="refbtn-'+idx+'-'+ai+'" style="padding:.4rem .6rem;border-radius:8px;background:rgba(232,48,48,.1);color:#E83030;font-size:.7rem;font-weight:700;border:1px solid rgba(232,48,48,.2);cursor:pointer;">&#10005;</button>'+
+              '</div>'+
+            '</div>';
+          }).join('')+
+        '</div>';
+      });
+    }
+    if(formAchetees.length){
+      html+='<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8892A4;margin:.9rem 0 .5rem;">FORMATIONS ACHETEES ('+formAchetees.length+')</div>';
+      var achatMap={};
+      (r2.data||[]).forEach(function(a){achatMap[a.formation_id]=a;});
+      formAchetees.forEach(function(f,idx){
+        var achat=achatMap[f.id]||{};
+        var statut=achat.statut||'en_attente';
+        var couleur={confirme:'#00C271',en_attente_confirmation:'#FF6B1A',paye:'#00C271'}[statut]||'#8892A4';
+        var label={confirme:'Contenu envoye',en_attente_confirmation:'En attente du vendeur',paye:'Confirme'}[statut]||statut;
+        html+='<div id="fach-'+idx+'" style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
+          '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#00C271,#1B3FE4);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">&#128218;</div>'+
+          '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;margin-bottom:.1rem;">'+esc(f.titre)+'</div>'+
+          '<div style="font-size:.7rem;color:'+couleur+';font-weight:700;">'+label+'</div></div>'+
+          (statut==='confirme'||statut==='paye'?'<button id="accbtn-'+idx+'" style="padding:.35rem .75rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-size:.7rem;font-weight:700;border:none;cursor:pointer;">Acceder</button>':'')+
+        '</div>';
+      });
+    }
+    if(!html)html='<div style="text-align:center;padding:2.5rem 1rem;color:#8892A4;font-size:.82rem;">Aucune formation encore.<br/>Vends la tienne ou achetes-en une !</div>';
+    el.innerHTML=html;
+
+    /* Attacher les events */
+    formsVendre.forEach(function(f,idx){
+      var pend=[];
+      try{pend=achatsPend[f.id]||[];}catch(e){}
+      pend.forEach(function(a,ai){
+        var cb=document.getElementById('confbtn-'+idx+'-'+ai);
+        var rb=document.getElementById('refbtn-'+idx+'-'+ai);
+        if(cb)cb.addEventListener('click',function(){confirmerLivraison(a.id,f,a.wa_acheteur);});
+        if(rb)rb.addEventListener('click',function(){refuserAchat(a.id);});
+      });
+    });
+    formAchetees.forEach(function(f,idx){
+      var btn=document.getElementById('accbtn-'+idx);
+      if(btn)btn.addEventListener('click',function(){afficherContenu(f);});
+    });
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur: '+esc(e.message)+'</div>';}
+}
+
+/* ── VENDEUR : CONFIRMER LIVRAISON ───────────────────────── */
+async function confirmerLivraison(achatId, formation, waAcheteur){
+  try{
+    /* Mettre à jour le statut */
+    var r=await sb.from('formation_achats').update({statut:'confirme'}).eq('id',achatId);
+    if(r.error)throw r.error;
+    toast('Livraison confirmee ! Envoie le contenu a l acheteur.','success');
+
+    /* Ouvrir WhatsApp pour envoyer le contenu */
+    if(waAcheteur){
+      var waNum=waAcheteur.replace(/\D/g,'');
+      var msg=encodeURIComponent('Formation: '+formation.titre+' - Contenu: '+(formation.contenu_url||'Je vous envoie le contenu par WA.'));
+      setTimeout(function(){window.open('https://wa.me/'+waNum+'?text='+msg,'_blank');},500);
+    }
+    loadMesFormations();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+}
+
+async function refuserAchat(achatId){
+  if(!confirm('Refuser et annuler cet achat ?'))return;
+  try{
+    var r=await sb.from('formation_achats').update({statut:'refuse'}).eq('id',achatId);
+    if(r.error)throw r.error;
+    toast('Achat refuse','warning');
+    loadMesFormations();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+</script>
 <style>
 :root{--dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;--gold:#F5B731;--red:#E83030;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--nav-h:72px;--orange:#FF6B1A;--purple:#7C3AED;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -209,8 +641,28 @@ body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
         <input class="f-input" id="fContenu" placeholder="Lien Google Drive, YouTube, Dropbox..."/>
         <div style="font-size:.68rem;color:var(--gray);margin-top:.3rem;">⚠️ Le lien sera visible uniquement après achat. Mets-le en accès restreint sur Google Drive.</div>
       </div>
-      <button class="btn-submit" id="btnSubmitForm" onclick="soumettreFormation()">📤 Soumettre ma formation</button>
-      <div style="font-size:.68rem;color:var(--gray);text-align:center;margin-top:.6rem;">Ta formation sera vérifiée par notre équipe sous 24-48h avant publication.</div>
+      <div class="f-group">
+        <label class="f-label">Ton WhatsApp (pour recevoir les acheteurs) *</label>
+        <input class="f-input" id="fWaVendeur" type="tel" placeholder="+237 6XX XXX XXX"/>
+        <div style="font-size:.68rem;color:var(--gray);margin-top:.3rem;">Les acheteurs te contactent ici pour confirmer le paiement.</div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Ton numéro Mobile Money (pour recevoir les paiements) *</label>
+        <input class="f-input" id="fMMVendeur" type="tel" placeholder="+237 6XX XXX XXX (MTN ou Orange)"/>
+        <div style="font-size:.68rem;color:var(--gray);margin-top:.3rem;">L'acheteur t'envoie directement le paiement sur ce numéro.</div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,rgba(0,194,183,.08),rgba(27,63,228,.06));border:1px solid rgba(0,194,183,.2);border-radius:14px;padding:.9rem;margin-bottom:1rem;">
+        <div style="font-size:.78rem;font-weight:700;margin-bottom:.3rem;">&#128176; Comment tu reçois ton argent</div>
+        <div style="font-size:.72rem;color:var(--gray);line-height:1.7;">
+          1. L'acheteur envoie le paiement directement sur ton Mobile Money<br/>
+          2. Il t'envoie la référence de paiement sur WhatsApp<br/>
+          3. Tu confirmes et tu lui envoies le contenu<br/>
+          4. AfriMarket prend 0 FCFA sur tes ventes directes &#10003;
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btnSubmitForm" onclick="soumettreFormation()">📤 Publier ma formation</button>
     </div>
   </div>
 
@@ -221,321 +673,68 @@ body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
 
 </div>
 
-<!-- MODAL ACHAT -->
+<!-- ═══ MODAL ACHAT FORMATION ═══════════════════════════ -->
 <div class="modal-ov" id="buyModal" onclick="closeBuyModal()">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
+  <div class="modal-sheet" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="buyTitle">Formation</div>
-    <div class="modal-sub" id="buyDesc">Description</div>
-    <div class="modal-info-row"><span style="color:var(--gray)">Formateur</span><span id="buyAuthor" style="font-weight:700">—</span></div>
-    <div class="modal-info-row"><span style="color:var(--gray)">Durée</span><span id="buyDuree" style="font-weight:700">—</span></div>
-    <div class="modal-info-row"><span style="color:var(--gray)">Contenu</span><span id="buyType" style="font-weight:700">—</span></div>
-    <div class="modal-price-big" id="buyPrice">—</div>
-    <div style="font-size:.72rem;color:var(--gray);text-align:center;margin-bottom:.8rem;">💳 Paiement via WhatsApp · Accès immédiat après confirmation</div>
-    <button class="btn-confirm" id="btnConfirmBuy" onclick="confirmerAchat()">💬 Contacter le vendeur sur WhatsApp</button>
-    <button class="btn-cancel-modal" onclick="closeBuyModal()">Annuler</button>
+
+    <!-- Infos formation -->
+    <div style="display:flex;gap:.8rem;align-items:flex-start;margin-bottom:1rem;">
+      <div style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">&#127891;</div>
+      <div style="flex:1;">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.2rem;" id="buyTitle">Formation</div>
+        <div style="font-size:.75rem;color:var(--gray);" id="buyAuthor">Formateur</div>
+      </div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:800;color:#1B3FE4;flex-shrink:0;" id="buyPrice">—</div>
+    </div>
+
+    <div style="font-size:.8rem;color:var(--gray);line-height:1.6;margin-bottom:1rem;" id="buyDesc"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.1rem;">
+      <div style="background:var(--bg);border-radius:10px;padding:.55rem .8rem;font-size:.72rem;"><span style="color:var(--gray);">Durée</span><br/><strong id="buyDuree">—</strong></div>
+      <div style="background:var(--bg);border-radius:10px;padding:.55rem .8rem;font-size:.72rem;"><span style="color:var(--gray);">Contenu</span><br/><strong id="buyType">—</strong></div>
+    </div>
+
+    <!-- ÉTAPES D'ACHAT -->
+    <div style="background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(27,63,228,.06));border:1px solid rgba(124,58,237,.15);border-radius:14px;padding:1rem;margin-bottom:1rem;">
+      <div style="font-size:.78rem;font-weight:800;margin-bottom:.7rem;">&#128179; Comment acheter cette formation</div>
+      <div style="display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.5rem;">
+        <div style="width:22px;height:22px;border-radius:50%;background:#7C3AED;color:white;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+        <div style="font-size:.75rem;color:var(--gray);">Envoie <strong id="buyPriceStep" style="color:var(--dark);">—</strong> au numéro Mobile Money du vendeur ci-dessous</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.5rem;">
+        <div style="width:22px;height:22px;border-radius:50%;background:#7C3AED;color:white;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+        <div style="font-size:.75rem;color:var(--gray);">Copie le numéro de transaction reçu par SMS et colle-le ci-dessous</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:.6rem;">
+        <div style="width:22px;height:22px;border-radius:50%;background:#7C3AED;color:white;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+        <div style="font-size:.75rem;color:var(--gray);">Clique "Confirmer" — le vendeur te contacte sur WhatsApp et t'envoie le contenu</div>
+      </div>
+    </div>
+
+    <!-- Numéro Mobile Money du vendeur -->
+    <div style="background:white;border:2px solid #7C3AED;border-radius:14px;padding:.9rem;margin-bottom:.9rem;text-align:center;">
+      <div style="font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.3rem;">Numéro Mobile Money du vendeur</div>
+      <div style="font-size:1.3rem;font-weight:800;color:#7C3AED;letter-spacing:1px;" id="buyMM">—</div>
+      <div style="font-size:.7rem;color:var(--gray);margin-top:.2rem;" id="buyMMNom">—</div>
+      <button onclick="copierMM()" style="margin-top:.5rem;padding:.3rem .8rem;border-radius:99px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:.7rem;font-weight:700;border:none;cursor:pointer;">&#128203; Copier le numéro</button>
+    </div>
+
+    <!-- Référence paiement -->
+    <div style="margin-bottom:.8rem;">
+      <label style="display:block;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray);margin-bottom:.35rem;">Référence de paiement (N° de transaction SMS) *</label>
+      <input id="buyRef" type="text" placeholder="Ex: MP220326.1234.A123456" style="width:100%;padding:.7rem .9rem;border-radius:12px;border:1.5px solid var(--border);font-size:.9rem;background:var(--bg);outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='#7C3AED'" onblur="this.style.borderColor='var(--border)'"/>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label style="display:block;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray);margin-bottom:.35rem;">Ton WhatsApp (pour recevoir le contenu) *</label>
+      <input id="buyWaAcheteur" type="tel" placeholder="+237 6XX XXX XXX" style="width:100%;padding:.7rem .9rem;border-radius:12px;border:1.5px solid var(--border);font-size:.9rem;background:var(--bg);outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='#7C3AED'" onblur="this.style.borderColor='var(--border)'"/>
+    </div>
+
+    <button id="btnConfirmBuy" onclick="confirmerAchat()" style="width:100%;padding:.88rem;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-weight:800;font-size:.95rem;border:none;cursor:pointer;box-shadow:0 5px 20px rgba(124,58,237,.3);margin-bottom:.6rem;">
+      ✅ Confirmer mon paiement
+    </button>
+    <button onclick="closeBuyModal()" style="width:100%;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
   </div>
 </div>
 
-<div id="toast"></div>
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
-  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
-  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
-  <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--blue)">Gagner</span></button>
-  <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
-</nav>
-
-<script>
-
-'use strict';
-var sb=supabase.createClient('https://elgbvitijyjriozvzqpf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM');
-var U=null, ALL_FORMATIONS=[], CURRENT_CAT='tout', SELECTED_FORM=null;
-
-(async function(){
-  var s=await sb.auth.getSession();
-  if(!s.data.session){location.href='auth.html';return;}
-  U=s.data.session.user;
-  loadStats();
-  loadCatalogue();
-})();
-
-function fmt(n){return Number(n||0).toLocaleString('fr-FR');}
-var _tt;
-function toast(msg,type){
-  var el=document.getElementById('toast');
-  if(!el)return;
-  el.textContent=msg;el.className='show';
-  if(type==='success')el.style.background='#00a86b';
-  else if(type==='error')el.style.background='#E83030';
-  else if(type==='warning')el.style.background='#FF6B1A';
-  else el.style.background='#080E2A';
-  clearTimeout(_tt);
-  _tt=setTimeout(function(){el.className='';el.textContent='';el.style.background='';},4000);
-}
-
-/* ── TABS ─────────────────────────────────────────────────── */
-/* HTML: tabCat/tabVendre/tabMes → secCatalogue/secVendre/secMes */
-function switchTab(t){
-  var map={catalogue:{btn:'tabCat',sec:'secCatalogue'},vendre:{btn:'tabVendre',sec:'secVendre'},mes:{btn:'tabMes',sec:'secMes'}};
-  Object.keys(map).forEach(function(x){
-    var m=map[x];
-    var btn=document.getElementById(m.btn);
-    var sec=document.getElementById(m.sec);
-    var active=x===t;
-    if(btn)btn.classList.toggle('active',active);
-    if(sec)sec.style.display=active?'':'none';
-  });
-  if(t==='mes')loadMesFormations();
-}
-
-/* ── STATS ───────────────────────────────────────────────── */
-async function loadStats(){
-  try{
-    var r1=await sb.from('formations').select('id',{count:'exact',head:true}).eq('actif',true);
-    var r2=await sb.from('formation_achats').select('id',{count:'exact',head:true}).eq('acheteur_id',U.id);
-    var r3=await sb.from('formations').select('ventes').eq('user_id',U.id);
-    var el1=document.getElementById('statFormations');
-    var el2=document.getElementById('statMesAchats');
-    var el3=document.getElementById('statVentes');
-    if(el1)el1.textContent=r1.count||0;
-    if(el2)el2.textContent=r2.count||0;
-    if(el3)el3.textContent=(r3.data||[]).reduce(function(s,f){return s+(f.ventes||0);},0);
-  }catch(e){console.warn(e.message);}
-}
-
-/* ── CATALOGUE ───────────────────────────────────────────── */
-/* HTML: id="listFormations" dans secCatalogue */
-async function loadCatalogue(){
-  var el=document.getElementById('listFormations');
-  if(!el)return;
-  el.innerHTML='<div style="text-align:center;padding:3rem 0;"><div class="spin"></div></div>';
-  try{
-    var r=await sb.from('formations').select('*').eq('actif',true).order('created_at',{ascending:false});
-    if(r.error){
-      if(r.error.code==='42P01'){
-        el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Table manquante.<br/>Execute earn_v3.sql dans Supabase.</div>';
-      }else{
-        el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation pour le moment.</div>';
-      }
-      return;
-    }
-    ALL_FORMATIONS=r.data||[];
-    renderCatalogue();
-  }catch(e){
-    el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucune formation disponible.<br/>Sois le premier a en vendre !</div>';
-  }
-}
-
-function filterCat(cat){
-  CURRENT_CAT=cat;
-  /* Mettre à jour les boutons de filtre */
-  ['tout','couture','cuisine','tech','beaute','business','autre'].forEach(function(c){
-    var btn=document.getElementById('fc-'+c);
-    if(!btn)return;
-    var active=c===cat;
-    btn.style.background=active?'var(--purple)':'white';
-    btn.style.color=active?'white':'var(--dark)';
-    btn.style.border=active?'none':'1.5px solid var(--border)';
-  });
-  renderCatalogue();
-}
-
-function renderCatalogue(){
-  var el=document.getElementById('listFormations');
-  if(!el)return;
-  var list=CURRENT_CAT==='tout'?ALL_FORMATIONS:ALL_FORMATIONS.filter(function(f){return f.categorie===CURRENT_CAT;});
-  if(!list.length){
-    el.innerHTML='<div style="text-align:center;padding:2.5rem 1rem;color:#8892A4;font-size:.82rem;">Aucune formation dans cette categorie.</div>';
-    return;
-  }
-  var grads={couture:'linear-gradient(135deg,#7C3AED,#ec4899)',cuisine:'linear-gradient(135deg,#f97316,#eab308)',tech:'linear-gradient(135deg,#1B3FE4,#00C2B7)',beaute:'linear-gradient(135deg,#ec4899,#f43f5e)',business:'linear-gradient(135deg,#00C271,#1B3FE4)',autre:'linear-gradient(135deg,#7C3AED,#1B3FE4)'};
-  el.innerHTML=list.map(function(f){
-    var gr=grads[f.categorie]||grads.autre;
-    var bid='fbtn-'+f.id.slice(0,8);
-    return '<div style="background:white;border-radius:16px;margin-bottom:.8rem;overflow:hidden;box-shadow:0 2px 10px rgba(8,14,42,.05);">'+
-      '<div style="height:80px;background:'+gr+';display:flex;align-items:center;justify-content:center;position:relative;">'+
-        '<span style="font-size:2rem;">&#127891;</span>'+
-        '<span style="position:absolute;top:.5rem;left:.5rem;font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(255,255,255,.2);color:white;padding:.15rem .5rem;border-radius:99px;">'+esc(f.categorie||'autre')+'</span>'+
-        '<span style="position:absolute;top:.5rem;right:.5rem;font-size:.65rem;font-weight:700;background:rgba(255,255,255,.9);color:#7C3AED;padding:.15rem .5rem;border-radius:99px;">'+fmt(f.ventes||0)+' ventes</span>'+
-      '</div>'+
-      '<div style="padding:.85rem .9rem;">'+
-        '<div style="font-weight:700;font-size:.9rem;margin-bottom:.2rem;">'+esc(f.titre)+'</div>'+
-        '<div style="font-size:.73rem;color:#8892A4;margin-bottom:.55rem;line-height:1.45;">'+esc((f.description||'').slice(0,90))+'</div>'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-          '<span style="font-size:1rem;font-weight:700;color:#1B3FE4;">'+fmt(f.prix)+' FCFA</span>'+
-          '<button id="'+bid+'" style="padding:.45rem 1rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-size:.73rem;font-weight:700;border:none;cursor:pointer;">Acheter</button>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-  /* Attacher les events après rendu */
-  list.forEach(function(f){
-    var btn=document.getElementById('fbtn-'+f.id.slice(0,8));
-    if(btn)btn.addEventListener('click',function(){openBuyModal(f.id);});
-  });
-}
-
-/* ── MODAL ACHAT ─────────────────────────────────────────── */
-async function openBuyModal(id){
-  var f=ALL_FORMATIONS.find(function(x){return x.id===id;});
-  if(!f)return;
-  SELECTED_FORM=f;
-  var typeLabels={pdf:'PDF',video:'Video',audio:'Audio',mixte:'Mixte'};
-  var set=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
-  set('buyTitle',f.titre);
-  set('buyDesc',(f.description||'').slice(0,150));
-  set('buyPrice',fmt(f.prix)+' FCFA');
-  set('buyDuree',f.duree||'Non precise');
-  set('buyType',typeLabels[f.type_contenu]||'PDF');
-  set('buyAuthor','Formateur #'+f.user_id.slice(0,6).toUpperCase());
-  var btn=document.getElementById('btnConfirmBuy');
-  if(btn){
-    try{
-      var chk=await sb.from('formation_achats').select('id').eq('formation_id',f.id).eq('acheteur_id',U.id).maybeSingle();
-      if(chk.data){btn.textContent='Acceder a ma formation';btn.style.background='linear-gradient(135deg,#00C271,#1B3FE4)';}
-      else{btn.textContent='Confirmer l achat — '+fmt(f.prix)+' FCFA';btn.style.background='';}
-    }catch(e){btn.textContent='Acheter — '+fmt(f.prix)+' FCFA';}
-  }
-  var modal=document.getElementById('buyModal');
-  if(modal)modal.classList.add('open');
-}
-function closeBuyModal(){
-  var modal=document.getElementById('buyModal');
-  if(modal)modal.classList.remove('open');
-}
-
-async function confirmerAchat(){
-  if(!SELECTED_FORM)return;
-  var f=SELECTED_FORM;
-  var btn=document.getElementById('btnConfirmBuy');
-  if(btn){btn.disabled=true;btn.textContent='Traitement...';}
-  try{
-    var chk=await sb.from('formation_achats').select('id').eq('formation_id',f.id).eq('acheteur_id',U.id).maybeSingle();
-    if(chk.data){closeBuyModal();afficherContenu(f);return;}
-    var r=await sb.from('formation_achats').insert({formation_id:f.id,acheteur_id:U.id,montant:f.prix,commission:Math.round(f.prix*0.2),statut:'paye'});
-    if(r.error)throw r.error;
-    /* +20 AfriCoins */
-    await sb.from('cashback_points').insert({user_id:U.id,source:'formation',points:20,note:'Achat: '+f.titre}).catch(function(){});
-    /* Incrémenter ventes */
-    await sb.from('formations').update({ventes:(f.ventes||0)+1}).eq('id',f.id).catch(function(){});
-    closeBuyModal();
-    toast('Achat reussi ! Acces au contenu accorde.','success');
-    afficherContenu(f);
-    loadStats();
-  }catch(e){toast('Erreur: '+e.message,'error');}
-  finally{if(btn){btn.disabled=false;btn.textContent='Acheter';}}
-}
-
-function afficherContenu(f){
-  var existing=document.getElementById('contenuModal');
-  if(existing)existing.remove();
-  var lien=f.contenu_url||'';
-  var modal=document.createElement('div');
-  modal.id='contenuModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(8,14,42,.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
-  var inner=document.createElement('div');
-  inner.style.cssText='background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 3rem;';
-  inner.addEventListener('click',function(e){e.stopPropagation();});
-  var btnA=lien&&lien.startsWith('http')
-    ?'<a href="'+lien+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-weight:800;font-size:.95rem;text-decoration:none;margin-bottom:.8rem;">&#127891; Acceder au contenu de la formation</a>'
-    :'<div style="background:#F2F5FF;border-radius:12px;padding:1rem;text-align:center;font-size:.82rem;color:#8892A4;margin-bottom:.8rem;">Le formateur te contactera sous 24h pour te donner acces au contenu.</div>';
-  inner.innerHTML='<div style="width:38px;height:4px;background:#E4E9F8;border-radius:99px;margin:0 auto 1.2rem;"></div>'+
-    '<div style="text-align:center;margin-bottom:1.2rem;">'+
-      '<div style="font-size:2.5rem;margin-bottom:.5rem;">&#127891;</div>'+
-      '<div style="font-size:1rem;font-weight:700;margin-bottom:.25rem;">'+esc(f.titre)+'</div>'+
-      '<div style="font-size:.78rem;color:#00C271;font-weight:700;">&#10003; Acces confirme !</div>'+
-    '</div>'+btnA+
-    '<button id="btnFermerCM" style="width:100%;padding:.7rem;border-radius:12px;background:transparent;border:1.5px solid #E4E9F8;color:#8892A4;font-size:.82rem;cursor:pointer;">Fermer</button>';
-  modal.appendChild(inner);
-  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
-  document.body.appendChild(modal);
-  document.getElementById('btnFermerCM').addEventListener('click',function(){modal.remove();});
-}
-
-/* ── VENDRE UNE FORMATION ────────────────────────────────── */
-async function soumettreFormation(){
-  var titre=document.getElementById('fTitre').value.trim();
-  var desc=document.getElementById('fDesc').value.trim();
-  var cat=document.getElementById('fCat').value;
-  var niveau=document.getElementById('fNiveau').value;
-  var prix=parseFloat(document.getElementById('fPrix').value)||0;
-  var duree=document.getElementById('fDuree').value.trim();
-  var type=document.getElementById('fType').value;
-  var contenu=document.getElementById('fContenu').value.trim();
-  if(!titre){toast('Titre obligatoire','error');return;}
-  if(!desc){toast('Description obligatoire','error');return;}
-  if(prix<500){toast('Prix minimum 500 FCFA','error');return;}
-  if(!contenu){toast('Lien du contenu obligatoire','error');return;}
-  var btn=document.getElementById('btnSubmitForm');
-  if(btn){btn.disabled=true;btn.textContent='Envoi en cours...';}
-  try{
-    var r=await sb.from('formations').insert({user_id:U.id,titre:titre,description:desc,categorie:cat,niveau:niveau,prix:prix,duree:duree,type_contenu:type,contenu_url:contenu,approuvee:false,actif:true,ventes:0});
-    if(r.error)throw r.error;
-    toast('Formation soumise avec succes ! Visible dans le catalogue.','success');
-    ['fTitre','fDesc','fPrix','fDuree','fContenu'].forEach(function(id){
-      var el=document.getElementById(id);if(el)el.value='';
-    });
-    loadStats();
-    /* Recharger le catalogue après soumission */
-    setTimeout(function(){loadCatalogue();switchTab('catalogue');},1500);
-  }catch(e){toast('Erreur: '+e.message,'error');}
-  finally{if(btn){btn.disabled=false;btn.textContent='Soumettre ma formation';}}
-}
-
-/* ── MES FORMATIONS ──────────────────────────────────────── */
-async function loadMesFormations(){
-  var el=document.getElementById('listMesFormations');
-  if(!el)return;
-  el.innerHTML='<div style="text-align:center;padding:2rem;"><div class="spin"></div></div>';
-  try{
-    var r1=await sb.from('formations').select('*').eq('user_id',U.id).order('created_at',{ascending:false});
-    var r2=await sb.from('formation_achats').select('formation_id').eq('acheteur_id',U.id);
-    var acheteeIds=(r2.data||[]).map(function(x){return x.formation_id;});
-    var formAchetees=[];
-    if(acheteeIds.length){
-      var r3=await sb.from('formations').select('*').in('id',acheteeIds);
-      formAchetees=r3.data||[];
-    }
-    var html='';
-    var formsVendre=r1.data||[];
-    if(formsVendre.length){
-      html+='<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8892A4;margin-bottom:.5rem;">MES FORMATIONS EN VENTE ('+formsVendre.length+')</div>';
-      html+=formsVendre.map(function(f){
-        var sa=f.approuvee?'Approuvee':'En attente validation';
-        var sc=f.approuvee?'#00C271':'#FF6B1A';
-        return '<div style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
-          '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">&#127891;</div>'+
-          '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;margin-bottom:.15rem;">'+esc(f.titre)+'</div>'+
-          '<div style="font-size:.7rem;color:#8892A4;">'+fmt(f.prix)+' FCFA &nbsp;&#183;&nbsp; '+fmt(f.ventes||0)+' ventes &nbsp;&#183;&nbsp; <span style="color:'+sc+';">'+sa+'</span></div></div>'+
-        '</div>';
-      }).join('');
-    }
-    if(formAchetees.length){
-      html+='<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8892A4;margin:.9rem 0 .5rem;">FORMATIONS ACHETEES ('+formAchetees.length+')</div>';
-      formAchetees.forEach(function(f,idx){
-        var did='achete-div-'+idx;
-        html+='<div id="'+did+'" style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
-          '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#00C271,#1B3FE4);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">&#128218;</div>'+
-          '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;margin-bottom:.15rem;">'+esc(f.titre)+'</div>'+
-          '<div style="font-size:.7rem;color:#8892A4;">'+fmt(f.prix)+' FCFA &nbsp;&#183;&nbsp; Achetee</div></div>'+
-          '<button id="accbtn-'+idx+'" style="padding:.35rem .75rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#1B3FE4);color:white;font-size:.7rem;font-weight:700;border:none;cursor:pointer;">Acceder</button>'+
-        '</div>';
-      });
-    }
-    if(!html)html='<div style="text-align:center;padding:2.5rem 1rem;color:#8892A4;font-size:.82rem;">Aucune formation encore.<br/>Vends la tienne ou achetes-en une !</div>';
-    el.innerHTML=html;
-    formAchetees.forEach(function(f,idx){
-      var btn=document.getElementById('accbtn-'+idx);
-      if(btn)btn.addEventListener('click',function(){afficherContenu(f);});
-    });
-  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur: '+esc(e.message)+'</div>';}
-}
-
-function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-
-</script>
-</body>
-</html>
