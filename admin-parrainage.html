@@ -309,7 +309,7 @@ async function chargerComptes(){
           '<span class="compte-code">'+esc(c.code_parrain)+'</span>'+
           '<span class="compte-stats">F1: '+(c.total_filleuls||0)+' &nbsp;&#183;&nbsp; Gains: '+fmt(c.total_gains||0)+'F &nbsp;&#183;&nbsp; Solde: '+fmt(c.solde||0)+'F</span>'+
         '</div>'+
-        '<div id="act-btns-'+idx+'"></div>'+
+        '<div id="act-btns-'+idx+'" style="margin-top:.4rem;display:flex;gap:.4rem;flex-wrap:wrap;"></div>'+
       '</div>';
     });
     el.innerHTML=html;
@@ -317,15 +317,26 @@ async function chargerComptes(){
     comptes.forEach(function(c,idx){
       var btnsEl=document.getElementById('act-btns-'+idx);
       if(!btnsEl)return;
+      // Bouton modifier solde (toujours visible)
+      var btnS=document.createElement('button');
+      btnS.style.cssText='padding:.45rem .8rem;border-radius:10px;background:rgba(27,63,228,.1);color:#1B3FE4;font-weight:700;font-size:.72rem;border:1.5px solid rgba(27,63,228,.2);cursor:pointer;';
+      btnS.textContent='+ Ajouter gains';
+      btnS.onclick=(function(cid,sol,tot){return function(){ajouterGains(cid,sol,tot);};})(c.id,c.solde||0,c.total_gains||0);
+      btnsEl.appendChild(btnS);
+      var btnSM=document.createElement('button');
+      btnSM.style.cssText='padding:.45rem .8rem;border-radius:10px;background:rgba(245,183,49,.1);color:#9a6e00;font-weight:700;font-size:.72rem;border:1.5px solid rgba(245,183,49,.2);cursor:pointer;';
+      btnSM.textContent='Modifier solde';
+      btnSM.onclick=(function(cid,sol){return function(){modifierSolde(cid,sol);};})(c.id,c.solde||0);
+      btnsEl.appendChild(btnSM);
       if(c.statut==='inactif'){
         var btnA=document.createElement('button');
         btnA.className='btn-activer-manuel';
-        btnA.textContent='Activer manuellement';
+        btnA.textContent='Activer';
         btnA.onclick=(function(uid,cid){return function(){activerManuel(uid,cid);};})(c.user_id,c.id);
         btnsEl.appendChild(btnA);
       }else if(c.statut==='actif'){
         var btnD=document.createElement('button');
-        btnD.style.cssText='padding:.55rem .9rem;border-radius:10px;background:rgba(232,48,48,.1);color:#E83030;font-weight:700;font-size:.75rem;border:1.5px solid rgba(232,48,48,.2);cursor:pointer;';
+        btnD.style.cssText='padding:.45rem .8rem;border-radius:10px;background:rgba(232,48,48,.1);color:#E83030;font-weight:700;font-size:.72rem;border:1.5px solid rgba(232,48,48,.2);cursor:pointer;';
         btnD.textContent='Desactiver';
         btnD.onclick=(function(uid,cid){return function(){desactiverCompte(uid,cid);};})(c.user_id,c.id);
         btnsEl.appendChild(btnD);
@@ -424,6 +435,39 @@ async function chargerStats(){
 
 function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 
+
+// ── MODIFIER SOLDE MANUELLEMENT ──────────────────────────────
+async function modifierSolde(compteId, soldeActuel){
+  var montant = prompt('Nouveau solde FCFA (actuel: '+fmt(soldeActuel)+' FCFA):');
+  if(montant===null)return;
+  montant = parseInt(montant)||0;
+  if(montant<0){alert('Solde ne peut pas etre negatif');return;}
+  try{
+    var r=await sb.from('parrainage_comptes').update({solde:montant}).eq('id',compteId);
+    if(r.error)throw r.error;
+    toast('Solde mis a jour: '+fmt(montant)+' FCFA','success');
+    chargerComptes();
+    chargerStats();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+}
+
+// ── AJOUTER GAINS MANUELLEMENT ───────────────────────────────
+async function ajouterGains(compteId, soldeActuel, totalActuel){
+  var montant = prompt('Montant a ajouter au solde (FCFA):');
+  if(montant===null)return;
+  montant = parseInt(montant)||0;
+  if(montant<=0){alert('Montant doit etre positif');return;}
+  try{
+    var r=await sb.from('parrainage_comptes').update({
+      solde: soldeActuel+montant,
+      total_gains: totalActuel+montant
+    }).eq('id',compteId);
+    if(r.error)throw r.error;
+    toast('+'+fmt(montant)+' FCFA ajoute au compte !','success');
+    chargerComptes();
+    chargerStats();
+  }catch(e){toast('Erreur: '+e.message,'error');}
+}
 </script>
 </body>
 </html>
