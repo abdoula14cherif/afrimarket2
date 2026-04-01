@@ -384,29 +384,15 @@ body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);min-height:
         <div class="f"><label>Ville *</label><input type="text" id="p_ville" placeholder="Abidjan"/></div>
         <div class="f"><label>WhatsApp *</label><input type="tel" id="p_wa" placeholder="+225 07…"/></div>
       </div>
-      <button type="submit" class="btn-pub" id="btnPub">
-        <div class="spin-sm"></div>
-        <span class="pub-lbl">🚀 Publier l'annonce</span>
-      </button>
-    </form>
-  </div>
-</div>
-
-<div id="toast"><span id="tIco"></span>&nbsp;<span id="tMsg"></span></div>
-
-<div id="earnCard">
-  <button class="ec-x" id="ecX">✕</button>
-  <span class="ec-em">🤑</span>
-  <span class="ec-lbl">💡 Le savais-tu ?</span>
-  <div class="ec-ttl">Gagne jusqu'à<br><em>1 000 FCFA</em>/jour</div>
-  <div class="ec-sub">Missions, parrainage &amp; connexion quotidienne. Retire sur Mobile Money !</div>
-  <div class="ec-btns">
-    <button class="ec-go" id="ecGo">💰 Voir</button>
-    <button class="ec-cls" id="ecCls">Fermer</button>
-  </div>
-</div>
-
-<script>
+      <!-- Toggle réseaux sociaux -->
+      <div style="background:#F4F6FC;border-radius:14px;padding:.85rem 1rem;margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:.15rem;">📱 Afficher mes réseaux sociaux</div>
+          <div style="font-size:.7rem;color:#8892A4;">Facebook, Instagram, TikTok visibles sur l'annonce</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+          <input type="checkbox" id="p_showSocial" style="opacity:0;width:0;height:0;" checked/>
+          <span onclick="toggleSocialSwitch(this)" style="position:absolute;cursor:pointe
 'use strict';
 
 var _sb = supabase.createClient(
@@ -959,7 +945,8 @@ document.addEventListener('DOMContentLoaded',function(){
         if(up.error)throw up.error;
         imageUrl=_sb.storage.from('annonces').getPublicUrl(fname).data.publicUrl;
       }
-      var ins=await _sb.from('annonces').insert([{titre:title,description:desc,prix:price?parseInt(price):null,categorie:cat,ville:ville,whatsapp:wa,image_url:imageUrl,user_id:currentUser.id,created_at:new Date().toISOString()}]).select().single();
+      var showSocial = (document.getElementById('p_showSocial')||{checked:true}).checked;
+      var ins=await _sb.from('annonces').insert([{titre:title,description:desc,prix:price?parseInt(price):null,categorie:cat,ville:ville,whatsapp:wa,image_url:imageUrl,user_id:currentUser.id,show_social:showSocial,created_at:new Date().toISOString()}]).select().single();
       if(ins.error)throw ins.error;
       var newAd=Object.assign({},ins.data,{_seller:{id:currentUser.id,full_name:'Moi',whatsapp:wa,avatar_url:'',is_premium:premiumSet.has(currentUser.id)}});
       allAds.unshift(newAd);renderAds();closePub();
@@ -1001,6 +988,33 @@ async function initBoutiqueBanner() {
       // Boutique existante → inviter à la gérer
       banner.classList.add('has-shop');
       document.getElementById('bbLabel').textContent  = '🏪 Ta boutique';
+      document.getElementById('bbTitle').textContent  = shop.actif ? 'Ta boutique est en ligne ✅' : 'Ta boutique est désactivée';
+      document.getElementById('bbSub').textContent    = shop.actif
+        ? 'Gère tes produits, consulte tes commandes et avis clients.'
+        : 'Réactive-la pour que tes clients puissent te trouver.';
+      document.getElementById('bbBtnMain').textContent = '📦 Gérer ma boutique';
+    }
+    banner.style.display = 'block';
+  } catch(e) { console.warn('boutiqueBanner:', e); }
+}
+
+function dismissBoutiqueBanner() {
+  var b = document.getElementById('boutiqueBanner');
+  if (b) { b.style.animation = 'none'; b.style.opacity='0'; b.style.transform='translateY(-8px)'; b.style.transition='all .25s'; setTimeout(()=>b.remove(),260); }
+}
+
+function toggleSocialSwitch(el){
+  var inp = document.getElementById('p_showSocial');
+  if(!inp) return;
+  inp.checked = !inp.checked;
+  el.style.background = inp.checked ? '#00C271' : '#ccc';
+}
+// Init switch couleur
+(function(){
+  var sw = document.querySelector('[onclick="toggleSocialSwitch(this)"]');
+  if(sw){ sw.style.background = '#00C271'; }
+})();
+</script>cument.getElementById('bbLabel').textContent  = '🏪 Ta boutique';
       document.getElementById('bbTitle').textContent  = shop.actif ? 'Ta boutique est en ligne ✅' : 'Ta boutique est désactivée';
       document.getElementById('bbSub').textContent    = shop.actif
         ? 'Gère tes produits, consulte tes commandes et avis clients.'
