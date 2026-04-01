@@ -264,7 +264,7 @@ body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
-  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
+  <button class="nav-item" onclick="location.href='messages.html'" style="position:relative;"><span class="nav-ico" style="position:relative;">💬<span id="navMsgBadge" style="display:none;position:absolute;top:-5px;right:-7px;background:#E83030;color:white;font-size:.5rem;font-weight:800;min-width:16px;height:16px;border-radius:99px;align-items:center;justify-content:center;padding:0 3px;"></span></span><span class="nav-lbl">Messages</span></button>
   <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
   <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--blue)">Gagner</span></button>
   <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
