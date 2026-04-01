@@ -257,12 +257,12 @@ var EPHEMERE_DURATION=null, EPHEMERE_TIMER=null;
 /* ── CONVERSATIONS ─────────────────────── */
 async function loadConversations(){
   var r = await sb.from('conversations')
-    .select('*').or('user1_id.eq.'+U.id+',user2_id.eq.'+U.id)
+    .select('*').or('participant_1.eq.'+U.id+',participant_2.eq.'+U.id)
     .order('last_message_at',{ascending:false});
   allConvs = r.data||[];
   if(!allConvs.length){showEmptyList();return;}
 
-  var otherIds = allConvs.map(function(c){return c.user1_id===U.id?c.user2_id:c.user1_id;});
+  var otherIds = allConvs.map(function(c){return c.participant_1===U.id?c.participant_2:c.participant_1;});
   var rp = await sb.from('profiles').select('id,full_name,avatar_url,is_premium').in('id',otherIds);
   var pm={};
   (rp.data||[]).forEach(function(p){pm[p.id]=p;});
@@ -278,7 +278,7 @@ async function loadConversations(){
   if(cntEl)cntEl.textContent=allConvs.length+' conversation'+(allConvs.length>1?'s':'');
 
   el.innerHTML=allConvs.map(function(conv){
-    var othId=conv.user1_id===U.id?conv.user2_id:conv.user1_id;
+    var othId=conv.participant_1===U.id?conv.participant_2:conv.participant_1;
     var oth=pm[othId]||{};
     var name=oth.full_name||'Utilisateur';
     var init=name[0].toUpperCase();
@@ -309,9 +309,9 @@ function showEmptyList(){
 }
 
 async function openOrCreateConv(otherId, adId){
-  var existing=allConvs.find(function(c){return (c.user1_id===U.id&&c.user2_id===otherId)||(c.user1_id===otherId&&c.user2_id===U.id);});
+  var existing=allConvs.find(function(c){return (c.participant_1===U.id&&c.participant_2===otherId)||(c.participant_1===otherId&&c.participant_2===U.id);});
   if(existing){await openConv(existing.id,otherId);return;}
-  var r=await sb.from('conversations').insert({user1_id:U.id,user2_id:otherId,last_message:'',last_message_at:new Date().toISOString()}).select().single();
+  var r=await sb.from('conversations').insert({participant_1:U.id,participant_2:otherId,last_message:'',last_message_at:new Date().toISOString()}).select().single();
   if(r.error){showToast('Erreur: '+r.error.message,'error');return;}
   allConvs.unshift(r.data);
   await loadConversations();
@@ -527,9 +527,8 @@ async function creerGroupe(){
   try{
     var members=[U.id].concat(checked);
     var r=await sb.from('conversations').insert({
-      user1_id:U.id,user2_id:checked[0],
-      group_name:nom,is_group:true,group_members:members,
-      last_message:'Groupe créé',last_message_at:new Date().toISOString()
+      participant_1:U.id,participant_2:checked[0],
+      last_message:'[Groupe] '+nom,last_message_at:new Date().toISOString()
     }).select().single();
     if(r.error)throw r.error;
     await sb.from('messages').insert({conversation_id:r.data.id,sender_id:U.id,content:'Groupe "'+nom+'" créé ! '+members.length+' membres.',read:false});
