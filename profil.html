@@ -356,7 +356,7 @@ input#avatarInput{display:none;}
 
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">&#127968;</span><span class="nav-lbl">Accueil</span></button>
-  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">&#128172;</span><span class="nav-lbl">Messages</span></button>
+  <button class="nav-item" onclick="location.href='messages.html'" style="position:relative;"><span class="nav-ico" style="position:relative;">&#128172;<span id="navMsgBadge" style="display:none;position:absolute;top:-5px;right:-7px;background:#E83030;color:white;font-size:.5rem;font-weight:800;min-width:16px;height:16px;border-radius:99px;align-items:center;justify-content:center;padding:0 3px;"></span></span><span class="nav-lbl">Messages</span></button>
   <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">&#10133;</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
   <button class="nav-item" onclick="location.href='gagner.html'"><span class="nav-ico">&#128176;</span><span class="nav-lbl">Gagner</span></button>
   <button class="nav-item" style="color:var(--blue)"><span class="nav-ico">&#128100;</span><span class="nav-lbl" style="color:var(--blue)">Profil</span></button>
@@ -485,25 +485,53 @@ function fillForm(){
 }
 
 async function saveProfile(){
-  var name=document.getElementById('fName').value.trim();
-  var wa=document.getElementById('fWa').value.trim();
-  var pays=document.getElementById('fPays').value;
-  var ville=document.getElementById('fVille').value.trim();
-  var bio=document.getElementById('fBio').value.trim();
+  var name=(document.getElementById('fName')||{}).value||'';
+  name=name.trim();
+  var wa=(document.getElementById('fWa')||{}).value||'';
+  wa=wa.trim();
+  var pays=(document.getElementById('fPays')||{}).value||'';
+  var ville=(document.getElementById('fVille')||{}).value||'';
+  ville=ville.trim();
+  var bio=(document.getElementById('fBio')||{}).value||'';
+  bio=bio.trim();
   if(!name){showToast('Nom obligatoire','warning');return;}
   var btn=document.getElementById('saveBtn');
-  btn.disabled=true;btn.textContent='Sauvegarde...';
+  if(btn){btn.disabled=true;btn.textContent='Sauvegarde...';}
   try{
-    var payload={id:U.id,full_name:name,whatsapp:wa,pays:pays,ville:ville,bio:bio,updated_at:new Date().toISOString()};
-    if(P.avatar_url)payload.avatar_url=P.avatar_url;
+    var payload={
+      id:U.id,
+      full_name:name,
+      whatsapp:wa,
+      pays:pays,
+      ville:ville,
+      bio:bio,
+      updated_at:new Date().toISOString()
+    };
+    if(P&&P.avatar_url)payload.avatar_url=P.avatar_url;
+    // Ajouter réseaux si présents
+    var fbEl=document.getElementById('fFacebook');
+    var igEl=document.getElementById('fInstagram');
+    var ttEl=document.getElementById('fTiktok');
+    if(fbEl)payload.facebook=fbEl.value.trim();
+    if(igEl)payload.instagram=igEl.value.trim();
+    if(ttEl)payload.tiktok=ttEl.value.trim();
+    // Utiliser _sb (la clé correcte dans profil.html)
     var res=await _sb.from('profiles').upsert(payload,{onConflict:'id'});
     if(res.error)throw res.error;
+    // Re-fetch pour confirmer
     var fresh=await _sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
     if(fresh.data)P=Object.assign({},P,fresh.data);
-    updateHero();updateCompletion();closeEditSheet();
-    showToast('Profil mis a jour','success');
-  }catch(e){showToast('Erreur : '+e.message,'error');}
-  finally{btn.disabled=false;btn.textContent='Sauvegarder';}
+    else P=Object.assign({},P,payload);
+    updateHero();
+    if(typeof updateCompletion==='function')updateCompletion();
+    fillForm();
+    closeEditSheet();
+    showToast('Profil mis a jour !','success');
+  }catch(e){
+    console.error('saveProfile error:',e);
+    showToast('Erreur : '+(e.message||'Verifiez votre connexion'),'error');
+  }
+  finally{if(btn){btn.disabled=false;btn.textContent='Sauvegarder';}}
 }
 
 async function saveReseaux(){
