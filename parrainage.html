@@ -426,7 +426,7 @@ body{padding-bottom:calc(var(--nav-h) + 2.5rem) !important;}
 
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">&#127968;</span><span class="nav-lbl">Accueil</span></button>
-  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">&#128172;</span><span class="nav-lbl">Messages</span></button>
+  <button class="nav-item" onclick="location.href='messages.html'" style="position:relative;"><span class="nav-ico" style="position:relative;">&#128172;<span id="navMsgBadge" style="display:none;position:absolute;top:-5px;right:-7px;background:#E83030;color:white;font-size:.5rem;font-weight:800;min-width:16px;height:16px;border-radius:99px;align-items:center;justify-content:center;padding:0 3px;"></span></span><span class="nav-lbl">Messages</span></button>
   <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">&#10133;</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
   <button class="nav-item active"><span class="nav-ico">&#128176;</span><span class="nav-lbl" style="color:var(--blue)">Gagner</span></button>
   <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">&#128100;</span><span class="nav-lbl">Profil</span></button>
@@ -547,7 +547,7 @@ async function activerCompteAuto(){
     // Récupérer ou créer le compte
     var rc=await sb.from('parrainage_comptes').select('*').eq('user_id',U.id).maybeSingle();
     if(!rc.data){
-      var code='AM-'+U.id.substring(0,8).toUpperCase();
+      var code='AM-'+U.id.substring(0,6).toUpperCase()+Math.random().toString(36).substring(2,5).toUpperCase();
       var ins=await sb.from('parrainage_comptes').insert({user_id:U.id,code_parrain:code,statut:'actif',solde:0,total_gains:0,total_filleuls:0,activated_at:new Date().toISOString()}).select().single();
       if(ins.error)throw ins.error;
       COMPTE=ins.data;
@@ -641,26 +641,45 @@ async function chargerFilleuls(){
   var el=document.getElementById('listFil');
   if(!el||!COMPTE)return;
   try{
-    var r=await sb.from('parrainage_comptes').select('*, profiles:user_id(full_name)').eq('parrain_id',COMPTE.id).order('created_at',{ascending:false});
+    // 1. Filleuls qui ont activé leur compte parrainage
+    var r=await sb.from('parrainage_comptes').select('*,profiles:user_id(full_name)').eq('parrain_id',COMPTE.id).order('created_at',{ascending:false});
+    var parrFilleuls=r.data||[];
+
+    // 2. Inscrits via le lien de parrainage (referred_by dans profiles)
+    var rProf=await sb.from('profiles').select('id,full_name,created_at').eq('referred_by',COMPTE.code_parrain).order('created_at',{ascending:false});
+    var profFilleuls=rProf.data||[];
+
     var nb1=document.getElementById('nbF1');
-    if(r.error||!r.data||!r.data.length){
+    var total=Math.max(parrFilleuls.length, profFilleuls.length);
+
+    if(!parrFilleuls.length&&!profFilleuls.length){
       el.innerHTML='<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucun filleul. Partage ton lien !</div>';
       if(nb1)nb1.textContent='0';
       return;
     }
-    if(nb1)nb1.textContent=r.data.length;
+    if(nb1)nb1.textContent=profFilleuls.length;
+
     var colors=['#00C271','#1B3FE4','#F5B731','#FF6B1A','#00C2B7'];
-    el.innerHTML=r.data.map(function(f,i){
-      var name=(f.profiles&&f.profiles.full_name)||'Filleul #'+(i+1);
-      var d=new Date(f.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
-      var actif=f.statut==='actif';
-      return '<div style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
-        '<div style="width:40px;height:40px;border-radius:50%;background:'+colors[i%colors.length]+';display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:1rem;flex-shrink:0;">'+esc(name[0].toUpperCase())+'</div>'+
-        '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;">'+esc(name)+'</div><div style="font-size:.68rem;color:#8892A4;">'+d+' &middot; '+(actif?'Actif':'En attente')+'</div></div>'+
-        '<div style="text-align:right;"><div style="font-weight:800;font-size:.95rem;color:#00C271;">'+(actif?'+1 250F':'&mdash;')+'</div><span style="font-size:.6rem;font-weight:800;padding:.15rem .5rem;border-radius:99px;background:rgba(0,194,183,.12);color:#00C271;">N1</span></div>'+
-      '</div>';
-    }).join('');
-  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur</div>';}
+
+    // Afficher les filleuls inscrits (profils)
+    var html='';
+    if(profFilleuls.length){
+      html+='<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8892A4;margin-bottom:.5rem;">Inscrits via ton lien ('+profFilleuls.length+')</div>';
+      html+=profFilleuls.map(function(f,i){
+        var name=f.full_name||'Utilisateur #'+(i+1);
+        var d=new Date(f.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+        // Vérifier si cet utilisateur a aussi activé son compte parrainage
+        var aActif=parrFilleuls.find(function(x){return x.user_id===f.id;});
+        return '<div style="background:white;border-radius:14px;padding:.9rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.04);">'+
+          '<div style="width:38px;height:38px;border-radius:50%;background:'+colors[i%colors.length]+';display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:.95rem;flex-shrink:0;">'+esc(name[0].toUpperCase())+'</div>'+
+          '<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;">'+esc(name)+'</div>'+
+          '<div style="font-size:.68rem;color:#8892A4;">Inscrit le '+d+' &nbsp;&#183;&nbsp; '+(aActif?'<span style="color:#00C271;font-weight:700;">Parrainage actif &#10003;</span>':'<span style="color:#FF6B1A;">Parrainage non activé</span>')+'</div></div>'+
+          '<div style="text-align:right;"><div style="font-weight:800;font-size:.9rem;color:#00C271;">'+(aActif?'+1 250F':'—')+'</div></div>'+
+        '</div>';
+      }).join('');
+    }
+    el.innerHTML=html||'<div style="text-align:center;padding:2rem;color:#8892A4;font-size:.82rem;">Aucun filleul encore.</div>';
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:1rem;color:#E83030;font-size:.8rem;">Erreur: '+esc(e.message)+'</div>';}
 }
 
 async function chargerGains(){
@@ -788,7 +807,7 @@ async function confirmerPay(){
   if(btn){btn.disabled=true;btn.textContent='Enregistrement...';}
   try{
     // Créer code parrain
-    var code='AM-'+U.id.substring(0,8).toUpperCase();
+    var code='AM-'+U.id.substring(0,6).toUpperCase()+Math.random().toString(36).substring(2,5).toUpperCase();
     // Récupérer parrain si URL ?ref=
     var urlRef=new URLSearchParams(window.location.search).get('ref');
     var parrainId=null;
@@ -940,7 +959,7 @@ async function confirmerPayCrypto(){
   var btn=document.getElementById('btnConfCrypto');
   if(btn){btn.disabled=true;btn.textContent='Enregistrement...';}
   try{
-    var code='AM-'+U.id.substring(0,8).toUpperCase();
+    var code='AM-'+U.id.substring(0,6).toUpperCase()+Math.random().toString(36).substring(2,5).toUpperCase();
     var urlRef=new URLSearchParams(window.location.search).get('ref');
     var parrainId=null;
     if(urlRef){
