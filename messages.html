@@ -132,7 +132,7 @@
 
   <nav class="bottom-nav">
     <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
-    <button class="nav-item active"><span class="nav-ico">💬</span><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Messages</span></button>
+    <button class="nav-item active" style="position:relative;"><span class="nav-ico" style="position:relative;">💬<span id="navMsgBadge" style="display:none;position:absolute;top:-5px;right:-7px;background:#E83030;color:white;font-size:.5rem;font-weight:800;min-width:16px;height:16px;border-radius:99px;align-items:center;justify-content:center;padding:0 3px;"></span></span><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Messages</span></button>
     <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
     <button class="nav-item" onclick="location.href='gagner.html'"><span class="nav-ico">💰</span><span class="nav-lbl">Gagner</span></button>
     <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
@@ -161,7 +161,15 @@
 
   <div class="msgs-zone" id="msgsZone"></div>
 
-  <div class="input-zone">
+  <!-- Barre outils : éphémère, photo, groupe -->
+  <div id="toolBar" style="display:none;border-top:1px solid var(--border);padding:.45rem .8rem;background:white;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+    <button onclick="openMediaModal()" style="display:flex;align-items:center;gap:.3rem;padding:.35rem .7rem;border-radius:99px;background:#F4F6FC;border:1.5px solid var(--border);font-size:.72rem;font-weight:700;cursor:pointer;color:var(--dark);">📷 Photo/Vidéo</button>
+    <button onclick="openEphemereModal()" style="display:flex;align-items:center;gap:.3rem;padding:.35rem .7rem;border-radius:99px;background:#F4F6FC;border:1.5px solid var(--border);font-size:.72rem;font-weight:700;cursor:pointer;color:var(--dark);">⏱ Éphémère</button>
+    <button onclick="openGroupModal()" style="display:flex;align-items:center;gap:.3rem;padding:.35rem .7rem;border-radius:99px;background:#F4F6FC;border:1.5px solid var(--border);font-size:.72rem;font-weight:700;cursor:pointer;color:var(--dark);">👥 Groupe</button>
+    <span id="ephemereBadge" style="display:none;font-size:.68rem;font-weight:700;background:rgba(255,107,26,.12);color:#FF6B1A;padding:.2rem .6rem;border-radius:99px;"></span>
+  </div>
+  <div class="input-zone" style="border-top:1px solid var(--border);">
+    <button onclick="toggleToolBar()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;padding:.3rem;color:var(--gray);flex-shrink:0;">＋</button>
     <textarea class="msg-input" id="msgInput" placeholder="Écrire un message…" rows="1"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
       oninput="autoResize(this)" disabled></textarea>
@@ -169,425 +177,431 @@
   </div>
 </div>
 
+<!-- MODAL MÉDIA ─────────────────────── -->
+<div id="mediaModal" style="display:none;position:fixed;inset:0;background:rgba(8,14,42,.6);z-index:300;align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.5rem;" onclick="event.stopPropagation()">
+    <div style="width:38px;height:4px;background:#E4E9F8;border-radius:99px;margin:0 auto 1.2rem;"></div>
+    <div style="font-weight:700;font-size:.95rem;margin-bottom:.9rem;">📷 Envoyer une photo ou vidéo</div>
+    <label style="display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:1.5rem;border:2px dashed var(--border);border-radius:14px;cursor:pointer;margin-bottom:.8rem;font-size:.85rem;color:var(--gray);">
+      <span style="font-size:1.8rem;">📎</span> Choisir un fichier (image ou vidéo)
+      <input type="file" id="mediaFileInput" accept="image/*,video/*" style="display:none;" onchange="sendMedia(this)"/>
+    </label>
+    <div style="margin-bottom:.8rem;">
+      <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:.3rem;">Légende (optionnelle)</label>
+      <input id="mediaCaption" type="text" placeholder="Ajouter une légende…" style="width:100%;padding:.65rem .85rem;border-radius:12px;border:1.5px solid var(--border);font-size:.88rem;outline:none;"/>
+    </div>
+    <button onclick="closeMediaModal()" style="width:100%;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL ÉPHÉMÈRE ──────────────────── -->
+<div id="ephemereModal" style="display:none;position:fixed;inset:0;background:rgba(8,14,42,.6);z-index:300;align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.5rem;" onclick="event.stopPropagation()">
+    <div style="width:38px;height:4px;background:#E4E9F8;border-radius:99px;margin:0 auto 1.2rem;"></div>
+    <div style="font-weight:700;font-size:.95rem;margin-bottom:.3rem;">⏱ Messages éphémères</div>
+    <div style="font-size:.78rem;color:var(--gray);margin-bottom:1rem;">Les messages se suppriment automatiquement après la durée choisie.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
+      <button onclick="setEphemereDuration(30,'30 secondes')" style="padding:.7rem;border-radius:12px;background:#F4F6FC;border:1.5px solid var(--border);font-size:.82rem;font-weight:700;cursor:pointer;">30 secondes</button>
+      <button onclick="setEphemereDuration(300,'5 minutes')" style="padding:.7rem;border-radius:12px;background:#F4F6FC;border:1.5px solid var(--border);font-size:.82rem;font-weight:700;cursor:pointer;">5 minutes</button>
+      <button onclick="setEphemereDuration(3600,'1 heure')" style="padding:.7rem;border-radius:12px;background:#F4F6FC;border:1.5px solid var(--border);font-size:.82rem;font-weight:700;cursor:pointer;">1 heure</button>
+      <button onclick="setEphemereDuration(86400,'24 heures')" style="padding:.7rem;border-radius:12px;background:#F4F6FC;border:1.5px solid var(--border);font-size:.82rem;font-weight:700;cursor:pointer;">24 heures</button>
+    </div>
+    <button onclick="setEphemereDuration(null,'Désactivé')" style="width:100%;padding:.7rem;border-radius:12px;background:rgba(232,48,48,.08);color:#E83030;border:1.5px solid rgba(232,48,48,.2);font-size:.82rem;font-weight:700;cursor:pointer;margin-bottom:.5rem;">🚫 Désactiver les éphémères</button>
+    <button onclick="closeEphemereModal()" style="width:100%;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL GROUPE ─────────────────────── -->
+<div id="groupModal" style="display:none;position:fixed;inset:0;background:rgba(8,14,42,.6);z-index:300;align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:1.5rem 1.3rem 2.5rem;max-height:85vh;overflow-y:auto;" onclick="event.stopPropagation()">
+    <div style="width:38px;height:4px;background:#E4E9F8;border-radius:99px;margin:0 auto 1.2rem;"></div>
+    <div style="font-weight:700;font-size:.95rem;margin-bottom:.8rem;">👥 Créer un groupe</div>
+    <div style="margin-bottom:.8rem;">
+      <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);display:block;margin-bottom:.3rem;">Nom du groupe *</label>
+      <input id="groupName" type="text" placeholder="Ex: Groupe AfriMarket Yaoundé" style="width:100%;padding:.65rem .85rem;border-radius:12px;border:1.5px solid var(--border);font-size:.88rem;outline:none;"/>
+    </div>
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:.4rem;">Membres</div>
+    <div id="groupMembersList" style="max-height:200px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;margin-bottom:.8rem;"></div>
+    <button onclick="creerGroupe()" style="width:100%;padding:.8rem;border-radius:14px;background:linear-gradient(135deg,#1B3FE4,#00C2B7);color:white;font-weight:700;font-size:.9rem;border:none;cursor:pointer;margin-bottom:.5rem;">✅ Créer le groupe</button>
+    <button onclick="closeGroupModal()" style="width:100%;padding:.65rem;border-radius:12px;background:transparent;color:var(--gray);border:1px solid var(--border);font-size:.82rem;cursor:pointer;">Annuler</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
 'use strict';
-const { createClient } = supabase;
-const sb = createClient(
-  'https://elgbvitijyjriozvzqpf.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
-);
+var _sb = supabase.createClient('https://elgbvitijyjriozvzqpf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM');
+var sb = _sb;
+var U=null, myProfile={};
+var currentConvId=null, currentOther={};
+var allMsgs=[], allConvs=[];
+var realtimeChat=null, realtimeList=null;
+var EPHEMERE_DURATION=null, EPHEMERE_TIMER=null;
 
-const EMOJI = {immobilier:'🏠',vehicules:'🚗',electronique:'📱',mode:'👗',services:'🛠️',emploi:'💼',alimentation:'🥘',autres:'📦'};
-
-let U = null, myProfile = {};
-let currentConvId = null, currentOther = {}, currentAd = {};
-let allMsgs = [], allConvs = [];
-let realtimeChat = null, realtimeList = null;
-
-/* ══════════ INIT ══════════ */
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { location.href = 'index.html'; return; }
-  U = session.user;
-
-  const { data: p } = await sb.from('profiles').select('*').eq('id', U.id).single();
-  myProfile = p || {};
-
+(async function(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){location.href='auth.html';return;}
+  U = s.data.session.user;
+  var rp = await sb.from('profiles').select('*').eq('id',U.id).single();
+  if(rp.data) myProfile = rp.data;
+  var params = new URLSearchParams(location.search);
   await loadConversations();
   setupListRealtime();
-
-  /* Ouvrir conv depuis URL ?with=&ad= */
-  const params = new URLSearchParams(location.search);
-  if (params.get('with') && params.get('ad')) {
-    await openOrCreateConv(params.get('with'), params.get('ad'));
-  }
+  updateNavBadge();
+  var withId = params.get('with');
+  var adId   = params.get('ad');
+  if(withId) await openOrCreateConv(withId, adId);
 })();
 
-/* ══════════ LISTE DES CONVERSATIONS ══════════ */
-async function loadConversations() {
-  try {
-    const { data: convs, error } = await sb
-      .from('conversations')
-      .select('id,participant_1,participant_2,last_message,last_message_at,annonce_id,annonces(id,titre,prix,image_url,categorie)')
-      .or(`participant_1.eq.${U.id},participant_2.eq.${U.id}`)
-      .order('last_message_at', { ascending: false, nullsFirst: false });
+/* ── CONVERSATIONS ─────────────────────── */
+async function loadConversations(){
+  var r = await sb.from('conversations')
+    .select('*').or('user1_id.eq.'+U.id+',user2_id.eq.'+U.id)
+    .order('last_message_at',{ascending:false});
+  allConvs = r.data||[];
+  if(!allConvs.length){showEmptyList();return;}
 
-    if (error) throw error;
-    allConvs = convs || [];
-    if (!allConvs.length) { showEmptyList(); return; }
+  var otherIds = allConvs.map(function(c){return c.user1_id===U.id?c.user2_id:c.user1_id;});
+  var rp = await sb.from('profiles').select('id,full_name,avatar_url,is_premium').in('id',otherIds);
+  var pm={};
+  (rp.data||[]).forEach(function(p){pm[p.id]=p;});
 
-    /* Profils des interlocuteurs */
-    const otherIds = allConvs.map(c => c.participant_1 === U.id ? c.participant_2 : c.participant_1);
-    const { data: profiles } = await sb.from('profiles')
-      .select('id,full_name,whatsapp,avatar_url,is_premium').in('id', otherIds);
-    const pMap = {};
-    (profiles || []).forEach(p => pMap[p.id] = p);
+  var ru = await sb.from('messages').select('conversation_id')
+    .in('conversation_id',allConvs.map(function(c){return c.id;}))
+    .eq('read',false).neq('sender_id',U.id);
+  var uMap={};
+  (ru.data||[]).forEach(function(r){uMap[r.conversation_id]=(uMap[r.conversation_id]||0)+1;});
 
-    /* Messages non lus par conv */
-    const { data: unreadRows } = await sb.from('messages')
-      .select('conversation_id')
-      .in('conversation_id', allConvs.map(c => c.id))
-      .eq('read', false)
-      .neq('sender_id', U.id);
-    const uMap = {};
-    (unreadRows || []).forEach(r => { uMap[r.conversation_id] = (uMap[r.conversation_id] || 0) + 1; });
+  var el=document.getElementById('convList');
+  var cntEl=document.getElementById('listCount');
+  if(cntEl)cntEl.textContent=allConvs.length+' conversation'+(allConvs.length>1?'s':'');
 
-    const totalUnread = Object.values(uMap).reduce((a,b) => a+b, 0);
-    document.getElementById('listCount').textContent = totalUnread > 0
-      ? `💬 ${totalUnread} non lu${totalUnread > 1 ? 's' : ''}`
-      : `${allConvs.length} conversation${allConvs.length > 1 ? 's' : ''}`;
-
-    document.getElementById('convList').innerHTML = allConvs.map(c => {
-      const otherId = c.participant_1 === U.id ? c.participant_2 : c.participant_1;
-      const other   = pMap[otherId] || {};
-      const unread  = uMap[c.id] || 0;
-      const ad      = c.annonces || {};
-      const init    = (other.full_name || '?')[0].toUpperCase();
-      const avHtml  = other.avatar_url
-        ? `<img src="${esc(other.avatar_url)}" onerror="this.parentElement.innerHTML='${init}'">`
-        : init;
-      const prem = other.is_premium ? ' 👑' : '';
-      return `
-        <div class="conv-item ${unread ? 'unread' : ''}"
-          onclick="openConv('${c.id}','${otherId}','${esc(other.full_name||'Utilisateur')}','${esc(other.whatsapp||'')}','${ad.id||''}','${esc(ad.titre||'')}',${ad.prix||0},'${esc(ad.image_url||'')}','${ad.categorie||''}','${esc(other.avatar_url||'')}')">
-          <div class="ci-av">${avHtml}</div>
-          <div class="ci-body">
-            <div class="ci-top">
-              <div class="ci-name">${esc(other.full_name||'Utilisateur')}${prem}</div>
-              <div class="ci-time">${timeAgo(c.last_message_at)}</div>
-            </div>
-            ${ad.titre ? `<div class="ci-ad">📌 ${esc(ad.titre)}</div>` : ''}
-            <div class="ci-preview ${unread ? 'unread-txt' : ''}">${unread ? '💬 ' : ''}${esc(c.last_message || 'Nouvelle conversation')}</div>
-          </div>
-          ${unread ? `<div class="ci-badge">${unread > 9 ? '9+' : unread}</div>` : ''}
-        </div>`;
-    }).join('');
-
-  } catch(e) {
-    console.error('loadConversations:', e);
-    showToast('Erreur chargement : ' + e.message, 'error');
-    showEmptyList();
-  }
+  el.innerHTML=allConvs.map(function(conv){
+    var othId=conv.user1_id===U.id?conv.user2_id:conv.user1_id;
+    var oth=pm[othId]||{};
+    var name=oth.full_name||'Utilisateur';
+    var init=name[0].toUpperCase();
+    var unread=uMap[conv.id]||0;
+    var t=conv.last_message_at?timeAgo(conv.last_message_at):'';
+    var isGroup=conv.is_group;
+    var displayName=isGroup?(conv.group_name||'Groupe'):name;
+    return '<div class="conv-item" id="conv-'+conv.id+'" onclick="openConv(\''+conv.id+'\',\''+othId+'\')">' +
+      '<div class="conv-av">'+(oth.avatar_url?'<img src="'+esc(oth.avatar_url)+'"/>':init)+(isGroup?'<span style="position:absolute;bottom:0;right:0;background:#1B3FE4;color:white;font-size:.5rem;border-radius:99px;padding:.1rem .3rem;">GRP</span>':'')+'</div>'+
+      '<div class="conv-body">'+
+        '<div class="conv-name">'+esc(displayName)+(oth.is_premium?'<span style="margin-left:.3rem;font-size:.65rem;">👑</span>':'')+'</div>'+
+        '<div class="conv-last">'+esc((conv.last_message||'').slice(0,40))+'</div>'+
+      '</div>'+
+      '<div class="conv-meta">'+
+        '<div class="conv-time">'+t+'</div>'+
+        (unread?'<div class="conv-badge">'+unread+'</div>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
 }
 
-function showEmptyList() {
-  document.getElementById('listCount').textContent = '0 conv';
-  document.getElementById('convList').innerHTML = `
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;text-align:center;">
-      <div style="font-size:3rem;margin-bottom:.8rem">💬</div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:var(--dark);margin-bottom:.4rem">Aucun message</div>
-      <div style="font-size:.78rem;color:var(--gray);line-height:1.6;margin-bottom:1rem">Contacte un vendeur depuis une annonce pour démarrer une conversation.</div>
-      <button onclick="location.href='dashboard.html'" style="padding:.55rem 1.2rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:99px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🛍️ Voir les annonces</button>
-    </div>`;
+function showEmptyList(){
+  document.getElementById('convList').innerHTML=
+    '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;color:var(--gray)">'+
+    '<div style="font-size:2.5rem;margin-bottom:.6rem">💬</div>'+
+    '<div style="font-family:\'Clash Display\',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.3rem">Aucune conversation</div>'+
+    '<div style="font-size:.74rem;line-height:1.6">Contacte un vendeur depuis une annonce.</div></div>';
 }
 
-/* ══════════ OUVRIR OU CRÉER UNE CONV ══════════ */
-async function openOrCreateConv(otherId, adId) {
-  try {
-    /* Chercher conv existante */
-    const { data: existing } = await sb.from('conversations')
-      .select('id')
-      .or(`and(participant_1.eq.${U.id},participant_2.eq.${otherId}),and(participant_1.eq.${otherId},participant_2.eq.${U.id})`)
-      .eq('annonce_id', adId)
-      .maybeSingle();
-
-    let convId = existing?.id;
-    if (!convId) {
-      const { data: nc, error } = await sb.from('conversations').insert({
-        participant_1: U.id, participant_2: otherId, annonce_id: adId || null
-      }).select().single();
-      if (error) throw error;
-      convId = nc.id;
-    }
-
-    const [{ data: op }, { data: ad }] = await Promise.all([
-      sb.from('profiles').select('full_name,whatsapp,avatar_url,is_premium').eq('id', otherId).single(),
-      sb.from('annonces').select('id,titre,prix,image_url,categorie').eq('id', adId).maybeSingle()
-    ]);
-
-    await openConv(convId, otherId,
-      op?.full_name || 'Utilisateur', op?.whatsapp || '',
-      ad?.id || '', ad?.titre || '', ad?.prix || 0,
-      ad?.image_url || '', ad?.categorie || '', op?.avatar_url || '');
-  } catch(e) {
-    showToast('Erreur : ' + e.message, 'error');
-  }
+async function openOrCreateConv(otherId, adId){
+  var existing=allConvs.find(function(c){return (c.user1_id===U.id&&c.user2_id===otherId)||(c.user1_id===otherId&&c.user2_id===U.id);});
+  if(existing){await openConv(existing.id,otherId);return;}
+  var r=await sb.from('conversations').insert({user1_id:U.id,user2_id:otherId,last_message:'',last_message_at:new Date().toISOString()}).select().single();
+  if(r.error){showToast('Erreur: '+r.error.message,'error');return;}
+  allConvs.unshift(r.data);
+  await loadConversations();
+  await openConv(r.data.id,otherId,adId);
 }
 
-/* ══════════ OUVRIR UNE CONV ★ FIX : async ══════════ */
-async function openConv(convId, otherId, otherName, otherWa, adId, adTitre, adPrix, adImg, adCat, otherAvatar) {
-  currentConvId = convId;
-  currentOther  = { id: otherId, name: otherName, wa: otherWa };
-  currentAd     = { id: adId, titre: adTitre, prix: adPrix, img: adImg, cat: adCat };
-
-  /* Header */
-  const avEl = document.getElementById('chAv');
-  if (otherAvatar) {
-    avEl.innerHTML = `<img src="${esc(otherAvatar)}" onerror="this.parentElement.textContent='${(otherName||'?')[0].toUpperCase()}'">`;
-  } else {
-    avEl.textContent = (otherName || '?')[0].toUpperCase();
-  }
-  document.getElementById('chName').textContent = otherName;
-  document.getElementById('chSub').textContent  = 'AfriMarket · ' + (adTitre || 'Discussion');
-  document.getElementById('chWaBtn').onclick    = () => contactWA(otherWa);
-
-  /* Badge premium */
-  loadPremiumBadge(otherId);
-
-  /* Contexte annonce */
-  if (adTitre) {
-    document.getElementById('adContext').style.display = 'flex';
-    const aImg = document.getElementById('adcImg');
-    aImg.innerHTML = adImg
-      ? `<img src="${esc(adImg)}" onerror="this.parentElement.textContent='${EMOJI[adCat]||'📦'}'">`
-      : (EMOJI[adCat] || '📦');
-    document.getElementById('adcTitle').textContent = adTitre;
-    document.getElementById('adcPrice').textContent = adPrix
-      ? Number(adPrix).toLocaleString('fr-FR') + ' FCFA' : 'Prix à débattre';
-  } else {
-    document.getElementById('adContext').style.display = 'none';
-  }
-
-  /* Afficher vue chat */
-  document.getElementById('viewList').style.display = 'none';
-  document.getElementById('viewChat').style.display = 'flex';
-
-  /* Charger messages */
+async function openConv(convId, otherId, adId){
+  currentConvId=convId;
+  if(realtimeChat)realtimeChat.unsubscribe();
+  var roth=await sb.from('profiles').select('*').eq('id',otherId).single();
+  var oth=roth.data||{};
+  currentOther={id:otherId,name:oth.full_name||'Utilisateur',avatar:oth.avatar_url||'',wa:oth.whatsapp||''};
+  document.getElementById('chName').textContent=currentOther.name;
+  document.getElementById('chSub').textContent='En ligne';
+  var av=document.getElementById('chAv');
+  av.innerHTML=oth.avatar_url?'<img src="'+esc(oth.avatar_url)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/>':currentOther.name[0].toUpperCase();
+  var waBtn=document.getElementById('chWaBtn');
+  if(waBtn){waBtn.style.display=currentOther.wa?'':'none';}
+  document.getElementById('viewList').style.display='none';
+  document.getElementById('viewChat').style.display='flex';
+  document.getElementById('msgInput').disabled=false;
+  document.getElementById('sendBtn').disabled=false;
   await loadMessages();
-
-  /* Activer input */
-  document.getElementById('msgInput').disabled = false;
-  document.getElementById('sendBtn').disabled  = false;
-  document.getElementById('msgInput').focus();
-
-  /* ★ Marquer tous les messages de l'autre comme lus */
-  sb.from('messages').update({ read: true })
-    .eq('conversation_id', convId).eq('read', false).neq('sender_id', U.id)
-    .then(() => {});
-
-  /* Realtime pour ce chat */
-  startChatRealtime(convId);
+  startChatRealtime();
+  sb.from('messages').update({read:true}).eq('conversation_id',convId).neq('sender_id',U.id).then(function(){});
 }
 
-/* ══════════ CHARGER LES MESSAGES ══════════ */
-async function loadMessages() {
-  document.getElementById('msgsZone').innerHTML =
-    `<div style="flex:1"></div><div style="text-align:center;padding:2rem;color:var(--gray);font-size:.8rem;">⏳ Chargement…</div>`;
-
-  const { data: msgs, error } = await sb.from('messages')
-    .select('*')
-    .eq('conversation_id', currentConvId)
-    .order('created_at', { ascending: true })
-    .limit(200);
-
-  if (error) { showToast('Erreur : ' + error.message, 'error'); return; }
-  allMsgs = msgs || [];
+async function loadMessages(){
+  var r=await sb.from('messages').select('*').eq('conversation_id',currentConvId).order('created_at',{ascending:true});
+  var now=new Date();
+  allMsgs=(r.data||[]).filter(function(msg){
+    if(msg.is_deleted)return false;
+    if(msg.expires_at&&new Date(msg.expires_at)<now)return false;
+    return true;
+  });
   renderMessages();
 }
 
-/* ══════════ AFFICHER LES MESSAGES ══════════ */
-function renderMessages() {
-  const zone = document.getElementById('msgsZone');
-  if (!allMsgs.length) {
-    zone.innerHTML = `
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;color:var(--gray);">
-        <div style="font-size:2.5rem;margin-bottom:.6rem">👋</div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.3rem">Démarrez la conversation</div>
-        <div style="font-size:.74rem;line-height:1.6">Dites bonjour à ${esc(currentOther.name)} !</div>
-      </div>`;
+/* ── RENDU ─────────────────────────────── */
+function renderMessages(){
+  var zone=document.getElementById('msgsZone');
+  if(!allMsgs.length){
+    zone.innerHTML='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;color:var(--gray)">'+
+      '<div style="font-size:2.5rem;margin-bottom:.6rem">👋</div>'+
+      '<div style="font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.3rem">Démarrez la conversation</div>'+
+      '<div style="font-size:.74rem">Dites bonjour à '+esc(currentOther.name||'…')+' !</div></div>';
     return;
   }
+  var html='<div style="flex:1"></div>';
+  var lastDate='';
+  allMsgs.forEach(function(msg){
+    if(msg.is_deleted)return;
+    if(msg.expires_at&&new Date(msg.expires_at)<new Date())return;
+    var d=new Date(msg.created_at);
+    var dateStr=d.toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long'});
+    if(dateStr!==lastDate){html+='<div class="date-sep"><span>'+dateStr+'</span></div>';lastDate=dateStr;}
+    var isMe=msg.sender_id===U.id;
+    var time=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    var init=isMe?(myProfile.full_name||'M')[0].toUpperCase():(currentOther.name||'?')[0].toUpperCase();
 
-  let html = '<div style="flex:1"></div>';
-  let lastDate = '';
-
-  allMsgs.forEach(m => {
-    const d       = new Date(m.created_at);
-    const dateStr = d.toLocaleDateString('fr-FR', { weekday:'long', day:'2-digit', month:'long' });
-    if (dateStr !== lastDate) {
-      html += `<div class="date-sep"><span>${dateStr}</span></div>`;
-      lastDate = dateStr;
+    // Badge éphémère
+    var epBadge='';
+    if(msg.expires_at){
+      var remaining=Math.max(0,Math.floor((new Date(msg.expires_at)-new Date())/1000));
+      epBadge='<span style="font-size:.58rem;opacity:.7;margin-left:.3rem;">⏱ '+remaining+'s</span>';
     }
-    const isMe = m.sender_id === U.id;
-    const time = d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
-    const init = isMe
-      ? (myProfile?.full_name || 'M')[0].toUpperCase()
-      : (currentOther.name   || '?')[0].toUpperCase();
 
-    html += `
-      <div class="msg-wrap ${isMe ? 'me' : 'them'}">
-        ${!isMe ? `<div class="msg-av">${init}</div>` : ''}
-        <div>
-          <div class="msg-bubble">
-            ${esc(m.content)}
-            <span class="msg-time">${time}</span>
-          </div>
-          ${isMe ? `<div class="msg-status" style="color:${m.read ? '#4DFFB4' : 'rgba(100,120,200,.6)'}">${m.read ? '✓✓ Lu' : '✓ Envoyé'}</div>` : ''}
-        </div>
-        ${isMe ? `<div class="msg-av" style="background:linear-gradient(135deg,var(--orange),var(--gold))">${init}</div>` : ''}
-      </div>`;
+    // Contenu
+    var content='';
+    if(msg.media_url){
+      var isVid=msg.media_type==='video';
+      if(isVid){
+        content='<video src="'+esc(msg.media_url)+'" style="max-width:200px;border-radius:10px;display:block;margin-bottom:.3rem;" controls></video>';
+      }else{
+        content='<img src="'+esc(msg.media_url)+'" style="max-width:200px;border-radius:10px;display:block;margin-bottom:.3rem;cursor:pointer;" onclick="window.open(this.src,\'_blank\')"/>';
+      }
+      if(msg.content)content+='<span>'+esc(msg.content)+'</span>';
+    }else{
+      content=esc(msg.content||'');
+    }
+
+    // Bouton supprimer (uniquement mes messages)
+    var delBtn=isMe?'<button onclick="deleteMessage(\''+msg.id+'\')" style="position:absolute;top:-6px;right:-22px;background:rgba(8,14,42,.08);border:none;border-radius:50%;width:20px;height:20px;font-size:.65rem;cursor:pointer;color:#8892A4;display:flex;align-items:center;justify-content:center;">✕</button>':'';
+
+    html+='<div class="msg-wrap '+(isMe?'me':'them')+'" id="msg-'+msg.id+'" style="position:relative;">'+
+      (!isMe?'<div class="msg-av">'+init+'</div>':'')+
+      '<div style="position:relative;">'+
+        '<div class="msg-bubble">'+content+'<span class="msg-time">'+time+epBadge+'</span></div>'+
+        delBtn+
+        (isMe?'<div class="msg-status" style="color:'+(msg.read?'#4DFFB4':'rgba(100,120,200,.6)')+';">'+(msg.read?'✓✓ Lu':'✓ Envoyé')+'</div>':'')+
+      '</div>'+
+      (isMe?'<div class="msg-av" style="background:linear-gradient(135deg,var(--orange),var(--gold))">'+init+'</div>':'')+
+    '</div>';
   });
-
-  zone.innerHTML = html;
+  zone.innerHTML=html;
   scrollBottom();
 }
 
-/* ══════════ ENVOYER UN MESSAGE ══════════ */
-async function sendMsg() {
-  const inp     = document.getElementById('msgInput');
-  const content = inp.value.trim();
-  if (!content || !currentConvId) return;
-
-  const btn = document.getElementById('sendBtn');
-  btn.disabled = true;
-  inp.value    = '';
-  inp.style.height = 'auto';
-
-  /* Optimistic UI */
-  const temp = {
-    id: 'tmp_' + Date.now(), conversation_id: currentConvId,
-    sender_id: U.id, content, read: false, created_at: new Date().toISOString()
-  };
-  allMsgs.push(temp);
-  renderMessages();
-
-  try {
-    const { data: saved, error } = await sb.from('messages')
-      .insert({ conversation_id: currentConvId, sender_id: U.id, content, read: false })
-      .select().single();
-    if (error) throw error;
-
-    /* Remplacer temporaire */
-    const idx = allMsgs.findIndex(m => m.id === temp.id);
-    if (idx !== -1) allMsgs[idx] = saved;
+/* ── ENVOYER ───────────────────────────── */
+async function sendMsg(){
+  var inp=document.getElementById('msgInput');
+  var content=inp.value.trim();
+  if(!content||!currentConvId)return;
+  var btn=document.getElementById('sendBtn');
+  btn.disabled=true;inp.value='';inp.style.height='auto';
+  var expiresAt=EPHEMERE_DURATION?new Date(Date.now()+EPHEMERE_DURATION*1000).toISOString():null;
+  var temp={id:'tmp_'+Date.now(),conversation_id:currentConvId,sender_id:U.id,content:content,read:false,created_at:new Date().toISOString(),expires_at:expiresAt,media_url:null};
+  allMsgs.push(temp);renderMessages();
+  try{
+    var payload={conversation_id:currentConvId,sender_id:U.id,content:content,read:false};
+    if(expiresAt)payload.expires_at=expiresAt;
+    var r=await sb.from('messages').insert(payload).select().single();
+    if(r.error)throw r.error;
+    var idx=allMsgs.findIndex(function(m){return m.id===temp.id;});
+    if(idx!==-1)allMsgs[idx]=r.data;
     renderMessages();
+    await sb.from('conversations').update({last_message:content.length>60?content.slice(0,60)+'…':content,last_message_at:new Date().toISOString()}).eq('id',currentConvId);
+    await sb.from('notifications').insert({user_id:currentOther.id,title:'💬 Message de '+(myProfile.full_name||'Quelqu\'un'),message:content.length>80?content.slice(0,80)+'…':content,icon:'💬',type:'info',read:false,created_at:new Date().toISOString()});
+  }catch(e){
+    allMsgs=allMsgs.filter(function(m){return m.id!==temp.id;});
+    renderMessages();inp.value=content;
+    showToast('Erreur: '+e.message,'error');
+  }finally{btn.disabled=false;inp.focus();}
+}
 
-    /* Mettre à jour last_message */
-    await sb.from('conversations').update({
-      last_message: content.length > 60 ? content.slice(0,60)+'…' : content,
-      last_message_at: new Date().toISOString()
-    }).eq('id', currentConvId);
-
-    /* Notifier l'autre utilisateur */
-    await sb.from('notifications').insert({
-      user_id: currentOther.id,
-      title:   '💬 Message de ' + (myProfile?.full_name || 'Quelqu\'un'),
-      message: content.length > 80 ? content.slice(0,80)+'…' : content,
-      icon:    '💬', type: 'info', read: false,
-      created_at: new Date().toISOString()
-    });
-
-  } catch(e) {
-    /* Rollback */
-    allMsgs = allMsgs.filter(m => m.id !== temp.id);
+/* ── SUPPRIMER MESSAGE ─────────────────── */
+async function deleteMessage(msgId){
+  if(!confirm('Supprimer ce message ?'))return;
+  try{
+    var r=await sb.from('messages').update({is_deleted:true,content:''}).eq('id',msgId).eq('sender_id',U.id);
+    if(r.error)throw r.error;
+    allMsgs=allMsgs.filter(function(m){return m.id!==msgId;});
     renderMessages();
-    inp.value = content; /* Remettre le texte */
-    showToast('Erreur envoi : ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    inp.focus();
+    showToast('Message supprimé','success');
+  }catch(e){showToast('Erreur: '+e.message,'error');}
+}
+
+/* ── ENVOYER MÉDIA ─────────────────────── */
+async function sendMedia(input){
+  var file=input.files[0];if(!file)return;
+  if(file.size>20*1024*1024){showToast('Fichier trop grand (max 20 Mo)','warning');return;}
+  var isVideo=file.type.startsWith('video/');
+  showToast('Envoi en cours…','info');
+  try{
+    var ext=file.name.split('.').pop();
+    var path=U.id+'/msg-'+Date.now()+'.'+ext;
+    var buckets=['boutique-media','avatars'];
+    var url=null;
+    for(var bi=0;bi<buckets.length;bi++){
+      var up=await sb.storage.from(buckets[bi]).upload(path,file,{upsert:true,contentType:file.type});
+      if(!up.error){url=sb.storage.from(buckets[bi]).getPublicUrl(path).data.publicUrl;break;}
+    }
+    var captionEl=document.getElementById('mediaCaption');
+    var captionText=captionEl?captionEl.value.trim():'';
+    closeMediaModal();
+    var expiresAt=EPHEMERE_DURATION?new Date(Date.now()+EPHEMERE_DURATION*1000).toISOString():null;
+    var payload={conversation_id:currentConvId,sender_id:U.id,content:captionText,read:false,media_url:url||'',media_type:isVideo?'video':'image'};
+    if(expiresAt)payload.expires_at=expiresAt;
+    var r=await sb.from('messages').insert(payload).select().single();
+    if(r.error)throw r.error;
+    allMsgs.push(r.data);renderMessages();
+    await sb.from('conversations').update({last_message:isVideo?'🎥 Vidéo':'📷 Photo',last_message_at:new Date().toISOString()}).eq('id',currentConvId);
+    showToast('Envoyé !','success');
+  }catch(e){showToast('Erreur: '+e.message,'error');}
+  finally{input.value='';}
+}
+
+/* ── MODALS ────────────────────────────── */
+function openMediaModal(){var m=document.getElementById('mediaModal');if(m)m.style.display='flex';}
+function closeMediaModal(){var m=document.getElementById('mediaModal');if(m)m.style.display='none';}
+function openEphemereModal(){var m=document.getElementById('ephemereModal');if(m)m.style.display='flex';}
+function closeEphemereModal(){var m=document.getElementById('ephemereModal');if(m)m.style.display='none';}
+function openGroupModal(){var m=document.getElementById('groupModal');if(m){m.style.display='flex';loadGroupMembers();}}
+function closeGroupModal(){var m=document.getElementById('groupModal');if(m)m.style.display='none';}
+
+function setEphemereDuration(secs,label){
+  EPHEMERE_DURATION=secs;
+  closeEphemereModal();
+  var badge=document.getElementById('ephemereBadge');
+  if(badge){badge.textContent=secs?'⏱ '+label:'';badge.style.display=secs?'inline-block':'none';}
+  showToast(secs?'Messages éphémères: '+label:'Éphémères désactivés','success');
+  clearInterval(EPHEMERE_TIMER);
+  if(secs){
+    EPHEMERE_TIMER=setInterval(function(){
+      allMsgs=allMsgs.filter(function(m){return !m.expires_at||new Date(m.expires_at)>new Date();});
+      renderMessages();
+    },5000);
   }
 }
 
-/* ══════════ REALTIME CHAT ══════════ */
-function startChatRealtime(convId) {
-  if (realtimeChat) sb.removeChannel(realtimeChat);
+/* ── GROUPES ────────────────────────────── */
+async function loadGroupMembers(){
+  var el=document.getElementById('groupMembersList');if(!el)return;
+  el.innerHTML='<div style="font-size:.78rem;color:#8892A4;padding:.5rem;">Chargement…</div>';
+  try{
+    var r=await sb.from('profiles').select('id,full_name').neq('id',U.id).limit(30).order('full_name');
+    if(!r.data||!r.data.length){el.innerHTML='<div style="font-size:.78rem;color:#8892A4;padding:.5rem;">Aucun utilisateur</div>';return;}
+    el.innerHTML=r.data.map(function(p){
+      return '<label style="display:flex;align-items:center;gap:.6rem;padding:.5rem;cursor:pointer;font-size:.82rem;border-bottom:1px solid var(--border);">'+
+        '<input type="checkbox" value="'+p.id+'" style="width:16px;height:16px;cursor:pointer;"/>'+
+        '<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#1B3FE4);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.8rem;flex-shrink:0;">'+p.full_name[0].toUpperCase()+'</div>'+
+        esc(p.full_name)+'</label>';
+    }).join('');
+  }catch(e){el.innerHTML='<div style="font-size:.78rem;color:#E83030;padding:.5rem;">Erreur chargement</div>';}
+}
 
-  realtimeChat = sb.channel('chat_' + convId)
-    /* Nouveau message reçu */
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'messages',
-      filter: 'conversation_id=eq.' + convId
-    }, async (payload) => {
-      const m = payload.new;
-      if (!m || m.sender_id === U.id) return; /* déjà en optimistic */
-      allMsgs.push(m);
+async function creerGroupe(){
+  var nom=(document.getElementById('groupName')||{}).value;
+  nom=nom?nom.trim():'';
+  if(!nom){showToast('Nom du groupe obligatoire','warning');return;}
+  var checked=[].slice.call(document.querySelectorAll('#groupMembersList input:checked')).map(function(i){return i.value;});
+  if(!checked.length){showToast('Sélectionne au moins un membre','warning');return;}
+  try{
+    var members=[U.id].concat(checked);
+    var r=await sb.from('conversations').insert({
+      user1_id:U.id,user2_id:checked[0],
+      group_name:nom,is_group:true,group_members:members,
+      last_message:'Groupe créé',last_message_at:new Date().toISOString()
+    }).select().single();
+    if(r.error)throw r.error;
+    await sb.from('messages').insert({conversation_id:r.data.id,sender_id:U.id,content:'Groupe "'+nom+'" créé ! '+members.length+' membres.',read:false});
+    closeGroupModal();
+    allConvs.unshift(r.data);
+    await loadConversations();
+    await openConv(r.data.id,checked[0]);
+    showToast('Groupe "'+nom+'" créé !','success');
+  }catch(e){showToast('Erreur: '+e.message,'error');}
+}
+
+/* ── BADGE NAV ─────────────────────────── */
+async function updateNavBadge(){
+  try{
+    var convIds=allConvs.map(function(c){return c.id;});
+    if(!convIds.length)return;
+    var r=await sb.from('messages').select('id',{count:'exact',head:true}).in('conversation_id',convIds).eq('read',false).neq('sender_id',U.id);
+    var badge=document.getElementById('navMsgBadge');
+    if(badge){
+      if(r.count>0){badge.textContent=r.count>99?'99+':r.count;badge.style.display='flex';}
+      else badge.style.display='none';
+    }
+  }catch(e){}
+}
+
+/* ── REALTIME ──────────────────────────── */
+function startChatRealtime(){
+  realtimeChat=sb.channel('chat-'+currentConvId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+currentConvId},function(payload){
+      if(payload.new.sender_id===U.id)return;
+      if(payload.new.is_deleted)return;
+      allMsgs.push(payload.new);renderMessages();
+      sb.from('messages').update({read:true}).eq('id',payload.new.id).then(function(){});
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'messages',filter:'conversation_id=eq.'+currentConvId},function(payload){
+      if(payload.new.is_deleted){allMsgs=allMsgs.filter(function(m){return m.id!==payload.new.id;});}
+      else{var idx=allMsgs.findIndex(function(m){return m.id===payload.new.id;});if(idx!==-1)allMsgs[idx]=payload.new;}
       renderMessages();
-      /* Marquer lu immédiatement */
-      await sb.from('messages').update({ read: true }).eq('id', m.id);
-    })
-    /* Mise à jour statut lu */
-    .on('postgres_changes', {
-      event: 'UPDATE', schema: 'public', table: 'messages',
-      filter: 'conversation_id=eq.' + convId
-    }, (payload) => {
-      const idx = allMsgs.findIndex(m => m.id === payload.new.id);
-      if (idx !== -1) { allMsgs[idx] = { ...allMsgs[idx], ...payload.new }; renderMessages(); }
     })
     .subscribe();
 }
-
-/* ══════════ REALTIME LISTE ══════════ */
-function setupListRealtime() {
-  if (realtimeList) sb.removeChannel(realtimeList);
-
-  realtimeList = sb.channel('msglist_' + U.id)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'messages'
-    }, () => {
-      /* Rafraîchir la liste si visible */
-      if (document.getElementById('viewList').style.display !== 'none') {
-        loadConversations();
-      }
-    })
+function setupListRealtime(){
+  realtimeList=sb.channel('convlist-'+U.id)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'conversations'},function(){loadConversations();updateNavBadge();})
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},function(){updateNavBadge();})
     .subscribe();
 }
 
-/* ══════════ RETOUR À LA LISTE ══════════ */
-function backToList() {
-  if (realtimeChat) { sb.removeChannel(realtimeChat); realtimeChat = null; }
-  currentConvId = null; allMsgs = [];
-  document.getElementById('viewChat').style.display = 'none';
-  document.getElementById('viewList').style.display = 'flex';
-  document.getElementById('msgInput').disabled = true;
-  document.getElementById('sendBtn').disabled  = true;
+/* ── UTILS ─────────────────────────────── */
+function backToList(){
+  if(realtimeChat){realtimeChat.unsubscribe();realtimeChat=null;}
+  currentConvId=null;
+  document.getElementById('viewChat').style.display='none';
+  document.getElementById('viewList').style.display='flex';
   loadConversations();
 }
+function contactWA(){var n=(currentOther.wa||'').replace(/\D/g,'');if(n)window.open('https://wa.me/'+n,'_blank');}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function scrollBottom(){var z=document.getElementById('msgsZone');if(z)z.scrollTop=z.scrollHeight;}
+function timeAgo(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);if(s<60)return 'A l\'instant';if(s<3600)return Math.floor(s/60)+'min';if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'j';}
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function showToast(msg,type){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.className='show';if(type==='success')el.style.background='#00C271';else if(type==='error')el.style.background='#E83030';else if(type==='warning')el.style.background='#FF6B1A';else el.style.background='#080E2A';setTimeout(function(){el.className='';el.style.background='';},4000);}
+function loadPremiumBadge(){}
 
-/* ══════════ BADGE PREMIUM DANS HEADER ══════════ */
-async function loadPremiumBadge(userId) {
-  try {
-    const { data } = await sb.from('profiles').select('is_premium').eq('id', userId).single();
-    if (data?.is_premium) {
-      const el = document.getElementById('chName');
-      if (el) el.innerHTML = esc(currentOther.name) + ' <span style="font-size:.75rem;" title="Vendeur Premium vérifié">👑</span>';
-    }
-  } catch(e) {}
+function toggleToolBar(){
+  var tb=document.getElementById('toolBar');
+  if(!tb)return;
+  tb.style.display=tb.style.display==='none'||tb.style.display===''?'flex':'none';
 }
 
-/* ══════════ UTILS ══════════ */
-function contactWA(num) {
-  if (!num) { showToast('Numéro non disponible', 'warning'); return; }
-  let n = num.replace(/[\s\-\.\(\)]/g,'');
-  if (n.startsWith('00')) n = n.slice(2); else n = n.replace(/^\+/,'');
-  if (!['237','225','221','223','226','228','229','241','242','235','224','33','1'].some(p => n.startsWith(p))) n = '237'+n;
-  window.open('https://wa.me/'+n+'?text=Bonjour%2C%20je%20vous%20contacte%20via%20AfriMarket%20%F0%9F%9B%92','_blank');
-}
-
-function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
-function scrollBottom()  { const z=document.getElementById('msgsZone'); setTimeout(()=>{ z.scrollTop=z.scrollHeight; },60); }
-
-function timeAgo(ds) {
-  if (!ds) return '';
-  const d = Math.floor((Date.now()-new Date(ds).getTime())/1000);
-  if (d<60)    return 'À l\'instant';
-  if (d<3600)  return Math.floor(d/60)+'min';
-  if (d<86400) return Math.floor(d/3600)+'h';
-  if (d<604800)return Math.floor(d/86400)+'j';
-  return new Date(ds).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
-}
-
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-let _tt;
-function showToast(msg, type) {
-  const col={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.className='show'; el.style.borderLeftColor=col[type]||'var(--blue2)';
-  clearTimeout(_tt); _tt=setTimeout(()=>{ el.className=''; },4000);
-}
 </script>
+
+<script src="push.js"></script>
 </body>
 </html>
