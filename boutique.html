@@ -514,10 +514,43 @@ function renderHeader(){
     waBtn.style.display = 'inline-flex';
   }
 
+  // Charger et afficher les réseaux sociaux du vendeur
+  chargerReseauxVendeur();
+
   if (SHOP.show_branding) {
     const bf = document.getElementById('brandingFooter');
     if (bf) bf.style.display = 'block';
   }
+}
+
+// ─── RÉSEAUX SOCIAUX VENDEUR ─────────────────────────────────
+async function chargerReseauxVendeur(){
+  if(!SHOP || !SHOP.user_id) return;
+  try{
+    var rp = await sb.from('profiles').select('full_name,facebook,instagram,tiktok,show_social_on_boutique').eq('id', SHOP.user_id).single();
+    if(!rp.data) return;
+    var prof = rp.data;
+    // Respecter la préférence de l'utilisateur (show_social_on_boutique)
+    if(prof.show_social_on_boutique === false) return;
+    var links = [];
+    if(prof.facebook)  links.push({url:prof.facebook,  label:'Facebook',  ico:'<span style="width:24px;height:24px;background:#1877F2;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:.75rem;flex-shrink:0;">f</span>'});
+    if(prof.instagram) links.push({url:prof.instagram, label:'Instagram', ico:'<span style="width:24px;height:24px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;">📸</span>'});
+    if(prof.tiktok)    links.push({url:prof.tiktok,    label:'TikTok',    ico:'<span style="width:24px;height:24px;background:#010101;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:.72rem;flex-shrink:0;">▶</span>'});
+    if(!links.length) return;
+    // Injecter les boutons réseaux sous le bouton WhatsApp
+    var waBtn = document.getElementById('shopWaBtn');
+    if(!waBtn) return;
+    var socialDiv = document.getElementById('shopSocialLinks');
+    if(!socialDiv){
+      socialDiv = document.createElement('div');
+      socialDiv.id = 'shopSocialLinks';
+      socialDiv.style.cssText = 'display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;';
+      waBtn.parentNode.insertBefore(socialDiv, waBtn.nextSibling);
+    }
+    socialDiv.innerHTML = links.map(function(l){
+      return '<a href="'+l.url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;background:rgba(8,14,42,.06);border:1px solid rgba(8,14,42,.08);border-radius:99px;padding:.3rem .75rem .3rem .4rem;font-size:.72rem;font-weight:700;color:#080E2A;">'+l.ico+l.label+'</a>';
+    }).join('');
+  }catch(e){ console.warn('réseaux vendeur:', e.message); }
 }
 
 // ─── CATEGORIES ──────────────────────────────────────────────
