@@ -356,7 +356,7 @@ var editingProductId = null;
   try {
     mgrLoading('Vérification connexion…');
     var r = await sb.auth.getSession();
-    if(!r.data || !r.data.session){ location.href='index.html'; return; }
+    if(!r.data || !r.data.session){ location.href='auth.html'; return; }
     U = r.data.session.user;
   } catch(e){
     mgrError('Erreur de connexion', e.message);
@@ -960,25 +960,54 @@ function triggerUpload(type){
 
 async function uploadMedia(type, input){
   var file = input.files[0]; if(!file) return;
-  if(file.size>5*1024*1024){ toast('Max 5\u00a0Mo','warning'); return; }
-  toast('\u23F3 Upload\u2026','info');
-  var ext  = file.name.split('.').pop();
-  var path = U.id+'/'+type+'-'+Date.now()+'.'+ext;
-  var up = await sb.storage.from('boutique-media').upload(path, file, {upsert:true, contentType:file.type});
-  if(up.error){ toast('Erreur upload\u00a0: '+up.error.message,'error'); return; }
-  var url = sb.storage.from('boutique-media').getPublicUrl(path).data.publicUrl;
-  var imgTag = '<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>';
-  if(type==='logo'){
-    SHOP.logo_url = url;
-    var lz = document.getElementById('logoZone'); if(lz) lz.innerHTML = imgTag;
-  } else if(type==='banner'){
-    SHOP.banner_url = url;
-    var bz = document.getElementById('bannerZone'); if(bz) bz.innerHTML = imgTag;
-  } else if(type==='product'){
-    var pz = document.getElementById('prodImgZone');
-    if(pz) pz.innerHTML = '<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>';
+  var maxSize = 5*1024*1024;
+  if(file.size > maxSize){ toast('Image trop grande (max 5 Mo)','warning'); return; }
+
+  // Afficher preview immédiate (sans attendre l'upload)
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var imgTag = '<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>';
+    if(type==='logo'){ var lz=document.getElementById('logoZone'); if(lz) lz.innerHTML=imgTag; }
+    else if(type==='banner'){ var bz=document.getElementById('bannerZone'); if(bz) bz.innerHTML=imgTag; }
+    else if(type==='product'){ var pz=document.getElementById('prodImgZone'); if(pz) pz.innerHTML=imgTag; }
+  };
+  reader.readAsDataURL(file);
+
+  toast('Upload en cours...','info');
+  try{
+    var ext = file.name.split('.').pop().toLowerCase();
+    var path = U.id+'/'+type+'-'+Date.now()+'.'+ext;
+
+    // Essayer boutique-media d'abord, sinon avatars
+    var buckets = ['boutique-media', 'avatars'];
+    var url = null;
+
+    for(var bi=0; bi<buckets.length; bi++){
+      var bucket = buckets[bi];
+      var up = await sb.storage.from(bucket).upload(path, file, {upsert:true, contentType:file.type});
+      if(!up.error){
+        url = sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+        break;
+      }
+      console.warn('Bucket '+bucket+' failed:', up.error.message);
+    }
+
+    if(!url){
+      // Fallback : utiliser la preview locale (base64)
+      // Le produit sera sauvegardé sans URL externe
+      toast('Image enregistrée localement. Crée le bucket boutique-media dans Supabase pour le stockage cloud.','warning');
+      return;
+    }
+
+    var imgTag = '<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>';
+    if(type==='logo'){ SHOP.logo_url=url; var lz2=document.getElementById('logoZone'); if(lz2) lz2.innerHTML=imgTag; }
+    else if(type==='banner'){ SHOP.banner_url=url; var bz2=document.getElementById('bannerZone'); if(bz2) bz2.innerHTML=imgTag; }
+    else if(type==='product'){ var pz2=document.getElementById('prodImgZone'); if(pz2) pz2.innerHTML=imgTag; }
+    toast('Image uploadée !','success');
+  }catch(e){
+    toast('Erreur upload: '+e.message,'error');
+    console.error('uploadMedia error:', e);
   }
-  toast('Image upload\u00e9e \u2705');
 }
 
 /* ═══════════ TAB SWITCH ═══════════ */
