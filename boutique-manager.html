@@ -329,6 +329,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <script>
 
 'use strict';
+var SITE_PREMIUM_ACTIVE = false; /* Chargé depuis site_config Supabase */
+
 var SB_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
 var sb = supabase.createClient(SB_URL, SB_KEY);
@@ -459,10 +461,9 @@ function renderAll(){
 function renderInfo(){
   var el = document.getElementById('infoContent');
   if(!el) return;
-  var _optPm = P && (P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite');
-  if (!_optPm) { SHOP.show_branding = true; }
-  var _optLock = _optPm ? '' : 'opacity:.5;pointer-events:none;';
-  var _optPremBadge = _optPm ? '' : ' <span style="font-size:.62rem;background:linear-gradient(135deg,#F5B731,#c98a00);color:white;padding:.18rem .45rem;border-radius:99px;font-weight:700;">⭐ Premium</span>';
+  var _optPm = !SITE_PREMIUM_ACTIVE||(P&&(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite'));
+  var _optLock = _optPm?'':'opacity:.5;pointer-events:none;';
+  var _optPremBadge = _optPm ? '' : ' <span style="font-size:.62rem;background:rgba(245,183,49,.15);color:#9a6e00;border-radius:99px;padding:.1rem .5rem;">Premium</span>';
   var _optBrandRow =
     '<div class="toggle-row" style="'+_optLock+'">' +
       '<div class="toggle-info">' +
@@ -564,9 +565,8 @@ function renderDesign(){
     '</div>';
   }).join('');
 
-  var _optPm = P && (P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite');
-  if (!_optPm) { SHOP.show_branding = true; }
-  var _optLock = _optPm ? '' : 'opacity:.5;pointer-events:none;';
+  var _optPm = !SITE_PREMIUM_ACTIVE||(P&&(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite'));
+  var _optLock = _optPm?'':'opacity:.5;pointer-events:none;';
   var _optPremBadge = _optPm ? '' : ' <span style="font-size:.62rem;background:linear-gradient(135deg,#F5B731,#c98a00);color:white;padding:.18rem .45rem;border-radius:99px;font-weight:700;">⭐ Premium</span>';
   var _optBrandRow =
     '<div class="toggle-row" style="'+_optLock+'">' +
@@ -932,9 +932,9 @@ async function saveProd(){
       var idx2 = PRODUCTS.findIndex(function(x){return x.id===editingProductId;});
       if(idx2>-1) PRODUCTS[idx2]=res.data;
     } else {
-      var _isFreeLimit = !P || !(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite');
-      var _maxProd = _isFreeLimit ? 10 : 9999;
-      if(PRODUCTS.length >= _maxProd){ toast('Maximum '+_maxProd+' produits (plan gratuit). Passe à Premium pour plus.','warning'); return; }
+      var _isFreeLimit = SITE_PREMIUM_ACTIVE && !(P&&(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite'));
+      var _maxProd = _isFreeLimit?10:9999;
+      if(PRODUCTS.length >= _maxProd){ toast('Maximum '+_maxProd+' produits. Active Premium pour plus.','warning'); return; }
       res = await sb.from('boutique_products').insert(payload).select().single();
       if(res.error) throw res.error;
       PRODUCTS.push(res.data);
