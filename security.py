@@ -1,29 +1,17 @@
+import os
 from datetime import datetime, timedelta
-from typing import Optional
 from jose import JWTError, jwt
-from fastapi import HTTPException, status, Request
-from config import settings
 
-SECURITY_HEADERS = {
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "X-XSS-Protection": "1; mode=block",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-}
+SECRET_KEY = os.getenv("SECRET_KEY", "afrimarket_secret_2026")
+ALGORITHM = "HS256"
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.utcnow() + timedelta(minutes=60)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def verify_token(token: str) -> dict:
-    try:
-        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalide")
-
-def get_current_user(request: Request) -> Optional[dict]:
+def get_current_user(request):
     token = request.cookies.get("access_token")
     if not token:
         auth = request.headers.get("Authorization", "")
@@ -32,6 +20,6 @@ def get_current_user(request: Request) -> Optional[dict]:
     if not token:
         return None
     try:
-        return verify_token(token)
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except:
         return None
