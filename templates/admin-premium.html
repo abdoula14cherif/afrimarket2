@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Premium — AfriMarket</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{--dark:#080E2A;--blue:#1B3FE4;--turq:#00C2B7;--gold:#F5B731;--orange:#FF6B1A;--red:#E83030;--green:#00C271;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--purple:#7C3AED;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#080E2A,#1B3FE4);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:white;display:flex;align-items:center;gap:.5rem;}
+.topbar-back{color:rgba(255,255,255,.7);font-size:.82rem;text-decoration:none;}
+.wrap{max-width:860px;margin:0 auto;padding:1.5rem 1rem;}
+.banner{border-radius:20px;padding:1.5rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;}
+.banner.free{background:linear-gradient(135deg,rgba(0,194,113,.1),rgba(27,63,228,.08));border:2px solid rgba(0,194,113,.25);}
+.banner.premium{background:linear-gradient(135deg,rgba(245,183,49,.15),rgba(255,107,26,.1));border:2px solid rgba(245,183,49,.4);}
+.banner-ico{font-size:2.5rem;flex-shrink:0;}
+.banner-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.25rem;}
+.banner-desc{font-size:.78rem;color:var(--gray);line-height:1.6;}
+.main-toggle-card{background:white;border-radius:20px;padding:1.5rem;margin-bottom:1.2rem;box-shadow:0 4px 20px rgba(8,14,42,.08);}
+.mtc-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.mtc-left{}
+.mtc-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.2rem;}
+.mtc-sub{font-size:.78rem;color:var(--gray);}
+.big-switch{position:relative;width:72px;height:38px;flex-shrink:0;}
+.big-switch input{opacity:0;width:0;height:0;}
+.big-slider{position:absolute;cursor:pointer;inset:0;background:#D0D5E8;border-radius:99px;transition:.35s;}
+.big-slider:before{content:'';position:absolute;height:30px;width:30px;left:4px;bottom:4px;background:white;border-radius:50%;transition:.35s;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+input:checked+.big-slider{background:linear-gradient(135deg,var(--gold),var(--orange));}
+input:checked+.big-slider:before{transform:translateX(34px);}
+.mode-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:800;padding:.4rem 1rem;border-radius:99px;margin-top:.7rem;}
+.mode-badge.free{background:rgba(0,194,113,.1);color:var(--green);}
+.mode-badge.active{background:rgba(245,183,49,.15);color:#9a6e00;}
+.effects-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem;}
+.effect-item{background:var(--bg);border-radius:12px;padding:.7rem .9rem;font-size:.75rem;display:flex;align-items:center;gap:.5rem;}
+.effect-ico{font-size:1rem;flex-shrink:0;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-bottom:1.2rem;}
+.stat-box{background:white;border-radius:14px;padding:1rem;text-align:center;box-shadow:0 2px 10px rgba(8,14,42,.05);}
+.stat-n{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:.2rem;}
+.stat-l{font-size:.65rem;color:var(--gray);}
+.section-title{font-size:.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin:1.2rem 0 .7rem;}
+.search-bar{background:white;border-radius:12px;padding:.6rem 1rem;display:flex;align-items:center;gap:.6rem;border:1.5px solid var(--border);margin-bottom:.8rem;}
+.search-bar input{flex:1;border:none;outline:none;font-size:.85rem;font-family:'Plus Jakarta Sans',sans-serif;}
+.user-card{background:white;border-radius:16px;padding:.85rem 1rem;margin-bottom:.55rem;display:flex;align-items:center;gap:.8rem;box-shadow:0 2px 8px rgba(8,14,42,.05);}
+.uav{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#1B3FE4);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:.9rem;flex-shrink:0;}
+.uav img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.uinfo{flex:1;}
+.uname{font-weight:700;font-size:.85rem;margin-bottom:.1rem;}
+.uemail{font-size:.68rem;color:var(--gray);}
+.ubadge{font-size:.58rem;font-weight:800;padding:.15rem .5rem;border-radius:99px;margin-left:.35rem;vertical-align:middle;}
+.ubadge.gold{background:rgba(245,183,49,.15);color:#9a6e00;}
+.ubadge.free{background:rgba(8,14,42,.06);color:var(--gray);}
+.ubtn{padding:.4rem .85rem;border-radius:10px;font-size:.73rem;font-weight:700;border:none;cursor:pointer;white-space:nowrap;}
+.ubtn.act{background:rgba(245,183,49,.12);color:#9a6e00;border:1.5px solid rgba(245,183,49,.3);}
+.ubtn.deact{background:rgba(232,48,48,.08);color:var(--red);border:1.5px solid rgba(232,48,48,.2);}
+.spin{width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:2rem auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--dark);color:white;padding:.65rem 1.4rem;border-radius:12px;font-size:.8rem;font-weight:600;opacity:0;pointer-events:none;transition:all .3s;z-index:999;text-align:center;max-width:90vw;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="admin.html" class="topbar-back">&#8592; Admin</a>
+  <div class="topbar-title">&#128081; Gestion Premium</div>
+  <div></div>
+</div>
+
+<div class="wrap">
+
+  <!-- BANNIÈRE ÉTAT ACTUEL -->
+  <div class="banner free" id="bannerState">
+    <div class="banner-ico" id="bannerIco">&#9989;</div>
+    <div>
+      <div class="banner-title" id="bannerTitle">Site en mode Gratuit</div>
+      <div class="banner-desc" id="bannerDesc">Tous les utilisateurs ont accès à toutes les fonctionnalités sans restriction. Le parrainage reste intact.</div>
+    </div>
+  </div>
+
+  <!-- TOGGLE PRINCIPAL -->
+  <div class="main-toggle-card">
+    <div class="mtc-row">
+      <div class="mtc-left">
+        <div class="mtc-title">&#127760; Activer le système Premium</div>
+        <div class="mtc-sub">Quand activé, les utilisateurs sans abonnement Premium auront des restrictions (annonces limitées, boutique limitée, etc.)</div>
+        <div id="modeBadge" class="mode-badge free">&#9679; Mode Gratuit — Tout le monde a accès</div>
+      </div>
+      <label class="big-switch">
+        <input type="checkbox" id="siteSwitch" onchange="toggleSiteMode(this.checked)"/>
+        <span class="big-slider"></span>
+      </label>
+    </div>
+
+    <!-- Effets du mode premium -->
+    <div class="effects-grid" id="effectsGrid">
+      <div class="effect-item" id="ef1">
+        <span class="effect-ico">&#128218;</span>
+        <span id="ef1txt">Annonces : <strong>illimitées</strong></span>
+      </div>
+      <div class="effect-item" id="ef2">
+        <span class="effect-ico">&#127978;</span>
+        <span id="ef2txt">Boutique : <strong>illimitée</strong></span>
+      </div>
+      <div class="effect-item" id="ef3">
+        <span class="effect-ico">&#128200;</span>
+        <span id="ef3txt">Stats boutique : <strong>accessibles</strong></span>
+      </div>
+      <div class="effect-item" id="ef4">
+        <span class="effect-ico">&#129309;</span>
+        <span id="ef4txt">Parrainage : <strong>toujours intact</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-n" id="statTotal">—</div>
+      <div class="stat-l">Utilisateurs</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-n" id="statPrem" style="color:var(--gold);">—</div>
+      <div class="stat-l">Premium actifs</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-n" id="statFree" style="color:var(--blue);">—</div>
+      <div class="stat-l">Gratuits</div>
+    </div>
+  </div>
+
+  <!-- UTILISATEURS -->
+  <div class="section-title">Activer / Retirer le Premium par utilisateur</div>
+  <div style="background:rgba(245,183,49,.08);border:1px solid rgba(245,183,49,.25);border-radius:12px;padding:.75rem 1rem;font-size:.75rem;color:#9a6e00;margin-bottom:.8rem;line-height:1.6;">
+    &#128161; Ces réglages s'appliquent même en mode gratuit global. Un utilisateur Premium gardera ses avantages quand tu activeras le système.
+  </div>
+  <div class="search-bar">
+    <span style="color:var(--gray);">&#128269;</span>
+    <input type="text" id="searchInput" placeholder="Rechercher par nom ou email…" oninput="filterUsers()"/>
+  </div>
+  <div id="userList"><div class="spin"></div></div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+var sb = supabase.createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+var ADMIN = 'abdoula13cherif@gmail.com';
+var U = null;
+var ALL_USERS = [];
+var SITE_PREMIUM_ACTIVE = false;
+
+(async function(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){location.href='auth.html';return;}
+  U = s.data.session.user;
+  if(U.email !== ADMIN){alert('Accès refusé');location.href='dashboard.html';return;}
+  await chargerConfig();
+  await chargerUtilisateurs();
+})();
+
+function fmt(n){return Number(n||0).toLocaleString('fr-FR');}
+var _tt;
+function toast(msg,type){
+  var el=document.getElementById('toast');el.textContent=msg;el.className='show';
+  if(type==='success')el.style.background='#00C271';
+  else if(type==='error')el.style.background='#E83030';
+  else if(type==='warning')el.style.background='#FF6B1A';
+  else el.style.background='#080E2A';
+  clearTimeout(_tt);_tt=setTimeout(function(){el.className='';el.style.background='';},4000);
+}
+
+/* ── CONFIG ─────────────────────────────────────────────── */
+async function chargerConfig(){
+  try{
+    var r=await sb.from('site_config').select('value').eq('key','premium_mode').maybeSingle();
+    SITE_PREMIUM_ACTIVE=!!(r.data&&(r.data.value==='true'||r.data.value===true));
+  }catch(e){
+    SITE_PREMIUM_ACTIVE=false;
+    console.warn('site_config manquant — execute site_config.sql dans Supabase');
+  }
+  updateUI();
+}
+
+function updateUI(){
+  var sw=document.getElementById('siteSwitch');
+  var badge=document.getElementById('modeBadge');
+  var banner=document.getElementById('bannerState');
+  var bannerIco=document.getElementById('bannerIco');
+  var bannerTitle=document.getElementById('bannerTitle');
+  var bannerDesc=document.getElementById('bannerDesc');
+
+  if(sw)sw.checked=SITE_PREMIUM_ACTIVE;
+
+  if(SITE_PREMIUM_ACTIVE){
+    badge.className='mode-badge active';
+    badge.innerHTML='&#128081; Système Premium ACTIF — restrictions en vigueur';
+    banner.className='banner premium';
+    bannerIco.textContent='&#128081;';
+    bannerTitle.textContent='Système Premium activé';
+    bannerDesc.textContent='Les utilisateurs sans abonnement Premium ont des restrictions. Les Premium ont un accès complet.';
+    document.getElementById('ef1txt').innerHTML='Annonces : <strong>10/mois (gratuit)</strong> · illimité (Premium)';
+    document.getElementById('ef2txt').innerHTML='Boutique : <strong>10 produits (gratuit)</strong> · illimité (Premium)';
+    document.getElementById('ef3txt').innerHTML='Stats boutique : <strong>Premium uniquement</strong>';
+  }else{
+    badge.className='mode-badge free';
+    badge.innerHTML='&#9989; Mode Gratuit — Tout le monde a accès complet';
+    banner.className='banner free';
+    bannerIco.textContent='&#9989;';
+    bannerTitle.textContent='Site en mode Gratuit';
+    bannerDesc.textContent='Tous les utilisateurs ont accès à toutes les fonctionnalités sans restriction. Parrainage intact.';
+    document.getElementById('ef1txt').innerHTML='Annonces : <strong>illimitées pour tous</strong>';
+    document.getElementById('ef2txt').innerHTML='Boutique : <strong>illimitée pour tous</strong>';
+    document.getElementById('ef3txt').innerHTML='Stats boutique : <strong>accessibles à tous</strong>';
+  }
+}
+
+async function toggleSiteMode(checked){
+  var prev=SITE_PREMIUM_ACTIVE;
+  SITE_PREMIUM_ACTIVE=checked;
+  updateUI();
+  try{
+    var r=await sb.from('site_config').upsert(
+      {key:'premium_mode',value:checked?'true':'false',updated_at:new Date().toISOString()},
+      {onConflict:'key'}
+    );
+    if(r.error)throw r.error;
+    if(checked){
+      toast('&#128081; Système Premium activé ! Les restrictions sont en vigueur.','warning');
+    }else{
+      toast('&#9989; Mode gratuit global. Tout le monde a accès complet.','success');
+    }
+  }catch(e){
+    toast('Erreur: '+e.message+' — Execute site_config.sql dans Supabase','error');
+    SITE_PREMIUM_ACTIVE=prev;
+    updateUI();
+    var sw=document.getElementById('siteSwitch');
+    if(sw)sw.checked=prev;
+  }
+}
+
+/* ── UTILISATEURS ────────────────────────────────────────── */
+async function chargerUtilisateurs(){
+  var el=document.getElementById('userList');
+  el.innerHTML='<div class="spin"></div>';
+  try{
+    var r=await sb.from('profiles').select('id,full_name,email,avatar_url,is_premium,plan,created_at').order('created_at',{ascending:false}).limit(100);
+    if(r.error)throw r.error;
+    ALL_USERS=r.data||[];
+    var prem=ALL_USERS.filter(function(u){return u.is_premium;}).length;
+    document.getElementById('statTotal').textContent=fmt(ALL_USERS.length);
+    document.getElementById('statPrem').textContent=fmt(prem);
+    document.getElementById('statFree').textContent=fmt(ALL_USERS.length-prem);
+    renderUsers(ALL_USERS);
+  }catch(e){
+    el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--red);font-size:.85rem;">'+esc(e.message)+'</div>';
+  }
+}
+
+function filterUsers(){
+  var q=document.getElementById('searchInput').value.trim().toLowerCase();
+  renderUsers(q?ALL_USERS.filter(function(u){return (u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q);}):ALL_USERS);
+}
+
+function renderUsers(users){
+  var el=document.getElementById('userList');
+  if(!users.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.85rem;">Aucun utilisateur</div>';return;}
+  el.innerHTML='';
+  users.forEach(function(u,idx){
+    var div=document.createElement('div');
+    div.className='user-card';
+    var name=u.full_name||'Utilisateur';
+    var email=u.email||u.id.slice(0,16)+'…';
+    var isPrem=u.is_premium||false;
+    var d=new Date(u.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+    div.innerHTML=
+      '<div class="uav">'+(u.avatar_url?'<img src="'+esc(u.avatar_url)+'"/>':name[0].toUpperCase())+'</div>'+
+      '<div class="uinfo">'+
+        '<div class="uname">'+esc(name)+'<span class="ubadge '+(isPrem?'gold':'free')+'">'+(isPrem?'&#128081; Premium':'Gratuit')+'</span></div>'+
+        '<div class="uemail">'+esc(email)+' &nbsp;&#183;&nbsp; '+d+'</div>'+
+      '</div>'+
+      '<button id="ubtn-'+idx+'" class="ubtn '+(isPrem?'deact':'act')+'">'+(isPrem?'&#10005; Retirer':'&#128081; Activer')+'</button>';
+    el.appendChild(div);
+    document.getElementById('ubtn-'+idx).addEventListener('click',(function(uid,userIdx,wasPrem,uname){
+      return function(){toggleUserPremium(uid,userIdx,wasPrem,uname);};
+    })(u.id,idx,isPrem,name));
+  });
+}
+
+async function toggleUserPremium(userId,idx,currentlyPrem,name){
+  var newVal=!currentlyPrem;
+  var btn=document.getElementById('ubtn-'+idx);
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
+    var r=await sb.from('profiles').update({
+      is_premium:newVal,
+      plan:newVal?'premium':'free',
+      plan_expires:newVal?new Date(Date.now()+365*24*3600*1000).toISOString():null
+    }).eq('id',userId);
+    if(r.error)throw r.error;
+    var u=ALL_USERS.find(function(x){return x.id===userId;});
+    if(u){u.is_premium=newVal;u.plan=newVal?'premium':'free';}
+    var prem=ALL_USERS.filter(function(u2){return u2.is_premium;}).length;
+    document.getElementById('statPrem').textContent=fmt(prem);
+    document.getElementById('statFree').textContent=fmt(ALL_USERS.length-prem);
+    toast((newVal?'&#128081; Premium activé pour ':'Gratuit — Premium retiré pour ')+name,(newVal?'success':'warning'));
+    renderUsers(ALL_USERS);
+  }catch(e){
+    toast('Erreur: '+e.message,'error');
+    if(btn){btn.disabled=false;btn.textContent=currentlyPrem?'&#10005; Retirer':'&#128081; Activer';}
+  }
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+</script>
+</body>
+</html>

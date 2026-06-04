@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AfriMarket — Historique</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#080E2A"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --blue:   #1B3FE4;
+      --blue2:  #2D55FF;
+      --red:    #E83030;
+      --orange: #FF6B1A;
+      --turq:   #00C2B7;
+      --white:  #FFFFFF;
+      --bg:     #F2F5FF;
+      --dark:   #080E2A;
+      --gray:   #8892A8;
+      --border: #E4E9F8;
+      --nav-h:  72px;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding-bottom: calc(var(--nav-h) + 16px);
+      overflow-x: hidden;
+    }
+
+    /* ===== SPLASH ===== */
+    #splash {
+      position: fixed; inset:0; z-index:10000;
+      background: var(--dark);
+      display: flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:1.5rem;
+      transition: opacity .6s ease, visibility .6s ease;
+    }
+    #splash.done { opacity:0; visibility:hidden; pointer-events:none; }
+    .splash-logo {
+      font-family:'Clash Display',sans-serif;
+      font-size:2.8rem; font-weight:700; letter-spacing:-2px;
+      animation: logoIn .7s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .splash-logo .sa{color:var(--turq)} .splash-logo .sm{color:var(--orange)}
+    @keyframes logoIn {
+      from{opacity:0;transform:scale(.7) translateY(16px)}
+      to  {opacity:1;transform:scale(1) translateY(0)}
+    }
+    .splash-page {
+      color:rgba(255,255,255,.4); font-size:.75rem;
+      letter-spacing:3px; text-transform:uppercase;
+      animation: fadeUp .5s .25s both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .splash-bar-wrap {
+      width:180px; height:3px;
+      background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden;
+    }
+    .splash-bar {
+      height:100%;
+      background:linear-gradient(90deg,var(--turq),var(--blue2),var(--orange));
+      border-radius:99px;
+      animation:splashProg 2.5s ease-out forwards;
+    }
+    @keyframes splashProg{from{width:0}to{width:100%}}
+
+    /* ===== HEADER ===== */
+    .header {
+      position:sticky; top:0; z-index:100;
+      background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);
+      height:60px; padding:0 1.2rem;
+      display:flex; align-items:center; justify-content:space-between;
+      box-shadow:0 4px 24px rgba(8,14,42,.35);
+    }
+    .header-left { display:flex; align-items:center; gap:.8rem; }
+    .btn-back {
+      width:36px; height:36px; border-radius:50%;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:1rem; color:white;
+      transition:background .2s;
+    }
+    .btn-back:hover { background:rgba(255,255,255,.18); }
+    .header-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.15rem; font-weight:700; color:white; letter-spacing:-.5px;
+    }
+    .header-logo {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.2rem; font-weight:700; letter-spacing:-1px;
+    }
+    .header-logo .la{color:var(--turq)} .header-logo .lm{color:var(--orange)}
+
+    /* ===== STATS BANNER ===== */
+    .stats-banner {
+      margin:1rem 1.2rem;
+      background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 60%,#0a2a55 100%);
+      border-radius:22px; padding:1.3rem 1.4rem;
+      position:relative; overflow:hidden;
+      box-shadow:0 8px 32px rgba(27,63,228,.25);
+    }
+    .stats-banner::before {
+      content:''; position:absolute;
+      width:220px; height:220px; border-radius:50%;
+      background:rgba(255,255,255,.04); right:-60px; top:-70px;
+    }
+    .stats-banner::after {
+      content:''; position:absolute;
+      width:140px; height:140px; border-radius:50%;
+      background:rgba(0,194,183,.12); right:20px; bottom:-50px;
+    }
+    .stats-title {
+      color:rgba(255,255,255,.5); font-size:.72rem; letter-spacing:1.5px;
+      text-transform:uppercase; margin-bottom:.9rem; position:relative; z-index:1;
+    }
+    .stats-row {
+      display:flex; gap:0; position:relative; z-index:1;
+    }
+    .stat-item {
+      flex:1; text-align:center; position:relative;
+    }
+    .stat-item:not(:last-child)::after {
+      content:''; position:absolute; right:0; top:15%; height:70%;
+      width:1px; background:rgba(255,255,255,.1);
+    }
+    .stat-num {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.8rem; font-weight:700; color:white; line-height:1;
+      display:block;
+    }
+    .stat-num.turq { color:var(--turq); }
+    .stat-num.orange { color:var(--orange); }
+    .stat-num.red { color:#FF6B6B; }
+    .stat-lbl { color:rgba(255,255,255,.4); font-size:.68rem; margin-top:.3rem; display:block; }
+
+    /* ===== FILTER TABS ===== */
+    .filter-row {
+      display:flex; gap:.5rem; padding:.2rem 1.2rem 1rem;
+      overflow-x:auto; scrollbar-width:none;
+    }
+    .filter-row::-webkit-scrollbar { display:none; }
+    .ftab {
+      padding:.38rem .9rem; border-radius:99px; border:none; cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.76rem; font-weight:600;
+      white-space:nowrap; transition:all .2s; flex-shrink:0;
+    }
+    .ftab.active { background:var(--blue2); color:white; box-shadow:0 4px 12px rgba(45,85,255,.35); }
+    .ftab:not(.active) { background:white; color:var(--gray); border:1px solid var(--border); }
+
+    /* ===== ADS LIST ===== */
+    .ads-list { padding:0 1.2rem; display:flex; flex-direction:column; gap:.9rem; }
+
+    /* SKELETON */
+    .skeleton {
+      background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);
+      background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:10px;
+    }
+    @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+    .skel-card {
+      background:white; border-radius:20px; border:1px solid var(--border);
+      display:flex; gap:.9rem; padding:.9rem; overflow:hidden;
+    }
+    .skel-img { width:80px; height:80px; border-radius:14px; flex-shrink:0; }
+    .skel-body { flex:1; display:flex; flex-direction:column; gap:.5rem; padding-top:.2rem; }
+    .skel-line { height:10px; border-radius:6px; }
+    .skel-line.s60 { width:60%; }
+    .skel-line.s40 { width:40%; }
+
+    /* AD ROW CARD */
+    .ad-row {
+      background:white; border-radius:20px; border:1px solid var(--border);
+      box-shadow:0 2px 14px rgba(27,63,228,.06);
+      overflow:hidden; animation:cardIn .35s ease both;
+      transition:box-shadow .2s;
+    }
+    .ad-row:hover { box-shadow:0 6px 24px rgba(27,63,228,.12); }
+    @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+    .ad-row-main { display:flex; gap:.9rem; padding:.9rem; align-items:flex-start; }
+    .ad-row-img {
+      width:82px; height:82px; border-radius:14px; flex-shrink:0;
+      overflow:hidden; background:linear-gradient(135deg,#E8EEFF,#F0F4FF);
+      display:flex; align-items:center; justify-content:center; font-size:1.8rem;
+    }
+    .ad-row-img img { width:100%; height:100%; object-fit:cover; }
+
+    .ad-row-info { flex:1; min-width:0; }
+    .ad-row-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:.95rem; font-weight:700; color:var(--dark);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:.25rem;
+    }
+    .ad-row-price {
+      font-size:.88rem; font-weight:700;
+      background:linear-gradient(90deg,var(--blue),var(--turq));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      margin-bottom:.3rem;
+    }
+    .ad-row-meta { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .ad-meta-tag {
+      font-size:.65rem; color:var(--gray); font-weight:500;
+      background:var(--bg); padding:.18rem .5rem; border-radius:99px;
+    }
+    .ad-status {
+      font-size:.62rem; font-weight:700; padding:.2rem .6rem; border-radius:99px;
+      letter-spacing:.3px; text-transform:uppercase;
+    }
+    .status-active { background:#E8FDF5; color:#00A878; }
+    .status-inactive { background:#FFF3E0; color:var(--orange); }
+
+    /* ACTIONS ROW */
+    .ad-row-actions {
+      display:flex; border-top:1px solid var(--border);
+    }
+    .action-btn {
+      flex:1; padding:.65rem .5rem;
+      border:none; background:none; cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.74rem; font-weight:600;
+      display:flex; align-items:center; justify-content:center; gap:.3rem;
+      transition:background .18s, color .18s;
+    }
+    .action-btn:not(:last-child) { border-right:1px solid var(--border); }
+    .action-btn.view   { color:var(--blue2); }
+    .action-btn.edit   { color:var(--orange); }
+    .action-btn.renew  { color:var(--turq); }
+    .action-btn.toggle { color:var(--gray); }
+    .action-btn.del    { color:var(--red); }
+    .action-btn:hover  { background:var(--bg); }
+    .action-btn.del:hover { background:#FFF0F0; }
+
+    .ad-boost-bar {
+      padding:.55rem .9rem;
+      background:linear-gradient(135deg,rgba(27,63,228,.03),rgba(0,194,183,.04));
+      border-top:1px dashed rgba(27,63,228,.12);
+    }
+    .boost-btn {
+      width:100%; padding:.5rem; border-radius:10px; border:1.5px dashed rgba(255,107,26,.3);
+      background:rgba(255,107,26,.04); color:var(--orange);
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.72rem; font-weight:700;
+      cursor:pointer; transition:all .2s; text-align:center;
+    }
+    .boost-btn:hover { background:rgba(255,107,26,.1); border-color:var(--orange); }
+    .boost-tag { background:rgba(255,107,26,.1)!important; color:var(--orange)!important; font-weight:700; }
+
+    /* EMPTY */
+    .empty-state {
+      display:flex; flex-direction:column; align-items:center;
+      text-align:center; padding:4rem 1rem; gap:.8rem;
+    }
+    .empty-ico { font-size:4rem; }
+    .empty-state h3 {
+      font-family:'Clash Display',sans-serif; font-size:1.15rem; color:var(--dark);
+    }
+    .empty-state p { color:var(--gray); font-size:.82rem; line-height:1.5; }
+    .btn-publish-empty {
+      margin-top:.5rem; padding:.75rem 1.8rem; border-radius:99px; border:none;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white; font-family:'Clash Display',sans-serif;
+      font-size:.9rem; font-weight:700; cursor:pointer;
+      box-shadow:0 6px 20px rgba(27,63,228,.35);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .btn-publish-empty:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(27,63,228,.45); }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position:fixed; bottom:0; left:0; right:0; z-index:200;
+      height:var(--nav-h); background:white;
+      border-top:1px solid var(--border);
+      display:flex; align-items:center;
+      box-shadow:0 -8px 32px rgba(27,63,228,.1);
+      border-radius:24px 24px 0 0;
+    }
+    .nav-item {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:4px; cursor:pointer; border:none; background:none;
+      transition:all .25s; position:relative; padding-bottom:4px;
+    }
+    .nav-item:hover { background:rgba(27,63,228,.03); }
+    .nav-ico { font-size:1.35rem; transition:transform .25s; line-height:1; }
+    .nav-lbl { font-size:.62rem; font-weight:600; color:var(--gray); letter-spacing:.3px; transition:color .25s; }
+    .nav-item.active .nav-lbl { color:var(--blue2); }
+    .nav-item.active .nav-ico { transform:scale(1.1); }
+    .nav-item.active::before {
+      content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:32px; height:3px; border-radius:0 0 6px 6px;
+      background:linear-gradient(90deg,var(--blue),var(--turq));
+    }
+    .nav-item.nav-plus { margin-top:0; }
+    .nav-plus-btn {
+      width:54px; height:54px; border-radius:18px;
+      background:linear-gradient(135deg,var(--blue),var(--blue2),#4F7AFF);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.5rem; box-shadow:0 8px 24px rgba(27,63,228,.45);
+      border:none; cursor:pointer; transition:transform .2s, box-shadow .2s;
+    }
+    .nav-plus-btn:hover { transform:scale(1.1) rotate(5deg); box-shadow:0 12px 32px rgba(27,63,228,.5); }
+    .nav-item.nav-plus .nav-lbl { margin-top:2px; }
+
+    /* ===== EDIT MODAL ===== */
+    .modal-overlay {
+      position:fixed; inset:0; z-index:500;
+      background:rgba(8,14,42,.6); backdrop-filter:blur(6px);
+      display:flex; align-items:flex-end;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:white; border-radius:28px 28px 0 0;
+      width:100%; max-height:92vh; overflow-y:auto;
+      padding:1.5rem 1.4rem 2.5rem;
+      transform:translateY(100%);
+      transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal-overlay.open .modal { transform:translateY(0); }
+    .modal-handle {
+      width:40px; height:4px; border-radius:99px;
+      background:var(--border); margin:0 auto 1.3rem;
+    }
+    .modal-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.25rem; font-weight:700; color:var(--dark); margin-bottom:1.2rem;
+    }
+    .edit-field { display:flex; flex-direction:column; gap:.32rem; margin-bottom:.85rem; }
+    .edit-field label {
+      font-size:.7rem; font-weight:700; color:var(--dark);
+      letter-spacing:.7px; text-transform:uppercase;
+    }
+    .edit-field input, .edit-field textarea, .edit-field select {
+      width:100%; padding:.7rem 1rem;
+      border:1.5px solid var(--border); border-radius:12px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.87rem; color:var(--dark);
+      background:#FAFBFF; outline:none; resize:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .edit-field input:focus, .edit-field textarea:focus, .edit-field select:focus {
+      border-color:var(--blue2); box-shadow:0 0 0 3px rgba(45,85,255,.1); background:white;
+    }
+    .edit-row { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+
+    /* IMAGE EDIT */
+    .img-edit-zone {
+      border:2px dashed var(--border); border-radius:14px;
+      padding:1rem; text-align:center; cursor:pointer;
+      transition:border-color .2s, background .2s; position:relative;
+    }
+    .img-edit-zone:hover { border-color:var(--blue2); background:#FAFBFF; }
+    .img-edit-zone.has-img { border-style:solid; border-color:var(--turq); padding:.4rem; }
+    .img-edit-zone input[type=file] {
+      position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+    }
+    .edit-img-preview { width:100%; height:130px; object-fit:cover; border-radius:10px; }
+    .edit-img-placeholder { font-size:.78rem; color:var(--gray); font-weight:500; }
+    .edit-img-ico { font-size:1.5rem; margin-bottom:.3rem; }
+
+    .btn-save {
+      width:100%; padding:.85rem; border:none; border-radius:14px;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white; font-family:'Clash Display',sans-serif;
+      font-size:1rem; font-weight:700; cursor:pointer; margin-top:.5rem;
+      display:flex; align-items:center; justify-content:center; gap:.5rem;
+      transition:transform .2s, box-shadow .2s;
+    }
+    .btn-save:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(27,63,228,.4); }
+    .btn-save:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .spin-sm {
+      width:16px; height:16px; border:2px solid rgba(255,255,255,.3);
+      border-top-color:white; border-radius:50%;
+      animation:spin .6s linear infinite; display:none;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .btn-save.loading .spin-sm { display:block; }
+    .btn-save.loading .save-lbl { display:none; }
+
+    /* ===== DELETE CONFIRM MODAL ===== */
+    .del-overlay {
+      position:fixed; inset:0; z-index:600;
+      background:rgba(8,14,42,.7); backdrop-filter:blur(8px);
+      display:flex; align-items:center; justify-content:center;
+      padding:1.5rem;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .del-overlay.open { opacity:1; pointer-events:all; }
+    .del-card {
+      background:white; border-radius:24px; padding:2rem 1.6rem;
+      width:100%; max-width:340px; text-align:center;
+      transform:scale(.85); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      box-shadow:0 20px 60px rgba(8,14,42,.3);
+    }
+    .del-overlay.open .del-card { transform:scale(1); }
+    .del-ico { font-size:3rem; margin-bottom:.8rem; }
+    .del-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.2rem; font-weight:700; color:var(--dark); margin-bottom:.5rem;
+    }
+    .del-sub { color:var(--gray); font-size:.82rem; line-height:1.5; margin-bottom:1.5rem; }
+    .del-actions { display:flex; gap:.8rem; }
+    .btn-cancel {
+      flex:1; padding:.75rem; border-radius:14px;
+      border:1.5px solid var(--border); background:white;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.88rem;
+      font-weight:700; color:var(--gray); cursor:pointer;
+      transition:border-color .2s, color .2s;
+    }
+    .btn-cancel:hover { border-color:var(--dark); color:var(--dark); }
+    .btn-delete-confirm {
+      flex:1; padding:.75rem; border-radius:14px; border:none;
+      background:linear-gradient(135deg,var(--red),#FF5252);
+      color:white; font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.88rem; font-weight:700; cursor:pointer;
+      box-shadow:0 6px 18px rgba(232,48,48,.35);
+      transition:transform .2s, box-shadow .2s;
+      display:flex; align-items:center; justify-content:center; gap:.4rem;
+    }
+    .btn-delete-confirm:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(232,48,48,.45); }
+    .btn-delete-confirm:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position:fixed; bottom:calc(var(--nav-h) + 12px); right:1rem;
+      max-width:300px; background:var(--dark); color:white;
+      padding:.8rem 1.2rem; border-radius:14px; font-size:.83rem; font-weight:500;
+      box-shadow:0 8px 32px rgba(0,0,0,.2); z-index:9999;
+      display:flex; align-items:center; gap:.6rem;
+      transform:translateY(20px); opacity:0;
+      transition:all .4s cubic-bezier(.34,1.56,.64,1);
+      border-left:3px solid var(--turq);
+    }
+    #toast.show { transform:translateY(0); opacity:1; }
+
+    @media(min-width:900px){
+      body { max-width:480px; margin:0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SPLASH ===== -->
+<div id="splash">
+  <div class="splash-logo"><span class="sa">Afri</span><span class="sm">Market</span></div>
+  <div class="splash-page">Historique</div>
+  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="header-left">
+    <div class="btn-back" onclick="window.location.href='dashboard.html'">←</div>
+    <div class="header-title">Mes annonces</div>
+  </div>
+  <div class="header-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+</div>
+
+<!-- ===== STATS BANNER ===== -->
+<div class="stats-banner">
+  <div class="stats-title">Vue d'ensemble</div>
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-num" id="statTotal">—</span>
+      <span class="stat-lbl">Total</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num turq" id="statActive">—</span>
+      <span class="stat-lbl">Actives</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num orange" id="statViews">—</span>
+      <span class="stat-lbl">Vues</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num red" id="statInactive">—</span>
+      <span class="stat-lbl">Inactives</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FILTER TABS ===== -->
+<div class="filter-row">
+  <button class="ftab active" onclick="setFilter('all',this)">Toutes</button>
+  <button class="ftab" onclick="setFilter('active',this)">Actives</button>
+  <button class="ftab" onclick="setFilter('inactive',this)">Inactives</button>
+  <button class="ftab" onclick="setFilter('immobilier',this)">🏠 Immobilier</button>
+  <button class="ftab" onclick="setFilter('vehicules',this)">🚗 Véhicules</button>
+  <button class="ftab" onclick="setFilter('electronique',this)">📱 Électronique</button>
+  <button class="ftab" onclick="setFilter('mode',this)">👗 Mode</button>
+  <button class="ftab" onclick="setFilter('services',this)">🛠️ Services</button>
+  <button class="ftab" onclick="setFilter('emploi',this)">💼 Emploi</button>
+  <button class="ftab" onclick="setFilter('alimentation',this)">🥘 Alimentaire</button>
+</div>
+
+<!-- ===== ADS LIST ===== -->
+<div class="ads-list" id="adsList">
+  <!-- Skeletons -->
+  <div class="skel-card">
+    <div class="skel-img skeleton"></div>
+    <div class="skel-body">
+      <div class="skel-line skeleton"></div>
+      <div class="skel-line s60 skeleton"></div>
+      <div class="skel-line s40 skeleton"></div>
+    </div>
+  </div>
+  <div class="skel-card">
+    <div class="skel-img skeleton"></div>
+    <div class="skel-body">
+      <div class="skel-line skeleton"></div>
+      <div class="skel-line s60 skeleton"></div>
+      <div class="skel-line s40 skeleton"></div>
+    </div>
+  </div>
+  <div class="skel-card">
+    <div class="skel-img skeleton"></div>
+    <div class="skel-body">
+      <div class="skel-line skeleton"></div>
+      <div class="skel-line s60 skeleton"></div>
+      <div class="skel-line s40 skeleton"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="location.href='dashboard.html'">
+    <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
+  </button>
+  <button class="nav-item " onclick="location.href='messages.html'">
+    <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
+  </button>
+  <div class="nav-item nav-plus">
+    <div class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</div>
+    <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
+  </div>
+  <button class="nav-item " onclick="location.href='favoris.html'">
+    <span class="nav-ico">❤️</span><span class="nav-lbl">Favoris</span>
+  </button>
+  <button class="nav-item " onclick="location.href='profil.html'">
+    <span class="nav-ico">👤</span><span class="nav-lbl">Profil</span>
+  </button>
+</nav>
+
+<!-- ===== EDIT MODAL ===== -->
+<div class="modal-overlay" id="editOverlay" onclick="closeEdit(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Modifier l'annonce</div>
+
+    <form id="editForm" novalidate>
+      <input type="hidden" id="e_id"/>
+      <input type="hidden" id="e_old_img"/>
+
+      <div class="edit-field">
+        <label>Photo</label>
+        <div class="img-edit-zone" id="editImgZone">
+          <input type="file" id="e_img" accept="image/*" onchange="previewEditImg(event)"/>
+          <div id="editImgContent">
+            <div class="edit-img-ico">📷</div>
+            <div class="edit-img-placeholder">Changer la photo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-field">
+        <label>Titre *</label>
+        <input type="text" id="e_title" placeholder="Titre de l'annonce"/>
+      </div>
+
+      <div class="edit-field">
+        <label>Description *</label>
+        <textarea id="e_desc" rows="3" placeholder="Description…"></textarea>
+      </div>
+
+      <div class="edit-row">
+        <div class="edit-field">
+          <label>Prix (FCFA)</label>
+          <input type="number" id="e_price" placeholder="150000"/>
+        </div>
+        <div class="edit-field">
+          <label>Catégorie *</label>
+          <select id="e_cat">
+            <option value="">Choisir…</option>
+            <option value="immobilier">🏠 Immobilier</option>
+            <option value="vehicules">🚗 Véhicules</option>
+            <option value="electronique">📱 Électronique</option>
+            <option value="mode">👗 Mode</option>
+            <option value="services">🛠️ Services</option>
+            <option value="emploi">💼 Emploi</option>
+            <option value="alimentation">🥘 Alimentaire</option>
+            <option value="autres">📦 Autres</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="edit-row">
+        <div class="edit-field">
+          <label>Ville *</label>
+          <input type="text" id="e_ville" placeholder="Abidjan"/>
+        </div>
+        <div class="edit-field">
+          <label>WhatsApp</label>
+          <input type="tel" id="e_wa" placeholder="+225 07…"/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-save" id="btnSave">
+        <div class="spin-sm"></div>
+        <span class="save-lbl">💾 Enregistrer les modifications</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== DELETE CONFIRM ===== -->
+<div class="del-overlay" id="delOverlay">
+  <div class="del-card">
+    <div class="del-ico">🗑️</div>
+    <div class="del-title">Supprimer l'annonce ?</div>
+    <div class="del-sub">Cette action est irréversible. Votre annonce sera définitivement supprimée.</div>
+    <div class="del-actions">
+      <button class="btn-cancel" onclick="closeDel()">Annuler</button>
+      <button class="btn-delete-confirm" id="btnDelConfirm">
+        <span id="delBtnTxt">🗑️ Supprimer</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><span id="tIco"></span><span id="tMsg"></span></div>
+
+<script>
+// ===== SUPABASE =====
+const { createClient } = supabase;
+const sb = createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+// ===== SPLASH (2.5s) =====
+setTimeout(() => document.getElementById('splash').classList.add('done'), 2500);
+
+// ===== STATE =====
+let allAds = [];
+let filteredAds = [];
+let currentFilter = 'all';
+let currentUser = null;
+let adToDelete = null;
+
+const EMOJI_MAP = {
+  immobilier:'🏠', vehicules:'🚗', electronique:'📱',
+  mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦'
+};
+
+// ===== TOAST =====
+let tt;
+function showToast(msg, type='success') {
+  const icons = {success:'✅', error:'❌', warning:'⚠️', info:'ℹ️'};
+  document.getElementById('tIco').textContent = icons[type]||'💬';
+  document.getElementById('tMsg').textContent = msg;
+  const el = document.getElementById('toast');
+  el.className = 'show';
+  el.style.borderLeftColor = type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt);
+  tt = setTimeout(()=>el.className='', 3800);
+}
+
+// ===== FORMAT =====
+function fmtPrice(n) {
+  if (!n && n!==0) return 'Prix à débattre';
+  return Number(n).toLocaleString('fr-FR') + ' FCFA';
+}
+function timeAgo(d) {
+  if (!d) return '';
+  const s = Math.floor((Date.now()-new Date(d))/1000);
+  if (s<60) return 'À l\'instant';
+  if (s<3600) return `Il y a ${Math.floor(s/60)} min`;
+  if (s<86400) return `Il y a ${Math.floor(s/3600)} h`;
+  return `Il y a ${Math.floor(s/86400)} j`;
+}
+
+// ===== INIT =====
+let _isPremium = false;
+let SITE_PREMIUM_ACTIVE = false;
+
+async function init() {
+  try{
+    const { data:cfgH } = await sb.from('site_config').select('value').eq('key','premium_mode').maybeSingle();
+    SITE_PREMIUM_ACTIVE = !!(cfgH && (cfgH.value==='true'||cfgH.value===true));
+  }catch(e){ SITE_PREMIUM_ACTIVE=false; }
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'index.html'; return; }
+  currentUser = session.user;
+  // Vérifier si l'utilisateur est Premium
+  const { data: prof } = await sb.from('profiles').select('is_premium').eq('id', currentUser.id).maybeSingle();
+  _isPremium = SITE_PREMIUM_ACTIVE ? (prof?.is_premium === true) : true;
+  loadAds();
+}
+
+// ===== LOAD =====
+async function loadAds() {
+  try {
+    const { data, error } = await sb
+      .from('annonces')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    allAds = data || [];
+    updateStats();
+    applyFilter();
+  } catch(err) {
+    console.error(err);
+    allAds = [];
+    renderList([]);
+    showToast('Erreur de chargement', 'error');
+  }
+}
+
+// ===== STATS =====
+function updateStats() {
+  const total    = allAds.length;
+  const active   = allAds.filter(a=>a.actif!==false).length;
+  const inactive = total - active;
+  const views    = allAds.reduce((s,a)=>(s+(a.vues||0)),0);
+  document.getElementById('statTotal').textContent    = total;
+  document.getElementById('statActive').textContent   = active;
+  document.getElementById('statViews').textContent    = views;
+  document.getElementById('statInactive').textContent = inactive;
+}
+
+// ===== FILTER =====
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter() {
+  let ads = [...allAds];
+  if (currentFilter === 'active')   ads = ads.filter(a=>a.actif!==false);
+  else if (currentFilter === 'inactive') ads = ads.filter(a=>a.actif===false);
+  else if (currentFilter !== 'all') ads = ads.filter(a=>a.categorie===currentFilter);
+  filteredAds = ads;
+  renderList(ads);
+}
+
+// ===== RENDER =====
+function renderList(ads) {
+  const list = document.getElementById('adsList');
+
+  if (!ads.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-ico">📭</div>
+        <h3>Aucune annonce trouvée</h3>
+        <p>Vous n'avez pas encore d'annonce dans cette catégorie.</p>
+        <button class="btn-publish-empty" onclick="window.location.href='dashboard.html'">
+          ➕ Publier une annonce
+        </button>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = ads.map((ad, i) => {
+    const emoji = EMOJI_MAP[ad.categorie] || '📦';
+    const isActive = ad.actif !== false;
+    const imgHtml = ad.image_url
+      ? `<img src="${ad.image_url}" alt="${ad.titre||''}" onerror="this.parentElement.innerHTML='${emoji}'">`
+      : emoji;
+
+    return `
+      <div class="ad-row" style="animation-delay:${i*0.06}s">
+        <div class="ad-row-main">
+          <div class="ad-row-img">${imgHtml}</div>
+          <div class="ad-row-info">
+            <div class="ad-row-title">${ad.titre||'Sans titre'}</div>
+            <div class="ad-row-price">${fmtPrice(ad.prix)}</div>
+            <div class="ad-row-meta">
+              <span class="ad-meta-tag">📍 ${ad.ville||'—'}</span>
+              <span class="ad-meta-tag">🏷️ ${ad.categorie||'—'}</span>
+              <span class="ad-meta-tag">🕐 ${timeAgo(ad.created_at)}</span>
+              <span class="ad-meta-tag">👁️ ${ad.vues||0} vues</span>
+              ${ad.is_featured?'<span class="ad-meta-tag" style="background:rgba(245,183,49,.15);color:#8A5A00;border:1px solid rgba(245,183,49,.3);">⭐ Vedette</span>':(ad.boosted?'<span class="ad-meta-tag boost-tag">🚀 Boosté</span>':'')}
+              <span class="ad-status ${isActive?'status-active':'status-inactive'}">
+                ${isActive?'● Actif':'● Inactif'}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="ad-row-actions">
+          <button class="action-btn view"   onclick="viewAd('${ad.id}')">👁️ Voir</button>
+          <button class="action-btn edit"   onclick="openEdit('${ad.id}')">✏️ Modifier</button>
+          <button class="action-btn renew"  onclick="renewAd('${ad.id}')">🔁 Renouveler</button>
+          <button class="action-btn toggle" onclick="toggleAd('${ad.id}',${isActive})">${isActive?'⏸️ Pause':'▶️ Activer'}</button>
+          <button class="action-btn del"    onclick="confirmDelete('${ad.id}')">🗑️ Sup.</button>
+        </div>
+        ``PE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AfriMarket — Historique</title>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#080E2A"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AfriMarket"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --blue:   #1B3FE4;
+      --blue2:  #2D55FF;
+      --red:    #E83030;
+      --orange: #FF6B1A;
+      --turq:   #00C2B7;
+      --white:  #FFFFFF;
+      --bg:     #F2F5FF;
+      --dark:   #080E2A;
+      --gray:   #8892A8;
+      --border: #E4E9F8;
+      --nav-h:  72px;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding-bottom: calc(var(--nav-h) + 16px);
+      overflow-x: hidden;
+    }
+
+    /* ===== SPLASH ===== */
+    #splash {
+      position: fixed; inset:0; z-index:10000;
+      background: var(--dark);
+      display: flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:1.5rem;
+      transition: opacity .6s ease, visibility .6s ease;
+    }
+    #splash.done { opacity:0; visibility:hidden; pointer-events:none; }
+    .splash-logo {
+      font-family:'Clash Display',sans-serif;
+      font-size:2.8rem; font-weight:700; letter-spacing:-2px;
+      animation: logoIn .7s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .splash-logo .sa{color:var(--turq)} .splash-logo .sm{color:var(--orange)}
+    @keyframes logoIn {
+      from{opacity:0;transform:scale(.7) translateY(16px)}
+      to  {opacity:1;transform:scale(1) translateY(0)}
+    }
+    .splash-page {
+      color:rgba(255,255,255,.4); font-size:.75rem;
+      letter-spacing:3px; text-transform:uppercase;
+      animation: fadeUp .5s .25s both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .splash-bar-wrap {
+      width:180px; height:3px;
+      background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden;
+    }
+    .splash-bar {
+      height:100%;
+      background:linear-gradient(90deg,var(--turq),var(--blue2),var(--orange));
+      border-radius:99px;
+      animation:splashProg 2.5s ease-out forwards;
+    }
+    @keyframes splashProg{from{width:0}to{width:100%}}
+
+    /* ===== HEADER ===== */
+    .header {
+      position:sticky; top:0; z-index:100;
+      background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 100%);
+      height:60px; padding:0 1.2rem;
+      display:flex; align-items:center; justify-content:space-between;
+      box-shadow:0 4px 24px rgba(8,14,42,.35);
+    }
+    .header-left { display:flex; align-items:center; gap:.8rem; }
+    .btn-back {
+      width:36px; height:36px; border-radius:50%;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:1rem; color:white;
+      transition:background .2s;
+    }
+    .btn-back:hover { background:rgba(255,255,255,.18); }
+    .header-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.15rem; font-weight:700; color:white; letter-spacing:-.5px;
+    }
+    .header-logo {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.2rem; font-weight:700; letter-spacing:-1px;
+    }
+    .header-logo .la{color:var(--turq)} .header-logo .lm{color:var(--orange)}
+
+    /* ===== STATS BANNER ===== */
+    .stats-banner {
+      margin:1rem 1.2rem;
+      background:linear-gradient(135deg,var(--dark) 0%,#0D1E6B 60%,#0a2a55 100%);
+      border-radius:22px; padding:1.3rem 1.4rem;
+      position:relative; overflow:hidden;
+      box-shadow:0 8px 32px rgba(27,63,228,.25);
+    }
+    .stats-banner::before {
+      content:''; position:absolute;
+      width:220px; height:220px; border-radius:50%;
+      background:rgba(255,255,255,.04); right:-60px; top:-70px;
+    }
+    .stats-banner::after {
+      content:''; position:absolute;
+      width:140px; height:140px; border-radius:50%;
+      background:rgba(0,194,183,.12); right:20px; bottom:-50px;
+    }
+    .stats-title {
+      color:rgba(255,255,255,.5); font-size:.72rem; letter-spacing:1.5px;
+      text-transform:uppercase; margin-bottom:.9rem; position:relative; z-index:1;
+    }
+    .stats-row {
+      display:flex; gap:0; position:relative; z-index:1;
+    }
+    .stat-item {
+      flex:1; text-align:center; position:relative;
+    }
+    .stat-item:not(:last-child)::after {
+      content:''; position:absolute; right:0; top:15%; height:70%;
+      width:1px; background:rgba(255,255,255,.1);
+    }
+    .stat-num {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.8rem; font-weight:700; color:white; line-height:1;
+      display:block;
+    }
+    .stat-num.turq { color:var(--turq); }
+    .stat-num.orange { color:var(--orange); }
+    .stat-num.red { color:#FF6B6B; }
+    .stat-lbl { color:rgba(255,255,255,.4); font-size:.68rem; margin-top:.3rem; display:block; }
+
+    /* ===== FILTER TABS ===== */
+    .filter-row {
+      display:flex; gap:.5rem; padding:.2rem 1.2rem 1rem;
+      overflow-x:auto; scrollbar-width:none;
+    }
+    .filter-row::-webkit-scrollbar { display:none; }
+    .ftab {
+      padding:.38rem .9rem; border-radius:99px; border:none; cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.76rem; font-weight:600;
+      white-space:nowrap; transition:all .2s; flex-shrink:0;
+    }
+    .ftab.active { background:var(--blue2); color:white; box-shadow:0 4px 12px rgba(45,85,255,.35); }
+    .ftab:not(.active) { background:white; color:var(--gray); border:1px solid var(--border); }
+
+    /* ===== ADS LIST ===== */
+    .ads-list { padding:0 1.2rem; display:flex; flex-direction:column; gap:.9rem; }
+
+    /* SKELETON */
+    .skeleton {
+      background:linear-gradient(90deg,#F0F4FF 25%,#E4E9F8 50%,#F0F4FF 75%);
+      background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:10px;
+    }
+    @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+    .skel-card {
+      background:white; border-radius:20px; border:1px solid var(--border);
+      display:flex; gap:.9rem; padding:.9rem; overflow:hidden;
+    }
+    .skel-img { width:80px; height:80px; border-radius:14px; flex-shrink:0; }
+    .skel-body { flex:1; display:flex; flex-direction:column; gap:.5rem; padding-top:.2rem; }
+    .skel-line { height:10px; border-radius:6px; }
+    .skel-line.s60 { width:60%; }
+    .skel-line.s40 { width:40%; }
+
+    /* AD ROW CARD */
+    .ad-row {
+      background:white; border-radius:20px; border:1px solid var(--border);
+      box-shadow:0 2px 14px rgba(27,63,228,.06);
+      overflow:hidden; animation:cardIn .35s ease both;
+      transition:box-shadow .2s;
+    }
+    .ad-row:hover { box-shadow:0 6px 24px rgba(27,63,228,.12); }
+    @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+    .ad-row-main { display:flex; gap:.9rem; padding:.9rem; align-items:flex-start; }
+    .ad-row-img {
+      width:82px; height:82px; border-radius:14px; flex-shrink:0;
+      overflow:hidden; background:linear-gradient(135deg,#E8EEFF,#F0F4FF);
+      display:flex; align-items:center; justify-content:center; font-size:1.8rem;
+    }
+    .ad-row-img img { width:100%; height:100%; object-fit:cover; }
+
+    .ad-row-info { flex:1; min-width:0; }
+    .ad-row-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:.95rem; font-weight:700; color:var(--dark);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:.25rem;
+    }
+    .ad-row-price {
+      font-size:.88rem; font-weight:700;
+      background:linear-gradient(90deg,var(--blue),var(--turq));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      margin-bottom:.3rem;
+    }
+    .ad-row-meta { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .ad-meta-tag {
+      font-size:.65rem; color:var(--gray); font-weight:500;
+      background:var(--bg); padding:.18rem .5rem; border-radius:99px;
+    }
+    .ad-status {
+      font-size:.62rem; font-weight:700; padding:.2rem .6rem; border-radius:99px;
+      letter-spacing:.3px; text-transform:uppercase;
+    }
+    .status-active { background:#E8FDF5; color:#00A878; }
+    .status-inactive { background:#FFF3E0; color:var(--orange); }
+
+    /* ACTIONS ROW */
+    .ad-row-actions {
+      display:flex; border-top:1px solid var(--border);
+    }
+    .action-btn {
+      flex:1; padding:.65rem .5rem;
+      border:none; background:none; cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.74rem; font-weight:600;
+      display:flex; align-items:center; justify-content:center; gap:.3rem;
+      transition:background .18s, color .18s;
+    }
+    .action-btn:not(:last-child) { border-right:1px solid var(--border); }
+    .action-btn.view   { color:var(--blue2); }
+    .action-btn.edit   { color:var(--orange); }
+    .action-btn.renew  { color:var(--turq); }
+    .action-btn.toggle { color:var(--gray); }
+    .action-btn.del    { color:var(--red); }
+    .action-btn:hover  { background:var(--bg); }
+    .action-btn.del:hover { background:#FFF0F0; }
+
+    .ad-boost-bar {
+      padding:.55rem .9rem;
+      background:linear-gradient(135deg,rgba(27,63,228,.03),rgba(0,194,183,.04));
+      border-top:1px dashed rgba(27,63,228,.12);
+    }
+    .boost-btn {
+      width:100%; padding:.5rem; border-radius:10px; border:1.5px dashed rgba(255,107,26,.3);
+      background:rgba(255,107,26,.04); color:var(--orange);
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.72rem; font-weight:700;
+      cursor:pointer; transition:all .2s; text-align:center;
+    }
+    .boost-btn:hover { background:rgba(255,107,26,.1); border-color:var(--orange); }
+    .boost-tag { background:rgba(255,107,26,.1)!important; color:var(--orange)!important; font-weight:700; }
+
+    /* EMPTY */
+    .empty-state {
+      display:flex; flex-direction:column; align-items:center;
+      text-align:center; padding:4rem 1rem; gap:.8rem;
+    }
+    .empty-ico { font-size:4rem; }
+    .empty-state h3 {
+      font-family:'Clash Display',sans-serif; font-size:1.15rem; color:var(--dark);
+    }
+    .empty-state p { color:var(--gray); font-size:.82rem; line-height:1.5; }
+    .btn-publish-empty {
+      margin-top:.5rem; padding:.75rem 1.8rem; border-radius:99px; border:none;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white; font-family:'Clash Display',sans-serif;
+      font-size:.9rem; font-weight:700; cursor:pointer;
+      box-shadow:0 6px 20px rgba(27,63,228,.35);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .btn-publish-empty:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(27,63,228,.45); }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position:fixed; bottom:0; left:0; right:0; z-index:200;
+      height:var(--nav-h); background:white;
+      border-top:1px solid var(--border);
+      display:flex; align-items:center;
+      box-shadow:0 -8px 32px rgba(27,63,228,.1);
+      border-radius:24px 24px 0 0;
+    }
+    .nav-item {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:4px; cursor:pointer; border:none; background:none;
+      transition:all .25s; position:relative; padding-bottom:4px;
+    }
+    .nav-item:hover { background:rgba(27,63,228,.03); }
+    .nav-ico { font-size:1.35rem; transition:transform .25s; line-height:1; }
+    .nav-lbl { font-size:.62rem; font-weight:600; color:var(--gray); letter-spacing:.3px; transition:color .25s; }
+    .nav-item.active .nav-lbl { color:var(--blue2); }
+    .nav-item.active .nav-ico { transform:scale(1.1); }
+    .nav-item.active::before {
+      content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:32px; height:3px; border-radius:0 0 6px 6px;
+      background:linear-gradient(90deg,var(--blue),var(--turq));
+    }
+    .nav-item.nav-plus { margin-top:0; }
+    .nav-plus-btn {
+      width:54px; height:54px; border-radius:18px;
+      background:linear-gradient(135deg,var(--blue),var(--blue2),#4F7AFF);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.5rem; box-shadow:0 8px 24px rgba(27,63,228,.45);
+      border:none; cursor:pointer; transition:transform .2s, box-shadow .2s;
+    }
+    .nav-plus-btn:hover { transform:scale(1.1) rotate(5deg); box-shadow:0 12px 32px rgba(27,63,228,.5); }
+    .nav-item.nav-plus .nav-lbl { margin-top:2px; }
+
+    /* ===== EDIT MODAL ===== */
+    .modal-overlay {
+      position:fixed; inset:0; z-index:500;
+      background:rgba(8,14,42,.6); backdrop-filter:blur(6px);
+      display:flex; align-items:flex-end;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:white; border-radius:28px 28px 0 0;
+      width:100%; max-height:92vh; overflow-y:auto;
+      padding:1.5rem 1.4rem 2.5rem;
+      transform:translateY(100%);
+      transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal-overlay.open .modal { transform:translateY(0); }
+    .modal-handle {
+      width:40px; height:4px; border-radius:99px;
+      background:var(--border); margin:0 auto 1.3rem;
+    }
+    .modal-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.25rem; font-weight:700; color:var(--dark); margin-bottom:1.2rem;
+    }
+    .edit-field { display:flex; flex-direction:column; gap:.32rem; margin-bottom:.85rem; }
+    .edit-field label {
+      font-size:.7rem; font-weight:700; color:var(--dark);
+      letter-spacing:.7px; text-transform:uppercase;
+    }
+    .edit-field input, .edit-field textarea, .edit-field select {
+      width:100%; padding:.7rem 1rem;
+      border:1.5px solid var(--border); border-radius:12px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.87rem; color:var(--dark);
+      background:#FAFBFF; outline:none; resize:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .edit-field input:focus, .edit-field textarea:focus, .edit-field select:focus {
+      border-color:var(--blue2); box-shadow:0 0 0 3px rgba(45,85,255,.1); background:white;
+    }
+    .edit-row { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+
+    /* IMAGE EDIT */
+    .img-edit-zone {
+      border:2px dashed var(--border); border-radius:14px;
+      padding:1rem; text-align:center; cursor:pointer;
+      transition:border-color .2s, background .2s; position:relative;
+    }
+    .img-edit-zone:hover { border-color:var(--blue2); background:#FAFBFF; }
+    .img-edit-zone.has-img { border-style:solid; border-color:var(--turq); padding:.4rem; }
+    .img-edit-zone input[type=file] {
+      position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+    }
+    .edit-img-preview { width:100%; height:130px; object-fit:cover; border-radius:10px; }
+    .edit-img-placeholder { font-size:.78rem; color:var(--gray); font-weight:500; }
+    .edit-img-ico { font-size:1.5rem; margin-bottom:.3rem; }
+
+    .btn-save {
+      width:100%; padding:.85rem; border:none; border-radius:14px;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white; font-family:'Clash Display',sans-serif;
+      font-size:1rem; font-weight:700; cursor:pointer; margin-top:.5rem;
+      display:flex; align-items:center; justify-content:center; gap:.5rem;
+      transition:transform .2s, box-shadow .2s;
+    }
+    .btn-save:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(27,63,228,.4); }
+    .btn-save:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .spin-sm {
+      width:16px; height:16px; border:2px solid rgba(255,255,255,.3);
+      border-top-color:white; border-radius:50%;
+      animation:spin .6s linear infinite; display:none;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .btn-save.loading .spin-sm { display:block; }
+    .btn-save.loading .save-lbl { display:none; }
+
+    /* ===== DELETE CONFIRM MODAL ===== */
+    .del-overlay {
+      position:fixed; inset:0; z-index:600;
+      background:rgba(8,14,42,.7); backdrop-filter:blur(8px);
+      display:flex; align-items:center; justify-content:center;
+      padding:1.5rem;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .del-overlay.open { opacity:1; pointer-events:all; }
+    .del-card {
+      background:white; border-radius:24px; padding:2rem 1.6rem;
+      width:100%; max-width:340px; text-align:center;
+      transform:scale(.85); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      box-shadow:0 20px 60px rgba(8,14,42,.3);
+    }
+    .del-overlay.open .del-card { transform:scale(1); }
+    .del-ico { font-size:3rem; margin-bottom:.8rem; }
+    .del-title {
+      font-family:'Clash Display',sans-serif;
+      font-size:1.2rem; font-weight:700; color:var(--dark); margin-bottom:.5rem;
+    }
+    .del-sub { color:var(--gray); font-size:.82rem; line-height:1.5; margin-bottom:1.5rem; }
+    .del-actions { display:flex; gap:.8rem; }
+    .btn-cancel {
+      flex:1; padding:.75rem; border-radius:14px;
+      border:1.5px solid var(--border); background:white;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:.88rem;
+      font-weight:700; color:var(--gray); cursor:pointer;
+      transition:border-color .2s, color .2s;
+    }
+    .btn-cancel:hover { border-color:var(--dark); color:var(--dark); }
+    .btn-delete-confirm {
+      flex:1; padding:.75rem; border-radius:14px; border:none;
+      background:linear-gradient(135deg,var(--red),#FF5252);
+      color:white; font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.88rem; font-weight:700; cursor:pointer;
+      box-shadow:0 6px 18px rgba(232,48,48,.35);
+      transition:transform .2s, box-shadow .2s;
+      display:flex; align-items:center; justify-content:center; gap:.4rem;
+    }
+    .btn-delete-confirm:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(232,48,48,.45); }
+    .btn-delete-confirm:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position:fixed; bottom:calc(var(--nav-h) + 12px); right:1rem;
+      max-width:300px; background:var(--dark); color:white;
+      padding:.8rem 1.2rem; border-radius:14px; font-size:.83rem; font-weight:500;
+      box-shadow:0 8px 32px rgba(0,0,0,.2); z-index:9999;
+      display:flex; align-items:center; gap:.6rem;
+      transform:translateY(20px); opacity:0;
+      transition:all .4s cubic-bezier(.34,1.56,.64,1);
+      border-left:3px solid var(--turq);
+    }
+    #toast.show { transform:translateY(0); opacity:1; }
+
+    @media(min-width:900px){
+      body { max-width:480px; margin:0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SPLASH ===== -->
+<div id="splash">
+  <div class="splash-logo"><span class="sa">Afri</span><span class="sm">Market</span></div>
+  <div class="splash-page">Historique</div>
+  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="header-left">
+    <div class="btn-back" onclick="window.location.href='dashboard.html'">←</div>
+    <div class="header-title">Mes annonces</div>
+  </div>
+  <div class="header-logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+</div>
+
+<!-- ===== STATS BANNER ===== -->
+<div class="stats-banner">
+  <div class="stats-title">Vue d'ensemble</div>
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-num" id="statTotal">—</span>
+      <span class="stat-lbl">Total</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num turq" id="statActive">—</span>
+      <span class="stat-lbl">Actives</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num orange" id="statViews">—</span>
+      <span class="stat-lbl">Vues</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num red" id="statInactive">—</span>
+      <span class="stat-lbl">Inactives</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FILTER TABS ===== -->
+<div class="filter-row">
+  <button class="ftab active" onclick="setFilter('all',this)">Toutes</button>
+  <button class="ftab" onclick="setFilter('active',this)">Actives</button>
+  <button class="ftab" onclick="setFilter('inactive',this)">Inactives</button>
+  <button class="ftab" onclick="setFilter('immobilier',this)">🏠 Immobilier</button>
+  <button class="ftab" onclick="setFilter('vehicules',this)">🚗 Véhicules</button>
+  <button class="ftab" onclick="setFilter('electronique',this)">📱 Électronique</button>
+  <button class="ftab" onclick="setFilter('mode',this)">👗 Mode</button>
+  <button class="ftab" onclick="setFilter('services',this)">🛠️ Services</button>
+  <button class="ftab" onclick="setFilter('emploi',this)">💼 Emploi</button>
+  <button class="ftab" onclick="setFilter('alimentation',this)">🥘 Alimentaire</button>
+</div>
+
+<!-- ===== ADS LIST ===== -->
+<div class="ads-list" id="adsList">
+  <!-- Skeletons -->
+  <div class="skel-card">
+    <div class="skel-img skeleton"></div>
+    <div class="skel-body">
+      <div class="skel-line skeleton"></div>
+      <div class="skel-line s60 skeleton"></div>
+      <div class="skel-line s40 skeleton"></div>
+    </div>
+  </div>
+  <div class="skel-card">
+    <div class="skel-img skeleton"></div>
+    <div class="skel-body">
+      <div class="skel-line skeleton"></div>
+      <div class="skel-line s60 skeleton"></div>
+      <div class="skel-line s40 skeleton"></div>
+    </div>
+  </div>
+  <div class="skel-card">
+    <div class="skel-img skeleton"></div>
+    <div class="skel-body">
+      <div class="skel-line skeleton"></div>
+      <div class="skel-line s60 skeleton"></div>
+      <div class="skel-line s40 skeleton"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="location.href='dashboard.html'">
+    <span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span>
+  </button>
+  <button class="nav-item " onclick="location.href='messages.html'">
+    <span class="nav-ico">💬</span><span class="nav-lbl">Messages</span>
+  </button>
+  <div class="nav-item nav-plus">
+    <div class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</div>
+    <span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span>
+  </div>
+  <button class="nav-item " onclick="location.href='favoris.html'">
+    <span class="nav-ico">❤️</span><span class="nav-lbl">Favoris</span>
+  </button>
+  <button class="nav-item " onclick="location.href='profil.html'">
+    <span class="nav-ico">👤</span><span class="nav-lbl">Profil</span>
+  </button>
+</nav>
+
+<!-- ===== EDIT MODAL ===== -->
+<div class="modal-overlay" id="editOverlay" onclick="closeEdit(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Modifier l'annonce</div>
+
+    <form id="editForm" novalidate>
+      <input type="hidden" id="e_id"/>
+      <input type="hidden" id="e_old_img"/>
+
+      <div class="edit-field">
+        <label>Photo</label>
+        <div class="img-edit-zone" id="editImgZone">
+          <input type="file" id="e_img" accept="image/*" onchange="previewEditImg(event)"/>
+          <div id="editImgContent">
+            <div class="edit-img-ico">📷</div>
+            <div class="edit-img-placeholder">Changer la photo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-field">
+        <label>Titre *</label>
+        <input type="text" id="e_title" placeholder="Titre de l'annonce"/>
+      </div>
+
+      <div class="edit-field">
+        <label>Description *</label>
+        <textarea id="e_desc" rows="3" placeholder="Description…"></textarea>
+      </div>
+
+      <div class="edit-row">
+        <div class="edit-field">
+          <label>Prix (FCFA)</label>
+          <input type="number" id="e_price" placeholder="150000"/>
+        </div>
+        <div class="edit-field">
+          <label>Catégorie *</label>
+          <select id="e_cat">
+            <option value="">Choisir…</option>
+            <option value="immobilier">🏠 Immobilier</option>
+            <option value="vehicules">🚗 Véhicules</option>
+            <option value="electronique">📱 Électronique</option>
+            <option value="mode">👗 Mode</option>
+            <option value="services">🛠️ Services</option>
+            <option value="emploi">💼 Emploi</option>
+            <option value="alimentation">🥘 Alimentaire</option>
+            <option value="autres">📦 Autres</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="edit-row">
+        <div class="edit-field">
+          <label>Ville *</label>
+          <input type="text" id="e_ville" placeholder="Abidjan"/>
+        </div>
+        <div class="edit-field">
+          <label>WhatsApp</label>
+          <input type="tel" id="e_wa" placeholder="+225 07…"/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-save" id="btnSave">
+        <div class="spin-sm"></div>
+        <span class="save-lbl">💾 Enregistrer les modifications</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== DELETE CONFIRM ===== -->
+<div class="del-overlay" id="delOverlay">
+  <div class="del-card">
+    <div class="del-ico">🗑️</div>
+    <div class="del-title">Supprimer l'annonce ?</div>
+    <div class="del-sub">Cette action est irréversible. Votre annonce sera définitivement supprimée.</div>
+    <div class="del-actions">
+      <button class="btn-cancel" onclick="closeDel()">Annuler</button>
+      <button class="btn-delete-confirm" id="btnDelConfirm">
+        <span id="delBtnTxt">🗑️ Supprimer</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><span id="tIco"></span><span id="tMsg"></span></div>
+
+<script>
+// ===== SUPABASE =====
+const { createClient } = supabase;
+const sb = createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+// ===== SPLASH (2.5s) =====
+setTimeout(() => document.getElementById('splash').classList.add('done'), 2500);
+
+// ===== STATE =====
+let allAds = [];
+let filteredAds = [];
+let currentFilter = 'all';
+let currentUser = null;
+let adToDelete = null;
+
+const EMOJI_MAP = {
+  immobilier:'🏠', vehicules:'🚗', electronique:'📱',
+  mode:'👗', services:'🛠️', emploi:'💼', alimentation:'🥘', autres:'📦'
+};
+
+// ===== TOAST =====
+let tt;
+function showToast(msg, type='success') {
+  const icons = {success:'✅', error:'❌', warning:'⚠️', info:'ℹ️'};
+  document.getElementById('tIco').textContent = icons[type]||'💬';
+  document.getElementById('tMsg').textContent = msg;
+  const el = document.getElementById('toast');
+  el.className = 'show';
+  el.style.borderLeftColor = type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt);
+  tt = setTimeout(()=>el.className='', 3800);
+}
+
+// ===== FORMAT =====
+function fmtPrice(n) {
+  if (!n && n!==0) return 'Prix à débattre';
+  return Number(n).toLocaleString('fr-FR') + ' FCFA';
+}
+function timeAgo(d) {
+  if (!d) return '';
+  const s = Math.floor((Date.now()-new Date(d))/1000);
+  if (s<60) return 'À l\'instant';
+  if (s<3600) return `Il y a ${Math.floor(s/60)} min`;
+  if (s<86400) return `Il y a ${Math.floor(s/3600)} h`;
+  return `Il y a ${Math.floor(s/86400)} j`;
+}
+
+// ===== INIT =====
+let _isPremium = false;
+
+async function init() {
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'index.html'; return; }
+  currentUser = session.user;
+  // Vérifier si l'utilisateur est Premium
+  const { data: prof } = await sb.from('profiles').select('is_premium').eq('id', currentUser.id).maybeSingle();
+  _isPremium = SITE_PREMIUM_ACTIVE ? (prof?.is_premium === true) : true;
+  loadAds();
+}
+
+// ===== LOAD =====
+async function loadAds() {
+  try {
+    const { data, error } = await sb
+      .from('annonces')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    allAds = data || [];
+    updateStats();
+    applyFilter();
+  } catch(err) {
+    console.error(err);
+    allAds = [];
+    renderList([]);
+    showToast('Erreur de chargement', 'error');
+  }
+}
+
+// ===== STATS =====
+function updateStats() {
+  const total    = allAds.length;
+  const active   = allAds.filter(a=>a.actif!==false).length;
+  const inactive = total - active;
+  const views    = allAds.reduce((s,a)=>(s+(a.vues||0)),0);
+  document.getElementById('statTotal').textContent    = total;
+  document.getElementById('statActive').textContent   = active;
+  document.getElementById('statViews').textContent    = views;
+  document.getElementById('statInactive').textContent = inactive;
+}
+
+// ===== FILTER =====
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter() {
+  let ads = [...allAds];
+  if (currentFilter === 'active')   ads = ads.filter(a=>a.actif!==false);
+  else if (currentFilter === 'inactive') ads = ads.filter(a=>a.actif===false);
+  else if (currentFilter !== 'all') ads = ads.filter(a=>a.categorie===currentFilter);
+  filteredAds = ads;
+  renderList(ads);
+}
+
+// ===== RENDER =====
+function renderList(ads) {
+  const list = document.getElementById('adsList');
+
+  if (!ads.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-ico">📭</div>
+        <h3>Aucune annonce trouvée</h3>
+        <p>Vous n'avez pas encore d'annonce dans cette catégorie.</p>
+        <button class="btn-publish-empty" onclick="window.location.href='dashboard.html'">
+          ➕ Publier une annonce
+        </button>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = ads.map((ad, i) => {
+    const emoji = EMOJI_MAP[ad.categorie] || '📦';
+    const isActive = ad.actif !== false;
+    const imgHtml = ad.image_url
+      ? `<img src="${ad.image_url}" alt="${ad.titre||''}" onerror="this.parentElement.innerHTML='${emoji}'">`
+      : emoji;
+
+    return `
+      <div class="ad-row" style="animation-delay:${i*0.06}s">
+        <div class="ad-row-main">
+          <div class="ad-row-img">${imgHtml}</div>
+          <div class="ad-row-info">
+            <div class="ad-row-title">${ad.titre||'Sans titre'}</div>
+            <div class="ad-row-price">${fmtPrice(ad.prix)}</div>
+            <div class="ad-row-meta">
+              <span class="ad-meta-tag">📍 ${ad.ville||'—'}</span>
+              <span class="ad-meta-tag">🏷️ ${ad.categorie||'—'}</span>
+              <span class="ad-meta-tag">🕐 ${timeAgo(ad.created_at)}</span>
+              <span class="ad-meta-tag">👁️ ${ad.vues||0} vues</span>
+              ${ad.is_featured?'<span class="ad-meta-tag" style="background:rgba(245,183,49,.15);color:#8A5A00;border:1px solid rgba(245,183,49,.3);">⭐ Vedette</span>':(ad.boosted?'<span class="ad-meta-tag boost-tag">🚀 Boosté</span>':'')}
+              <span class="ad-status ${isActive?'status-active':'status-inactive'}">
+                ${isActive?'● Actif':'● Inactif'}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="ad-row-actions">
+          <button class="action-btn view"   onclick="viewAd('${ad.id}')">👁️ Voir</button>
+          <button class="action-btn edit"   onclick="openEdit('${ad.id}')">✏️ Modifier</button>
+          <button class="action-btn renew"  onclick="renewAd('${ad.id}')">🔁 Renouveler</button>
+          <button class="action-btn toggle" onclick="toggleAd('${ad.id}',${isActive})">${isActive?'⏸️ Pause':'▶️ Activer'}</button>
+          <button class="action-btn del"    onclick="confirmDelete('${ad.id}')">🗑️ Sup.</button>
+        </div>
+        ${!_isPremium ? `<div class="ad-boost-bar">
+          <button class="boost-btn" onclick="location.href='pricing.html'">
+            🚀 Booster cette annonce — Passer Premium
+          </button>
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== VIEW =====
+function viewAd(id) {
+  window.location.href = `dashboard.html#ad_${id}`;
+}
+
+// ===== TOGGLE ACTIVE =====
+async function toggleAd(id, isActive) {
+  try {
+    const { error } = await sb.from('annonces')
+      .update({ actif: !isActive })
+      .eq('id', id)
+      .eq('user_id', currentUser.id);
+    if (error) throw error;
+    const idx = allAds.findIndex(a=>a.id===id);
+    if (idx>-1) allAds[idx].actif = !isActive;
+    updateStats();
+    applyFilter();
+    showToast(isActive ? 'Annonce désactivée' : 'Annonce activée ✅', 'success');
+  } catch(err) {
+    showToast('Erreur : ' + err.message, 'error');
+  }
+}
+
+// ===== DELETE =====
+function confirmDelete(id) {
+  adToDelete = id;
+  document.getElementById('delOverlay').classList.add('open');
+}
+function closeDel() {
+  adToDelete = null;
+  document.getElementById('delOverlay').classList.remove('open');
+}
+
+document.getElementById('btnDelConfirm').addEventListener('click', async () => {
+  if (!adToDelete) return;
+  const btn = document.getElementById('btnDelConfirm');
+  btn.disabled = true;
+  document.getElementById('delBtnTxt').textContent = '⏳ Suppression…';
+
+  try {
+    // Supprimer image du bucket si elle existe
+    const ad = allAds.find(a=>a.id===adToDelete);
+    if (ad?.image_url) {
+      const path = ad.image_url.split('/annonces/')[1];
+      if (path) await sb.storage.from('annonces').remove([path]);
+    }
+
+    const { error } = await sb.from('annonces')
+      .delete()
+      .eq('id', adToDelete)
+      .eq('user_id', currentUser.id);
+    if (error) throw error;
+
+    allAds = allAds.filter(a=>a.id!==adToDelete);
+    updateStats();
+    applyFilter();
+    closeDel();
+    showToast('Annonce supprimée définitivement 🗑️', 'success');
+  } catch(err) {
+    showToast('Erreur de suppression : ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('delBtnTxt').textContent = '🗑️ Supprimer';
+  }
+});
+
+// ===== EDIT MODAL =====
+function openEdit(id) {
+  const ad = allAds.find(a=>a.id===id);
+  if (!ad) return;
+
+  document.getElementById('e_id').value       = ad.id;
+  document.getElementById('e_old_img').value  = ad.image_url||'';
+  document.getElementById('e_title').value    = ad.titre||'';
+  document.getElementById('e_desc').value     = ad.description||'';
+  document.getElementById('e_price').value    = ad.prix||'';
+  document.getElementById('e_cat').value      = ad.categorie||'';
+  document.getElementById('e_ville').value    = ad.ville||'';
+  document.getElementById('e_wa').value       = ad.whatsapp||'';
+
+  // Image actuelle
+  const zone    = document.getElementById('editImgZone');
+  const content = document.getElementById('editImgContent');
+  if (ad.image_url) {
+    content.innerHTML = `<img class="edit-img-preview" src="${ad.image_url}" alt="Photo actuelle"/>`;
+    zone.classList.add('has-img');
+  } else {
+    content.innerHTML = `<div class="edit-img-ico">📷</div><div class="edit-img-placeholder">Ajouter une photo</div>`;
+    zone.classList.remove('has-img');
+  }
+
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function closeEdit(e) {
+  if (e.target === document.getElementById('editOverlay'))
+    document.getElementById('editOverlay').classList.remove('open');
+}
+
+function previewEditImg(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('editImgContent').innerHTML =
+      `<img class="edit-img-preview" src="${e.target.result}" alt="Aperçu"/>`;
+    document.getElementById('editImgZone').classList.add('has-img');
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('editForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const id    = document.getElementById('e_id').value;
+  const title = document.getElementById('e_title').value.trim();
+  const desc  = document.getElementById('e_desc').value.trim();
+  const price = document.getElementById('e_price').value;
+  const cat   = document.getElementById('e_cat').value;
+  const ville = document.getElementById('e_ville').value.trim();
+  const wa    = document.getElementById('e_wa').value.trim();
+  const oldImg= document.getElementById('e_old_img').value;
+
+  if (!title||!desc||!cat||!ville) {
+    showToast('Remplissez les champs obligatoires','warning'); return;
+  }
+
+  const btn = document.getElementById('btnSave');
+  btn.disabled=true; btn.classList.add('loading');
+
+  try {
+    // Upload nouvelle image si sélectionnée
+    let image_url = oldImg || null;
+    const imgFile = document.getElementById('e_img').files[0];
+    if (imgFile) {
+      // Supprimer l'ancienne image
+      if (oldImg) {
+        const oldPath = oldImg.split('/annonces/')[1];
+        if (oldPath) await sb.storage.from('annonces').remove([oldPath]);
+      }
+      const ext = imgFile.name.split('.').pop();
+      const fileName = `${currentUser.id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('annonces').upload(fileName, imgFile, { upsert:true });
+      if (upErr) throw upErr;
+      const { data: urlData } = sb.storage.from('annonces').getPublicUrl(fileName);
+      image_url = urlData.publicUrl;
+    }
+
+    const { error } = await sb.from('annonces')
+      .update({
+        titre: title, description: desc,
+        prix: price ? parseInt(price) : null,
+        categorie: cat, ville, whatsapp: wa, image_url
+      })
+      .eq('id', id)
+      .eq('user_id', currentUser.id);
+
+    if (error) throw error;
+
+    // Mettre à jour local
+    const idx = allAds.findIndex(a=>a.id===id);
+    if (idx>-1) {
+      allAds[idx] = { ...allAds[idx], titre:title, description:desc,
+        prix:price?parseInt(price):null, categorie:cat, ville, whatsapp:wa, image_url };
+    }
+    applyFilter();
+    document.getElementById('editOverlay').classList.remove('open');
+    showToast('Annonce modifiée avec succès ✅', 'success');
+
+  } catch(err) {
+    showToast('Erreur : ' + err.message, 'error');
+  } finally {
+    btn.disabled=false; btn.classList.remove('loading');
+  }
+});
+
+// ===== RENOUVELER =====
+async function renewAd(id) {
+  try {
+    const now = new Date().toISOString();
+    const updatePayload = { created_at: now, actif: true };
+    // Si l'utilisateur est Premium → annonce mise en vedette en tête
+    if (_isPremium) updatePayload.is_featured = true;
+
+    const { error } = await sb.from('annonces')
+      .update(updatePayload)
+      .eq('id', id)
+      .eq('user_id', currentUser.id);
+    if (error) throw error;
+    // Remettre en tête de liste localement
+    const idx = allAds.findIndex(a => a.id === id);
+    if (idx > -1) {
+      const ad = { ...allAds[idx], created_at: now, actif: true, is_featured: _isPremium };
+      allAds.splice(idx, 1);
+      allAds.unshift(ad);
+    }
+    updateStats();
+    applyFilter();
+    if (_isPremium) {
+      showToast('⭐ Annonce remise en vedette en tête de liste !', 'success');
+    } else {
+      showToast('Annonce remise en tête de liste 🔁', 'success');
+    }
+  } catch(err) {
+    showToast('Erreur : ' + err.message, 'error');
+  }
+}
+
+// ===== START =====
+init();
+</script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(r => console.log('[SW] Registered:', r.scope))
+          .catch(e => console.warn('[SW] Error:', e));
+      });
+    }
+  </script>
+
+<script src="push.js"></script>
+</body>
+</html>

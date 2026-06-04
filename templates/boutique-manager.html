@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Ma Boutique — AfriMarket</title>
+<link rel="manifest" href="/manifest.json"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root {
+  --blue:#1B3FE4; --blue2:#4F6EFF; --turq:#00C2B7; --green:#00C271;
+  --orange:#FF6B1A; --red:#E4341B; --gold:#F5B731; --gold2:#C8901A;
+  --dark:#0D1117; --gray:#8A94A6; --border:#E8ECF4; --bg:#F5F7FC;
+  --white:#FFFFFF; --radius:16px; --shadow:0 4px 24px rgba(13,17,23,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;padding-bottom:80px;}
+
+/* ── HEADER ── */
+.top-bar{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);padding:0 1.1rem;height:56px;display:flex;align-items:center;gap:.7rem;}
+.back-btn{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.top-title{font-size:1rem;font-weight:700;flex:1;}
+.top-badge{font-size:.62rem;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);padding:.2rem .55rem;border-radius:99px;letter-spacing:.5px;}
+.preview-btn{padding:.38rem .85rem;border-radius:10px;background:var(--blue);color:white;border:none;font-size:.75rem;font-weight:700;cursor:pointer;}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:none;padding:.72rem 1.1rem;font-size:.78rem;font-weight:600;color:var(--gray);border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ── SECTIONS ── */
+.section{display:none;padding:1rem 1.1rem;}
+.section.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:1.2rem;margin-bottom:1rem;}
+.card-title{font-size:.8rem;font-weight:700;letter-spacing:.5px;color:var(--gray);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem;}
+
+/* ── FORMS ── */
+.f-row{margin-bottom:.9rem;}
+.f-label{font-size:.74rem;font-weight:600;color:var(--dark);margin-bottom:.35rem;display:block;}
+.f-label span{color:var(--red);}
+.f-input,.f-textarea,.f-select{width:100%;border:1.5px solid var(--border);border-radius:11px;padding:.6rem .85rem;font-size:.82rem;background:var(--white);color:var(--dark);transition:border-color .2s;outline:none;}
+.f-input:focus,.f-textarea:focus,.f-select:focus{border-color:var(--blue);}
+.f-textarea{resize:vertical;min-height:70px;}
+.f-hint{font-size:.68rem;color:var(--gray);margin-top:.28rem;}
+.f-row-2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+
+/* ── COLOR PICKER ── */
+.color-row{display:flex;align-items:center;gap:.7rem;}
+.color-preview{width:38px;height:38px;border-radius:10px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;}
+.color-input-wrap{position:relative;}
+.color-input-wrap input[type=color]{width:0;height:0;opacity:0;position:absolute;}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--bg);}
+.upload-zone:hover{border-color:var(--blue);}
+.upload-zone img{width:100%;max-height:140px;object-fit:cover;border-radius:9px;}
+.upload-zone .uz-ico{font-size:1.8rem;margin-bottom:.3rem;}
+.upload-zone .uz-txt{font-size:.73rem;color:var(--gray);}
+.upload-zone .uz-sub{font-size:.65rem;color:var(--gray);margin-top:.15rem;}
+.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.logo-zone{aspect-ratio:1;max-height:120px;}
+
+/* ── TOGGLE ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;}
+.toggle-info{font-size:.78rem;}
+.toggle-title{font-weight:600;color:var(--dark);}
+.toggle-sub{font-size:.7rem;color:var(--gray);margin-top:.1rem;}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:#D0D5E0;border-radius:99px;cursor:pointer;transition:background .2s;}
+.toggle input:checked + .toggle-track{background:var(--blue);}
+.toggle-track::before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle input:checked + .toggle-track::before{transform:translateX(20px);}
+
+/* ── PRODUITS ── */
+.prod-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.prod-count{font-size:.73rem;color:var(--gray);font-weight:600;}
+.prod-count span{color:var(--blue);font-weight:700;}
+.btn-add-prod{padding:.5rem 1rem;background:var(--blue);color:white;border:none;border-radius:11px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.4rem;}
+.btn-add-prod:disabled{opacity:.5;cursor:not-allowed;}
+
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+.prod-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;position:relative;}
+.prod-card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.prod-card-img img{width:100%;height:100%;object-fit:cover;}
+.prod-card-body{padding:.65rem .75rem .55rem;}
+.prod-card-name{font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prod-card-price{font-size:.82rem;font-weight:800;color:var(--blue);margin-top:.15rem;}
+.prod-card-promo{text-decoration:line-through;color:var(--gray);font-size:.68rem;margin-left:.35rem;font-weight:400;}
+.prod-card-actions{display:flex;gap:.4rem;padding:.5rem .75rem .65rem;}
+.prod-act-btn{flex:1;padding:.38rem .2rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:.7rem;font-weight:600;cursor:pointer;text-align:center;}
+.prod-act-btn.edit{color:var(--blue);}
+.prod-act-btn.del{color:var(--red);}
+.prod-badge-off{position:absolute;top:.45rem;left:.45rem;background:var(--red);color:white;font-size:.58rem;font-weight:700;padding:.18rem .42rem;border-radius:6px;}
+.prod-badge-promo{position:absolute;top:.45rem;right:.45rem;background:var(--green);color:white;font-size:.58rem;font-weight:700;padding:.18rem .42rem;border-radius:6px;}
+
+.empty-prods{text-align:center;padding:2.5rem 1rem;color:var(--gray);}
+.empty-prods .em-ico{font-size:2.5rem;margin-bottom:.6rem;}
+.empty-prods .em-txt{font-size:.82rem;}
+
+/* ── LIEN BOUTIQUE ── */
+.shop-link-card{background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:var(--radius);padding:1.2rem;color:white;margin-bottom:1rem;}
+.sl-title{font-size:.72rem;font-weight:700;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem;}
+.sl-url{font-size:.82rem;font-weight:700;word-break:break-all;margin-bottom:.85rem;opacity:.95;}
+.sl-btns{display:flex;gap:.6rem;}
+.sl-btn{flex:1;padding:.5rem;border-radius:10px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:white;font-size:.73rem;font-weight:700;cursor:pointer;text-align:center;}
+.sl-btn:hover{background:rgba(255,255,255,.22);}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-bottom:1rem;}
+.stat-box{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:.85rem .7rem;text-align:center;}
+.stat-val{font-size:1.5rem;font-weight:800;color:var(--dark);}
+.stat-lbl{font-size:.65rem;color:var(--gray);font-weight:600;margin-top:.1rem;}
+
+/* ── SAVE BTN ── */
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:.85rem 1.1rem calc(.85rem + env(safe-area-inset-bottom));display:flex;gap:.7rem;z-index:90;}
+.btn-save{flex:1;padding:.75rem;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.btn-save:disabled{opacity:.6;cursor:not-allowed;}
+
+/* ── MODAL PRODUIT ── */
+.modal-ov{position:fixed;inset:0;background:rgba(13,17,23,.55);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-ov.open .modal-sheet{transform:translateY(0);}
+.modal-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);padding:1.4rem 1.2rem calc(1.6rem + env(safe-area-inset-bottom));}
+.modal-ov.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 1.2rem;}
+.modal-title{font-size:1rem;font-weight:800;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.9rem;}
+
+/* ── FONT STYLES ── */
+.font-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;}
+.font-opt{border:2px solid var(--border);border-radius:11px;padding:.55rem .5rem;text-align:center;cursor:pointer;transition:all .2s;}
+.font-opt.sel{border-color:var(--blue);background:rgba(27,63,228,.05);}
+.font-opt .fo-name{font-size:.7rem;font-weight:600;color:var(--dark);}
+.font-opt .fo-preview{font-size:1rem;color:var(--gray);margin-bottom:.2rem;}
+
+/* ── PREMIUM GATE ── */
+.premium-gate{text-align:center;padding:2.5rem 1.5rem;background:var(--white);border-radius:var(--radius);margin:1rem;box-shadow:var(--shadow);}
+.pg-ico{font-size:3rem;margin-bottom:.8rem;}
+.pg-title{font-size:1.1rem;font-weight:800;margin-bottom:.4rem;}
+.pg-sub{font-size:.8rem;color:var(--gray);margin-bottom:1.2rem;line-height:1.5;}
+.pg-btn{display:inline-block;padding:.75rem 1.8rem;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--dark);border-radius:13px;font-weight:800;font-size:.88rem;text-decoration:none;cursor:pointer;border:none;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;padding:.6rem 1.2rem;border-radius:12px;font-size:.78rem;font-weight:600;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;pointer-events:none;border-left:3px solid var(--turq);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── NO BOUTIQUE ── */
+.create-shop-cta{background:var(--white);border-radius:var(--radius);padding:2rem 1.4rem;text-align:center;margin:1rem;box-shadow:var(--shadow);}
+.csc-ico{font-size:3rem;margin-bottom:.8rem;}
+.csc-title{font-size:1.1rem;font-weight:800;margin-bottom:.4rem;}
+.csc-sub{font-size:.78rem;color:var(--gray);margin-bottom:1.3rem;line-height:1.5;}
+.btn-create{width:100%;padding:.82rem;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:.9rem;font-weight:800;cursor:pointer;}
+
+@media(min-width:540px){.prod-grid{grid-template-columns:repeat(3,1fr);}}
+
+/* ─── STATS ────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.8rem;margin-bottom:1rem;}
+.stat-box{background:white;border-radius:14px;padding:1rem 1.1rem;border:1.5px solid var(--border);text-align:center;}
+.stat-box .sb-val{font-size:1.6rem;font-weight:800;letter-spacing:-1px;line-height:1;}
+.stat-box .sb-lbl{font-size:.65rem;color:var(--gray);margin-top:.25rem;}
+.stat-box.blue .sb-val{color:var(--blue);}
+.stat-box.green .sb-val{color:#00a896;}
+.stat-box.gold .sb-val{color:#c98a00;}
+.stat-box.red .sb-val{color:#e83030;}
+.chart-bar-wrap{background:white;border-radius:14px;border:1.5px solid var(--border);padding:1rem 1.2rem;margin-bottom:1rem;}
+.chart-title{font-size:.78rem;font-weight:700;margin-bottom:.8rem;color:var(--dark);}
+.chart-bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;}
+.chart-bar-label{font-size:.72rem;width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chart-bar-track{flex:1;background:#f0f4ff;border-radius:99px;height:18px;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .6s;}
+.chart-bar-val{font-size:.7rem;font-weight:700;color:var(--dark);width:60px;text-align:right;}
+
+/* ─── COMMANDES ─────────────────────────────────────── */
+.order-card{background:white;border-radius:14px;border:1.5px solid var(--border);margin-bottom:.75rem;overflow:hidden;}
+.order-head{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;cursor:pointer;gap:.5rem;flex-wrap:wrap;}
+.order-num{font-size:.72rem;font-weight:700;color:var(--blue);font-family:monospace;}
+.order-name{font-size:.82rem;font-weight:600;flex:1;}
+.order-total{font-size:.88rem;font-weight:800;color:#00a896;}
+.order-date{font-size:.68rem;color:var(--gray);}
+.order-body{border-top:1px solid var(--border);padding:.75rem 1rem;display:none;}
+.order-body.open{display:block;}
+.order-items{font-size:.78rem;color:var(--dark);margin-bottom:.6rem;}
+.order-item-row{display:flex;justify-content:space-between;padding:.28rem 0;border-bottom:1px solid #f0f0f0;}
+.order-item-row:last-child{border-bottom:none;}
+.order-status-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem;}
+.status-btn{padding:.3rem .7rem;border-radius:99px;border:1.5px solid var(--border);font-size:.68rem;font-weight:700;cursor:pointer;transition:all .18s;}
+.status-btn.active{background:var(--blue);border-color:var(--blue);color:white;}
+.status-new{color:#1B3FE4;background:rgba(27,63,228,.08);border-color:rgba(27,63,228,.2);}
+.status-confirmed{color:#c98a00;background:rgba(245,183,49,.1);border-color:rgba(245,183,49,.3);}
+.status-shipped{color:#8b00cc;background:rgba(139,0,204,.08);border-color:rgba(139,0,204,.2);}
+.status-delivered{color:#00a896;background:rgba(0,168,150,.1);border-color:rgba(0,168,150,.25);}
+.status-cancelled{color:#e83030;background:rgba(232,48,48,.08);border-color:rgba(232,48,48,.2);}
+.order-filter-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem;}
+.ofb{padding:.3rem .75rem;border-radius:99px;border:1.5px solid var(--border);font-size:.72rem;font-weight:600;cursor:pointer;background:white;color:var(--gray);transition:all .18s;}
+.ofb.active,.ofb:hover{background:var(--blue);border-color:var(--blue);color:white;}
+
+/* ─── AVIS ──────────────────────────────────────────── */
+.review-card{background:white;border-radius:14px;border:1.5px solid var(--border);padding:.85rem 1rem;margin-bottom:.65rem;display:flex;gap:.8rem;align-items:flex-start;}
+.review-stars{color:#f5b731;font-size:.9rem;letter-spacing:1px;}
+.review-author{font-size:.78rem;font-weight:700;}
+.review-product{font-size:.68rem;color:var(--blue);margin:.1rem 0;}
+.review-comment{font-size:.78rem;color:var(--dark);line-height:1.5;margin-top:.25rem;}
+.review-date{font-size:.65rem;color:var(--gray);}
+.review-actions{display:flex;gap:.4rem;margin-top:.5rem;flex-wrap:wrap;}
+.rv-btn{padding:.25rem .6rem;border-radius:8px;border:none;font-size:.68rem;font-weight:700;cursor:pointer;}
+.rv-btn.approve{background:rgba(0,168,150,.12);color:#00a896;}
+.rv-btn.reject{background:rgba(232,48,48,.1);color:#e83030;}
+.rv-btn.del{background:var(--bg);color:var(--gray);}
+.review-pending-badge{font-size:.62rem;font-weight:700;background:rgba(245,183,49,.15);color:#9a6e00;padding:.18rem .5rem;border-radius:99px;}
+
+/* ─── PROMOS ────────────────────────────────────────── */
+.promo-card{background:white;border-radius:14px;border:1.5px solid var(--border);padding:.85rem 1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.promo-code-badge{font-family:monospace;font-size:.88rem;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--accent));color:white;padding:.35rem .8rem;border-radius:10px;letter-spacing:2px;}
+.promo-info{flex:1;min-width:0;}
+.promo-val{font-size:.82rem;font-weight:700;color:var(--dark);}
+.promo-meta{font-size:.68rem;color:var(--gray);margin-top:.15rem;}
+.promo-uses{font-size:.72rem;font-weight:600;color:var(--blue);}
+.promo-inactive{opacity:.45;}
+.promo-actions{display:flex;gap:.4rem;}
+
+/* ─── TABS scroll ────────────────────────────────────── */
+.tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{white-space:nowrap;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;margin-top:.5rem;}
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="top-title">🏪 Ma Boutique</div>
+  <span class="top-badge">ELITE</span>
+  <button class="preview-btn" onclick="previewShop()" id="previewBtn" style="display:none">👁 Voir</button>
+</div>
+
+<!-- LOADER OVERLAY -->
+<div id="mgr-loader" style="position:fixed;inset:0;top:52px;background:var(--bg,#F5F7FC);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;">
+  <div style="width:38px;height:38px;border:3px solid #e0e6f5;border-top-color:#1B3FE4;border-radius:50%;animation:mgr-spin .7s linear infinite;"></div>
+  <div style="font-size:.78rem;color:#6B7A9B;" id="mgr-loader-txt">Chargement…</div>
+</div>
+<style>@keyframes mgr-spin{to{transform:rotate(360deg)}}</style>
+
+<!-- ERREUR OVERLAY -->
+<div id="mgr-error" style="display:none;position:fixed;inset:0;top:52px;background:#fff;z-index:51;padding:2rem;text-align:center;">
+  <div style="font-size:2.5rem;margin-bottom:.8rem;">⚠️</div>
+  <div style="font-size:.85rem;font-weight:700;margin-bottom:.4rem;" id="mgr-error-title">Erreur de chargement</div>
+  <div style="font-size:.78rem;color:#6B7A9B;line-height:1.7;max-width:320px;margin:0 auto 1rem;" id="mgr-error-msg"></div>
+  <button onclick="location.reload()" style="padding:.55rem 1.2rem;border-radius:99px;background:#1B3FE4;color:white;border:none;font-size:.8rem;font-weight:700;cursor:pointer;">🔄 Réessayer</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="tabsBar" style="display:none">
+  <div class="tab active" onclick="switchTab('info',this)">📋 Infos</div>
+  <div class="tab" onclick="switchTab('design',this)">🎨 Design</div>
+  <div class="tab" onclick="switchTab('produits',this)">📦 Produits</div>
+  <div class="tab" onclick="switchTab('lien',this)">🔗 Mon Lien</div>
+  <div class="tab" onclick="switchTab('stats',this)">📊 Stats</div>
+  <div class="tab" onclick="switchTab('commandes',this)">📦 Commandes<span id="nb-orders" style="display:none;background:#e83030;color:white;border-radius:99px;font-size:.58rem;padding:0 5px;margin-left:4px;font-weight:800;">0</span></div>
+  <div class="tab" onclick="switchTab('avis',this)">⭐ Avis<span id="nb-reviews" style="display:none;background:#f5b731;color:#000;border-radius:99px;font-size:.58rem;padding:0 5px;margin-left:4px;font-weight:800;">0</span></div>
+  <div class="tab" onclick="switchTab('promos',this)">🎟 Promos</div>
+</div>
+
+<!-- SECTION : INFOS -->
+<div class="section active" id="sec-info">
+  <div id="infoContent"></div>
+</div>
+
+<!-- SECTION : DESIGN -->
+<div class="section" id="sec-design">
+  <div id="designContent"></div>
+</div>
+
+<!-- SECTION : PRODUITS -->
+<div class="section" id="sec-produits">
+  <div id="produitsContent"></div>
+</div>
+
+<!-- SECTION : LIEN -->
+<div class="section" id="sec-lien">
+  <div id="lienContent"></div>
+</div>
+
+<!-- SECTION : STATS -->
+<div class="section" id="sec-stats">
+  <div id="statsContent"></div>
+</div>
+
+<!-- SECTION : COMMANDES -->
+<div class="section" id="sec-commandes">
+  <div id="commandesContent"></div>
+</div>
+
+<!-- SECTION : AVIS -->
+<div class="section" id="sec-avis">
+  <div id="avisContent"></div>
+</div>
+
+<!-- SECTION : PROMOS -->
+<div class="section" id="sec-promos">
+  <div id="promosContent"></div>
+</div>
+
+<!-- BARRE SAUVEGARDE -->
+<div class="save-bar" id="saveBar" style="display:none">
+  <button class="btn-save" id="saveBtn" onclick="saveShop()">💾 Sauvegarder la boutique</button>
+</div>
+
+<!-- MODAL PRODUIT -->
+<div class="modal-ov" id="prodModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">
+      <span id="prodModalTitle">➕ Nouveau produit</span>
+      <button class="modal-close" onclick="closeProdModal()">✕</button>
+    </div>
+    <div id="prodModalBody"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+
+'use strict';
+var SITE_PREMIUM_ACTIVE = false; /* Chargé depuis site_config Supabase */
+
+var SB_URL = 'https://elgbvitijyjriozvzqpf.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM';
+var sb = supabase.createClient(SB_URL, SB_KEY);
+
+var U = null, P = null, SHOP = null, PRODUCTS = [];
+var editingProductId = null;
+
+/* ═══════════ INIT ═══════════ */
+(async function(){
+  function mgrError(title, msg) {
+    document.getElementById('mgr-loader').style.display = 'none';
+    var errEl = document.getElementById('mgr-error');
+    errEl.style.display = 'block';
+    document.getElementById('mgr-error-title').textContent = title;
+    document.getElementById('mgr-error-msg').innerHTML = msg;
+  }
+  function mgrLoading(txt) {
+    var el = document.getElementById('mgr-loader-txt');
+    if (el) el.textContent = txt || 'Chargement…';
+  }
+  function mgrReady() {
+    document.getElementById('mgr-loader').style.display = 'none';
+  }
+
+  try {
+    mgrLoading('Vérification connexion…');
+    var r = await sb.auth.getSession();
+    if(!r.data || !r.data.session){ location.href='auth.html'; return; }
+    U = r.data.session.user;
+  } catch(e){
+    mgrError('Erreur de connexion', e.message);
+    return;
+  }
+
+  try {
+    mgrLoading('Chargement du profil…');
+    var pr = await sb.from('profiles').select('*').eq('id',U.id).maybeSingle();
+    P = pr.data || {};
+
+    // Lancement : boutique accessible à tous les utilisateurs connectés
+    // P.plan est utilisé uniquement pour les limites freemium ci-dessous
+
+    mgrLoading('Chargement de ta boutique…');
+    var shopRes = await sb.from('boutiques').select('*').eq('user_id',U.id).maybeSingle();
+    if(shopRes.error && shopRes.error.code !== 'PGRST116'){
+      mgrError('Erreur base de données', 'Table boutiques introuvable.<br/>Execute boutique_sql.sql dans Supabase.<br/><small style="color:#aaa">Code: '+shopRes.error.code+' — '+shopRes.error.message+'</small>');
+      return;
+    }
+
+    SHOP = shopRes.data || null;
+
+    mgrReady();
+    if(!SHOP){
+      renderCreateCTA();
+    } else {
+      mgrLoading('Chargement des produits…');
+      await loadProducts();
+      mgrReady();
+      renderAll();
+    }
+  } catch(e) {
+    mgrError('Erreur inattendue', e.message + '<br/><small style="color:#aaa">' + (e.stack||'').split('\n')[1] + '</small>');
+  }
+})();
+
+/* ═══════════ MSG D'ETAT ═══════════ */
+function setMsg(html, type){
+  var cols = {error:'var(--red)',warn:'var(--gold)',info:'var(--blue)'};
+  document.getElementById('infoContent').innerHTML =
+    '<div style="margin:1rem;padding:1.4rem 1.2rem;background:white;border-radius:16px;' +
+    'border-left:4px solid '+(cols[type]||cols.info)+';font-size:.82rem;line-height:1.7;">'+html+'</div>';
+}
+
+/* ═══════════ CTA ═══════════ */
+function renderCreateCTA(){
+  document.getElementById('tabsBar').style.display = 'none';
+  document.getElementById('saveBar').style.display = 'none';
+  document.getElementById('previewBtn').style.display = 'none';
+  document.getElementById('infoContent').innerHTML =
+    '<div class="create-shop-cta">' +
+      '<div class="csc-ico">&#x1F3EA;</div>' +
+      '<div class="csc-title">Cr\u00e9e ta boutique</div>' +
+      '<div class="csc-sub">Configure ton nom, tes couleurs, ton logo et commence \u00e0 vendre.' +
+      '<br/>Tes clients commanderont directement sur WhatsApp.</div>' +
+      '<button class="btn-create" onclick="initNewShop()">&#x1F680; Cr\u00e9er ma boutique</button>' +
+    '</div>';
+}
+
+/* ═══════════ INIT NOUVELLE BOUTIQUE ═══════════ */
+function initNewShop(){
+  var base = slugify(P.full_name || U.email.split('@')[0]);
+  SHOP = {
+    user_id: U.id,
+    slug: base + '-' + Math.random().toString(36).slice(2,6),
+    name: P.full_name || 'Ma Boutique',
+    tagline: 'Bienvenue dans ma boutique',
+    description: '',
+    logo_url: P.avatar_url || '',
+    banner_url: '',
+    whatsapp: P.whatsapp || '',
+    primary_color: '#1B3FE4',
+    accent_color: '#00C2B7',
+    bg_color: '#F5F7FC',
+    font_style: 'modern',
+    show_branding: true,
+    actif: true
+  };
+  // Restore the infoContent div before renderAll
+  document.getElementById('sec-info').innerHTML = '<div id="infoContent"></div>';
+  renderAll();
+}
+
+/* ═══════════ RENDER ALL ═══════════ */
+function renderAll(){
+  document.getElementById('tabsBar').style.display = 'flex';
+  document.getElementById('saveBar').style.display = 'flex';
+  document.getElementById('previewBtn').style.display = (SHOP && SHOP.id) ? 'block' : 'none';
+  if(!document.getElementById('infoContent')){
+    document.getElementById('sec-info').innerHTML = '<div id="infoContent"></div>';
+  }
+  renderInfo();
+  renderDesign();
+  renderProduits();
+  renderLien();
+}
+
+/* ═══════════ INFOS ═══════════ */
+function renderInfo(){
+  var el = document.getElementById('infoContent');
+  if(!el) return;
+  var _optPm = !SITE_PREMIUM_ACTIVE||(P&&(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite'));
+  var _optLock = _optPm?'':'opacity:.5;pointer-events:none;';
+  var _optPremBadge = _optPm ? '' : ' <span style="font-size:.62rem;background:rgba(245,183,49,.15);color:#9a6e00;border-radius:99px;padding:.1rem .5rem;">Premium</span>';
+  var _optBrandRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F3F7;&#xFE0F; Badge AfriMarket'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Visible en bas de ta boutique' : 'Inclus dans le plan gratuit') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleBranding" '+(_optPm?(SHOP.show_branding!==false?'checked':''):'checked')+' '+ (_optPm?'onchange="SHOP.show_branding=this.checked"':'disabled') +'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+  var _optActifRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F512; Désactiver la boutique'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Rend ta boutique invisible aux visiteurs' : 'Disponible avec Premium') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleActif" '+(_optPm?(SHOP.actif!==false?'checked':''):'checked')+' '+(_optPm?'onchange="SHOP.actif=this.checked"':'disabled')+'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+
+  el.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">&#x1F5BC;&#xFE0F; Visuels</div>' +
+      '<div class="upload-row">' +
+        '<div>' +
+          '<div class="f-label">Logo</div>' +
+          '<div class="upload-zone logo-zone" onclick="triggerUpload(\'logo\')" id="logoZone">' +
+            (SHOP.logo_url ?
+              '<img src="'+esc(SHOP.logo_url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>' :
+              '<div class="uz-ico">&#x1F5BC;&#xFE0F;</div><div class="uz-txt">Logo</div>'
+            ) +
+          '</div>' +
+          '<input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadMedia(\'logo\',this)"/>' +
+        '</div>' +
+        '<div>' +
+          '<div class="f-label">Banni\u00e8re</div>' +
+          '<div class="upload-zone logo-zone" onclick="triggerUpload(\'banner\')" id="bannerZone">' +
+            (SHOP.banner_url ?
+              '<img src="'+esc(SHOP.banner_url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>' :
+              '<div class="uz-ico">&#x1F5BC;&#xFE0F;</div><div class="uz-txt">Banni\u00e8re</div>'
+            ) +
+          '</div>' +
+          '<input type="file" id="bannerInput" accept="image/*" style="display:none" onchange="uploadMedia(\'banner\',this)"/>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">&#x1F4DD; Identit\u00e9</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">Nom de la boutique <span>*</span></label>' +
+        '<input class="f-input" id="shopName" value="'+esc(SHOP.name||'')+'" placeholder="Ex: Chez Aminata Mode" maxlength="60"/>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">Slogan</label>' +
+        '<input class="f-input" id="shopTagline" value="'+esc(SHOP.tagline||'')+'" placeholder="Ex: La mode africaine \u00e0 prix doux" maxlength="100"/>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">Description</label>' +
+        '<textarea class="f-textarea" id="shopDesc" placeholder="D\u00e9cris ta boutique\u2026" maxlength="400">'+esc(SHOP.description||'')+'</textarea>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">WhatsApp (avec indicatif) <span>*</span></label>' +
+        '<input class="f-input" id="shopWa" value="'+esc(SHOP.whatsapp||'')+'" placeholder="+237 6XX XXX XXX" type="tel"/>' +
+        '<div class="f-hint">Les commandes arrivent sur ce num\u00e9ro</div>' +
+      '</div>' +
+      '<div class="f-row">' +
+        '<label class="f-label">URL personnalis\u00e9e</label>' +
+        '<input class="f-input" id="shopSlug" value="'+esc(SHOP.slug||'')+'" placeholder="ma-boutique" maxlength="40" oninput="onSlugInput(this)"/>' +
+        '<div class="f-hint">boutique.html?shop=<strong id="slugPreview">'+esc(SHOP.slug||'')+'</strong></div>' +
+      '</div>' +
+    '</div>';
+}
+
+function onSlugInput(el){
+  var v = slugify(el.value); el.value = v;
+  var sp = document.getElementById('slugPreview');
+  if(sp) sp.textContent = v;
+}
+
+/* ═══════════ DESIGN ═══════════ */
+function renderDesign(){
+  var el = document.getElementById('designContent');
+  if(!el) return;
+  var fonts = [
+    {key:'modern',  label:'Moderne'},
+    {key:'elegant', label:'\u00c9l\u00e9gant'},
+    {key:'bold',    label:'Gras'},
+    {key:'round',   label:'Arrondi'},
+    {key:'serif',   label:'Classique'},
+    {key:'mono',    label:'Technique'}
+  ];
+  var fontGrid = fonts.map(function(f){
+    return '<div class="font-opt '+(SHOP.font_style===f.key?'sel':'')+'" onclick="selectFont(\''+f.key+'\',this)">' +
+      '<div class="fo-preview" style="'+getFontStyle(f.key)+'">Aa</div>' +
+      '<div class="fo-name">'+f.label+'</div>' +
+    '</div>';
+  }).join('');
+
+  var _optPm = !SITE_PREMIUM_ACTIVE||(P&&(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite'));
+  var _optLock = _optPm?'':'opacity:.5;pointer-events:none;';
+  var _optPremBadge = _optPm ? '' : ' <span style="font-size:.62rem;background:linear-gradient(135deg,#F5B731,#c98a00);color:white;padding:.18rem .45rem;border-radius:99px;font-weight:700;">⭐ Premium</span>';
+  var _optBrandRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F3F7;&#xFE0F; Badge AfriMarket'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Visible en bas de ta boutique' : 'Inclus dans le plan gratuit') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleBranding" '+(_optPm?(SHOP.show_branding!==false?'checked':''):'checked')+' '+ (_optPm?'onchange="SHOP.show_branding=this.checked"':'disabled') +'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+  var _optActifRow =
+    '<div class="toggle-row" style="'+_optLock+'">' +
+      '<div class="toggle-info">' +
+        '<div class="toggle-title">&#x1F512; Désactiver la boutique'+_optPremBadge+'</div>' +
+        '<div class="toggle-sub">'+ (_optPm ? 'Rend ta boutique invisible aux visiteurs' : 'Disponible avec Premium') +'</div>' +
+      '</div>' +
+      '<label class="toggle">' +
+        '<input type="checkbox" id="toggleActif" '+(_optPm?(SHOP.actif!==false?'checked':''):'checked')+' '+(_optPm?'onchange="SHOP.actif=this.checked"':'disabled')+'/>' +
+        '<span class="toggle-track"></span>' +
+      '</label>' +
+    '</div>';
+
+  el.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">&#x1F3A8; Couleurs</div>' +
+      mkColorRow('Couleur principale','cpPrimary','cpInput','cpHex', SHOP.primary_color||'#1B3FE4','primary') +
+      mkColorRow('Couleur accent','cpAccent','caInput','caHex', SHOP.accent_color||'#00C2B7','accent') +
+      mkColorRow('Couleur fond','cpBg','cbInput','cbHex', SHOP.bg_color||'#F5F7FC','bg') +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">&#x1F524; Police</div>' +
+      '<div class="font-grid">'+fontGrid+'</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">&#x2699;&#xFE0F; Options</div>' +
+      _optBrandRow +
+      _optActifRow +
+    '</div>';
+}
+
+function mkColorRow(label, previewId, inputId, hexId, val, type){
+  return '<div class="f-row"><label class="f-label">'+label+'</label>' +
+    '<div class="color-row">' +
+      '<div class="color-preview" id="'+previewId+'" style="background:'+val+'" onclick="document.getElementById(\''+inputId+'\').click()"></div>' +
+      '<input type="color" id="'+inputId+'" value="'+val+'" oninput="updateColor(\''+type+'\',this.value)" style="position:absolute;opacity:0;width:0;height:0;"/>' +
+      '<span style="font-size:.78rem;color:var(--gray)" id="'+hexId+'">'+val+'</span>' +
+    '</div></div>';
+}
+
+function getFontStyle(key){
+  var map = {
+    modern:'font-family:system-ui,sans-serif;font-size:1.3rem;',
+    elegant:'font-family:Georgia,serif;font-size:1.3rem;font-style:italic;',
+    bold:'font-family:system-ui,sans-serif;font-size:1.3rem;font-weight:900;',
+    round:'font-family:cursive;font-size:1.2rem;',
+    serif:'font-family:serif;font-size:1.3rem;',
+    mono:'font-family:monospace;font-size:1.1rem;'
+  };
+  return map[key]||map.modern;
+}
+
+function updateColor(type, val){
+  var map = {primary:['cpPrimary','cpHex'],accent:['cpAccent','caHex'],bg:['cpBg','cbHex']};
+  var ids = map[type]; if(!ids) return;
+  if(type==='primary') SHOP.primary_color=val;
+  if(type==='accent')  SHOP.accent_color=val;
+  if(type==='bg')      SHOP.bg_color=val;
+  var prev=document.getElementById(ids[0]); if(prev) prev.style.background=val;
+  var hex=document.getElementById(ids[1]);  if(hex)  hex.textContent=val;
+}
+
+function selectFont(key, el){
+  SHOP.font_style = key;
+  document.querySelectorAll('.font-opt').forEach(function(f){ f.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+/* ═══════════ PRODUITS ═══════════ */
+function renderProduits(){
+  var el = document.getElementById('produitsContent');
+  if(!el) return;
+  var isPremium = P && (P.plan === 'premium' || P.plan === 'premium_annual' || P.plan === 'elite');
+  var max = isPremium ? 9999 : 10;
+  var cnt = PRODUCTS.length;
+  var limiteBadge = isPremium ? '' :
+    ' <span style="font-size:.65rem;background:rgba(245,183,49,.15);color:#9a6e00;padding:.18rem .55rem;border-radius:99px;font-weight:700;">Gratuit : '+cnt+'/'+max+'</span>';
+  var html = '<div class="prod-header">' +
+    '<div class="prod-count">Produits' + limiteBadge + '</div>' +
+    (cnt >= max && !isPremium
+      ? '<a href="pricing.html" style="padding:.42rem .9rem;border-radius:10px;background:linear-gradient(135deg,#F5B731,#c98a00);color:white;font-size:.74rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>'
+      : '<button class="btn-add-prod" onclick="openProdModal(null)">&#x2795; Ajouter</button>'
+    ) +
+  '</div>';
+  if(!cnt){
+    html += '<div class="empty-prods"><div class="em-ico">&#x1F4E6;</div><div class="em-txt">Aucun produit.<br/>Ajoute ton premier article\u00a0!</div></div>';
+  } else {
+    html += '<div class="prod-grid">'+PRODUCTS.map(renderProdCard).join('')+'</div>';
+  }
+  el.innerHTML = html;
+}
+
+function renderProdCard(p){
+  var isPromo = p.promo_price && p.promo_price < p.price;
+  var dispPrice = isPromo ? p.promo_price : p.price;
+  var img = p.image_url
+    ? '<img src="'+esc(p.image_url)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\'&#x1F4E6;\'" />'
+    : '&#x1F4E6;';
+  return '<div class="prod-card">' +
+    '<div class="prod-card-img">'+img+'</div>' +
+    (!p.disponible ? '<div class="prod-badge-off">Indispo</div>' : '') +
+    (isPromo       ? '<div class="prod-badge-promo">Promo</div>': '') +
+    '<div class="prod-card-body">' +
+      '<div class="prod-card-name">'+esc(p.name)+'</div>' +
+      '<div class="prod-card-price">'+fmt(dispPrice)+'\u00a0F' +
+        (isPromo ? '<span class="prod-card-promo">'+fmt(p.price)+'\u00a0F</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="prod-card-actions">' +
+      '<button class="prod-act-btn edit" onclick="openProdModal(\''+p.id+'\')">&#x270F;&#xFE0F; Modifier</button>' +
+      '<button class="prod-act-btn del"  onclick="deleteProduct(\''+p.id+'\')">&#x1F5D1;&#xFE0F;</button>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ═══════════ LIEN ═══════════ */
+function renderLien(){
+  var el = document.getElementById('lienContent');
+  if(!el) return;
+  if(!SHOP || !SHOP.id){
+    el.innerHTML = '<div class="card"><div style="text-align:center;color:var(--gray);font-size:.8rem;padding:1.2rem;">Sauvegarde d\'abord ta boutique pour obtenir ton lien.</div></div>';
+    return;
+  }
+  var url = location.origin + '/boutique.html?shop=' + SHOP.slug;
+  var waMsg = encodeURIComponent('Visitez ma boutique : ' + url);
+  el.innerHTML =
+    '<div class="stats-row">' +
+      '<div class="stat-box"><div class="stat-val">'+(SHOP.views||0)+'</div><div class="stat-lbl">Vues</div></div>' +
+      '<div class="stat-box"><div class="stat-val">'+PRODUCTS.length+'</div><div class="stat-lbl">Produits</div></div>' +
+      '<div class="stat-box"><div class="stat-val">'+PRODUCTS.filter(function(p){return p.disponible;}).length+'</div><div class="stat-lbl">En stock</div></div>' +
+    '</div>' +
+    '<div class="shop-link-card">' +
+      '<div class="sl-title">&#x1F517; Ton lien boutique</div>' +
+      '<div class="sl-url">'+esc(url)+'</div>' +
+      '<div class="sl-btns">' +
+        '<button class="sl-btn" onclick="copyLink()">&#x1F4CB; Copier</button>' +
+        '<button class="sl-btn" onclick="shareWa()">&#x1F4AC; WhatsApp</button>' +
+        '<button class="sl-btn" onclick="window.open(\''+url+'\',\'_blank\')">&#x1F441;&#xFE0F; Voir</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">&#x1F4A1; Astuces</div>' +
+      '<div style="font-size:.78rem;color:var(--gray);line-height:1.9;">' +
+        '&#x2705; Bio Instagram / Facebook<br/>' +
+        '&#x2705; Statuts WhatsApp<br/>' +
+        '&#x2705; Groupes WhatsApp de vente<br/>' +
+        (SHOP.show_branding ? '&#x2699;&#xFE0F; D\u00e9sactive le badge AfriMarket dans Design' : '&#x2705; Badge AfriMarket masqu\u00e9') +
+      '</div>' +
+    '</div>';
+}
+
+function copyLink(){
+  if(!SHOP||!SHOP.slug) return;
+  var url = location.origin + '/boutique.html?shop=' + SHOP.slug;
+  navigator.clipboard.writeText(url).then(function(){ toast('Lien copi\u00e9\u00a0! &#x1F4CB;'); }).catch(function(){});
+}
+function shareWa(){
+  if(!SHOP||!SHOP.slug) return;
+  var url = location.origin + '/boutique.html?shop=' + SHOP.slug;
+  window.open('https://wa.me/?text='+encodeURIComponent('Visitez ma boutique\u00a0: '+url),'_blank');
+}
+
+/* ═══════════ SAVE BOUTIQUE ═══════════ */
+async function saveShop(){
+  var nameEl = document.getElementById('shopName');
+  var waEl   = document.getElementById('shopWa');
+  var slugEl = document.getElementById('shopSlug');
+  if(!nameEl){ toast('Va dans l\'onglet Infos pour remplir les champs','warning'); return; }
+  var name = nameEl.value.trim();
+  var wa   = waEl ? waEl.value.trim() : '';
+  var slug = slugEl ? slugEl.value.trim() : '';
+  if(!name){ toast('Nom de boutique obligatoire','error'); return; }
+  if(!wa){   toast('Num\u00e9ro WhatsApp obligatoire','error'); return; }
+  if(!slug){ toast('URL obligatoire','error'); return; }
+
+  SHOP.name        = name;
+  SHOP.tagline     = (document.getElementById('shopTagline')||{value:''}).value.trim();
+  SHOP.description = (document.getElementById('shopDesc')||{value:''}).value.trim();
+  SHOP.whatsapp    = wa;
+  SHOP.slug        = slug;
+
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '\u23F3 Sauvegarde\u2026';
+
+  try {
+    var payload = {};
+    Object.keys(SHOP).forEach(function(k){ payload[k] = SHOP[k]; });
+    payload.user_id     = U.id;
+    payload.updated_at  = new Date().toISOString();
+    var res;
+    if(SHOP.id){
+      res = await sb.from('boutiques').update(payload).eq('id', SHOP.id).select().single();
+    } else {
+      delete payload.id;
+      res = await sb.from('boutiques').insert(payload).select().single();
+    }
+    if(res.error) throw res.error;
+    SHOP = res.data;
+    renderAll();
+    toast('Boutique sauvegard\u00e9e \u2705');
+  } catch(e){
+    toast('Erreur\u00a0: '+(e.message||JSON.stringify(e)), 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = '\uD83D\uDCBE Sauvegarder la boutique';
+  }
+}
+
+/* ═══════════ PRODUITS CRUD ═══════════ */
+async function loadProducts(){
+  if(!SHOP || !SHOP.id) return;
+  var res = await sb.from('boutique_products').select('*').eq('boutique_id', SHOP.id).order('position');
+  if(!res.error) PRODUCTS = res.data || [];
+  // Load badge counts
+  loadBadgeCounts();
+}
+
+async function loadBadgeCounts() {
+  if (!SHOP || !SHOP.id) return;
+  var [orders, reviews] = await Promise.all([
+    sb.from('boutique_orders').select('id',{count:'exact',head:true}).eq('boutique_id',SHOP.id).in('status',['new']),
+    sb.from('boutique_reviews').select('id',{count:'exact',head:true}).eq('boutique_id',SHOP.id).eq('approved',false),
+  ]);
+  var nbO = orders.count || 0;
+  var nbR = reviews.count || 0;
+  var elO = document.getElementById('nb-orders');
+  var elR = document.getElementById('nb-reviews');
+  if (elO) { elO.textContent = nbO; elO.style.display = nbO > 0 ? 'inline' : 'none'; }
+  if (elR) { elR.textContent = nbR; elR.style.display = nbR > 0 ? 'inline' : 'none'; }
+}
+
+function openProdModal(id){
+  editingProductId = id;
+  var p = id ? PRODUCTS.find(function(x){ return x.id === id; }) : null;
+  EXTRA_IMAGES = p && p.images ? p.images.slice() : [];
+  document.getElementById('prodModalTitle').textContent = id ? '\u270F\uFE0F Modifier le produit' : '\u2795 Nouveau produit';
+  var cats = ['mode','electronique','alimentation','beaute','maison','sport','auto','services','autre'];
+  var catOpts = cats.map(function(c){
+    return '<option value="'+c+'"'+(p&&p.category===c?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>';
+  }).join('');
+  var existImg = p && p.image_url
+    ? '<img src="'+esc(p.image_url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>'
+    : '<div class="uz-ico">&#x1F4F7;</div><div class="uz-txt">Ajouter une photo</div>';
+
+  document.getElementById('prodModalBody').innerHTML =
+    '<div class="f-row">' +
+      '<label class="f-label">Photo</label>' +
+      '<div class="upload-zone" onclick="triggerUpload(\'product\')" id="prodImgZone" style="aspect-ratio:4/3;max-height:160px;">'+existImg+'</div>' +
+      '<input type="file" id="productInput" accept="image/*" style="display:none" onchange="uploadMedia(\'product\',this)"/>' +
+    '</div>' +
+    '<div class="f-row"><label class="f-label">Nom <span style="color:var(--red)">*</span></label>' +
+      '<input class="f-input" id="pName" value="'+esc(p&&p.name||'')+'" placeholder="Ex: Boubou Bazin" maxlength="80"/></div>' +
+    '<div class="f-row"><label class="f-label">Description</label>' +
+      '<textarea class="f-textarea" id="pDesc" placeholder="Couleurs, tailles\u2026" maxlength="300">'+esc(p&&p.description||'')+'</textarea></div>' +
+    '<div class="f-row-2">' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Prix FCFA <span style="color:var(--red)">*</span></label>' +
+        '<input class="f-input" id="pPrice" type="number" value="'+(p&&p.price||'')+'" placeholder="5000" min="0"/></div>' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Prix promo</label>' +
+        '<input class="f-input" id="pPromo" type="number" value="'+(p&&p.promo_price||'')+'" placeholder="4000" min="0"/></div>' +
+    '</div>' +
+    '<div class="f-row-2">' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Cat\u00e9gorie</label>' +
+        '<select class="f-select" id="pCat">'+catOpts+'</select></div>' +
+      '<div class="f-row" style="margin:0"><label class="f-label">Stock (-1=\u221E)</label>' +
+        '<input class="f-input" id="pStock" type="number" value="'+((p&&p.stock!=null)?p.stock:-1)+'" placeholder="-1"/></div>' +
+    '</div>' +
+    '<div class="toggle-row" style="padding:.35rem 0">' +
+      '<div class="toggle-info"><div class="toggle-title">Disponible \u00e0 la vente</div></div>' +
+      '<label class="toggle"><input type="checkbox" id="pDispo" '+((!p||p.disponible!==false)?'checked':'')+'/><span class="toggle-track"></span></label>' +
+    '</div>' +
+    '<div style="display:flex;gap:.7rem;margin-top:1rem;">' +
+      '<button style="flex:1;padding:.72rem;border-radius:12px;background:var(--bg);border:1.5px solid var(--border);font-size:.82rem;font-weight:700;cursor:pointer;" onclick="closeProdModal()">Annuler</button>' +
+      '<button style="flex:2;padding:.72rem;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;font-size:.82rem;font-weight:700;cursor:pointer;" onclick="saveProd()">&#x1F4BE; Enregistrer</button>' +
+    '</div>';
+
+  // Inject extra fields into the modal
+  var extrasEl = document.getElementById('prodModalBody');
+  if (extrasEl) {
+    var skuVal    = p ? esc(p.sku||'')    : '';
+    var weightVal = p ? esc(p.weight||'') : '';
+    var tagsVal   = p && p.tags ? p.tags.join(', ') : '';
+    var extraHtml =
+      '<div class="f-row">' +
+        '<label class="f-label">📸 Images supplémentaires</label>' +
+        '<div id="extraImgsPreview" style="margin-bottom:.5rem;"></div>' +
+        '<input type="file" id="extraImgInput" accept="image/*" style="display:none" onchange="uploadExtraImage(this)"/>' +
+        '<button class="f-input" style="cursor:pointer;color:var(--gray);font-size:.75rem;background:white;border:1.5px dashed var(--border);" onclick="document.getElementById(\'extraImgInput\').click()">+ Ajouter image galerie</button>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">' +
+        '<div class="f-row"><label class="f-label">SKU / Réf.</label><input class="f-input" id="pSku" placeholder="REF-001" value="'+skuVal+'"/></div>' +
+        '<div class="f-row"><label class="f-label">Poids/Taille</label><input class="f-input" id="pWeight" placeholder="500g, 30×20" value="'+weightVal+'"/></div>' +
+      '</div>' +
+      '<div class="f-row"><label class="f-label">🏷 Tags (virgule)</label><input class="f-input" id="pTags" placeholder="nouveau, promo, populaire" value="'+tagsVal+'"/></div>';
+    extrasEl.insertAdjacentHTML('beforeend', extraHtml);
+    EXTRA_IMAGES = p && p.images ? p.images.slice() : [];
+    renderExtraImages();
+  }
+
+  document.getElementById('prodModal').classList.add('open');
+}
+
+function closeProdModal(){
+  document.getElementById('prodModal').classList.remove('open');
+  editingProductId = null;
+}
+
+async function saveProd(){
+  var name  = (document.getElementById('pName')||{value:''}).value.trim();
+  var price = parseFloat((document.getElementById('pPrice')||{value:'0'}).value);
+  if(!name){ toast('Nom obligatoire','error'); return; }
+  if(isNaN(price)||price<0){ toast('Prix invalide','error'); return; }
+  var promo = parseFloat((document.getElementById('pPromo')||{value:''}).value)||null;
+  var desc  = (document.getElementById('pDesc')||{value:''}).value.trim();
+  var cat   = (document.getElementById('pCat')||{value:'autre'}).value;
+  var stock = parseInt((document.getElementById('pStock')||{value:'-1'}).value); if(isNaN(stock)) stock=-1;
+  var dispo = (document.getElementById('pDispo')||{checked:true}).checked;
+  var imgEl = document.getElementById('prodImgZone');
+  var imgSrc = '';
+  if(imgEl && imgEl.querySelector('img')) imgSrc = imgEl.querySelector('img').src;
+  if(!imgSrc && editingProductId){
+    var ex = PRODUCTS.find(function(x){return x.id===editingProductId;});
+    if(ex) imgSrc = ex.image_url||'';
+  }
+  var pos = editingProductId
+    ? ((PRODUCTS.find(function(x){return x.id===editingProductId;})||{position:0}).position)
+    : PRODUCTS.length;
+  // Champs extras (nécessitent boutique_upgrade.sql exécuté)
+  var skuEl    = document.getElementById('pSku');
+  var weightEl = document.getElementById('pWeight');
+  var tagsEl   = document.getElementById('pTags');
+  var skuVal2    = skuEl    ? skuEl.value.trim()    : '';
+  var weightVal2 = weightEl ? weightEl.value.trim() : '';
+  var tagsVal2   = tagsEl   ? tagsEl.value.trim().split(',').map(function(t){return t.trim();}).filter(Boolean) : [];
+  var payload = {
+    boutique_id:SHOP.id, user_id:U.id, name:name, description:desc,
+    price:price, promo_price:promo||null, image_url:imgSrc,
+    category:cat, stock:stock, disponible:dispo, position:pos,
+    updated_at:new Date().toISOString()
+  };
+  if(skuVal2)    payload.sku    = skuVal2;
+  if(weightVal2) payload.weight = weightVal2;
+  if(tagsVal2.length) payload.tags = tagsVal2;
+  if(EXTRA_IMAGES && EXTRA_IMAGES.length) payload.images = EXTRA_IMAGES;
+  try {
+    var res;
+    if(editingProductId){
+      // Ne pas inclure user_id dans le UPDATE (évite conflits RLS)
+      var updatePayload = Object.assign({}, payload);
+      delete updatePayload.user_id;
+      delete updatePayload.boutique_id;
+      res = await sb.from('boutique_products').update(updatePayload).eq('id',editingProductId).select().single();
+      if(res.error) throw res.error;
+      var idx2 = PRODUCTS.findIndex(function(x){return x.id===editingProductId;});
+      if(idx2>-1) PRODUCTS[idx2]=res.data;
+    } else {
+      var _isFreeLimit = SITE_PREMIUM_ACTIVE && !(P&&(P.plan==='premium'||P.plan==='premium_annual'||P.plan==='elite'));
+      var _maxProd = _isFreeLimit?10:9999;
+      if(PRODUCTS.length >= _maxProd){ toast('Maximum '+_maxProd+' produits. Active Premium pour plus.','warning'); return; }
+      res = await sb.from('boutique_products').insert(payload).select().single();
+      if(res.error) throw res.error;
+      PRODUCTS.push(res.data);
+    }
+    closeProdModal(); renderProduits();
+    toast(editingProductId ? 'Produit modifi\u00e9 \u2705' : 'Produit ajout\u00e9 \u2705');
+  } catch(e){ toast('Erreur\u00a0: '+e.message,'error'); console.error(e); }
+}
+
+async function deleteProduct(id){
+  if(!confirm('Supprimer ce produit d\u00e9finitivement\u00a0?')) return;
+  var res = await sb.from('boutique_products').delete().eq('id',id);
+  if(res.error){ toast('Erreur\u00a0: '+res.error.message,'error'); return; }
+  PRODUCTS = PRODUCTS.filter(function(p){ return p.id!==id; });
+  renderProduits(); toast('Produit supprim\u00e9');
+}
+
+/* ═══════════ UPLOAD ═══════════ */
+function triggerUpload(type){
+  var inp = document.getElementById(type+'Input');
+  if(inp) inp.click();
+}
+
+async function uploadMedia(type, input){
+  var file = input.files[0]; if(!file) return;
+  var maxSize = 5*1024*1024;
+  if(file.size > maxSize){ toast('Image trop grande (max 5 Mo)','warning'); return; }
+
+  // Afficher preview immédiate (sans attendre l'upload)
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var imgTag = '<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>';
+    if(type==='logo'){ var lz=document.getElementById('logoZone'); if(lz) lz.innerHTML=imgTag; }
+    else if(type==='banner'){ var bz=document.getElementById('bannerZone'); if(bz) bz.innerHTML=imgTag; }
+    else if(type==='product'){ var pz=document.getElementById('prodImgZone'); if(pz) pz.innerHTML=imgTag; }
+  };
+  reader.readAsDataURL(file);
+
+  toast('Upload en cours...','info');
+  try{
+    var ext = file.name.split('.').pop().toLowerCase();
+    var path = U.id+'/'+type+'-'+Date.now()+'.'+ext;
+
+    // Essayer boutique-media d'abord, sinon avatars
+    var buckets = ['boutique-media', 'avatars'];
+    var url = null;
+
+    for(var bi=0; bi<buckets.length; bi++){
+      var bucket = buckets[bi];
+      var up = await sb.storage.from(bucket).upload(path, file, {upsert:true, contentType:file.type});
+      if(!up.error){
+        url = sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+        break;
+      }
+      console.warn('Bucket '+bucket+' failed:', up.error.message);
+    }
+
+    if(!url){
+      // Fallback : utiliser la preview locale (base64)
+      // Le produit sera sauvegardé sans URL externe
+      toast('Image enregistrée localement. Crée le bucket boutique-media dans Supabase pour le stockage cloud.','warning');
+      return;
+    }
+
+    var imgTag = '<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:9px;"/>';
+    if(type==='logo'){ SHOP.logo_url=url; var lz2=document.getElementById('logoZone'); if(lz2) lz2.innerHTML=imgTag; }
+    else if(type==='banner'){ SHOP.banner_url=url; var bz2=document.getElementById('bannerZone'); if(bz2) bz2.innerHTML=imgTag; }
+    else if(type==='product'){ var pz2=document.getElementById('prodImgZone'); if(pz2) pz2.innerHTML=imgTag; }
+    toast('Image uploadée !','success');
+  }catch(e){
+    toast('Erreur upload: '+e.message,'error');
+    console.error('uploadMedia error:', e);
+  }
+}
+
+/* ═══════════ TAB SWITCH ═══════════ */
+function switchTab(name, el){
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('sec-'+name).classList.add('active');
+  el.classList.add('active');
+  if (name==='stats')     renderStats();
+  if (name==='commandes') renderCommandes();
+  if (name==='avis')      renderAvis();
+  if (name==='promos')    renderPromos();
+  document.getElementById('saveBar').style.display = (name==='produits'||name==='lien') ? 'none' : 'flex';
+}
+
+/* ═══════════ PREVIEW ═══════════ */
+function previewShop(){
+  if(SHOP&&SHOP.slug) window.open('boutique.html?shop='+SHOP.slug,'_blank');
+}
+
+/* ═══════════ HELPERS ═══════════ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n){ return Number(n||0).toLocaleString('fr-FR'); }
+function slugify(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+var _tt;
+function toast(msg, type){
+  type=type||'success';
+  var el=document.getElementById('toast');
+  var cols={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'};
+  el.style.borderColor={success:'var(--turq)',error:'var(--red)',warning:'var(--orange)',info:'var(--blue2)'}[type]||'var(--blue2)';
+  el.classList.add('show',type);
+  clearTimeout(_tt);
+  _tt=setTimeout(function(){el.classList.remove('show',type);},4000);
+}
+
+function noSqlMsg(t){
+  return'<div style="margin:1rem;padding:1.4rem;background:white;border-radius:16px;border-left:4px solid var(--orange)">'
+    +'<div style="font-weight:800;margin-bottom:.4rem">Table manquante</div>'
+    +'<div style="font-size:.8rem;color:var(--gray);line-height:1.6">La table <code>'+t+'</code> '
+    +'n&#39;existe pas encore.<br>Execute <strong>boutique_upgrade.sql</strong> dans Supabase SQL Editor</div></div>';
+}
+function errBox(m){
+  return'<div style="margin:1rem;padding:1.2rem;background:white;border-radius:16px;border-left:4px solid var(--red)">'
+    +'<div style="font-weight:800;color:var(--red);margin-bottom:.3rem">Erreur</div>'
+    +'<div style="font-size:.78rem;color:var(--gray)">'+esc(m)+'</div></div>';
+}
+function emptyBox(ico,t,s){
+  return'<div style="text-align:center;padding:2.5rem 1rem">'
+    +'<div style="font-size:2.5rem;margin-bottom:.6rem">'+ico+'</div>'
+    +'<div style="font-weight:700;margin-bottom:.3rem">'+t+'</div>'
+    +'<div style="font-size:.78rem;color:var(--gray)">'+s+'</div></div>';
+}
+function statBox(lb,v,s2,col){
+  return'<div style="background:var(--bg);border-radius:14px;padding:.9rem;text-align:center">'
+    +'<div style="font-size:.72rem;color:var(--gray);margin-bottom:.3rem">'+lb+'</div>'
+    +'<div style="font-size:1.3rem;font-weight:800;color:'+col+'">'+v+'</div>'
+    +'<div style="font-size:.65rem;color:var(--gray);margin-top:.2rem">'+s2+'</div></div>';
+}
+
+async function renderStats(){
+  var el=document.getElementById('statsContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var oR=await sb.from('boutique_orders').select('total,status,created_at').eq('boutique_id',SHOP.id);
+    if(oR.error&&oR.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_orders');return;}
+    var ords=oR.data||[];
+    var rev=ords.filter(function(o){return o.status==='delivered';}).reduce(function(s,o){return s+(parseFloat(o.total)||0);},0);
+    var pend=ords.filter(function(o){return o.status==='new'||o.status==='confirmed';}).length;
+    var rR=await sb.from('boutique_reviews').select('rating').eq('boutique_id',SHOP.id);
+    var revs=rR.data||[];
+    var avg=revs.length?(revs.reduce(function(s,r){return s+(r.rating||0);},0)/revs.length).toFixed(1):'--';
+    var actifs=PRODUCTS.filter(function(p){return p.disponible!==false;}).length;
+    el.innerHTML=
+      '<div class="card"><div class="card-title">Statistiques</div>'
+      +'<div class="stats-grid">'
+      +statBox('Revenus',fmt(rev)+' F','livres','#1B3FE4')
+      +statBox('Commandes',ords.length,'total','#00C2B7')
+      +statBox('En attente',pend,'a traiter','#FF6B1A')
+      +statBox('Note moy.',avg,revs.length+' avis','#F5B731')
+      +statBox('Produits',actifs,'disponibles','#00C2B7')
+      +statBox('Vues',SHOP.views||0,'boutique','#2D55FF')
+      +'</div></div>'
+      +'<div class="card" style="margin-top:.8rem"><div class="card-title">5 dernieres commandes</div>'
+      +(ords.length===0
+        ?'<div style="text-align:center;padding:1.5rem;color:var(--gray);font-size:.82rem;">Aucune commande</div>'
+        :'<div style="font-size:.78rem">'+ords.slice(-5).reverse().map(function(o){
+            var d=new Date(o.created_at).toLocaleDateString('fr-FR');
+            var col={new:'#1B3FE4',confirmed:'#F5B731',shipped:'#FF6B1A',delivered:'#00C2B7',cancelled:'#e83030'}[o.status]||'#8892A8';
+            return'<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">'
+              +'<span>'+d+'</span><span style="color:'+col+';font-weight:700;font-size:.7rem">'+o.status+'</span>'
+              +'<span style="font-weight:700">'+fmt(o.total)+' F</span></div>';
+          }).join('')+'</div>'
+      )+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+
+async function renderCommandes(){
+  var el=document.getElementById('commandesContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var res=await sb.from('boutique_orders').select('*').eq('boutique_id',SHOP.id).order('created_at',{ascending:false});
+    if(res.error&&res.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_orders');return;}
+    var orders=res.data||[];
+    var nb=document.getElementById('nb-orders');
+    var nc=orders.filter(function(o){return o.status==='new';}).length;
+    if(nb){nb.textContent=nc;nb.style.display=nc?'inline':'none';}
+    if(orders.length===0){el.innerHTML=emptyBox('&#128230;','Aucune commande','Les commandes WhatsApp apparaitront ici.');return;}
+    var sL={new:'Nouveau',confirmed:'Confirme',shipped:'Expedie',delivered:'Livre',cancelled:'Annule'};
+    var sC={new:'#1B3FE4',confirmed:'#00C2B7',shipped:'#FF6B1A',delivered:'#00a86b',cancelled:'#e83030'};
+    el.innerHTML='<div class="card"><div class="card-title">Commandes ('+orders.length+')</div>'
+      +orders.map(function(o){
+        var items=Array.isArray(o.items)?o.items:[];
+        var d=new Date(o.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+        var color=sC[o.status]||'#8892A8'; var label=sL[o.status]||o.status;
+        return'<div style="border:1px solid var(--border);border-radius:14px;padding:.9rem;margin-bottom:.7rem;background:white">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem">'
+          +'<div><div style="font-size:.8rem;font-weight:700">'+esc(o.customer_name||'Client')+'</div>'
+          +'<div style="font-size:.68rem;color:var(--gray)">'+d+' #'+(o.order_number||o.id.slice(0,8))+'</div></div>'
+          +'<span style="font-size:.68rem;font-weight:800;color:'+color+';background:'+color+'1A;padding:.2rem .55rem;border-radius:99px">'+label+'</span>'
+          +'</div>'
+          +(items.length?'<div style="font-size:.73rem;color:var(--gray);margin-bottom:.5rem">'+items.map(function(i){return esc(i.name||'?')+' x'+(i.qty||1);}).join(' - ')+'</div>':'')
+          +'<div style="display:flex;justify-content:space-between;align-items:center">'
+          +'<div style="font-size:.9rem;font-weight:800;color:var(--blue)">'+fmt(o.total)+' F</div>'
+          +'<div style="display:flex;gap:.4rem">'
+          +'<select onchange="updateOrderStatus(\'' +o.id+ '\',this.value)" style="font-size:.7rem;padding:.25rem .5rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer">'
+          +Object.keys(sL).map(function(s){return'<option value="'+s+'"'+(o.status===s?' selected':'')+'>'+sL[s]+'</option>';}).join('')
+          +'</select>'
+          +(o.customer_wa?'<a href="https://wa.me/'+o.customer_wa.replace(/\D/g,'')+'" target="_blank" style="padding:.25rem .55rem;border-radius:8px;background:#25D366;color:white;font-size:.7rem;font-weight:700;text-decoration:none">WA</a>':'')
+          +'</div></div></div>';
+      }).join('')+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+async function updateOrderStatus(id,status){
+  var res=await sb.from('boutique_orders').update({status:status,updated_at:new Date().toISOString()}).eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Statut mis a jour');renderCommandes();
+}
+
+async function renderAvis(){
+  var el=document.getElementById('avisContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var res=await sb.from('boutique_reviews').select('*').eq('boutique_id',SHOP.id).order('created_at',{ascending:false});
+    if(res.error&&res.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_reviews');return;}
+    var reviews=res.data||[];
+    var nb=document.getElementById('nb-reviews');
+    var pnd=reviews.filter(function(r){return !r.approved;}).length;
+    if(nb){nb.textContent=pnd;nb.style.display=pnd?'inline':'none';}
+    if(reviews.length===0){el.innerHTML=emptyBox('&#11088;','Aucun avis','Les avis de tes clients apparaitront ici.');return;}
+    el.innerHTML='<div class="card"><div class="card-title">Avis clients ('+reviews.length+')</div>'
+      +reviews.map(function(r){
+        var stars='&#11088;'.repeat(r.rating||5);
+        var d=new Date(r.created_at).toLocaleDateString('fr-FR');
+        return'<div style="border:1px solid var(--border);border-radius:14px;padding:.9rem;margin-bottom:.7rem;background:white">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem">'
+          +'<div><div style="font-size:.8rem;font-weight:700">'+esc(r.customer_name||'Anonyme')+' <span style="font-size:.75rem">'+stars+'</span></div>'
+          +'<div style="font-size:.68rem;color:var(--gray)">'+d+'</div></div>'
+          +'<span style="font-size:.68rem;padding:.18rem .5rem;border-radius:99px;font-weight:700;'+(r.approved?'background:#00C2B71A;color:#00a86b':'background:#F5B7311A;color:#9a6e00')+'">'
+          +(r.approved?'Publie':'En attente')+'</span>'
+          +'</div>'
+          +(r.comment?'<div style="font-size:.8rem;color:var(--dark);line-height:1.5;margin-bottom:.6rem">&laquo;'+esc(r.comment)+'&raquo;</div>':'')
+          +'<div style="display:flex;gap:.4rem;justify-content:flex-end">'
+          +(!r.approved?'<button onclick="approveReview(\'' +r.id+ '\')" style="padding:.25rem .7rem;border-radius:8px;background:#00C2B7;color:white;border:none;font-size:.72rem;font-weight:700;cursor:pointer">Approuver</button>':'')
+          +'<button onclick="deleteReview(\'' +r.id+ '\')" style="padding:.25rem .7rem;border-radius:8px;background:#e830301A;color:#e83030;border:none;font-size:.72rem;font-weight:700;cursor:pointer">Supprimer</button>'
+          +'</div></div>';
+      }).join('')+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+async function approveReview(id){
+  var res=await sb.from('boutique_reviews').update({approved:true}).eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Avis publie');renderAvis();
+}
+async function deleteReview(id){
+  if(!confirm('Supprimer cet avis ?'))return;
+  var res=await sb.from('boutique_reviews').delete().eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Avis supprime');renderAvis();
+}
+
+async function renderPromos(){
+  var el=document.getElementById('promosContent');
+  if(!el)return;
+  el.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray)">Chargement...</div>';
+  try{
+    var res=await sb.from('boutique_promos').select('*').eq('boutique_id',SHOP.id).order('created_at',{ascending:false});
+    if(res.error&&res.error.code==='42P01'){el.innerHTML=noSqlMsg('boutique_promos');return;}
+    var promos=res.data||[];
+    el.innerHTML=
+      '<div class="card"><div class="card-title">Creer un code promo</div>'
+      +'<div class="f-row"><label class="f-label">Code promo</label>'
+      +'<input class="f-input" id="promoCode" placeholder="Ex: NOEL20" maxlength="20" style="text-transform:uppercase"/></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Type</label>'
+      +'<select class="f-select" id="promoType"><option value="percent">% Reduction</option><option value="fixed">FCFA fixe</option></select></div>'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Valeur</label>'
+      +'<input class="f-input" id="promoVal" type="number" placeholder="Ex: 20" min="1"/></div></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.4rem">'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Commande min (FCFA)</label>'
+      +'<input class="f-input" id="promoMin" type="number" placeholder="0" min="0"/></div>'
+      +'<div class="f-row" style="margin:0"><label class="f-label">Max utilisations</label>'
+      +'<input class="f-input" id="promoMaxUses" type="number" placeholder="100" min="1"/></div></div>'
+      +'<div class="f-row" style="margin-top:.4rem"><label class="f-label">Expiration (optionnel)</label>'
+      +'<input class="f-input" id="promoExpiry" type="date"/></div>'
+      +'<button class="btn-save" onclick="createPromo()" style="margin-top:.8rem;width:100%">Creer le code</button></div>'
+      +'<div class="card" style="margin-top:.8rem"><div class="card-title">Mes codes ('+promos.length+')</div>'
+      +(promos.length===0
+        ?'<div style="text-align:center;padding:1.2rem;color:var(--gray);font-size:.8rem;">Aucun code cree</div>'
+        :promos.map(function(p){
+            var expired=p.expires_at&&new Date(p.expires_at)<new Date();
+            return'<div style="border:1px solid var(--border);border-radius:14px;padding:.9rem;margin-bottom:.6rem;background:white'+(expired?';opacity:.6':'')+'">'
+              +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">'
+              +'<div style="font-family:monospace;font-size:1rem;font-weight:800;color:var(--blue)">'+esc(p.code)+'</div>'
+              +'<label class="toggle"><input type="checkbox"'+(p.actif?' checked':'')+' onchange="togglePromo(\'' +p.id+ '\',this.checked)"/>'
+              +'<span class="toggle-track"></span></label></div>'
+              +'<div style="font-size:.75rem;color:var(--gray);display:flex;gap:.8rem;flex-wrap:wrap">'
+              +'<span>'+(p.type==='percent'?p.value+'%':fmt(p.value)+' FCFA')+'</span>'
+              +(p.min_order?'<span>Min: '+fmt(p.min_order)+' F</span>':'')
+              +'<span>Utilise: '+(p.uses||0)+'/'+(p.max_uses||'inf')+'</span>'
+              +(p.expires_at?'<span>'+(expired?'Expire ':'Expire ')+new Date(p.expires_at).toLocaleDateString('fr-FR')+'</span>':'')
+              +'</div><div style="text-align:right;margin-top:.5rem">'
+              +'<button onclick="deletePromo(\'' +p.id+ '\')" style="padding:.22rem .6rem;border-radius:8px;background:#e830301A;color:#e83030;border:none;font-size:.7rem;cursor:pointer">Supprimer</button>'
+              +'</div></div>';
+          }).join('')
+      )+'</div>';
+  }catch(e){el.innerHTML=errBox(e.message);}
+}
+async function createPromo(){
+  var code=(document.getElementById('promoCode').value||'').trim().toUpperCase();
+  var type=document.getElementById('promoType').value;
+  var val=parseFloat(document.getElementById('promoVal').value);
+  var min=parseFloat(document.getElementById('promoMin').value)||0;
+  var maxU=parseInt(document.getElementById('promoMaxUses').value)||100;
+  var exp=document.getElementById('promoExpiry').value;
+  if(!code){toast('Code promo obligatoire','error');return;}
+  if(!val||val<=0){toast('Valeur obligatoire','error');return;}
+  var payload={boutique_id:SHOP.id,code:code,type:type,value:val,min_order:min,max_uses:maxU,uses:0,actif:true};
+  if(exp)payload.expires_at=new Date(exp).toISOString();
+  var res=await sb.from('boutique_promos').insert(payload);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Code promo cree');renderPromos();
+}
+async function togglePromo(id,active){
+  var res=await sb.from('boutique_promos').update({actif:active}).eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast(active?'Code active':'Code desactive');renderPromos();
+}
+async function deletePromo(id){
+  if(!confirm('Supprimer ce code promo ?'))return;
+  var res=await sb.from('boutique_promos').delete().eq('id',id);
+  if(res.error){toast('Erreur: '+res.error.message,'error');return;}
+  toast('Code supprime');renderPromos();
+}
+</script>
+
+<script src="push.js"></script>
+</body>
+</html>

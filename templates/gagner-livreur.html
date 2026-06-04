@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>AfriMarket — Livreur Indépendant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root{--dark:#080E2A;--blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;
+      --green:#00C271;--gold:#F5B731;--red:#E83030;--gray:#8892A4;--border:#E8EDF5;--bg:#F4F6FC;--nav-h:72px;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);
+      padding-bottom:calc(var(--nav-h)+24px+env(safe-area-inset-bottom,0px));overflow-x:hidden;}
+    .hdr{background:linear-gradient(135deg,var(--dark),#0D1E6B);
+      padding:calc(env(safe-area-inset-top,0px)+.8rem) 1.2rem 0;
+      display:flex;align-items:center;gap:.8rem;}
+    .h-back{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+      color:white;border-radius:10px;padding:.38rem .8rem;font-size:.78rem;font-weight:600;
+      cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;}
+    .hero{background:linear-gradient(135deg,var(--dark),#0D1E6B);padding:1rem 1.2rem 2rem;text-align:center;}
+    .hero-ico{width:72px;height:72px;border-radius:20px;
+      background:#00995825;border:2px solid #00995850;
+      display:flex;align-items:center;justify-content:center;font-size:2rem;
+      margin:0 auto .8rem;}
+    .hero-name{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:white;margin-bottom:.3rem;}
+    .hero-tag{font-size:.78rem;color:rgba(255,255,255,.65);margin-bottom:.8rem;}
+    .earn-pill{display:inline-flex;align-items:center;gap:.4rem;
+      background:rgba(0,194,113,.2);border:1px solid rgba(0,194,113,.35);
+      border-radius:99px;padding:.38rem 1rem;color:#00E584;font-size:.8rem;font-weight:700;}
+    .content{padding:1rem 1.2rem;}
+    .card{background:white;border-radius:16px;border:1.5px solid var(--border);
+      padding:1rem 1.1rem;margin-bottom:.8rem;box-shadow:0 2px 8px rgba(27,63,228,.05);}
+    .card-title{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;
+      color:var(--dark);margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+    .desc-text{font-size:.82rem;color:#444;line-height:1.7;}
+    .what-counts{background:#E8FFF5;border:1.5px solid #00995830;
+      border-radius:12px;padding:.75rem .9rem;font-size:.76rem;color:var(--dark);
+      line-height:1.6;margin-top:.5rem;}
+    .what-counts strong{color:#009958;}
+    .sec{margin-top:.3rem;}
+    .f-lbl{font-size:.73rem;font-weight:700;color:var(--dark);margin-bottom:.38rem;display:block;margin-top:.7rem;}
+    .f-inp{width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;
+      padding:.7rem .9rem;color:var(--dark);font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:.84rem;outline:none;transition:border-color .2s;resize:none;}
+    .f-inp:focus{border-color:var(--blue2);background:white;}
+    .f-inp::placeholder{color:var(--gray);}
+    .submit-btn{width:100%;padding:.9rem;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      border:none;border-radius:14px;color:white;
+      font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;
+      cursor:pointer;margin-top:1rem;box-shadow:0 4px 14px rgba(27,63,228,.3);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .already-applied{background:linear-gradient(135deg,var(--green),#00A878);
+      border-radius:16px;padding:1.2rem;text-align:center;color:white;margin-bottom:1rem;}
+    .already-applied h3{font-family:'Clash Display',sans-serif;font-size:1rem;margin-bottom:.3rem;}
+    .already-applied p{font-size:.78rem;opacity:.9;}
+    .already-btn{display:inline-block;margin-top:.7rem;background:white;
+      color:var(--green);border:none;border-radius:10px;padding:.5rem 1.2rem;
+      font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;
+      border-top:1px solid var(--border);display:flex;align-items:center;
+      justify-content:space-around;padding:0 .5rem;
+      padding-bottom:env(safe-area-inset-bottom,0px);
+      height:calc(var(--nav-h)+env(safe-area-inset-bottom,0px));
+      box-shadow:0 -4px 20px rgba(8,14,42,.08);z-index:99;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:.18rem;
+      padding:.4rem .6rem;border:none;background:none;cursor:pointer;border-radius:12px;min-width:52px;}
+    .nav-ico{font-size:1.25rem;line-height:1;}
+    .nav-lbl{font-size:.58rem;font-weight:600;color:var(--gray);}
+    .nav-plus-btn{width:44px;height:44px;border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;
+      border:none;cursor:pointer;box-shadow:0 4px 14px rgba(27,63,228,.4);}
+    #toast{position:fixed;bottom:calc(var(--nav-h)+12px+env(safe-area-inset-bottom,0px));
+      left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:white;
+      padding:.65rem 1.1rem;border-radius:14px;font-size:.8rem;font-weight:600;
+      opacity:0;transition:all .35s;pointer-events:none;z-index:600;
+      border-left:3px solid var(--turq);max-width:88vw;text-align:center;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .loading{text-align:center;padding:2rem;color:var(--gray);}
+    .spin{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--blue2);
+      border-radius:50%;animation:spin .7s linear infinite;margin:0 auto .6rem;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+<div class="hdr">
+  <button class="h-back" onclick="location.href='gagner.html'">← Retour</button>
+</div>
+
+<div class="hero">
+  <div class="hero-ico">📦</div>
+  <div class="hero-name">Livreur Indépendant</div>
+  <div class="hero-tag">Livre dans ta zone, gagne à chaque course</div>
+  <div class="earn-pill">💰 500 – 3000 FCFA par livraison (80% des frais)</div>
+</div>
+
+<div class="content">
+  <!-- ÉTAT CANDIDATURE -->
+  <div id="statusSection"></div>
+
+  <!-- DESCRIPTION -->
+  <div class="card">
+    <div class="card-title">📦 C'est quoi ce travail ?</div>
+    <div class="desc-text">Quand un acheteur et un vendeur concluent un deal, ils ont besoin de quelqu'un pour livrer le colis. Toi tu opères dans ta zone géographique. L'acheteur paie les frais de livraison, tu en reçois 80%. Tu es libre de ta disponibilité.</div>
+    <div class="what-counts" style="margin-top:.8rem;">
+      <strong>✅ Ce qui compte :</strong> Livraison confirmée = acheteur a reçu le colis et tu as soumis la preuve photo.
+    </div>
+  </div>
+
+  <!-- COMMENT ÇA MARCHE -->
+  <div class="card">
+    <div class="card-title">📋 Comment ça marche ?</div>
+    
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#00995815;border:1.5px solid #00995830;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📍</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Définis ta zone</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Lors de la candidature, précise les villes, quartiers ou axes que tu peux couvrir.</div></div>
+      </div>
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#00995815;border:1.5px solid #00995830;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📲</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Reçois les demandes</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Quand une livraison est disponible dans ta zone, tu reçois une notification.</div></div>
+      </div>
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#00995815;border:1.5px solid #00995830;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🚗</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Effectue la livraison</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Tu récupères le colis chez le vendeur, tu livres à l'acheteur, tu prends une photo de confirmation.</div></div>
+      </div>
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border);">
+        <div style="width:36px;height:36px;border-radius:12px;background:#00995815;border:1.5px solid #00995830;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">✅</div>
+        <div><div style="font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:.15rem;">Soumets ta preuve</div><div style="font-size:.75rem;color:var(--gray);line-height:1.5;">Photo de la livraison + confirmation de l'acheteur (WhatsApp ou signature). Gain crédité en 24h.</div></div>
+      </div>
+  </div>
+  
+
+  <!-- TABLEAU DES GAINS -->
+  <div class="card">
+    <div class="card-title">💰 Grille des gains</div>
+    
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">📦</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">Livraison locale (<5km)</span>
+        </div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">500 – 800 FCFA</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">📦</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">Livraison ville (5-20km)</span>
+        </div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">1 000 – 1 500 FCFA</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">📦</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">Livraison inter-quartier</span>
+        </div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">1 500 – 3 000 FCFA</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:.9rem;">📦</span>
+          <span style="font-size:.78rem;color:var(--dark);font-weight:600;">10 livraisons/semaine</span>
+        </div>
+        <span style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--green);">Bonus 2 000 FCFA supplémentaires</span>
+      </div>
+    <div style="font-size:.72rem;color:var(--gray);margin-top:.7rem;line-height:1.5;">
+      💡 Pas de plafond. Tu travailles autant que tu veux. Paiements via Mobile Money sous 48h après validation.
+    </div>
+  </div>
+
+  <!-- FORMULAIRE CANDIDATURE -->
+  <div id="formSection"></div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" onclick="location.href='messages.html'"><span class="nav-ico">💬</span><span class="nav-lbl">Messages</span></button>
+  <div class="nav-item"><button class="nav-plus-btn" onclick="location.href='dashboard.html'">➕</button><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Publier</span></div>
+  <button class="nav-item active"><span class="nav-ico">💰</span><span class="nav-lbl" style="color:var(--blue2);font-weight:700">Gagner</span></button>
+  <button class="nav-item" onclick="location.href='profil.html'"><span class="nav-ico">👤</span><span class="nav-lbl">Profil</span></button>
+</nav>
+<div id="toast"></div>
+
+<script>
+const _sb = supabase.createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+const SVC_ID = 'gagner-livreur';
+const SVC_NEEDS_FORMATION = false;
+
+var U = null, _reg = null;
+
+(async function(){
+  // Timeout de sécurité : si tout plante, afficher le formulaire quand même
+  var _done = false;
+  var _timeout = setTimeout(function(){
+    if(!_done){ _done=true; renderForm(null); }
+  }, 6000);
+
+  try {
+    var sess = await _sb.auth.getSession();
+    if(!sess.data.session){
+      clearTimeout(_timeout); _done=true;
+      renderForm(null); return;
+    }
+    U = sess.data.session.user;
+
+    // Requête simple pour éviter les erreurs de colonnes manquantes
+    var res = await _sb.from('service_registrations')
+      .select('*')
+      .eq('user_id', U.id)
+      .eq('service', SVC_ID)
+      .maybeSingle();
+
+    _reg = (res && !res.error) ? res.data : null;
+
+    clearTimeout(_timeout); _done=true;
+    renderStatus(_reg);
+    renderForm(_reg);
+  } catch(e) {
+    clearTimeout(_timeout); _done=true;
+    console.warn('Init:', e.message);
+    renderForm(null);
+  }
+})();
+
+function renderStatus(reg){
+  if(!reg) return;
+  var el = document.getElementById('statusSection');
+  if(reg.status==='pending'){
+    el.innerHTML = '<div style="background:rgba(245,183,49,.1);border:1.5px solid rgba(245,183,49,.3);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
+      '<div style="font-size:1.5rem;margin-bottom:.3rem;">⏳</div>' +
+      '<div style="font-size:.9rem;font-weight:700;">Candidature en cours d&#39;examen</div>' +
+      '<div style="font-size:.75rem;color:#8A94A6;margin-top:.3rem;">On revient vers toi sous 24-48h.</div>' +
+      '</div>';
+  } else if(reg.status==='approved'){
+    var goUrl = (SVC_NEEDS_FORMATION && !reg.formation_done)
+      ? 'formation.html?service=' + SVC_ID
+      : 'mes-candidatures.html';
+    var goLabel = (SVC_NEEDS_FORMATION && !reg.formation_done)
+      ? '📚 Commencer la formation →'
+      : '🚀 Aller travailler →';
+    el.innerHTML = '<div class="already-applied">' +
+      '<h3>✅ Tu es approuvé(e) !</h3>' +
+      '<p>Ton code agent : <strong>' + (reg.agent_code || 'En cours de génération…') + '</strong></p>' +
+      '<button class="already-btn" onclick="location.href=\"' + goUrl + '\"">'+goLabel+'</button>' +
+      '</div>';
+  } else if(reg.status==='rejected'){
+    el.innerHTML = '<div style="background:rgba(232,48,48,.06);border:1.5px solid rgba(232,48,48,.2);border-radius:14px;padding:1rem;margin-bottom:.8rem;text-align:center;">' +
+      '<div style="font-size:.85rem;font-weight:700;color:#E4341B;">❌ Candidature non retenue</div>' +
+      '<div style="font-size:.75rem;color:#8A94A6;margin-top:.3rem;">' + (reg.admin_note || 'Tu peux recandidater.') + '</div>' +
+      '</div>';
+  }
+}
+
+function renderForm(reg){
+  if(reg && reg.status==='approved'){
+    document.getElementById('formSection').innerHTML = '';
+    return;
+  }
+  var isReapply = reg && reg.status==='rejected';
+  document.getElementById('formSection').innerHTML = `
+    <div class="card">
+      <div class="card-title">📝 ${isReapply ? 'Recandidater' : 'Postuler maintenant'}</div>
+      <div style="font-size:.76rem;color:var(--gray);margin-bottom:.8rem;line-height:1.5;">
+        Remplis ce formulaire. On étudie ta candidature sous 24h et on te notifie.
+      </div>
+      <label class="f-lbl">Ton prénom et nom *</label>
+      <input class="f-inp" id="rName" placeholder="Ex: Kouamé Diallo" required/>
+      <label class="f-lbl">Ton numéro WhatsApp *</label>
+      <input class="f-inp" id="rWhatsapp" type="tel" placeholder="+237 6XX XXX XXX" required/>
+      <label class="f-lbl">Ta ville *</label>
+      <input class="f-inp" id="rVille" placeholder="Ex: Douala, Yaoundé, Abidjan…" required/>
+
+    <label class="f-lbl">Zone de livraison couverte *</label>
+    <input class="f-inp" type="text" id="zone_couverture" placeholder="Ex: Akwa, Bonanjo, Deido à Douala…" required/>
+    <label class="f-lbl">Moyen de déplacement *</label>
+    <input class="f-inp" type="text" id="experience" placeholder="Moto, voiture, vélo, à pied…" required/>
+      <label class="f-lbl">Pourquoi tu veux faire ce travail ? *</label>
+      <textarea class="f-inp" id="rMotiv" rows="3" placeholder="Quelques lignes sur ta motivation et ta disponibilité…" required></textarea>
+      <button class="submit-btn" id="submitBtn" onclick="submitCand()">
+        ${isReapply ? '↩ Recandidater' : '✅ Envoyer ma candidature'}
+      </button>
+    </div>`;
+}
+
+async function submitCand(){
+  var name    = (document.getElementById('rName')||{}).value?.trim();
+  var whatsapp= (document.getElementById('rWhatsapp')||{}).value?.trim();
+  var ville   = (document.getElementById('rVille')||{}).value?.trim();
+  var motiv   = (document.getElementById('rMotiv')||{}).value?.trim();
+  var zone    = (document.getElementById('zone_couverture')||{}).value?.trim()||'';
+  var exp     = (document.getElementById('experience')||{}).value?.trim()||'';
+
+  if(!name||!whatsapp||!ville||!motiv){ toast('Remplis tous les champs obligatoires','warn'); return; }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='⏳ Envoi…';
+
+  if(!U){ toast('Tu dois être connecté pour postuler','err'); btn.disabled=false; btn.textContent='✅ Envoyer ma candidature'; return; }
+
+  try{
+    var payload = {
+      user_id:U.id, service:SVC_ID, name, whatsapp, ville,
+      motivation:motiv, status:'pending',
+      zone_couverture:zone||null, experience:exp||null
+    };
+    // Si recandidature, supprimer l'ancienne
+    if(_reg && _reg.status==='rejected'){
+      await _sb.from('service_registrations').delete().eq('id',_reg.id);
+    }
+    var {error} = await _sb.from('service_registrations').insert(payload);
+    if(error) throw error;
+    toast('✅ Candidature envoyée ! On revient vers toi sous 24h.','ok');
+    btn.textContent='✅ Envoyée !';
+    setTimeout(function(){location.href='gagner.html';},2000);
+  } catch(e){
+    btn.disabled=false; btn.textContent='✅ Envoyer ma candidature';
+    toast('Erreur : '+e.message,'err');
+  }
+}
+
+var _tt;
+function toast(msg,t){
+  var el=document.getElementById('toast');
+  el.textContent=msg;el.className='show';
+  el.style.borderLeftColor=t==='err'?'var(--red)':t==='warn'?'var(--gold)':'var(--turq)';
+  clearTimeout(_tt);_tt=setTimeout(function(){el.className='';},4500);
+}
+</script>
+</body>
+</html>

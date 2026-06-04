@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AfriMarket — La marketplace africaine</title>
+<meta name="description" content="AfriMarket — Achète, vends et gagne de l'argent depuis ton téléphone. La plateforme des petites annonces africaines."/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --dark:#080E2A; --blue:#1B3FE4; --blue2:#2D55FF;
+  --turq:#00C2B7; --gold:#F5B731; --orange:#FF6B1A;
+  --white:#fff; --gray:#8892A4; --border:rgba(255,255,255,.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark);color:var(--white);overflow-x:hidden;}
+
+/* ── HERO ───────────────────────────────────────── */
+.hero{
+  min-height:100vh;
+  background:linear-gradient(145deg,#060D24 0%,#0d1a4a 40%,#080E2A 100%);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:2rem 1.2rem 6rem;
+  text-align:center;
+}
+
+/* Grille de fond */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(rgba(27,63,228,.06) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(27,63,228,.06) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;
+}
+
+/* Glow orbes */
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(60px);}
+.orb1{width:350px;height:350px;background:rgba(0,194,183,.15);top:-80px;right:-80px;}
+.orb2{width:280px;height:280px;background:rgba(27,63,228,.2);bottom:-60px;left:-60px;}
+.orb3{width:200px;height:200px;background:rgba(245,183,49,.1);top:40%;right:10%;}
+
+/* NAVBAR */
+.navbar{
+  position:fixed;top:0;left:0;right:0;
+  padding:.9rem 1.4rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,14,42,.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  z-index:100;
+}
+.nav-logo{display:flex;align-items:center;gap:.55rem;}
+.nav-logo-ico{width:36px;height:36px;background:linear-gradient(135deg,var(--turq),var(--blue));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.nav-logo-name{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;}
+.nav-logo-name span{color:var(--turq);}
+.nav-btns{display:flex;gap:.5rem;}
+.btn-ghost{padding:.45rem .9rem;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:rgba(255,255,255,.8);font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-ghost:hover{border-color:var(--turq);color:var(--turq);}
+.btn-solid{padding:.45rem 1.1rem;border-radius:10px;border:none;background:linear-gradient(135deg,var(--turq),var(--blue));color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;box-shadow:0 3px 14px rgba(0,194,183,.3);}
+.btn-solid:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(0,194,183,.4);}
+
+/* HERO CONTENT */
+.hero-content{position:relative;z-index:1;max-width:520px;margin-top:4rem;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(0,194,183,.12);border:1px solid rgba(0,194,183,.3);
+  color:var(--turq);font-size:.72rem;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:.35rem .9rem;border-radius:99px;
+  margin-bottom:1.4rem;
+}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--turq);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+
+.hero-title{
+  font-family:'Clash Display',sans-serif;
+  font-size:clamp(2rem,8vw,3.2rem);
+  font-weight:700;line-height:1.1;
+  margin-bottom:1rem;
+}
+.hero-title .accent{
+  background:linear-gradient(135deg,var(--turq),var(--blue2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:.95rem;color:rgba(255,255,255,.65);
+  line-height:1.75;margin-bottom:2rem;
+  max-width:400px;margin-left:auto;margin-right:auto;
+}
+
+/* CTA BOUTONS */
+.hero-ctas{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;}
+.cta-main{
+  padding:.85rem 2rem;border-radius:14px;
+  background:linear-gradient(135deg,var(--turq),var(--blue));
+  color:white;font-weight:800;font-size:1rem;
+  border:none;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.5rem;
+  box-shadow:0 6px 24px rgba(0,194,183,.35);
+  transition:all .2s;
+}
+.cta-main:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,194,183,.45);}
+.cta-sec{
+  padding:.85rem 1.6rem;border-radius:14px;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.15);
+  color:white;font-weight:700;font-size:.95rem;
+  cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.5rem;
+  backdrop-filter:blur(8px);
+  transition:all .2s;
+}
+.cta-sec:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);}
+
+/* STATS */
+.hero-stats{
+  display:flex;gap:2rem;justify-content:center;
+  flex-wrap:wrap;
+}
+.hero-stat{text-align:center;}
+.hero-stat-n{
+  font-family:'Clash Display',sans-serif;
+  font-size:1.5rem;font-weight:700;
+  background:linear-gradient(135deg,var(--turq),var(--blue2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-stat-l{font-size:.7rem;color:rgba(255,255,255,.5);margin-top:.1rem;}
+
+/* PHONE MOCKUP */
+.mockup-wrap{
+  position:relative;z-index:1;
+  margin-top:3rem;
+  display:flex;justify-content:center;
+}
+.mockup{
+  width:220px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:28px;
+  padding:1.2rem .8rem;
+  backdrop-filter:blur(10px);
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.mockup-notch{width:70px;height:6px;background:rgba(255,255,255,.15);border-radius:99px;margin:0 auto .8rem;}
+.mockup-screen{background:#0C1535;border-radius:18px;padding:.8rem;min-height:200px;}
+.mock-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem;}
+.mock-logo{font-family:'Clash Display',sans-serif;font-size:.7rem;font-weight:700;color:var(--turq);}
+.mock-badge{font-size:.55rem;background:rgba(0,194,183,.2);color:var(--turq);padding:.15rem .4rem;border-radius:6px;font-weight:700;}
+.mock-card{background:rgba(255,255,255,.05);border-radius:10px;padding:.5rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;}
+.mock-card-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+.mock-card-info{flex:1;}
+.mock-card-title{font-size:.55rem;font-weight:700;color:white;margin-bottom:.1rem;}
+.mock-card-price{font-size:.5rem;color:var(--turq);font-weight:700;}
+.mock-cta-btn{width:100%;margin-top:.6rem;padding:.45rem;background:linear-gradient(135deg,var(--turq),var(--blue));border-radius:8px;font-size:.6rem;font-weight:800;color:white;border:none;cursor:default;}
+
+/* ── FEATURES ───────────────────────────────────── */
+.section{padding:5rem 1.2rem;max-width:600px;margin:0 auto;}
+.section-label{font-size:.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--turq);margin-bottom:.6rem;text-align:center;}
+.section-title{font-family:'Clash Display',sans-serif;font-size:clamp(1.6rem,5vw,2.2rem);font-weight:700;text-align:center;line-height:1.2;margin-bottom:.8rem;}
+.section-sub{font-size:.88rem;color:rgba(255,255,255,.55);text-align:center;line-height:1.7;margin-bottom:2.5rem;}
+
+.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+.feat{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:18px;padding:1.2rem 1rem;
+  transition:all .2s;
+}
+.feat:hover{background:rgba(255,255,255,.07);border-color:rgba(0,194,183,.2);transform:translateY(-2px);}
+.feat-ico{font-size:1.8rem;margin-bottom:.6rem;}
+.feat-title{font-weight:800;font-size:.88rem;margin-bottom:.3rem;}
+.feat-desc{font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.55;}
+
+/* ── EARNING ─────────────────────────────────────── */
+.earn-section{
+  background:linear-gradient(135deg,rgba(27,63,228,.12),rgba(0,194,183,.08));
+  border:1px solid rgba(0,194,183,.15);
+  border-radius:24px;padding:1.8rem 1.3rem;
+  margin:0 1.2rem 3rem;
+}
+.earn-title{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.4rem;}
+.earn-sub{font-size:.8rem;color:rgba(255,255,255,.55);margin-bottom:1.3rem;line-height:1.6;}
+.earn-ways{display:flex;flex-direction:column;gap:.6rem;}
+.earn-way{display:flex;align-items:center;gap:.8rem;background:rgba(255,255,255,.04);border-radius:12px;padding:.7rem .9rem;}
+.earn-way-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.earn-way-info{flex:1;}
+.earn-way-title{font-size:.82rem;font-weight:700;margin-bottom:.1rem;}
+.earn-way-desc{font-size:.68rem;color:rgba(255,255,255,.5);}
+.earn-way-amount{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;color:var(--turq);flex-shrink:0;}
+
+/* ── TESTIMONIALS ────────────────────────────────── */
+.testi-grid{display:flex;flex-direction:column;gap:.8rem;margin-bottom:2rem;}
+.testi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1rem 1.1rem;}
+.testi-text{font-size:.82rem;color:rgba(255,255,255,.8);line-height:1.65;margin-bottom:.7rem;font-style:italic;}
+.testi-author{display:flex;align-items:center;gap:.5rem;}
+.testi-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.testi-name{font-weight:700;font-size:.78rem;}
+.testi-loc{font-size:.65rem;color:rgba(255,255,255,.4);}
+
+/* ── CTA FINALE ──────────────────────────────────── */
+.cta-section{
+  background:linear-gradient(145deg,#1B3FE4,#00C2B7);
+  margin:0 1.2rem 4rem;
+  border-radius:24px;
+  padding:2.5rem 1.5rem;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.cta-section-title{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:.5rem;position:relative;}
+.cta-section-sub{font-size:.85rem;opacity:.8;margin-bottom:1.5rem;position:relative;line-height:1.6;}
+.cta-section-btns{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;position:relative;}
+.cta-white{
+  padding:.8rem 1.8rem;border-radius:12px;
+  background:white;color:var(--blue);
+  font-weight:800;font-size:.92rem;
+  border:none;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.4rem;
+  transition:all .2s;
+}
+.cta-white:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.2);}
+.cta-outline-white{
+  padding:.8rem 1.5rem;border-radius:12px;
+  background:transparent;border:2px solid rgba(255,255,255,.4);
+  color:white;font-weight:700;font-size:.9rem;
+  cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.4rem;
+  transition:all .2s;
+}
+.cta-outline-white:hover{background:rgba(255,255,255,.1);border-color:white;}
+
+/* ── FOOTER ──────────────────────────────────────── */
+footer{
+  padding:2rem 1.2rem 3rem;
+  border-top:1px solid rgba(255,255,255,.06);
+  text-align:center;
+}
+.footer-logo{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:.3rem;}
+.footer-logo span{color:var(--turq);}
+.footer-sub{font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:1rem;}
+.footer-links{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;}
+.footer-link{font-size:.72rem;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;}
+.footer-link:hover{color:var(--turq);}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp .6s ease forwards;}
+.fade-up-2{animation:fadeUp .6s .15s ease both;}
+.fade-up-3{animation:fadeUp .6s .3s ease both;}
+.fade-up-4{animation:fadeUp .6s .45s ease both;}
+
+@media(max-width:480px){
+  .features-grid{grid-template-columns:1fr;}
+  .hero-stats{gap:1.2rem;}
+  .nav-btns .btn-ghost{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <div class="nav-logo-ico">🏪</div>
+    <div class="nav-logo-name">Afri<span>Market</span></div>
+  </div>
+  <div class="nav-btns">
+    <a href="index.html?mode=login" class="btn-ghost">Se connecter</a>
+    <a href="index.html" class="btn-solid">Commencer →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge fade-up">🌍 La marketplace africaine</div>
+    <h1 class="hero-title fade-up-2">
+      Achète, vends et<br/>
+      <span class="accent">gagne de l'argent</span><br/>
+      depuis ton téléphone
+    </h1>
+    <p class="hero-sub fade-up-3">
+      AfriMarket c'est ta boutique en ligne, tes annonces, ton cashback et tes formations. 100% gratuit pour commencer.
+    </p>
+    <div class="hero-ctas fade-up-4">
+      <a href="index.html" class="cta-main">🚀 Créer mon compte gratuit</a>
+      <a href="index.html?mode=login" class="cta-sec">→ Se connecter</a>
+    </div>
+    <div class="hero-stats fade-up-4">
+      <div class="hero-stat">
+        <div class="hero-stat-n">100%</div>
+        <div class="hero-stat-l">Gratuit</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n">🌍</div>
+        <div class="hero-stat-l">Toute l'Afrique</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n">⚡</div>
+        <div class="hero-stat-l">En 5 minutes</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n">💬</div>
+        <div class="hero-stat-l">Via WhatsApp</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mockup phone -->
+  <div class="mockup-wrap fade-up-4">
+    <div class="mockup">
+      <div class="mockup-notch"></div>
+      <div class="mockup-screen">
+        <div class="mock-hdr">
+          <div class="mock-logo">AfriMarket</div>
+          <div class="mock-badge">ELITE</div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-ico" style="background:linear-gradient(135deg,#7C3AED,#1B3FE4)">🎓</div>
+          <div class="mock-card-info">
+            <div class="mock-card-title">Formation couture</div>
+            <div class="mock-card-price">2 500 FCFA</div>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-ico" style="background:linear-gradient(135deg,#F5B731,#FF6B1A)">💸</div>
+          <div class="mock-card-info">
+            <div class="mock-card-title">Cashback coins</div>
+            <div class="mock-card-price">+50 AfriCoins</div>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-ico" style="background:linear-gradient(135deg,#00C2B7,#1B3FE4)">🏪</div>
+          <div class="mock-card-info">
+            <div class="mock-card-title">Ma boutique</div>
+            <div class="mock-card-price">10 produits</div>
+          </div>
+        </div>
+        <button class="mock-cta-btn">Commander sur WhatsApp 💬</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-label">Fonctionnalités</div>
+  <h2 class="section-title">Tout ce dont tu as besoin<br/>pour vendre en Afrique</h2>
+  <p class="section-sub">Une seule plateforme pour tout gérer. Simple, rapide, mobile.</p>
+
+  <div class="features-grid">
+    <div class="feat">
+      <div class="feat-ico">🏪</div>
+      <div class="feat-title">Boutique en ligne</div>
+      <div class="feat-desc">Crée ta boutique en 5 minutes et vends tes produits à toute l'Afrique.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-ico">📢</div>
+      <div class="feat-title">Petites annonces</div>
+      <div class="feat-desc">Publie tes annonces gratuitement. 10 annonces offertes chaque mois.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-ico">💬</div>
+      <div class="feat-title">Commande WhatsApp</div>
+      <div class="feat-desc">Tes clients commandent en 1 clic, le message arrive direct sur ton WhatsApp.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-ico">🎟️</div>
+      <div class="feat-title">Codes promo</div>
+      <div class="feat-desc">Crée des codes promo pour fidéliser tes clients et booster tes ventes.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-ico">👥</div>
+      <div class="feat-title">Parrainage</div>
+      <div class="feat-desc">Invite tes amis et gagne des récompenses sur chaque inscription.</div>
+    </div>
+    <div class="feat">
+      <div class="feat-ico">📊</div>
+      <div class="feat-title">Statistiques</div>
+      <div class="feat-desc">Suis tes ventes, tes commandes et tes revenus en temps réel.</div>
+    </div>
+  </div>
+</section>
+
+<!-- EARNING -->
+<div class="earn-section">
+  <div class="earn-title">💰 Gagne de l'argent avec AfriMarket</div>
+  <div class="earn-sub">3 façons de générer des revenus depuis ton téléphone, sans investissement.</div>
+  <div class="earn-ways">
+    <div class="earn-way">
+      <div class="earn-way-ico" style="background:linear-gradient(135deg,#7C3AED,#1B3FE4)">🎓</div>
+      <div class="earn-way-info">
+        <div class="earn-way-title">Formations Courtes</div>
+        <div class="earn-way-desc">Vends ton savoir-faire en ligne. Tu gardes 80% de chaque vente.</div>
+      </div>
+      <div class="earn-way-amount">+80%</div>
+    </div>
+    <div class="earn-way">
+      <div class="earn-way-ico" style="background:linear-gradient(135deg,#F5B731,#FF6B1A)">💸</div>
+      <div class="earn-way-info">
+        <div class="earn-way-title">Cashback AfriCoins</div>
+        <div class="earn-way-desc">Gagne des coins à chaque action. Convertis-les en FCFA.</div>
+      </div>
+      <div class="earn-way-amount">500F/100</div>
+    </div>
+    <div class="earn-way">
+      <div class="earn-way-ico" style="background:linear-gradient(135deg,#080E2A,#00C2B7)">🤳</div>
+      <div class="earn-way-info">
+        <div class="earn-way-title">Programme Ambassadeur</div>
+        <div class="earn-way-desc">Recrute des vendeurs dans ta ville. Commission à vie.</div>
+      </div>
+      <div class="earn-way-amount">1000F</div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<section class="section" style="padding-top:2rem;">
+  <div class="section-label">Ils nous font confiance</div>
+  <h2 class="section-title">Ce que disent<br/>nos utilisateurs</h2>
+  <div class="testi-grid">
+    <div class="testi">
+      <div class="testi-text">"J'ai créé ma boutique en 5 minutes et maintenant mes clients commandent directement sur WhatsApp. Je gère tout depuis mon téléphone !"</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,var(--turq),var(--blue))">👩🏾</div>
+        <div>
+          <div class="testi-name">Aminata D.</div>
+          <div class="testi-loc">Douala, Cameroun 🇨🇲</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi">
+      <div class="testi-text">"Grâce au programme ambassadeur j'ai déjà recruté 12 vendeurs ce mois-ci. L'argent rentre automatiquement."</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,var(--gold),var(--orange))">👨🏾</div>
+        <div>
+          <div class="testi-name">Moussa K.</div>
+          <div class="testi-loc">Dakar, Sénégal 🇸🇳</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi">
+      <div class="testi-text">"J'ai vendu ma formation couture à 23 personnes en 2 semaines. AfriMarket c'est vraiment simple et efficace !"</div>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#7C3AED,var(--blue))">👩🏿</div>
+        <div>
+          <div class="testi-name">Fatoumata B.</div>
+          <div class="testi-loc">Abidjan, Côte d'Ivoire 🇨🇮</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINALE -->
+<div class="cta-section">
+  <div class="cta-section-title">Prêt à commencer ? 🚀</div>
+  <div class="cta-section-sub">Rejoins des milliers d'Africains qui font du business en ligne.<br/>C'est gratuit, c'est maintenant.</div>
+  <div class="cta-section-btns">
+    <a href="index.html" class="cta-white">🎉 Créer mon compte gratuit</a>
+    <a href="index.html?mode=login" class="cta-outline-white">Se connecter →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Afri<span>Market</span></div>
+  <div class="footer-sub">La marketplace des petites annonces africaines</div>
+  <div class="footer-links">
+    <a href="index.html" class="footer-link">Inscription</a>
+    <a href="index.html?mode=login" class="footer-link">Connexion</a>
+    <a href="dashboard.html" class="footer-link">Dashboard</a>
+    <a href="pricing.html" class="footer-link">Premium</a>
+    <a href="gagner.html" class="footer-link">Gagner</a>
+  </div>
+</footer>
+
+</body>
+</html>

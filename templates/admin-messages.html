@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Messages — Admin AfriMarket</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+:root{
+  --bg:#F0F4FF;--card:#fff;--sidebar:#0B1225;--border:#DDE3F5;
+  --blue:#1B3FE4;--blue2:#2D55FF;--turq:#00C2B7;
+  --orange:#FF6B1A;--red:#E83030;--green:#00A896;
+  --gold:#F5B731;--dark:#080E2A;--gray:#6B7A9B;--text:#1A2340;
+  --sidebar-w:230px;--radius:14px;--shadow:0 2px 12px rgba(8,14,42,.07);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);min-height:100vh;display:flex;color:var(--text);font-size:14px;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:200;transition:width .25s ease;}
+.sidebar.collapsed{width:60px;}
+.sidebar.collapsed .sb-lbl,.sidebar.collapsed .sb-group,.sidebar.collapsed .sb-tag,.sidebar.collapsed .sb-user,.sidebar.collapsed .sb-logout span{display:none;}
+.sidebar.collapsed .sb-brand{display:none;}
+.sb-logo{padding:1.3rem 1.1rem .8rem;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sb-brand{font-size:1.2rem;font-weight:800;letter-spacing:-1px;}
+.sb-brand .la{color:var(--turq);}.sb-brand .lm{color:var(--orange);}
+.sb-tag{font-size:.58rem;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;margin-top:.2rem;}
+.sb-toggle{display:none;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.1rem;padding:.5rem 1rem;cursor:pointer;text-align:left;}
+.sb-nav{flex:1;padding:.5rem 0;overflow-y:auto;}
+.sb-group{font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.18);padding:.9rem 1.1rem .3rem;}
+.sb-item{display:flex;align-items:center;gap:.65rem;padding:.58rem 1.1rem;color:rgba(255,255,255,.48);font-size:.8rem;font-weight:500;text-decoration:none;transition:all .17s;cursor:pointer;}
+.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.88);}
+.sb-item.active{background:rgba(27,63,228,.28);color:#fff;border-right:3px solid var(--blue2);}
+.sb-ico{font-size:.95rem;width:20px;text-align:center;flex-shrink:0;}
+.sb-lbl{flex:1;white-space:nowrap;}
+.sb-badge{margin-left:auto;min-width:18px;height:18px;border-radius:99px;font-size:.58rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;}
+.sb-badge.red{background:var(--red);color:#fff;}.sb-badge.gold{background:var(--gold);color:#000;}.sb-badge.blue{background:var(--blue2);color:#fff;}
+.sb-footer{padding:.9rem 1.1rem;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sb-user{font-size:.68rem;color:rgba(255,255,255,.28);word-break:break-all;margin-bottom:.5rem;}
+.sb-logout{display:flex;align-items:center;gap:.45rem;width:100%;padding:.45rem .65rem;border-radius:9px;background:rgba(232,48,48,.1);border:1px solid rgba(232,48,48,.18);color:rgba(232,48,48,.75);font-size:.73rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.sb-logout:hover{background:rgba(232,48,48,.2);color:var(--red);}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+
+/* ── TOPBAR ── */
+.topbar{background:white;border-bottom:1px solid var(--border);padding:.85rem 1.8rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:1rem;}
+.topbar-left h1{font-size:.98rem;font-weight:800;color:var(--dark);}
+.topbar-left p{font-size:.7rem;color:var(--gray);margin-top:.1rem;}
+.topbar-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+.btn-refresh{padding:.42rem .85rem;border-radius:9px;border:1.5px solid var(--border);background:white;font-size:.74rem;font-weight:600;color:var(--gray);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.35rem;}
+.btn-refresh:hover{border-color:var(--blue2);color:var(--blue);}
+
+/* ── CONTENT ── */
+.content{padding:1.5rem 1.8rem;flex:1;overflow-x:hidden;}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.4rem;}
+.stat-card{background:white;border-radius:var(--radius);padding:1.1rem 1.3rem;border:1px solid var(--border);transition:transform .2s,box-shadow .2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(8,14,42,.08);}
+.sc-ico{font-size:1.4rem;margin-bottom:.4rem;}
+.sc-val{font-size:1.7rem;font-weight:800;letter-spacing:-1px;line-height:1.1;}
+.sc-lbl{font-size:.68rem;color:var(--gray);font-weight:500;margin-top:.2rem;}
+.sc-blue .sc-val{color:var(--blue2);}.sc-orange .sc-val{color:var(--orange);}.sc-green .sc-val{color:var(--green);}
+
+/* ── LAYOUT 2 COLONNES ── */
+.msg-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem;height:calc(100vh - 220px);min-height:500px;}
+
+/* ── LISTE CONVERSATIONS ── */
+.conv-panel{background:white;border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);}
+.conv-search{padding:.75rem 1rem;border-bottom:1px solid var(--border);}
+.conv-search input{width:100%;padding:.45rem .75rem;border:1.5px solid var(--border);border-radius:9px;font-size:.78rem;outline:none;font-family:inherit;background:var(--bg);}
+.conv-search input:focus{border-color:var(--blue2);background:white;}
+.conv-filters{display:flex;gap:.35rem;padding:.6rem 1rem;border-bottom:1px solid var(--border);overflow-x:auto;}
+.cf{padding:.28rem .65rem;border-radius:99px;border:1.5px solid var(--border);background:white;font-size:.68rem;font-weight:600;color:var(--gray);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.cf.active{background:var(--blue);border-color:var(--blue);color:white;}
+.cf.unread.active{background:var(--red);border-color:var(--red);}
+.conv-list{flex:1;overflow-y:auto;}
+.conv-item{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1rem;border-bottom:1px solid rgba(221,227,245,.5);cursor:pointer;transition:background .15s;}
+.conv-item:hover{background:#F7F9FF;}
+.conv-item.active{background:#EEF2FF;border-left:3px solid var(--blue2);}
+.conv-item.unread{background:rgba(45,85,255,.03);}
+.conv-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.85rem;flex-shrink:0;position:relative;}
+.conv-dot{position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--red);border-radius:50%;border:2px solid white;}
+.conv-info{flex:1;min-width:0;}
+.conv-names{display:flex;justify-content:space-between;align-items:flex-start;gap:.4rem;margin-bottom:.2rem;}
+.conv-name{font-size:.8rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-time{font-size:.65rem;color:var(--gray);white-space:nowrap;flex-shrink:0;}
+.conv-preview{font-size:.72rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-preview.unread-txt{color:var(--dark);font-weight:600;}
+.conv-count{background:var(--red);color:white;border-radius:99px;font-size:.6rem;font-weight:800;padding:.1rem .4rem;min-width:16px;text-align:center;margin-top:.15rem;}
+
+/* ── DÉTAIL MESSAGES ── */
+.msg-panel{background:white;border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);}
+.msg-panel-head{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-shrink:0;}
+.mph-info{display:flex;align-items:center;gap:.7rem;}
+.mph-names{font-size:.85rem;font-weight:700;color:var(--dark);}
+.mph-sub{font-size:.7rem;color:var(--gray);margin-top:.1rem;}
+.mph-actions{display:flex;gap:.4rem;}
+.msg-body{flex:1;overflow-y:auto;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.65rem;background:#FAFBFF;}
+.msg-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;color:var(--gray);}
+.msg-empty-ico{font-size:2.5rem;opacity:.25;}
+.msg-empty-txt{font-size:.78rem;}
+
+/* ── BULLES MESSAGES ── */
+.bubble-row{display:flex;flex-direction:column;gap:.15rem;}
+.bubble-row.sent{align-items:flex-end;}
+.bubble-row.recv{align-items:flex-start;}
+.bubble-meta{font-size:.62rem;color:var(--gray);padding:0 .4rem;}
+.bubble{max-width:78%;padding:.6rem .85rem;border-radius:14px;font-size:.8rem;line-height:1.55;word-break:break-word;}
+.bubble.sent{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border-bottom-right-radius:4px;}
+.bubble.recv{background:white;border:1px solid var(--border);color:var(--dark);border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(8,14,42,.06);}
+.bubble-time{font-size:.61rem;opacity:.7;margin-top:.2rem;}
+.bubble-read{font-size:.61rem;opacity:.7;}
+
+/* ── DATE SEPARATOR ── */
+.date-sep{display:flex;align-items:center;gap:.7rem;margin:.4rem 0;}
+.date-sep::before,.date-sep::after{content:'';flex:1;height:1px;background:var(--border);}
+.date-sep span{font-size:.64rem;color:var(--gray);white-space:nowrap;padding:0 .3rem;}
+
+/* ── EMPTY (pas de conv sélectionnée) ── */
+.no-conv{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;}
+.no-conv-ico{font-size:3rem;opacity:.2;}
+.no-conv-txt{font-size:.82rem;color:var(--gray);}
+
+/* ── TABLE VIEW (toggle) ── */
+.table-view{display:none;flex-direction:column;}
+.table-view.show{display:flex;}
+.chat-view{display:flex;flex-direction:column;}
+.chat-view.hidden{display:none;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:#F7F9FF;padding:.7rem 1rem;text-align:left;font-size:.64rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray);border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:.72rem 1rem;border-bottom:1px solid rgba(221,227,245,.6);color:var(--text);vertical-align:middle;font-size:.8rem;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#FAFBFF;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:.28rem;padding:.22rem .65rem;border-radius:99px;font-size:.67rem;font-weight:700;white-space:nowrap;}
+.badge-unread{background:rgba(232,48,48,.09);color:var(--red);border:1px solid rgba(232,48,48,.2);}
+.badge-read{background:rgba(0,168,150,.1);color:#006b62;border:1px solid rgba(0,168,150,.25);}
+
+/* ── BTN ── */
+.btn{padding:.36rem .78rem;border-radius:8px;border:none;font-size:.73rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;transition:all .17s;font-family:inherit;white-space:nowrap;}
+.btn-sm{padding:.26rem .58rem;font-size:.67rem;}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;}
+.btn-gray{background:var(--bg);color:var(--gray);border:1px solid var(--border);}
+.btn-gray:hover{border-color:var(--gray);}
+.btn-red{background:rgba(232,48,48,.08);color:var(--red);border:1px solid rgba(232,48,48,.2);}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;max-width:360px;background:var(--dark);color:white;padding:.85rem 1.2rem;border-radius:14px;font-size:.82rem;font-weight:500;box-shadow:0 12px 40px rgba(0,0,0,.28);z-index:9999;transform:translateY(130%);opacity:0;transition:all .38s cubic-bezier(.34,1.56,.64,1);border-left:4px solid var(--blue2);pointer-events:none;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.success{border-color:var(--turq);}
+#toast.error{border-color:var(--red);}
+#toast.warning{border-color:var(--gold);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .msg-layout{grid-template-columns:260px 1fr;}
+}
+@media(max-width:900px){
+  .msg-layout{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;}
+  .conv-panel{max-height:280px;}
+}
+@media(max-width:1024px){
+  :root{--sidebar-w:60px;}
+  .sb-lbl,.sb-group,.sb-tag,.sb-user,.sb-brand,.sb-footer .sb-logout span{display:none;}
+  .content{padding:1rem;}
+  .stats-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:600px){
+  .sb-toggle{display:block;}
+  .main{margin-left:60px;}
+  .topbar{padding:.7rem 1rem;}
+  .stats-grid{grid-template-columns:repeat(3,1fr);gap:.5rem;}
+  .sc-val{font-size:1.3rem;}
+  .content{padding:.75rem;}
+  .msg-layout{height:auto;min-height:0;}
+  .conv-panel{max-height:260px;}
+  .msg-body{min-height:300px;}
+}
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo"><div class="sb-brand"><span class="la">Afri</span><span class="lm">Market</span></div><div class="sb-tag">Administration</div></div>
+  <button class="sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
+  <nav class="sb-nav">
+    <div class="sb-group">Principal</div>
+    <a class="sb-item" href="admin-dashboard.html"><span class="sb-ico">📊</span><span class="sb-lbl">Tableau de bord</span></a>
+    <div class="sb-group">Gestion</div>
+    <a class="sb-item" href="admin-paiements.html"><span class="sb-ico">💳</span><span class="sb-lbl">Paiements Premium</span></a>
+    <a class="sb-item" href="admin-retraits.html"><span class="sb-ico">💸</span><span class="sb-lbl">Retraits</span></a>
+    <a class="sb-item" href="admin-utilisateurs.html"><span class="sb-ico">👥</span><span class="sb-lbl">Utilisateurs</span></a>
+    <a class="sb-item" href="admin-annonces.html"><span class="sb-ico">📢</span><span class="sb-lbl">Annonces</span></a>
+    <a class="sb-item" href="admin-candidatures.html"><span class="sb-ico">📋</span><span class="sb-lbl">Candidatures</span></a>
+    <a class="sb-item" href="admin-missions.html"><span class="sb-ico">🎯</span><span class="sb-lbl">Missions & Preuves</span></a>
+    <div class="sb-group">Finances</div>
+    <a class="sb-item" href="admin-transactions.html"><span class="sb-ico">🛒</span><span class="sb-lbl">Transactions</span></a>
+    <a class="sb-item" href="admin-litiges.html"><span class="sb-ico">⚖️</span><span class="sb-lbl">Litiges</span></a>
+    <a class="sb-item" href="admin-parrainage.html"><span class="sb-ico">🤝</span><span class="sb-lbl">Parrainage</span></a>
+    <div class="sb-group">Communication</div>
+    <a class="sb-item" href="admin-notifications.html"><span class="sb-ico">🔔</span><span class="sb-lbl">Notifications</span></a>
+    <a class="sb-item active" href="admin-messages.html"><span class="sb-ico">✉️</span><span class="sb-lbl">Messages</span></a>
+    <div class="sb-group">Système</div>
+    <a class="sb-item" href="admin-logs.html"><span class="sb-ico">📋</span><span class="sb-lbl">Logs activité</span></a>
+    <a class="sb-item" href="admin-parametres.html"><span class="sb-ico">⚙️</span><span class="sb-lbl">Paramètres</span></a>
+  </nav>
+  <div class="sb-footer"><div class="sb-user" id="adminEmail">—</div><button class="sb-logout" onclick="doLogout()">🚪 <span>Déconnexion</span></button></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>✉️ Messages</h1><p>Conversations entre utilisateurs</p></div>
+    <div class="topbar-right">
+      <button class="btn-refresh" onclick="toggleView()" id="viewBtn">📋 Vue tableau</button>
+      <button class="btn-refresh" onclick="loadMsg()">🔄 Actualiser</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card sc-blue"><div class="sc-ico">💬</div><div class="sc-val" id="m-total">—</div><div class="sc-lbl">Messages total</div></div>
+      <div class="stat-card sc-orange"><div class="sc-ico">🔴</div><div class="sc-val" id="m-unread">—</div><div class="sc-lbl">Non lus</div></div>
+      <div class="stat-card sc-green"><div class="sc-ico">👥</div><div class="sc-val" id="m-convs">—</div><div class="sc-lbl">Conversations</div></div>
+    </div>
+
+    <!-- VUE CHAT -->
+    <div class="chat-view" id="chatView">
+      <div class="msg-layout">
+
+        <!-- LISTE CONVERSATIONS -->
+        <div class="conv-panel">
+          <div class="conv-search">
+            <input type="text" placeholder="🔍 Rechercher..." oninput="searchConv(this.value)" id="convSearch"/>
+          </div>
+          <div class="conv-filters">
+            <button class="cf active" onclick="filterConv('all',this)">Tous</button>
+            <button class="cf unread" onclick="filterConv('unread',this)">🔴 Non lus</button>
+          </div>
+          <div class="conv-list" id="convList">
+            <div style="padding:2rem;text-align:center;color:var(--gray);font-size:.78rem">Chargement...</div>
+          </div>
+        </div>
+
+        <!-- DÉTAIL CONVERSATION -->
+        <div class="msg-panel" id="msgPanel">
+          <div class="no-conv" id="noConv">
+            <div class="no-conv-ico">💬</div>
+            <div class="no-conv-txt">Sélectionnez une conversation</div>
+          </div>
+          <div style="display:none;flex-direction:column;height:100%" id="convDetail">
+            <div class="msg-panel-head">
+              <div class="mph-info">
+                <div class="conv-av" id="detailAv">?</div>
+                <div>
+                  <div class="mph-names" id="detailNames">—</div>
+                  <div class="mph-sub" id="detailSub">—</div>
+                </div>
+              </div>
+              <div class="mph-actions">
+                <button class="btn btn-sm btn-gray" onclick="closeConv()">✕</button>
+              </div>
+            </div>
+            <div class="msg-body" id="msgBody"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VUE TABLEAU -->
+    <div class="table-view" id="tableView">
+      <div class="card" style="margin-bottom:0">
+        <div class="card-head">
+          <div style="font-size:.9rem;font-weight:700;color:var(--dark)">Historique des messages</div>
+          <div style="font-size:.7rem;color:var(--gray);background:var(--bg);padding:.25rem .65rem;border-radius:99px;border:1px solid var(--border)" id="msg-count">—</div>
+        </div>
+        <div style="padding:.7rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">
+          <button class="cf active" onclick="filterMsg('all',this)">Tous</button>
+          <button class="cf unread" onclick="filterMsg('unread',this)">🔴 Non lus</button>
+          <input style="margin-left:auto;padding:.38rem .85rem;border:1.5px solid var(--border);border-radius:9px;font-size:.77rem;outline:none;min-width:180px;font-family:inherit;" placeholder="🔍 Rechercher..." oninput="searchMsg(this.value)"/>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>De</th><th>À</th><th>Message</th><th>Date</th><th>Lu</th>
+            </tr></thead>
+            <tbody id="msgTbl"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const{createClient}=supabase;
+const sb=createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+const ADMIN_EMAILS=['abdoula13cherif@gmail.com'];
+let _admin=null, allMsg=[], convGroups=[], selConvKey=null, fMsg='all', msgQ='', convF='all', convQ='', viewMode='chat';
+
+// ── AUTH ──
+async function checkAuth(){
+  const{data}=await sb.auth.getSession();
+  const s=data?.session;
+  if(!s||!ADMIN_EMAILS.includes(s.user.email)){location.href='admin-login.html';return false;}
+  _admin=s.user;
+  const el=document.getElementById('adminEmail');
+  if(el)el.textContent=s.user.email;
+  return true;
+}
+async function doLogout(){await sb.auth.signOut();location.href='admin-login.html';}
+
+// ── TOAST ──
+let _tt=null;
+function toast(msg,type='info'){
+  const t=document.getElementById('toast');if(!t)return;
+  t.textContent=msg;t.className='show '+type;
+  clearTimeout(_tt);_tt=setTimeout(()=>t.className='',3500);
+}
+
+// ── UTILS ──
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDT(d){if(!d)return'—';return new Date(d).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
+function fmtDate(d){if(!d)return'';const now=new Date(),dt=new Date(d),diff=Math.floor((now-dt)/86400000);if(diff===0)return'Aujourd\'hui';if(diff===1)return'Hier';if(diff<7)return dt.toLocaleDateString('fr-FR',{weekday:'long'});return dt.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});}
+function ini(s){return(s||'?').trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';}
+function convKey(m){return[m.sender_id,m.receiver_id].sort().join('|');}
+function nameOf(m,uid){return uid===m.sender_id?(m.sender_name||m.sender_id?.slice(0,8)||'—'):(m.receiver_name||m.receiver_id?.slice(0,8)||'—');}
+
+// ── TOGGLE VUE ──
+function toggleView(){
+  viewMode=viewMode==='chat'?'table':'chat';
+  document.getElementById('chatView').classList.toggle('hidden',viewMode==='table');
+  document.getElementById('tableView').classList.toggle('show',viewMode==='table');
+  document.getElementById('viewBtn').textContent=viewMode==='chat'?'📋 Vue tableau':'💬 Vue chat';
+  if(viewMode==='table')renderTable();
+}
+
+// ── CHARGEMENT ──
+async function init(){if(!await checkAuth())return;loadMsg();}
+async function loadMsg(){
+  toast('Chargement...','info');
+  const{data,error}=await sb.from('messages').select('*').order('created_at',{ascending:true}).limit(500);
+  if(error){toast('Erreur: '+error.message,'error');return;}
+  allMsg=data||[];
+
+  // Stats
+  document.getElementById('m-total').textContent=allMsg.length;
+  document.getElementById('m-unread').textContent=allMsg.filter(m=>!m.read).length;
+
+  // Grouper par conversation
+  const map={};
+  allMsg.forEach(m=>{
+    const k=convKey(m);
+    if(!map[k])map[k]={key:k,msgs:[],lastMsg:null,unread:0,names:[]};
+    map[k].msgs.push(m);
+    map[k].lastMsg=m;
+    if(!m.read)map[k].unread++;
+  });
+  convGroups=Object.values(map).sort((a,b)=>new Date(b.lastMsg?.created_at)-new Date(a.lastMsg?.created_at));
+  document.getElementById('m-convs').textContent=convGroups.length;
+
+  renderConvList();
+  toast('','info');
+  if(viewMode==='table')renderTable();
+}
+
+// ── LISTE CONVERSATIONS ──
+function renderConvList(){
+  let list=convGroups;
+  if(convF==='unread')list=list.filter(c=>c.unread>0);
+  if(convQ)list=list.filter(c=>{
+    const m=c.lastMsg||{};
+    return(m.sender_name||'').toLowerCase().includes(convQ)||(m.receiver_name||'').toLowerCase().includes(convQ)||(m.content||'').toLowerCase().includes(convQ);
+  });
+
+  const el=document.getElementById('convList');
+  if(!list.length){
+    el.innerHTML='<div style="padding:2rem;text-align:center;color:var(--gray);font-size:.78rem">Aucune conversation</div>';
+    return;
+  }
+  el.innerHTML=list.map(c=>{
+    const m=c.lastMsg||{};
+    const sn=m.sender_name||m.sender_id?.slice(0,8)||'?';
+    const rn=m.receiver_name||m.receiver_id?.slice(0,8)||'?';
+    const preview=(m.content||'').slice(0,55)+(m.content?.length>55?'…':'');
+    const isActive=c.key===selConvKey;
+    const hasUnread=c.unread>0;
+    return`<div class="conv-item${isActive?' active':''}${hasUnread?' unread':''}" onclick="selConv('${esc(c.key)}')">
+      <div class="conv-av">${ini(sn)}${hasUnread?'<div class="conv-dot"></div>':''}</div>
+      <div class="conv-info">
+        <div class="conv-names">
+          <div class="conv-name">${esc(sn)}</div>
+          <div class="conv-time">${fmtDate(m.created_at)}</div>
+        </div>
+        <div class="conv-preview${hasUnread?' unread-txt':''}">→ ${esc(rn)}: ${esc(preview)||'—'}</div>
+        ${hasUnread?`<div class="conv-count">${c.unread} non lu${c.unread>1?'s':''}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterConv(f,btn){
+  convF=f;
+  document.querySelectorAll('.conv-filters .cf').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderConvList();
+}
+function searchConv(q){convQ=q.toLowerCase();renderConvList();}
+
+// ── SÉLECTIONNER CONVERSATION ──
+function selConv(key){
+  selConvKey=key;
+  renderConvList();
+  const conv=convGroups.find(c=>c.key===key);
+  if(!conv)return;
+
+  const m=conv.lastMsg||{};
+  const sn=m.sender_name||m.sender_id?.slice(0,8)||'?';
+  const rn=m.receiver_name||m.receiver_id?.slice(0,8)||'?';
+
+  document.getElementById('noConv').style.display='none';
+  const detail=document.getElementById('convDetail');
+  detail.style.display='flex';
+  document.getElementById('detailAv').textContent=ini(sn);
+  document.getElementById('detailNames').textContent=sn+' ↔ '+rn;
+  document.getElementById('detailSub').textContent=conv.msgs.length+' message'+(conv.msgs.length>1?'s':'')+' · '+conv.unread+' non lu'+(conv.unread>1?'s':'');
+
+  // Render messages
+  const body=document.getElementById('msgBody');
+  const msgs=conv.msgs.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+
+  let lastDate='', html='';
+  msgs.forEach(msg=>{
+    const d=new Date(msg.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+    if(d!==lastDate){
+      html+=`<div class="date-sep"><span>${d}</span></div>`;
+      lastDate=d;
+    }
+    const isSender=msg.sender_id===m.sender_id;
+    const side=isSender?'sent':'recv';
+    const who=isSender?sn:rn;
+    const time=new Date(msg.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    html+=`<div class="bubble-row ${side}">
+      <div class="bubble-meta">${esc(who)}</div>
+      <div class="bubble ${side}">
+        ${esc(msg.content||'—')}
+        <div class="bubble-time">${time} ${msg.read?'✓✓':'✓'}</div>
+      </div>
+    </div>`;
+  });
+
+  body.innerHTML=html;
+  body.scrollTop=body.scrollHeight;
+}
+
+function closeConv(){
+  selConvKey=null;
+  document.getElementById('noConv').style.display='flex';
+  document.getElementById('convDetail').style.display='none';
+  renderConvList();
+}
+
+// ── VUE TABLEAU ──
+let fMsgT='all',msgQT='';
+function filterMsg(f,btn){
+  fMsgT=f;
+  document.querySelectorAll('#tableView .cf').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+function searchMsg(q){msgQT=q.toLowerCase();renderTable();}
+function renderTable(){
+  let list=fMsgT==='unread'?allMsg.filter(m=>!m.read):[...allMsg].reverse();
+  if(msgQT)list=list.filter(m=>(m.content||'').toLowerCase().includes(msgQT)||(m.sender_name||'').toLowerCase().includes(msgQT));
+  document.getElementById('msg-count').textContent=list.length+' message(s)';
+  const tbody=document.getElementById('msgTbl');
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="5" style="padding:2.5rem;text-align:center;color:var(--gray);font-size:.78rem">💬 Aucun message</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=list.map(m=>`<tr>
+    <td><div style="font-weight:600;font-size:.79rem">${esc(m.sender_name||m.sender_id?.slice(0,8)||'—')}</div></td>
+    <td><div style="font-size:.79rem;color:var(--gray)">${esc(m.receiver_name||m.receiver_id?.slice(0,8)||'—')}</div></td>
+    <td style="max-width:280px"><div style="font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px" title="${esc(m.content||'')}">${esc(m.content||'—')}</div></td>
+    <td style="font-size:.73rem;white-space:nowrap;color:var(--gray)">${fmtDT(m.created_at)}</td>
+    <td><span class="badge ${m.read?'badge-read':'badge-unread'}">${m.read?'✅ Lu':'🔴 Non lu'}</span></td>
+  </tr>`).join('');
+}
+
+init();
+</script>
+</body>
+</html>

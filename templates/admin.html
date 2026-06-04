@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AfriMarket — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root{
+      --blue:#1B3FE4;--blue2:#2D55FF;--red:#E83030;--orange:#FF6B1A;
+      --turq:#00C2B7;--bg:#F0F4FF;--dark:#080E2A;--gray:#8892A8;
+      --border:#E4E9F8;--gold:#F5B731;--green:#00C271;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:sans-serif;background:var(--bg);min-height:100vh;display:flex;}
+
+    /* SIDEBAR */
+    .sidebar{width:230px;background:var(--dark);min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .sb-logo{padding:1.3rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.07);}
+    .sb-brand{font-family:monospace;font-size:1.3rem;font-weight:700;letter-spacing:-.5px;}
+    .sb-brand .la{color:var(--turq);}.sb-brand .lm{color:var(--orange);}
+    .sb-tag{font-size:.58rem;color:rgba(255,255,255,.28);letter-spacing:.5px;text-transform:uppercase;margin-top:.15rem;}
+    .sb-nav{flex:1;padding:.6rem 0;}
+    .sb-group{padding:.5rem 1.2rem .2rem;font-size:.58rem;color:rgba(255,255,255,.2);letter-spacing:.8px;text-transform:uppercase;font-weight:700;}
+    .sb-item{display:flex;align-items:center;gap:.7rem;padding:.65rem 1.2rem;cursor:pointer;transition:all .2s;border-left:3px solid transparent;color:rgba(255,255,255,.45);font-size:.82rem;font-weight:600;}
+    .sb-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.8);}
+    .sb-item.active{background:rgba(27,63,228,.25);color:white;border-left-color:var(--blue2);}
+    .sb-ico{font-size:.95rem;width:18px;text-align:center;flex-shrink:0;}
+    .sb-badge{margin-left:auto;font-size:.58rem;font-weight:800;padding:.15rem .45rem;border-radius:99px;min-width:18px;text-align:center;}
+    .sb-badge.red{background:var(--red);color:white;}
+    .sb-badge.gold{background:var(--gold);color:var(--dark);}
+    .sb-badge.green{background:var(--green);color:white;}
+    .sb-footer{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.07);}
+    .sb-user-info{font-size:.7rem;color:rgba(255,255,255,.3);}
+
+    /* MAIN */
+    .main{flex:1;overflow-x:hidden;min-width:0;}
+    .topbar{background:white;border-bottom:1px solid var(--border);padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(27,63,228,.06);}
+    .topbar-title{font-family:monospace;font-size:1.05rem;font-weight:700;color:var(--dark);}
+    .topbar-right{display:flex;gap:.6rem;}
+    .tbtn{border-radius:10px;padding:.4rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:sans-serif;transition:all .2s;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);}
+    .tbtn:hover{border-color:var(--blue2);color:var(--blue2);}
+    .tbtn.danger{background:rgba(232,48,48,.06);border-color:rgba(232,48,48,.2);color:var(--red);}
+
+    .content{padding:1.4rem;}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.9rem;margin-bottom:1.4rem;}
+    .sc{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 10px rgba(27,63,228,.04);}
+    .sc-ico{font-size:1.3rem;margin-bottom:.4rem;}
+    .sc-num{font-family:monospace;font-size:1.75rem;font-weight:700;color:var(--dark);letter-spacing:-1px;}
+    .sc-lbl{font-size:.65rem;color:var(--gray);margin-top:.08rem;font-weight:600;}
+    .sc.blue .sc-num{color:var(--blue2);}
+    .sc.gold .sc-num{color:var(--gold);}
+    .sc.green .sc-num{color:var(--green);}
+    .sc.orange .sc-num{color:var(--orange);}
+    .sc.red .sc-num{color:var(--red);}
+
+    /* SECTION */
+    .sec{background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(27,63,228,.04);margin-bottom:1.4rem;overflow:hidden;}
+    .sec-head{padding:.9rem 1.3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+    .sec-title{font-family:monospace;font-size:.92rem;font-weight:700;color:var(--dark);}
+    .sec-count{font-size:.7rem;color:var(--gray);font-weight:600;}
+    .filter-row{display:flex;gap:.45rem;padding:.75rem 1.3rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+    .fb{padding:.32rem .75rem;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);font-size:.7rem;font-weight:700;cursor:pointer;color:var(--gray);font-family:sans-serif;transition:all .2s;}
+    .fb.active{background:var(--blue2);border-color:var(--blue2);color:white;}
+    .fb.or.active{background:var(--orange);border-color:var(--orange);}
+    .fb.gr.active{background:var(--green);border-color:var(--green);}
+    .fb.re.active{background:var(--red);border-color:var(--red);}
+    .fb.go.active{background:var(--gold);border-color:var(--gold);color:var(--dark);}
+
+    /* TABLE */
+    .tw{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{padding:.65rem 1rem;text-align:left;font-size:.65rem;font-weight:700;color:var(--gray);letter-spacing:.3px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
+    td{padding:.7rem 1rem;border-bottom:1px solid rgba(228,233,248,.45);font-size:.79rem;color:var(--dark);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(240,244,255,.5);}
+
+    /* BADGES */
+    .b{display:inline-flex;align-items:center;gap:.2rem;font-size:.63rem;font-weight:700;padding:.2rem .55rem;border-radius:99px;white-space:nowrap;}
+    .b-pending{background:rgba(255,107,26,.1);color:var(--orange);border:1px solid rgba(255,107,26,.2);}
+    .b-approved,.b-paid{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.2);}
+    .b-rejected{background:rgba(232,48,48,.1);color:var(--red);border:1px solid rgba(232,48,48,.2);}
+    .b-premium{background:rgba(245,183,49,.12);color:#B8860B;border:1px solid rgba(245,183,49,.25);}
+    .b-free{background:var(--bg);color:var(--gray);border:1px solid var(--border);}
+
+    /* ACTION BUTTONS */
+    .arow{display:flex;gap:.35rem;flex-wrap:wrap;}
+    .ab{padding:.3rem .7rem;border-radius:8px;border:none;font-size:.68rem;font-weight:700;cursor:pointer;font-family:sans-serif;transition:all .2s;white-space:nowrap;}
+    .ab:hover{transform:translateY(-1px);}
+    .ab-approve{background:rgba(0,194,113,.1);color:var(--green);border:1px solid rgba(0,194,113,.25);}
+    .ab-approve:hover{background:var(--green);color:white;}
+    .ab-reject{background:rgba(232,48,48,.08);color:var(--red);border:1px solid rgba(232,48,48,.2);}
+    .ab-reject:hover{background:var(--red);color:white;}
+    .ab-warn{background:rgba(255,107,26,.08);color:var(--orange);border:1px solid rgba(255,107,26,.2);}
+    .ab-warn:hover{background:var(--orange);color:white;}
+    .ab-blue{background:rgba(27,63,228,.07);color:var(--blue2);border:1px solid rgba(27,63,228,.15);}
+    .ab-blue:hover{background:var(--blue2);color:white;}
+    .ab-gold{background:rgba(245,183,49,.1);color:#B8860B;border:1px solid rgba(245,183,49,.2);}
+    .ab-gold:hover{background:var(--gold);color:var(--dark);}
+    .ab-dark{background:rgba(8,14,42,.08);color:var(--dark);border:1px solid rgba(8,14,42,.15);}
+    .ab-dark:hover{background:var(--dark);color:white;}
+
+    /* TOGGLE SWITCH */
+    .toggle-wrap{display:flex;align-items:center;gap:.5rem;}
+    .tgl{position:relative;width:36px;height:20px;cursor:pointer;}
+    .tgl input{opacity:0;width:0;height:0;}
+    .tgl-slider{position:absolute;inset:0;background:#ddd;border-radius:99px;transition:.3s;}
+    .tgl-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;}
+    .tgl input:checked + .tgl-slider{background:var(--green);}
+    .tgl input:checked + .tgl-slider::before{transform:translateX(16px);}
+    .tgl-lbl{font-size:.7rem;font-weight:700;}
+
+    /* AVATAR */
+    .uav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--turq),var(--blue2));display:inline-flex;align-items:center;justify-content:center;font-family:monospace;font-size:.75rem;font-weight:700;color:white;flex-shrink:0;margin-right:.45rem;}
+    .uname{display:flex;align-items:center;}
+
+    /* EMPTY */
+    .empty{padding:2.5rem;text-align:center;color:var(--gray);font-size:.83rem;}
+    .empty-ico{font-size:2rem;display:block;margin-bottom:.4rem;}
+
+    /* PAGE */
+    .page{display:none;}.page.active{display:block;}
+
+    .cand-filter{border:1.5px solid var(--border);background:white;border-radius:99px;padding:.3rem .85rem;font-size:.75rem;font-weight:600;color:var(--gray);cursor:pointer;transition:all .2s;}
+    .cand-filter.active,.cand-filter:hover{background:var(--dark);color:white;border-color:var(--dark);}
+    .cand-card{background:white;border-radius:14px;border:1.5px solid var(--border);padding:1rem 1.1rem;box-shadow:0 2px 8px rgba(27,63,228,.04);}
+    .cand-card.pending{border-left:4px solid var(--gold);}
+    .cand-card.approved{border-left:4px solid var(--green);}
+    .cand-card.rejected{border-left:4px solid var(--red);}
+    .cand-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.55rem;}
+    .cand-name{font-size:.88rem;font-weight:700;color:var(--dark);}
+    .cand-service{font-size:.7rem;font-weight:700;padding:.18rem .55rem;border-radius:99px;background:rgba(27,63,228,.08);color:var(--blue2);}
+    .cand-status{font-size:.65rem;font-weight:800;padding:.18rem .55rem;border-radius:99px;letter-spacing:.3px;}
+    .cand-status.pending{background:rgba(245,183,49,.15);color:#B8720A;}
+    .cand-status.approved{background:rgba(0,194,113,.12);color:#007A46;}
+    .cand-status.rejected{background:rgba(232,48,48,.12);color:#B02020;}
+    .cand-meta{font-size:.74rem;color:var(--gray);margin-bottom:.55rem;display:flex;flex-wrap:wrap;gap:.5rem;}
+    .cand-meta span{display:flex;align-items:center;gap:.25rem;}
+    .cand-motiv{font-size:.73rem;color:#555;background:#F8F9FF;border-radius:8px;padding:.5rem .7rem;margin-bottom:.65rem;line-height:1.5;border:1px solid var(--border);}
+    .cand-actions{display:flex;gap:.5rem;}
+    .cand-btn{flex:1;padding:.5rem;border-radius:10px;border:none;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .cand-btn.approve{background:linear-gradient(135deg,var(--green),#00A878);color:white;}
+    .cand-btn.reject{background:#FFF0F0;color:var(--red);border:1.5px solid rgba(232,48,48,.2);}
+    .cand-btn.approve:hover{opacity:.85;}.cand-btn.reject:hover{background:#FFE5E5;}
+    .cand-btn:disabled{opacity:.5;cursor:not-allowed;}
+    /* MODAL ADMIN NOTE */
+    /* MODAL */
+    .ov{position:fixed;inset:0;background:rgba(8,14,42,.55);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .ov.open{opacity:1;pointer-events:all;}
+    .modal{background:white;border-radius:20px;width:100%;max-width:440px;padding:1.5rem;box-shadow:0 24px 60px rgba(8,14,42,.2);transform:scale(.95) translateY(10px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+    .ov.open .modal{transform:scale(1) translateY(0);}
+    .modal-title{font-family:monospace;font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;}
+    .modal-info{background:var(--bg);border-radius:12px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--dark);line-height:1.6;border:1px solid var(--border);}
+    .modal-info strong{color:var(--blue2);}
+    .mf{margin-bottom:.8rem;}
+    .mf label{font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;}
+    .mf input,.mf select,.mf textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.6rem .8rem;font-family:sans-serif;font-size:.82rem;color:var(--dark);outline:none;transition:border-color .2s;background:var(--bg);}
+    .mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--blue2);}
+    .mf textarea{resize:vertical;min-height:70px;}
+    .mbtns{display:flex;gap:.6rem;margin-top:1rem;}
+    .mbtn{flex:1;padding:.7rem;border-radius:12px;border:none;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .mbtn-cancel{background:var(--bg);color:var(--dark);border:1.5px solid var(--border);}
+    .mbtn-ok{background:var(--green);color:white;box-shadow:0 4px 14px rgba(0,194,113,.2);}
+    .mbtn-ok.danger{background:var(--red);box-shadow:0 4px 14px rgba(232,48,48,.2);}
+    .mbtn-ok.gold{background:var(--gold);color:var(--dark);}
+    .mbtn-ok:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* TOAST */
+    #toast{position:fixed;top:1.2rem;right:1.2rem;background:var(--dark);color:white;padding:.7rem 1.1rem;border-radius:12px;font-size:.8rem;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;border-left:3px solid var(--turq);box-shadow:0 8px 24px rgba(8,14,42,.2);max-width:300px;}
+    #toast.show{opacity:1;}
+
+    @media(max-width:700px){
+      .sidebar{width:54px;}
+      .sb-brand,.sb-tag,.sb-group,.sb-item span:not(.sb-ico){display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-brand"><span class="la">Afri</span><span class="lm">Market</span></div>
+    <div class="sb-tag">Administration</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-group">Principal</div>
+    <div class="sb-item active" onclick="goPage('stats',this)">
+      <span class="sb-ico">📊</span><span>Tableau de bord</span>
+    </div>
+
+    <div class="sb-group">Gestion</div>
+    <div class="sb-item" onclick="goPage('payments',this)">
+      <span class="sb-ico">💳</span><span>Paiements</span>
+      <span class="sb-badge red" id="nb-pay" style="display:none">0</span>
+    </div>
+    <div class="sb-item" onclick="goPage('withdrawals',this)">
+      <span class="sb-ico">💸</span><span>Retraits</span>
+      <span class="sb-badge gold" id="nb-wr" style="display:none">0</span>
+    </div>
+    <div class="sb-item" onclick="goPage('users',this)">
+      <span class="sb-ico">👥</span><span>Utilisateurs</span>
+    </div>
+    <div class="sb-item" onclick="goPage('ads',this)">
+      <span class="sb-ico">📢</span><span>Annonces</span>
+    </div>
+    <div class="sb-item" onclick="goPage('messages',this)">
+      <span class="sb-ico">✉️</span><span>Messages</span>
+    </div>
+    <div class="sb-item" onclick="goPage('candidatures',this)">
+      <span class="sb-ico">📋</span><span>Candidatures</span>
+      <span class="sb-badge gold" id="nb-cand" style="display:none">0</span>
+    </div>
+    <div class="sb-item" onclick="goPage('missions',this)">
+      <span class="sb-ico">🎯</span><span>Missions & Preuves</span>
+      <span class="sb-badge red" id="nb-miss" style="display:none">0</span>
+    </div>
+    <div class="sb-group">Transactions</div>
+    <div class="sb-item" onclick="goPage('transactions',this)">
+      <span class="sb-ico">🛒</span><span>Toutes les ventes</span>
+      <span class="sb-badge blue" id="nb-tx" style="display:none">0</span>
+    </div>
+    <div class="sb-item" onclick="goPage('litiges',this)">
+      <span class="sb-ico">⚖️</span><span>Litiges</span>
+      <span class="sb-badge red" id="nb-lit" style="display:none">0</span>
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-user-info" id="adminEmail">—</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">📊 Tableau de bord</div>
+    <div class="topbar-right">
+      <button class="tbtn" onclick="loadAll()">🔄 Actualiser</button>
+      <button class="tbtn danger" onclick="doLogout()">🚪 Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ STATS ══ -->
+    <div class="page active" id="page-stats">
+      <div class="stats-grid">
+        <div class="sc blue"><div class="sc-ico">👥</div><div class="sc-num" id="s-users">—</div><div class="sc-lbl">Utilisateurs</div></div>
+        <div class="sc gold"><div class="sc-ico">👑</div><div class="sc-num" id="s-prem">—</div><div class="sc-lbl">Comptes Premium</div></div>
+        <div class="sc green"><div class="sc-ico">🆕</div><div class="sc-num" id="s-today">—</div><div class="sc-lbl">Inscrits aujourd'hui</div></div>
+        <div class="sc orange"><div class="sc-ico">⏳</div><div class="sc-num" id="s-ppend">—</div><div class="sc-lbl">Paiements en attente</div></div>
+        <div class="sc red"><div class="sc-ico">💸</div><div class="sc-num" id="s-wpend">—</div><div class="sc-lbl">Retraits en attente</div></div>
+        <div class="sc green"><div class="sc-ico">💰</div><div class="sc-num" id="s-rev">—</div><div class="sc-lbl">Revenus FCFA</div></div>
+        <div class="sc blue"><div class="sc-ico">📢</div><div class="sc-num" id="s-ads">—</div><div class="sc-lbl">Annonces</div></div>
+        <div class="sc gold"><div class="sc-ico">🤝</div><div class="sc-num" id="s-refs">—</div><div class="sc-lbl">Parrainages</div></div>
+      </div>
+      <div class="sec" id="urgentSec" style="display:none">
+        <div class="sec-head"><div class="sec-title">🚨 Actions urgentes</div></div>
+        <div id="urgentList" style="padding:1rem 1.3rem;display:flex;flex-direction:column;gap:.6rem;"></div>
+      </div>
+    </div>
+
+    <!-- ══ PAIEMENTS ══ -->
+    <div class="page" id="page-payments">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">💳 Paiements Premium</div>
+          <div class="sec-count" id="pay-count">—</div>
+        </div>
+        <div class="filter-row">
+          <button class="fb active" onclick="filterPay('all',this)">Tous</button>
+          <button class="fb or" onclick="filterPay('pending',this)">⏳ En attente</button>
+          <button class="fb gr" onclick="filterPay('approved',this)">✅ Approuvés</button>
+          <button class="fb re" onclick="filterPay('rejected',this)">❌ Rejetés</button>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Utilisateur</th><th>Plan</th><th>Montant</th>
+            <th>Opérateur</th><th>Référence</th><th>Téléphone</th>
+            <th>Date</th><th>Statut</th><th>Actions</th>
+          </tr></thead><tbody id="payTbl"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RETRAITS ══ -->
+    <div class="page" id="page-withdrawals">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">💸 Demandes de retrait</div>
+          <div class="sec-count" id="wr-count">—</div>
+        </div>
+        <div class="filter-row">
+          <button class="fb active" onclick="filterWr('all',this)">Tous</button>
+          <button class="fb or" onclick="filterWr('pending',this)">⏳ En attente</button>
+          <button class="fb gr" onclick="filterWr('paid',this)">✅ Payés</button>
+          <button class="fb re" onclick="filterWr('rejected',this)">❌ Rejetés</button>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Utilisateur</th><th>Montant</th><th>Opérateur</th>
+            <th>Numéro</th><th>Bénéficiaire</th><th>Date</th><th>Statut</th><th>Actions</th>
+          </tr></thead><tbody id="wrTbl"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ UTILISATEURS ══ -->
+    <div class="page" id="page-users">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">👥 Utilisateurs</div>
+          <div class="sec-count" id="users-count">—</div>
+        </div>
+        <div class="filter-row">
+          <button class="fb active" onclick="filterUsers('all',this)">Tous</button>
+          <button class="fb go" onclick="filterUsers('premium',this)">👑 Premium</button>
+          <button class="fb" onclick="filterUsers('free',this)">🆓 Gratuit</button>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Utilisateur</th><th>Email</th><th>WhatsApp</th>
+            <th>Ville</th><th>Plan</th><th>Expire</th><th>Premium</th><th>Actions</th>
+          </tr></thead><tbody id="usersTbl"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ANNONCES ══ -->
+    <div class="page" id="page-ads">
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">📢 Annonces publiées</div>
+          <div class="sec-count" id="ads-count">—</div>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Titre</th><th>Vendeur</th><th>Catégorie</th>
+            <th>Prix</th><th>Ville</th><th>Date</th><th>Actions</th>
+          </tr></thead><tbody id="adsTbl"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         PAGE MESSAGES / NOTIFICATIONS ADMIN
+    ═══════════════════════════════════ -->
+    <div class="page" id="page-messages">
+
+      <!-- ── Envoyer à un utilisateur ciblé ── -->
+      <div class="sec" style="margin-bottom:1rem;">
+        <div class="sec-head">
+          <div class="sec-title">✉️ Envoyer un message à un utilisateur</div>
+        </div>
+        <div style="background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.4rem;box-shadow:0 2px 10px rgba(27,63,228,.05);">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem;">
+            <div>
+              <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Destinataire</label>
+              <select id="msgUserId" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+                <option value="">-- Choisir un utilisateur --</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Icône</label>
+              <select id="msgIcon" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+                <option value="📢">📢 Annonce</option>
+                <option value="👑">👑 Premium</option>
+                <option value="✅">✅ Succès</option>
+                <option value="⚠️">⚠️ Avertissement</option>
+                <option value="💰">💰 Paiement</option>
+                <option value="🎉">🎉 Félicitation</option>
+                <option value="🔔">🔔 Notification</option>
+                <option value="💬">💬 Message</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:.9rem;">
+            <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Titre *</label>
+            <input type="text" id="msgTitle" placeholder="Ex : Votre commande est confirmée" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);"/>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Message *</label>
+            <textarea id="msgBody" placeholder="Contenu du message…" rows="3" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);resize:none;"></textarea>
+          </div>
+          <button onclick="sendMsgToUser()" style="background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:10px;padding:.7rem 1.4rem;font-family:monospace;font-size:.88rem;font-weight:700;cursor:pointer;">✉️ Envoyer</button>
+        </div>
+      </div>
+
+      <!-- ── Broadcast à TOUS les utilisateurs ── -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-title">📢 Broadcast — Envoyer à tous les utilisateurs</div>
+        </div>
+        <div style="background:white;border-radius:16px;border:1.5px solid rgba(255,107,26,.2);padding:1.4rem;box-shadow:0 2px 10px rgba(255,107,26,.05);">
+          <div style="background:rgba(255,107,26,.06);border:1px solid rgba(255,107,26,.2);border-radius:10px;padding:.7rem 1rem;margin-bottom:.9rem;font-size:.78rem;color:var(--orange);font-weight:600;">
+            ⚠️ Ce message sera envoyé à <strong>tous</strong> les utilisateurs. Utilise avec précaution.
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem;">
+            <div>
+              <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Cibler</label>
+              <select id="bcTarget" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+                <option value="all">🌍 Tous les utilisateurs</option>
+                <option value="premium">👑 Premium seulement</option>
+                <option value="free">🆓 Gratuits seulement</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Icône</label>
+              <select id="bcIcon" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);">
+                <option value="📢">📢 Annonce</option>
+                <option value="🎉">🎉 Félicitation</option>
+                <option value="👑">👑 Premium</option>
+                <option value="⚠️">⚠️ Avertissement</option>
+                <option value="🔔">🔔 Notification</option>
+                <option value="💬">💬 Info</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:.9rem;">
+            <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Titre *</label>
+            <input type="text" id="bcTitle" placeholder="Ex : Nouvelle fonctionnalité disponible !" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);"/>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:.75rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Message *</label>
+            <textarea id="bcBody" placeholder="Contenu du broadcast…" rows="3" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-family:sans-serif;font-size:.84rem;color:var(--dark);outline:none;background:var(--bg);resize:none;"></textarea>
+          </div>
+          <button onclick="sendBroadcast()" id="bcBtn" style="background:linear-gradient(135deg,var(--orange),#FF9340);color:white;border:none;border-radius:10px;padding:.7rem 1.4rem;font-family:monospace;font-size:.88rem;font-weight:700;cursor:pointer;">📢 Envoyer le broadcast</button>
+          <div id="bcResult" style="margin-top:.7rem;font-size:.78rem;color:var(--gray);"></div>
+        </div>
+      </div>
+
+      <!-- ── Historique des notifications envoyées ── -->
+      <div class="sec" style="margin-top:1rem;">
+        <div class="sec-head">
+          <div class="sec-title">📋 Dernières notifications envoyées</div>
+          <button class="tbtn" onclick="loadNotifHistory()" style="font-size:.72rem;">🔄 Actualiser</button>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>Destinataire</th><th>Icône</th><th>Titre</th><th>Message</th><th>Date</th><th>Lu</th>
+          </tr></thead>
+          <tbody id="notifHistTbl"><tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem;">Cliquez sur 🔄 Actualiser</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  
+
+<!-- ══ CANDIDATURES SERVICES ══ -->
+<div id="page-candidatures" class="page">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">📋 Candidatures Services</div>
+      <button class="sec-action" onclick="loadCandidatures()">🔄 Actualiser</button>
+    </div>
+
+    <!-- Filtres statut -->
+    <div style="padding:.5rem 1.3rem .8rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+      <button class="cand-filter active" data-status="all"    onclick="filterCand(this,'all')">Toutes</button>
+      <button class="cand-filter"        data-status="pending"  onclick="filterCand(this,'pending')">⏳ En attente</button>
+      <button class="cand-filter"        data-status="approved" onclick="filterCand(this,'approved')">✅ Approuvées</button>
+      <button class="cand-filter"        data-status="rejected" onclick="filterCand(this,'rejected')">❌ Rejetées</button>
+    </div>
+
+    <!-- Liste -->
+    <div id="cand-list" style="padding:0 1.3rem 1.3rem;display:flex;flex-direction:column;gap:.7rem;">
+      <div style="text-align:center;color:var(--gray);padding:2rem;font-size:.85rem;">Cliquez sur 🔄 Actualiser</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ MODAL APPROUVER PAIEMENT ══ -->
+<div class="ov" id="mApprove"><div class="modal">
+  <div class="modal-title">✅ Approuver le paiement</div>
+  <div class="modal-info" id="mApproveInfo">—</div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mApprove')">Annuler</button>
+    <button class="mbtn mbtn-ok" id="mApproveBtn">✅ Approuver & Activer Premium</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL REJETER PAIEMENT ══ -->
+<div class="ov" id="mRejectPay"><div class="modal">
+  <div class="modal-title">❌ Rejeter le paiement</div>
+  <div class="modal-info" id="mRejectPayInfo">—</div>
+  <div class="mf"><label>Raison du rejet *</label>
+    <textarea id="mRejectPayReason" placeholder="Ex: Référence incorrecte, montant insuffisant…"></textarea>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectPay')">Annuler</button>
+    <button class="mbtn mbtn-ok danger" id="mRejectPayBtn">❌ Rejeter</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL VALIDER RETRAIT ══ -->
+<div class="ov" id="mPayWr"><div class="modal">
+  <div class="modal-title">💸 Confirmer le paiement</div>
+  <div class="modal-info" id="mPayWrInfo">—</div>
+  <div class="mf"><label>Note admin (optionnel)</label>
+    <input type="text" id="mPayWrNote" placeholder="Ex: Payé le 21/02 via Orange"/>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mPayWr')">Annuler</button>
+    <button class="mbtn mbtn-ok" id="mPayWrBtn">✅ Marquer comme payé</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL REJETER RETRAIT ══ -->
+<div class="ov" id="mRejectWr"><div class="modal">
+  <div class="modal-title">❌ Rejeter la demande</div>
+  <div class="modal-info" id="mRejectWrInfo">—</div>
+  <div class="mf"><label>Raison du rejet *</label>
+    <textarea id="mRejectWrReason" placeholder="Ex: Numéro incorrect, solde insuffisant…"></textarea>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mRejectWr')">Annuler</button>
+    <button class="mbtn mbtn-ok danger" id="mRejectWrBtn">❌ Rejeter</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL PREMIUM MANUEL ══ -->
+<div class="ov" id="mPremium"><div class="modal">
+  <div class="modal-title" id="mPremiumTitle">👑 Gérer le Premium</div>
+  <div class="modal-info" id="mPremiumInfo">—</div>
+  <div class="mf" id="mPremiumPlanWrap"><label>Plan</label>
+    <select id="mPremiumPlan">
+      <option value="premium">👑 Premium — 1 mois</option>
+      <option value="elite">⚡ Elite — 1 mois</option>
+      <option value="premium_annual">👑 Premium — 1 an</option>
+    </select>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mPremium')">Annuler</button>
+    <button class="mbtn mbtn-ok gold" id="mPremiumBtn">👑 Confirmer</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL SUPPRIMER USER ══ -->
+<div class="ov" id="mDelUser"><div class="modal">
+  <div class="modal-title">🗑️ Supprimer l'utilisateur</div>
+  <div class="modal-info" id="mDelUserInfo">—</div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mDelUser')">Annuler</button>
+    <button class="mbtn mbtn-ok danger" id="mDelUserBtn">🗑️ Supprimer</button>
+  </div>
+</div></div>
+
+<!-- ══ MODAL MESSAGE RAPIDE ══ -->
+<div class="ov" id="mMsg"><div class="modal">
+  <div class="modal-title">✉️ Envoyer un message</div>
+  <div class="modal-info" id="mMsgInfo">—</div>
+  <div class="mf">
+    <label>Icône</label>
+    <select id="mMsgIcon" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:sans-serif;font-size:.84rem;outline:none;background:var(--bg);margin-bottom:.6rem;">
+      <option value="📢">📢 Annonce</option>
+      <option value="👑">👑 Premium</option>
+      <option value="✅">✅ Succès</option>
+      <option value="⚠️">⚠️ Avertissement</option>
+      <option value="💰">💰 Paiement</option>
+      <option value="🎉">🎉 Félicitation</option>
+      <option value="🔔">🔔 Notification</option>
+    </select>
+    <label>Titre *</label>
+    <input type="text" id="mMsgTitle" placeholder="Titre du message" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:sans-serif;font-size:.84rem;outline:none;background:var(--bg);margin-bottom:.6rem;"/>
+    <label>Message *</label>
+    <textarea id="mMsgBody" rows="3" placeholder="Contenu…" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .8rem;font-family:sans-serif;font-size:.84rem;outline:none;background:var(--bg);resize:none;"></textarea>
+  </div>
+  <div class="mbtns">
+    <button class="mbtn mbtn-cancel" onclick="closeOv('mMsg')">Annuler</button>
+    <button class="mbtn mbtn-ok" id="mMsgBtn">✉️ Envoyer</button>
+  </div>
+
+
+<!-- ══════════════════════════════ PAGE: TRANSACTIONS ══════════════════════════════ -->
+<div id="page-transactions" class="page">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">🛒 Toutes les Ventes</div>
+      <button class="sec-action" onclick="loadTransactions()">🔄 Actualiser</button>
+    </div>
+    <!-- Filtres -->
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0;">
+      <button class="cand-filter active" onclick="filterTx(this,'all')">Toutes</button>
+      <button class="cand-filter" onclick="filterTx(this,'in_escrow')">🔐 Escrow</button>
+      <button class="cand-filter" onclick="filterTx(this,'completed')">✅ Terminées</button>
+      <button class="cand-filter" onclick="filterTx(this,'disputed')">⚠️ Litiges</button>
+      <button class="cand-filter" onclick="filterTx(this,'pending')">⏳ En attente</button>
+    </div>
+    <!-- Stats rapides -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
+      <div style="background:#F0F4FF;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--dark);" id="tx-stat-total">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">TOTAL</div>
+      </div>
+      <div style="background:#FFF8E0;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#8A5A00;" id="tx-stat-escrow">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">ESCROW F</div>
+      </div>
+      <div style="background:#E8FFF5;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#007A46;" id="tx-stat-commission">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">COMMISSION F</div>
+      </div>
+    </div>
+    <div id="tx-list" style="display:flex;flex-direction:column;gap:.6rem;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ PAGE: LITIGES ══════════════════════════════ -->
+<div id="page-litiges" class="page">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">⚖️ Gestion des Litiges</div>
+      <button class="sec-action" onclick="loadLitiges()">🔄 Actualiser</button>
+    </div>
+    <div style="background:rgba(232,48,48,.06);border:1px solid rgba(232,48,48,.15);border-radius:12px;padding:.8rem 1rem;margin-bottom:.8rem;font-size:.78rem;color:var(--red);line-height:1.5;">
+      ⚖️ En cas de litige, examine les deux parties et tranche. L'argent est toujours en escrow jusqu'à ta décision.
+    </div>
+    <div id="lit-list" style="display:flex;flex-direction:column;gap:.6rem;">
+      <div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">⏳ Chargement…</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RÉSOLUTION LITIGE -->
+<div class="overlay" id="resolveOv">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="resolveTitle">⚖️ Résoudre le litige</div>
+    <div style="font-size:.78rem;color:var(--gray);margin-bottom:.8rem;" id="resolveDesc">—</div>
+    <div style="font-size:.72rem;font-weight:700;color:var(--dark);margin-bottom:.35rem;">Raison du litige :</div>
+    <div style="background:#FFF3F3;border-radius:10px;padding:.7rem;font-size:.76rem;color:var(--red);margin-bottom:.9rem;line-height:1.5;" id="resolveReason">—</div>
+    <div style="font-size:.72rem;font-weight:700;color:var(--dark);margin-bottom:.5rem;">Décision :</div>
+    <div style="display:flex;gap:.5rem;margin-bottom:.9rem;">
+      <button onclick="resolveDispute('buyer')" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-family:monospace;font-size:.82rem;font-weight:700;cursor:pointer;">
+        ↩ Rembourser l'acheteur
+      </button>
+      <button onclick="resolveDispute('seller')" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:monospace;font-size:.82rem;font-weight:700;cursor:pointer;">
+        💰 Payer le vendeur
+      </button>
+    </div>
+    <button onclick="closeOv('resolveOv')" style="width:100%;padding:.65rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--gray);font-family:sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL LIBÉRATION MANUELLE -->
+<div class="overlay" id="releaseOv">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔓 Libérer l'escrow</div>
+    <div style="font-size:.78rem;color:var(--gray);margin-bottom:.9rem;" id="releaseDesc">—</div>
+    <div style="background:#FFF8E0;border:1px solid rgba(245,183,49,.3);border-radius:12px;padding:.8rem;font-size:.75rem;color:#6B4A00;margin-bottom:.9rem;">
+      ⚠️ L'argent sera immédiatement crédité au vendeur. Action irréversible.
+    </div>
+    <div style="display:flex;gap:.6rem;">
+      <button onclick="closeOv('releaseOv')" style="flex:1;padding:.72rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="releaseConfirmBtn" onclick="doManualRelease()" style="flex:1;padding:.72rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">✅ Libérer</button>
+    </div>
+  </div>
+</div>
+
+</div></div>
+
+
+<!-- ══════════ PAGE: MISSIONS & PREUVES ══════════ -->
+<div id="page-missions" class="page">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">🎯 Missions & Validation des Preuves</div>
+      <button class="sec-action" onclick="loadMissions()">🔄 Actualiser</button>
+    </div>
+    <div style="display:flex;gap:.45rem;flex-wrap:wrap;margin:.6rem 0;">
+      <button class="cand-filter active" onclick="filterMiss(this,'all')">Toutes</button>
+      <button class="cand-filter" onclick="filterMiss(this,'pending_user')">⏳ En attente validation</button>
+      <button class="cand-filter" onclick="filterMiss(this,'validated')">✅ Validées</button>
+      <button class="cand-filter" onclick="filterMiss(this,'rejected')">❌ Rejetées</button>
+      <button class="cand-filter" onclick="filterMiss(this,'inprogress')">🔄 En cours</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
+      <div style="background:#FFF8E0;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#8A5A00;" id="miss-stat-pending">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">A VALIDER</div>
+      </div>
+      <div style="background:#E8FFF5;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#007A46;" id="miss-stat-validated">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">VALIDEES</div>
+      </div>
+      <div style="background:#F0F4FF;border-radius:12px;padding:.7rem;text-align:center;">
+        <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--blue2);" id="miss-stat-gains">—</div>
+        <div style="font-size:.6rem;color:var(--gray);font-weight:600;">TOTAL FCFA PAYES</div>
+      </div>
+    </div>
+    <div id="miss-list" style="display:flex;flex-direction:column;gap:.7rem;">
+      <div style="text-align:center;padding:2rem;color:var(--gray);">⏳ Chargement…</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VALIDER MISSION -->
+<div class="overlay" id="missValOv">
+  <div class="modal" style="max-height:85vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✅ Valider la mission</div>
+    <div style="font-size:.78rem;color:var(--gray);margin-bottom:.6rem;" id="missValDesc">—</div>
+    <div style="background:#F8F9FF;border-radius:12px;padding:.8rem;margin-bottom:.7rem;">
+      <div style="font-size:.7rem;font-weight:700;color:var(--dark);margin-bottom:.3rem;">📝 Rapport de l'agent :</div>
+      <div style="font-size:.76rem;color:var(--dark);line-height:1.6;" id="missValReport">—</div>
+    </div>
+    <div style="margin-bottom:.6rem;" id="missValProofWrap"></div>
+    <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">💰 Montant à créditer (FCFA) *</label>
+    <input type="number" id="missValGain" min="0" placeholder="Ex: 5000"
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.9rem;color:var(--dark);outline:none;margin-bottom:.6rem;font-family:monospace;font-weight:700;"/>
+    <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">📋 Note admin (optionnel)</label>
+    <textarea id="missValNote" rows="2" placeholder="Feedback pour l'agent…"
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:sans-serif;"></textarea>
+    <div style="display:flex;gap:.5rem;">
+      <button onclick="closeOv('missValOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="missValBtn" onclick="doValidateMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">✅ Valider & Créditer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REJETER MISSION -->
+<div class="overlay" id="missRejOv">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">❌ Rejeter la mission</div>
+    <div style="font-size:.78rem;color:var(--gray);margin-bottom:.8rem;" id="missRejDesc">—</div>
+    <label style="font-size:.72rem;font-weight:700;color:var(--dark);display:block;margin-bottom:.3rem;">Raison du rejet *</label>
+    <textarea id="missRejNote" rows="3" placeholder="Explique pourquoi la mission est rejetée…"
+      style="width:100%;background:#F8F9FF;border:1.5px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.8rem;color:var(--dark);outline:none;resize:none;margin-bottom:.9rem;font-family:sans-serif;"></textarea>
+    <div style="display:flex;gap:.5rem;">
+      <button onclick="closeOv('missRejOv')" style="flex:1;padding:.7rem;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--dark);font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">Annuler</button>
+      <button id="missRejBtn" onclick="doRejectMission()" style="flex:1;padding:.7rem;border-radius:12px;border:none;background:linear-gradient(135deg,var(--red),#B02020);color:white;font-family:monospace;font-size:.85rem;font-weight:700;cursor:pointer;">❌ Rejeter</button>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+// !! Emails admin autorisés !!
+const ADMIN_EMAILS=['abdoula13cherif@gmail.com'];
+
+let allPay=[],allWr=[],allUsers=[],allAds=[];
+let fPay='all',fWr='all',fUsers='all';
+
+// ── INIT ──
+(async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){location.href='index.html';return;}
+  const em=session.user.email;
+  if(!ADMIN_EMAILS.includes(em)){
+    alert('Accès refusé. Vous n\'êtes pas administrateur.');
+    await sb.auth.signOut();location.href='index.html';return;
+  }
+  document.getElementById('adminEmail').textContent=em;
+  await loadAll();
+  setupAdminRealtime();
+})();
+
+async function loadAll(){
+  toast('Chargement…','info');
+  await Promise.all([loadStats(),loadPay(),loadWr(),loadUsers(),loadAds()]);
+  toast('Données actualisées ✅','success');
+}
+
+// ── STATS ──
+async function loadStats(){
+  const{data:us}=await sb.from('profiles').select('id,is_premium,created_at');
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('s-users').textContent=(us||[]).length;
+  document.getElementById('s-prem').textContent=(us||[]).filter(u=>u.is_premium).length;
+  document.getElementById('s-today').textContent=(us||[]).filter(u=>u.created_at?.startsWith(today)).length;
+
+  const{count:pp}=await sb.from('payment_requests').select('*',{count:'exact',head:true}).eq('status','pending');
+  const{count:wp}=await sb.from('withdrawal_requests').select('*',{count:'exact',head:true}).eq('status','pending');
+  const ppN=pp||0,wpN=wp||0;
+  document.getElementById('s-ppend').textContent=ppN;
+  document.getElementById('s-wpend').textContent=wpN;
+  if(ppN>0){document.getElementById('nb-pay').textContent=ppN;document.getElementById('nb-pay').style.display='block';}
+  if(wpN>0){document.getElementById('nb-wr').textContent=wpN;document.getElementById('nb-wr').style.display='block';}
+
+  const{data:rev}=await sb.from('payment_requests').select('amount').eq('status','approved');
+  document.getElementById('s-rev').textContent=((rev||[]).reduce((s,p)=>s+(p.amount||0),0)).toLocaleString('fr-FR')+' F';
+
+  const{count:ads}=await sb.from('annonces').select('*',{count:'exact',head:true});
+  document.getElementById('s-ads').textContent=ads||0;
+  const{count:refs}=await sb.from('referral_earnings').select('*',{count:'exact',head:true});
+  document.getElementById('s-refs').textContent=refs||0;
+
+  // Actions urgentes
+  const ul=document.getElementById('urgentList');ul.innerHTML='';
+  if(ppN>0||wpN>0){
+    document.getElementById('urgentSec').style.display='block';
+    if(ppN>0) ul.innerHTML+=urgentItem('⏳','orange',`<strong>${ppN}</strong> paiement(s) en attente`,'payments');
+    if(wpN>0) ul.innerHTML+=urgentItem('💸','gold',`<strong>${wpN}</strong> retrait(s) à valider`,'withdrawals');
+  }
+}
+
+function urgentItem(ico,color,txt,page){
+  const c={orange:'rgba(255,107,26,.05)',gold:'rgba(245,183,49,.05)'};
+  const b={orange:'rgba(255,107,26,.15)',gold:'rgba(245,183,49,.15)'};
+  return `<div style="display:flex;align-items:center;justify-content:space-between;background:${c[color]};border:1px solid ${b[color]};border-radius:12px;padding:.75rem 1rem;">
+    <span style="font-size:.81rem;font-weight:600">${ico} ${txt}</span>
+    <button class="ab ab-blue" onclick="goPage('${page}',document.querySelector('.sb-item[onclick*=${page}]'))">Voir →</button>
+  </div>`;
+}
+
+// ── PAIEMENTS ──
+async function loadPay(){
+  const{data}=await sb.from('payment_requests')
+    .select('*,profiles(full_name,email,whatsapp)')
+    .order('created_at',{ascending:false}).limit(200);
+  allPay=data||[];renderPay();
+}
+
+function renderPay(){
+  const list=fPay==='all'?allPay:allPay.filter(p=>p.status===fPay);
+  document.getElementById('pay-count').textContent=list.length+' entrées';
+  if(!list.length){document.getElementById('payTbl').innerHTML=emptyRow(9,'💳','Aucun paiement');return;}
+  document.getElementById('payTbl').innerHTML=list.map(p=>{
+    const d=fmt(p.created_at);
+    const badge=`<span class="b b-${p.status}">${p.status==='pending'?'⏳ En attente':p.status==='approved'?'✅ Approuvé':'❌ Rejeté'}</span>`;
+    const acts=p.status==='pending'
+      ?`<div class="arow"><button class="ab ab-approve" onclick="openApprovePay('${p.id}','${esc(p.profiles?.full_name)}','${p.plan}',${p.amount})">✅ Approuver</button><button class="ab ab-reject" onclick="openRejectPay('${p.id}','${esc(p.profiles?.full_name)}')">❌ Rejeter</button></div>`
+      :`<span style="font-size:.68rem;color:var(--gray)">—</span>`;
+    return `<tr>
+      <td><div class="uname"><div class="uav">${(p.profiles?.full_name||'?')[0].toUpperCase()}</div><div><strong>${p.profiles?.full_name||'—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${p.profiles?.email||''}</span></div></div></td>
+      <td><span class="b b-premium">${p.plan||'?'} · ${p.billing||'?'}</span></td>
+      <td><strong>${(p.amount||0).toLocaleString('fr-FR')} F</strong></td>
+      <td>${p.operator==='orange'?'🟠 Orange':'💛 MTN'}</td>
+      <td style="font-size:.7rem;font-family:monospace;max-width:110px;overflow:hidden;text-overflow:ellipsis">${p.transaction_ref||'—'}</td>
+      <td>${p.sender_phone||'—'}</td>
+      <td style="font-size:.7rem">${d}</td>
+      <td>${badge}</td>
+      <td>${acts}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterPay(f,btn){fPay=f;document.querySelectorAll('#page-payments .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPay();}
+
+// ── RETRAITS ──
+async function loadWr(){
+  const{data}=await sb.from('withdrawal_requests')
+    .select('*,profiles(full_name,email)')
+    .order('created_at',{ascending:false}).limit(200);
+  allWr=data||[];renderWr();
+}
+
+function renderWr(){
+  const list=fWr==='all'?allWr:allWr.filter(w=>w.status===fWr);
+  document.getElementById('wr-count').textContent=list.length+' entrées';
+  if(!list.length){document.getElementById('wrTbl').innerHTML=emptyRow(8,'💸','Aucun retrait');return;}
+  document.getElementById('wrTbl').innerHTML=list.map(w=>{
+    const d=fmt(w.created_at);
+    const badge=`<span class="b b-${w.status==='paid'?'approved':w.status}">${w.status==='pending'?'⏳ En attente':w.status==='paid'?'✅ Payé':'❌ Rejeté'}</span>`;
+    const acts=w.status==='pending'
+      ?`<div class="arow">
+          <button class="ab ab-approve" onclick="openPayWr('${w.id}',${w.amount},'${w.operator}','${esc(w.phone)}','${esc(w.name)}','${esc(w.profiles?.full_name)}')">✅ Valider paiement</button>
+          <button class="ab ab-reject" onclick="openRejectWr('${w.id}','${esc(w.profiles?.full_name)}',${w.amount})">❌ Rejeter</button>
+        </div>`
+      :`<span style="font-size:.68rem;color:var(--gray)">${w.status==='paid'?'Payé ✅':'Rejeté ❌'}${w.admin_note?'<br><em style="font-size:.62rem">'+w.admin_note+'</em>':''}</span>`;
+    return `<tr>
+      <td><div class="uname"><div class="uav">${(w.profiles?.full_name||'?')[0].toUpperCase()}</div><div><strong>${w.profiles?.full_name||'—'}</strong><br><span style="font-size:.65rem;color:var(--gray)">${w.profiles?.email||''}</span></div></div></td>
+      <td><strong style="color:var(--green)">${(w.amount||0).toLocaleString('fr-FR')} F</strong></td>
+      <td>${w.operator==='orange'?'🟠 Orange':'💛 MTN'}</td>
+      <td><strong>${w.phone||'—'}</strong></td>
+      <td>${w.name||'—'}</td>
+      <td style="font-size:.7rem">${d}</td>
+      <td>${badge}</td>
+      <td>${acts}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterWr(f,btn){fWr=f;document.querySelectorAll('#page-withdrawals .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderWr();}
+
+// ── UTILISATEURS ──
+async function loadUsers(){
+  const{data}=await sb.from('profiles')
+    .select('id,full_name,email,whatsapp,ville,is_premium,plan,plan_expires,created_at')
+    .order('created_at',{ascending:false}).limit(300);
+  allUsers=data||[];
+  document.getElementById('users-count').textContent=allUsers.length+' utilisateurs';
+  renderUsers();
+}
+
+function renderUsers(){
+  const list=fUsers==='all'?allUsers:fUsers==='premium'?allUsers.filter(u=>u.is_premium):allUsers.filter(u=>!u.is_premium);
+  if(!list.length){document.getElementById('usersTbl').innerHTML=emptyRow(8,'👥','Aucun utilisateur');return;}
+  document.getElementById('usersTbl').innerHTML=list.map(u=>{
+    const init=(u.full_name||'?')[0].toUpperCase();
+    const exp=u.plan_expires?new Date(u.plan_expires).toLocaleDateString('fr-FR'):'—';
+    const planBadge=u.is_premium?`<span class="b b-premium">👑 ${u.plan||'premium'}</span>`:`<span class="b b-free">🆓 Gratuit</span>`;
+    // Toggle switch pour premium
+    const toggleHtml=`<label class="tgl" title="${u.is_premium?'Désactiver Premium':'Activer Premium'}">
+      <input type="checkbox" ${u.is_premium?'checked':''} onchange="togglePremium('${u.id}','${esc(u.full_name)}',this.checked)"/>
+      <span class="tgl-slider"></span>
+    </label>`;
+    return `<tr>
+      <td><div class="uname"><div class="uav">${init}</div><div><strong>${u.full_name||'—'}</strong></div></div></td>
+      <td style="font-size:.73rem">${u.email||'—'}</td>
+      <td>${u.whatsapp||'—'}</td>
+      <td>${u.ville||'—'}</td>
+      <td>${planBadge}</td>
+      <td style="font-size:.7rem">${exp}</td>
+      <td><div class="toggle-wrap">${toggleHtml}<span class="tgl-lbl" style="color:${u.is_premium?'var(--green)':'var(--gray)'}">${u.is_premium?'Actif':'Inactif'}</span></div></td>
+      <td>
+        <div class="arow">
+          <button class="ab ab-gold" onclick="openPremiumModal('${u.id}','${esc(u.full_name)}',${u.is_premium})">👑 Gérer</button>
+          <button class="ab" style="background:rgba(0,194,183,.1);color:var(--turq);border:1px solid rgba(0,194,183,.25);" onclick="openMsgModal('${u.id}','${esc(u.full_name)}')">✉️ Message</button>
+          <button class="ab ab-approve" style="background:rgba(0,194,113,.1);color:var(--green);" onclick="openRechargeModal('${u.id}','${esc(u.full_name)}')">💰 Recharger</button>
+          <button class="ab ab-reject" onclick="openDelUser('${u.id}','${esc(u.full_name)}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterUsers(f,btn){fUsers=f;document.querySelectorAll('#page-users .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderUsers();}
+
+// ── ANNONCES ──
+async function loadAds(){
+  const{data}=await sb.from('annonces')
+    .select('id,titre,categorie,prix,ville,created_at,actif,profiles(full_name)')
+    .order('created_at',{ascending:false}).limit(200);
+  allAds=data||[];
+  document.getElementById('ads-count').textContent=allAds.length+' annonces';
+  if(!allAds.length){document.getElementById('adsTbl').innerHTML=emptyRow(7,'📢','Aucune annonce');return;}
+  document.getElementById('adsTbl').innerHTML=allAds.map(a=>{
+    const d=fmt(a.created_at);
+    return `<tr>
+      <td><strong>${a.titre||'—'}</strong></td>
+      <td>${a.profiles?.full_name||'—'}</td>
+      <td><span class="b b-free">${a.categorie||'—'}</span></td>
+      <td>${a.prix?a.prix.toLocaleString('fr-FR')+' F':'—'}</td>
+      <td>${a.ville||'—'}</td>
+      <td style="font-size:.7rem">${d}</td>
+      <td><button class="ab ab-reject" onclick="delAd('${a.id}')">🗑️ Supprimer</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+// ── ACTIONS PAIEMENTS ──
+// ════════════════════════════════
+function openApprovePay(id,name,plan,amount){
+  document.getElementById('mApproveInfo').innerHTML=`Utilisateur : <strong>${name}</strong><br>Plan : <strong>${plan}</strong><br>Montant : <strong>${amount.toLocaleString('fr-FR')} FCFA</strong><br><br>✅ Le compte sera activé en Premium immédiatement.`;
+  document.getElementById('mApproveBtn').onclick=()=>doApprovePay(id);
+  openOv('mApprove');
+}
+
+async function doApprovePay(id){
+  const btn=document.getElementById('mApproveBtn');
+  btn.disabled=true;btn.textContent='⏳…';
+  try{
+    const{data:pay}=await sb.from('payment_requests').select('*').eq('id',id).single();
+    if(!pay) throw new Error('Paiement introuvable');
+    const exp=new Date();
+    /* Détection plan annuel : champ plan contient 'annual' ou '1an' */
+    const isAnnual = (pay.plan||'').includes('annual') || (pay.plan||'').includes('1an');
+    if(isAnnual) exp.setFullYear(exp.getFullYear()+1);
+    else exp.setMonth(exp.getMonth()+1);
+    /* Nom du plan propre (sans _annual) */
+    const cleanPlan = (pay.plan||'premium').replace('_annual','');
+    await sb.from('profiles').update({
+      is_premium:true,
+      plan:cleanPlan,
+      plan_expires:exp.toISOString()
+    }).eq('id',pay.user_id);
+    await sb.from('payment_requests').update({
+      status:'approved',
+      approved_at:new Date().toISOString()
+    }).eq('id',id);
+    await notif(pay.user_id,'👑 Compte Premium activé !',
+      'Votre paiement a été validé. Profitez de toutes les fonctionnalités Premium !','👑','success');
+    toast('✅ Premium activé !','success');
+    closeOv('mApprove');
+    await Promise.all([loadStats(),loadPay()]);
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='✅ Approuver & Activer Premium';}
+}
+
+function openRejectPay(id,name){
+  document.getElementById('mRejectPayInfo').innerHTML=`Rejeter le paiement de <strong>${name}</strong> ?`;
+  document.getElementById('mRejectPayReason').value='';
+  document.getElementById('mRejectPayBtn').onclick=()=>doRejectPay(id);
+  openOv('mRejectPay');
+}
+
+async function doRejectPay(id){
+  const reason=document.getElementById('mRejectPayReason').value.trim()||'Paiement non confirmé';
+  const btn=document.getElementById('mRejectPayBtn');
+  btn.disabled=true;
+  try{
+    const{data:pay}=await sb.from('payment_requests').select('user_id').eq('id',id).single();
+    await sb.from('payment_requests').update({status:'rejected',rejected_at:new Date().toISOString(),rejection_reason:reason}).eq('id',id);
+    if(pay) await notif(pay.user_id,'❌ Paiement refusé','Votre paiement n\'a pas pu être vérifié. Raison : '+reason,'❌','error');
+    toast('Paiement rejeté','info');
+    closeOv('mRejectPay');
+    await Promise.all([loadStats(),loadPay()]);
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
+}
+
+// ════════════════════════════════
+// ── ACTIONS RETRAITS ──
+// ════════════════════════════════
+function openPayWr(id,amount,op,phone,name,userName){
+  document.getElementById('mPayWrInfo').innerHTML=
+    `Bénéficiaire : <strong>${userName||name}</strong><br>`+
+    `Montant : <strong style="color:var(--green)">${amount.toLocaleString('fr-FR')} FCFA</strong><br>`+
+    `Opérateur : <strong>${op==='orange'?'🟠 Orange Money':'💛 MTN MoMo'}</strong><br>`+
+    `Numéro : <strong>${phone}</strong>`;
+  document.getElementById('mPayWrNote').value='';
+  document.getElementById('mPayWrBtn').onclick=()=>doPayWr(id,amount,op,phone);
+  openOv('mPayWr');
+}
+
+async function doPayWr(id,amount,op,phone){
+  const note=document.getElementById('mPayWrNote').value.trim();
+  const btn=document.getElementById('mPayWrBtn');
+  btn.disabled=true;btn.textContent='⏳ Traitement…';
+  try{
+    const{data:wr,error:wrErr}=await sb.from('withdrawal_requests')
+      .select('user_id').eq('id',id).single();
+    if(wrErr||!wr) throw new Error('Demande introuvable : '+(wrErr?.message||''));
+
+    /* Mettre à jour le statut du retrait */
+    const upRes=await sb.from('withdrawal_requests').update({
+      status:'paid',
+      paid_at:new Date().toISOString(),
+      admin_note:note||null
+    }).eq('id',id);
+    if(upRes.error) throw new Error('Update retrait : '+upRes.error.message);
+
+    /* Marquer les referral_earnings comme retirés (proportionnel) */
+    const{data:earns}=await sb.from('referral_earnings')
+      .select('id,amount').eq('user_id',wr.user_id).eq('status','available')
+      .order('created_at',{ascending:true});
+    if(earns?.length){
+      let reste=amount;
+      const ids=[];
+      for(const e of earns){
+        if(reste<=0) break;
+        ids.push(e.id);
+        reste-=(e.amount||0);
+      }
+      if(ids.length) await sb.from('referral_earnings')
+        .update({status:'withdrawn'}).in('id',ids);
+    }
+
+    /* Notifier l'utilisateur */
+    await notif(wr.user_id,'✅ Retrait effectué !',
+      amount.toLocaleString('fr-FR')+' FCFA envoyés sur votre '+op+' ('+phone+'). Merci !','💸','success');
+
+    toast('✅ Retrait validé — '+amount.toLocaleString('fr-FR')+' FCFA payés !','success');
+    closeOv('mPayWr');
+    await Promise.all([loadStats(),loadWr()]);
+  }catch(e){
+    console.error('doPayWr',e);
+    toast('Erreur : '+e.message,'error');
+  }
+  finally{btn.disabled=false;btn.textContent='✅ Confirmer le paiement';}
+}
+
+function openRejectWr(id,userName,amount){
+  document.getElementById('mRejectWrInfo').innerHTML=`Rejeter la demande de retrait de <strong>${userName}</strong> — <strong>${(amount||0).toLocaleString('fr-FR')} FCFA</strong> ?`;
+  document.getElementById('mRejectWrReason').value='';
+  document.getElementById('mRejectWrBtn').onclick=()=>doRejectWr(id);
+  openOv('mRejectWr');
+}
+
+async function doRejectWr(id){
+  const reason=document.getElementById('mRejectWrReason').value.trim()||'Demande non validée';
+  const btn=document.getElementById('mRejectWrBtn');
+  btn.disabled=true;
+  try{
+    const{data:wr}=await sb.from('withdrawal_requests').select('user_id,amount').eq('id',id).single();
+    await sb.from('withdrawal_requests').update({status:'rejected',admin_note:reason}).eq('id',id);
+    if(wr) await notif(wr.user_id,'❌ Retrait refusé','Votre demande de '+wr.amount+' FCFA a été refusée. Raison : '+reason,'❌','error');
+    toast('Demande rejetée','info');
+    closeOv('mRejectWr');
+    await Promise.all([loadStats(),loadWr()]);
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
+}
+
+// ════════════════════════════════
+// ── TOGGLE PREMIUM (switch) ──
+// ════════════════════════════════
+async function togglePremium(uid,name,activate){
+  try{
+    if(activate){
+      const exp=new Date();exp.setMonth(exp.getMonth()+1);
+      await sb.from('profiles').update({is_premium:true,plan:'premium',plan_expires:exp.toISOString()}).eq('id',uid);
+      await notif(uid,'👑 Compte Premium activé !','L\'administration a activé votre compte Premium. Profitez-en !','👑','success');
+      toast('✅ Premium activé pour '+name,'success');
+    } else {
+      await sb.from('profiles').update({is_premium:false,plan:null,plan_expires:null}).eq('id',uid);
+      await notif(uid,'🔒 Premium désactivé','Votre compte Premium a été désactivé par l\'administration.','🔒','info');
+      toast('Premium désactivé pour '+name,'info');
+    }
+    // Mettre à jour localement sans recharger
+    const idx=allUsers.findIndex(u=>u.id===uid);
+    if(idx>-1){allUsers[idx].is_premium=activate;allUsers[idx].plan=activate?'premium':null;}
+    renderUsers();
+    loadStats();
+  loadCandidatures();
+  }catch(e){toast('Erreur : '+e.message,'error');}
+}
+
+// ── MODAL PREMIUM MANUEL ──
+function openPremiumModal(uid,name,isPremium){
+  document.getElementById('mPremiumTitle').textContent=isPremium?'🔒 Gérer le Premium de '+name:'👑 Activer Premium pour '+name;
+  document.getElementById('mPremiumInfo').innerHTML=isPremium
+    ?`<strong>${name}</strong> est actuellement <strong style="color:var(--green)">Premium actif</strong>.<br>Tu peux modifier le plan ou désactiver le compte.`
+    :`<strong>${name}</strong> est sur le plan <strong>Gratuit</strong>.<br>Sélectionne le plan à activer.`;
+  document.getElementById('mPremiumPlanWrap').style.display=isPremium?'none':'block';
+  document.getElementById('mPremiumBtn').textContent=isPremium?'🔒 Désactiver Premium':'👑 Activer Premium';
+  document.getElementById('mPremiumBtn').onclick=()=>doManualPremium(uid,name,isPremium);
+  openOv('mPremium');
+}
+
+async function doManualPremium(uid,name,wasPremium){
+  const btn=document.getElementById('mPremiumBtn');
+  btn.disabled=true;
+  try{
+    if(wasPremium){
+      await togglePremium(uid,name,false);
+    } else {
+      const plan=document.getElementById('mPremiumPlan').value;
+      const exp=new Date();
+      if(plan.includes('annual')) exp.setFullYear(exp.getFullYear()+1);
+      else exp.setMonth(exp.getMonth()+1);
+      await sb.from('profiles').update({is_premium:true,plan:plan.replace('_annual',''),plan_expires:exp.toISOString()}).eq('id',uid);
+      await notif(uid,'👑 Compte Premium activé !','L\'administration a activé votre compte Premium ('+plan+'). Profitez-en !','👑','success');
+      const idx=allUsers.findIndex(u=>u.id===uid);
+      if(idx>-1){allUsers[idx].is_premium=true;allUsers[idx].plan=plan;}
+      toast('✅ Premium activé pour '+name,'success');
+      renderUsers();loadStats();
+    }
+    closeOv('mPremium');
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
+}
+
+// ── SUPPRIMER USER ──
+function openDelUser(uid,name){
+  document.getElementById('mDelUserInfo').innerHTML=`Supprimer définitivement le compte de <strong>${name}</strong> ?<br><span style="color:var(--red);font-size:.78rem">⚠️ Toutes ses annonces et données seront supprimées.</span>`;
+  document.getElementById('mDelUserBtn').onclick=()=>doDelUser(uid,name);
+  openOv('mDelUser');
+}
+
+async function doDelUser(uid,name){
+  const btn=document.getElementById('mDelUserBtn');
+  btn.disabled=true;
+  try{
+    // Notif avant suppression (sera effacée avec le compte mais utile si l'utilisateur est connecté)
+    await notif(uid,'⚠️ Compte supprimé','Votre compte AfriMarket a été supprimé par l\'administration.','⚠️','error');
+    await new Promise(r=>setTimeout(r,500)); // laisser le temps au Realtime de déclencher
+    await sb.from('annonces').delete().eq('user_id',uid);
+    await sb.from('referral_earnings').delete().eq('user_id',uid);
+    await sb.from('withdrawal_requests').delete().eq('user_id',uid);
+    await sb.from('notifications').delete().eq('user_id',uid);
+    await sb.from('profiles').delete().eq('id',uid);
+    allUsers=allUsers.filter(u=>u.id!==uid);
+    renderUsers();loadStats();
+    toast('Utilisateur supprimé','info');
+    closeOv('mDelUser');
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;}
+}
+
+// ── SUPPRIMER ANNONCE ──
+async function delAd(id){
+  if(!confirm('Supprimer cette annonce ?')) return;
+  await sb.from('annonces').delete().eq('id',id);
+  allAds=allAds.filter(a=>a.id!==id);
+  document.getElementById('ads-count').textContent=allAds.length+' annonces';
+  document.getElementById('adsTbl').innerHTML=allAds.length?allAds.map(a=>`<tr><td>${a.titre||'—'}</td><td>${a.profiles?.full_name||'—'}</td><td>${a.categorie||'—'}</td><td>${a.prix?a.prix.toLocaleString('fr-FR')+' F':'—'}</td><td>${a.ville||'—'}</td><td>${fmt(a.created_at)}</td><td><button class="ab ab-reject" onclick="delAd('${a.id}')">🗑️</button></td></tr>`).join(''):emptyRow(7,'📢','Aucune annonce');
+  toast('Annonce supprimée','info');
+}
+
+// ── NOTIFICATION ──
+
+// ── RECHARGER LE SOLDE ──
+function openRechargeModal(uid,name){
+  document.getElementById('mRechargeInfo').innerHTML=`Ajouter du solde au compte de <strong>${name}</strong>.`;
+  document.getElementById('mRechargeAmount').value='';
+  document.getElementById('mRechargeNote').value='';
+  document.getElementById('mRechargeBtn').dataset.uid=uid;
+  document.getElementById('mRechargeBtn').dataset.name=name;
+  openOv('mRecharge');
+}
+
+async function doRecharge(){
+  const btn=document.getElementById('mRechargeBtn');
+  const uid=btn.dataset.uid;
+  const name=btn.dataset.name;
+  const amount=parseInt(document.getElementById('mRechargeAmount').value)||0;
+  const note=document.getElementById('mRechargeNote').value.trim();
+  if(amount<=0){toast('Montant invalide','warning');return;}
+  btn.disabled=true;btn.textContent='⏳…';
+  try{
+    // Insérer un earning "available" pour créditer le solde
+    const{error}=await sb.from('referral_earnings').insert({
+      user_id:uid,
+      amount:amount,
+      status:'available',
+      type:'admin_credit',
+      note:note||'Crédit administrateur',
+      created_at:new Date().toISOString()
+    });
+    if(error) throw error;
+    await notif(uid,'💰 Solde rechargé !','Un montant de '+amount.toLocaleString('fr-FR')+' FCFA a été ajouté à votre solde.'+(note?' ('+note+')':''),'💰','success');
+    toast('✅ '+amount.toLocaleString('fr-FR')+' FCFA crédités à '+name,'success');
+    closeOv('mRecharge');
+    loadStats();
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='💰 Créditer';}
+}
+
+async function notif(uid,title,msg,icon,type){
+  try{
+    await sb.from('notifications').insert({user_id:uid,title,message:msg,icon,type,read:false,created_at:new Date().toISOString()});
+  }catch(e){console.warn('notif error',e);}
+}
+
+// ── UTILS ──
+function fmt(d){
+  if(!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+function emptyRow(cols,ico,txt){return `<tr><td colspan="${cols}"><div class="empty"><span class="empty-ico">${ico}</span>${txt}</div></td></tr>`;}
+
+function openOv(id){document.getElementById(id).classList.add('open');}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+
+function goPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  const titles={
+    stats:'📊 Tableau de bord',
+    missions:'🎯 Missions & Preuves',
+    transactions:'🛒 Toutes les ventes',
+    litiges:'⚖️ Litiges',
+    payments:'💳 Paiements Premium',
+    withdrawals:'💸 Retraits',
+    users:'👥 Utilisateurs',
+    ads:'📢 Annonces',
+    messages:'✉️ Messages & Notifications',
+    candidatures:'📋 Candidatures Services',
+    missions:'🎯 Missions & Preuves',
+    transactions:'🛒 Toutes les ventes',
+    litiges:'⚖️ Litiges'
+  };
+  document.getElementById('pageTitle').textContent=titles[name]||name;
+  if(name==='messages') populateMsgSelect();
+  if(name==='candidatures') loadCandidatures();
+  if(name==='missions') loadMissions();
+  if(name==='transactions') loadTransactions();
+  if(name==='litiges') { loadLitiges(); loadTransactions(); }
+}
+
+/* ══════════════════════════════════════════════════
+   ★ MESSAGES & NOTIFICATIONS ADMIN
+══════════════════════════════════════════════════ */
+
+/* Remplir le select des utilisateurs */
+function populateMsgSelect(){
+  const sel=document.getElementById('msgUserId');
+  if(!sel||allUsers.length===0) return;
+  sel.innerHTML='<option value="">-- Choisir un utilisateur --</option>';
+  allUsers.forEach(u=>{
+    const opt=document.createElement('option');
+    opt.value=u.id;
+    opt.textContent=(u.full_name||'Anonyme')+' — '+(u.email||'?');
+    sel.appendChild(opt);
+  });
+}
+
+/* Modal message rapide depuis table users */
+function openMsgModal(uid,name){
+  document.getElementById('mMsgInfo').innerHTML=`Envoyer un message à <strong>${name}</strong>`;
+  document.getElementById('mMsgTitle').value='';
+  document.getElementById('mMsgBody').value='';
+  const btn=document.getElementById('mMsgBtn');
+  btn.onclick=()=>doSendMsgModal(uid,name);
+  openOv('mMsg');
+}
+
+async function doSendMsgModal(uid,name){
+  const btn=document.getElementById('mMsgBtn');
+  const title=document.getElementById('mMsgTitle').value.trim();
+  const body=document.getElementById('mMsgBody').value.trim();
+  const icon=document.getElementById('mMsgIcon').value;
+  if(!title||!body){toast('Titre et message obligatoires','warning');return;}
+  btn.disabled=true;btn.textContent='⏳…';
+  try{
+    await notif(uid,title,body,icon,'info');
+    toast('✅ Message envoyé à '+name,'success');
+    closeOv('mMsg');
+  }catch(e){toast('Erreur : '+e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='✉️ Envoyer';}
+}
+
+/* Envoyer à un utilisateur ciblé depuis la page Messages */
+async function sendMsgToUser(){
+  const uid=document.getElementById('msgUserId').value;
+  const title=document.getElementById('msgTitle').value.trim();
+  const body=document.getElementById('msgBody').value.trim();
+  const icon=document.getElementById('msgIcon').value;
+  if(!uid){toast('Sélectionne un utilisateur','warning');return;}
+  if(!title||!body){toast('Titre et message obligatoires','warning');return;}
+  try{
+    await notif(uid,title,body,icon,'info');
+    toast('✅ Message envoyé !','success');
+    document.getElementById('msgTitle').value='';
+    document.getElementById('msgBody').value='';
+  }catch(e){toast('Erreur : '+e.message,'error');}
+}
+
+/* Broadcast à tous / premium / gratuits */
+async function sendBroadcast(){
+  const title=document.getElementById('bcTitle').value.trim();
+  const body=document.getElementById('bcBody').value.trim();
+  const icon=document.getElementById('bcIcon').value;
+  const target=document.getElementById('bcTarget').value;
+  if(!title||!body){toast('Titre et message obligatoires','warning');return;}
+
+  const btn=document.getElementById('bcBtn');
+  const res=document.getElementById('bcResult');
+  btn.disabled=true;btn.textContent='⏳ Envoi en cours…';
+  res.textContent='';
+
+  try{
+    /* Filtrer les utilisateurs selon la cible */
+    let targets=allUsers;
+    if(target==='premium') targets=allUsers.filter(u=>u.is_premium);
+    if(target==='free')    targets=allUsers.filter(u=>!u.is_premium);
+
+    if(!targets.length){toast('Aucun utilisateur dans cette cible','warning');return;}
+
+    /* Envoyer par lots de 10 pour ne pas dépasser les limites */
+    let sent=0;
+    const batchSize=10;
+    for(let i=0;i<targets.length;i+=batchSize){
+      const batch=targets.slice(i,i+batchSize);
+      const notifs=batch.map(u=>({
+        user_id:u.id,title,message:body,icon,type:'info',
+        read:false,created_at:new Date().toISOString()
+      }));
+      const{error}=await sb.from('notifications').insert(notifs);
+      if(!error) sent+=batch.length;
+      res.textContent=`Envoi : ${Math.min(i+batchSize,targets.length)} / ${targets.length}…`;
+    }
+
+    toast(`✅ Broadcast envoyé à ${sent} utilisateurs !`,'success');
+    res.textContent=`✅ Envoyé à ${sent} utilisateur(s).`;
+    document.getElementById('bcTitle').value='';
+    document.getElementById('bcBody').value='';
+  }catch(e){
+    toast('Erreur : '+e.message,'error');
+    res.textContent='❌ Erreur : '+e.message;
+  }finally{
+    btn.disabled=false;btn.textContent='📢 Envoyer le broadcast';
+  }
+}
+
+/* Historique des notifications récentes */
+async function loadNotifHistory(){
+  try{
+    const{data}=await sb.from('notifications')
+      .select('*,profiles(full_name)')
+      .order('created_at',{ascending:false})
+      .limit(50);
+    const tbl=document.getElementById('notifHistTbl');
+    if(!data||!data.length){
+      tbl.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem;">Aucune notification</td></tr>';
+      return;
+    }
+    tbl.innerHTML=data.map(n=>`<tr>
+      <td><strong>${n.profiles?.full_name||'—'}</strong></td>
+      <td style="font-size:1.1rem;text-align:center">${n.icon||'🔔'}</td>
+      <td style="font-size:.78rem"><strong>${esc(n.title||'')}</strong></td>
+      <td style="font-size:.72rem;color:var(--gray)">${esc((n.message||'').substring(0,60))}${(n.message||'').length>60?'…':''}</td>
+      <td style="font-size:.68rem;color:var(--gray)">${fmt(n.created_at)}</td>
+      <td style="text-align:center">${n.read?'✅':'🔵'}</td>
+    </tr>`).join('');
+  }catch(e){toast('Erreur historique : '+e.message,'error');}
+}
+/* ══════════ FIN MESSAGES ══════════ */
+
+async function doLogout(){await sb.auth.signOut();location.href='index.html';}
+
+let tt;
+
+// ── REALTIME ADMIN — rafraîchissement auto ──
+function setupAdminRealtime(){
+  // Écouter les nouveaux paiements et retraits en temps réel
+  sb.channel('admin-live')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'payment_requests'},(p)=>{
+      toast('💳 Nouveau paiement reçu !','info');
+      loadPay();loadStats();
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'withdrawal_requests'},(p)=>{
+      toast('💸 Nouvelle demande de retrait !','info');
+      loadWr();loadStats();
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},(p)=>{
+      // Refresh discret de la liste users si un profil change
+      const idx=allUsers.findIndex(u=>u.id===p.new.id);
+      if(idx>-1){allUsers[idx]={...allUsers[idx],...p.new};renderUsers();}
+    })
+    .subscribe(s=>console.log('[Admin Realtime]',s));
+}
+
+function toast(msg,type='success'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='show';
+  el.style.borderLeftColor=type==='success'?'var(--turq)':type==='error'?'var(--red)':type==='warning'?'var(--orange)':'var(--blue2)';
+  clearTimeout(tt);tt=setTimeout(()=>el.className='',4000);
+}
+
+
+/* ════════ CANDIDATURES ════════ */
+var _allCand    = [];
+var _candFilter = 'all';
+
+var SVC_LABELS = {
+  'gagner-chasseur'    : '🎯 Chasseur de Vendeurs',
+  'gagner-verificateur': '🕵️ Vérificateur de Produits',
+  'gagner-negociateur' : '🗣️ Négociateur Pro',
+  'gagner-livreur'     : '📦 Livreur Indépendant',
+  'gagner-formateur'   : '🎓 Formateur Certifié',
+  'gagner-courtier'    : '🌍 Courtier Import-Export',
+  'gagner-encheres'    : '🎰 Enchères Inversées'
+};
+
+function fmtCandDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+}
+
+async function loadCandidatures() {
+  var list = document.getElementById('cand-list');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">⏳ Chargement…</div>';
+  try {
+    var res = await sb
+      .from('service_registrations')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (res.error) throw res.error;
+    _allCand = res.data || [];
+    renderCand();
+    /* badge sidebar */
+    var pending = _allCand.filter(function(r){ return r.status === 'pending'; }).length;
+    var badge   = document.getElementById('nb-cand');
+    if (badge) {
+      if (pending > 0) { badge.textContent = pending; badge.style.display = ''; }
+      else { badge.style.display = 'none'; }
+    }
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);font-size:.83rem;">Erreur : ' + e.message + '</div>';
+  }
+}
+
+function filterCand(btn, status) {
+  document.querySelectorAll('.cand-filter').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  _candFilter = status;
+  renderCand();
+}
+
+function renderCand() {
+  var list     = document.getElementById('cand-list');
+  if (!list) return;
+  var filtered = _candFilter === 'all'
+    ? _allCand
+    : _allCand.filter(r => r.status === _candFilter);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">Aucune candidature trouvée</div>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(r) {
+    var svcLabel    = SVC_LABELS[r.service] || r.service;
+    var statusLabel = { pending:'⏳ En attente', approved:'✅ Approuvée', rejected:'❌ Rejetée' }[r.status] || r.status;
+
+    // Code agent badge
+    var codeBadge = r.agent_code
+      ? '<span style="font-family:monospace;font-size:.68rem;font-weight:700;color:var(--blue2);background:rgba(27,63,228,.08);padding:.18rem .55rem;border-radius:8px;letter-spacing:.5px;">🔑 ' + r.agent_code + '</span>'
+      : '';
+
+    // Formation status
+    var formBadge = '';
+    if (r.status === 'approved' && r.needs_formation) {
+      formBadge = r.formation_done
+        ? '<span style="font-size:.65rem;font-weight:700;background:rgba(0,194,113,.1);color:#007A46;padding:.15rem .5rem;border-radius:99px;">🎓 Certifié' + (r.cert_score ? ' ' + r.cert_score + '%' : '') + '</span>'
+        : '<span style="font-size:.65rem;font-weight:700;background:rgba(245,183,49,.12);color:#8A5A00;padding:.15rem .5rem;border-radius:99px;">📚 Formation en cours</span>';
+    }
+
+    // Action buttons
+    var actionBtns = '';
+    if (r.status === 'pending') {
+      actionBtns =
+        '<button class="cand-btn approve" onclick="setCandStatus(\'' + r.id + '\',\'approved\',this)">✅ Approuver</button>' +
+        '<button class="cand-btn reject"  onclick="setCandStatus(\'' + r.id + '\',\'rejected\',this)">❌ Rejeter</button>';
+    } else if (r.status === 'approved') {
+      actionBtns = '<button class="cand-btn" style="background:#f5f5f5;color:#888;flex:none;padding:.4rem .9rem;" ' +
+        'onclick="viewWorkSubs(\'' + r.id + '\',\'' + (r.agent_code||'') + '\')">📋 Voir travaux</button>';
+    } else {
+      actionBtns = '<button class="cand-btn" style="background:#f5f5f5;color:#888;flex:none;padding:.4rem .9rem;" ' +
+        'onclick="setCandStatus(\'' + r.id + '\',\'pending\',this)">↩ Remettre en attente</button>';
+    }
+
+    var motiv = r.motivation
+      ? '<div class="cand-motiv">' + r.motivation + '</div>'
+      : '';
+
+    var zoneHtml = r.zone_couverture
+      ? '<span>📍 Zone : ' + r.zone_couverture + '</span>'
+      : '';
+
+    html +=
+      '<div class="cand-card ' + r.status + '" id="cand-' + r.id + '">' +
+        '<div class="cand-top">' +
+          '<div>' +
+            '<div class="cand-name">' + (r.name || '—') + '</div>' +
+            '<div style="margin-top:.2rem;display:flex;gap:.3rem;flex-wrap:wrap;">' +
+              '<span class="cand-service">' + svcLabel + '</span>' +
+              codeBadge + formBadge +
+            '</div>' +
+          '</div>' +
+          '<span class="cand-status ' + r.status + '">' + statusLabel + '</span>' +
+        '</div>' +
+        '<div class="cand-meta">' +
+          '<span>📞 ' + (r.whatsapp || '—') + '</span>' +
+          '<span>🏙️ ' + (r.ville || '—') + '</span>' +
+          zoneHtml +
+          '<span>🕐 ' + fmtCandDate(r.created_at) + '</span>' +
+        '</div>' +
+        motiv +
+        '<div class="cand-actions">' + actionBtns + '</div>' +
+      '</div>';
+  });
+  list.innerHTML = html;
+}
+
+
+async function setCandStatus(id, newStatus, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
+  try {
+    if (newStatus === 'approved') {
+      // Utilise la fonction SQL qui génère le code agent
+      var rpcRes = await sb.rpc('approve_candidature', { p_reg_id: id });
+      if (rpcRes.error) throw rpcRes.error;
+      var code    = rpcRes.data?.code || '—';
+      var needsFo = rpcRes.data?.needs_formation;
+      // Mettre à jour local
+      var rec = _allCand.find(r => r.id === id);
+      if (rec) {
+        rec.status = 'approved';
+        rec.agent_code = code;
+        rec.needs_formation = needsFo;
+        rec.formation_done  = !needsFo;
+      }
+      toast('✅ Approuvé — Code : ' + code);
+    } else {
+      var res = await sb.from('service_registrations').update({ status: newStatus }).eq('id', id);
+      if (res.error) throw res.error;
+      var rec = _allCand.find(r => r.id === id);
+      if (rec) {
+        rec.status = newStatus;
+        if (rec.user_id && newStatus === 'rejected') {
+          var svcLabel = SVC_LABELS[rec.service] || rec.service;
+          await sb.from('notifications').insert({
+            user_id: rec.user_id, icon: '📋', type: 'info', read: false,
+            title  : '❌ Candidature non retenue — ' + svcLabel,
+            message: "Ta candidature pour " + svcLabel + " n'a pas été retenue. Tu peux recandidater."
+          });
+        }
+      }
+      toast(newStatus === 'rejected' ? '❌ Candidature rejetée' : '↩ Remis en attente');
+    }
+    renderCand();
+    var pendingCount = _allCand.filter(r => r.status === 'pending').length;
+    var badge = document.getElementById('nb-cand');
+    if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? '' : 'none'; }
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = newStatus === 'approved' ? '✅ Approuver' : '❌ Rejeter'; }
+    toast('Erreur : ' + e.message, 'error');
+  }
+}
+
+/* ════════════════════════════════════════
+   TRANSACTIONS
+════════════════════════════════════════ */
+var _allTx = [], _txFilter = 'all', _pendingResolveId = null, _pendingReleaseId = null;
+var _txCache = {}; // id -> {buyerName, sellerName, amount, reasonEncoded}
+
+function fmtF(n){ return Number(n||0).toLocaleString('fr-FR'); }
+
+async function loadTransactions() {
+  var list = document.getElementById('tx-list');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">⏳ Chargement…</div>';
+  try {
+    var res = await sb.from('transactions').select('*').order('created_at',{ascending:false}).limit(100);
+    if (res.error) throw res.error;
+    _allTx = res.data || [];
+
+    /* Load buyer/seller names */
+    var ids = [...new Set([].concat(_allTx.map(function(t){return t.buyer_id;}), _allTx.map(function(t){return t.seller_id;})).filter(Boolean))];
+    var names = {};
+    if (ids.length){
+      var pr = await sb.from('profiles').select('id,full_name,whatsapp').in('id',ids);
+      (pr.data||[]).forEach(function(p){ names[p.id] = p; });
+    }
+    _allTx.forEach(function(t){
+      t._buyer  = names[t.buyer_id]  || {};
+      t._seller = names[t.seller_id] || {};
+    });
+
+    /* Stats */
+    var totalEscrow    = _allTx.filter(function(t){return t.status==='in_escrow';}).reduce(function(s,t){return s+(t.montant_total||0);},0);
+    var totalCommission= _allTx.filter(function(t){return t.status==='completed';}).reduce(function(s,t){return s+(t.commission_amt||0);},0);
+    var statTotal = document.getElementById('tx-stat-total');
+    var statEscrow = document.getElementById('tx-stat-escrow');
+    var statComm   = document.getElementById('tx-stat-commission');
+    if (statTotal)   statTotal.textContent   = _allTx.length;
+    if (statEscrow)  statEscrow.textContent  = fmtF(totalEscrow);
+    if (statComm)    statComm.textContent    = fmtF(totalCommission);
+
+    /* Badge */
+    var disputed = _allTx.filter(function(t){return t.status==='disputed';}).length;
+    var nbLit = document.getElementById('nb-lit');
+    if (nbLit){ if(disputed>0){nbLit.textContent=disputed;nbLit.style.display='';}else nbLit.style.display='none'; }
+
+    renderTx();
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);font-size:.83rem;">Erreur : '+e.message+'</div>';
+  }
+}
+
+function filterTx(btn, status){
+  document.querySelectorAll('.cand-filter').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  _txFilter = status;
+  renderTx();
+}
+
+function renderTx(){
+  var list = document.getElementById('tx-list');
+  if (!list) return;
+  var filtered = _txFilter==='all' ? _allTx : _allTx.filter(function(t){return t.status===_txFilter;});
+  if (!filtered.length){
+    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">Aucune transaction</div>';
+    return;
+  }
+  var STATUS = {pending:'⏳ En attente',in_escrow:'🔐 Escrow',delivered:'📦 Livré',completed:'✅ Terminé',disputed:'⚠️ Litige',refunded:'↩ Remboursé',cancelled:'❌ Annulé'};
+  var STATUS_COLOR = {in_escrow:'#FFF8E0',completed:'#E8FFF5',disputed:'#FFF0F0',pending:'#F0F4FF'};
+  list.innerHTML = filtered.map(function(tx){
+    var sl = STATUS[tx.status]||tx.status;
+    var bg = STATUS_COLOR[tx.status]||'#F8F9FF';
+    var buyerName  = (tx._buyer.full_name||'—');
+    var sellerName = (tx._seller.full_name||'—');
+    var d = new Date(tx.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    var actions = '';
+    if (tx.status==='in_escrow') {
+      actions = '<button onclick="openReleaseCached(\'' + tx.id + '\')" style="background:linear-gradient(135deg,var(--green),#00A878);color:white;border:none;border-radius:8px;padding:.35rem .75rem;font-size:.7rem;font-weight:700;cursor:pointer;">🔓 Libérer</button>';
+    }
+    if (tx.status==='disputed') {
+      actions += '<button onclick="openResolveCached(\'' + tx.id + '\')" style="background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border:none;border-radius:8px;padding:.35rem .75rem;font-size:.7rem;font-weight:700;cursor:pointer;">⚖️ Trancher</button>';
+    }
+    return '<div style="background:'+bg+';border-radius:14px;padding:.9rem 1rem;border:1px solid var(--border);">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">'
+      +'<div><div style="font-size:.82rem;font-weight:700;color:var(--dark);">'+(tx.product_title||'Produit')+'</div>'
+      +'<div style="font-size:.68rem;color:var(--gray);margin-top:.15rem;">🛒 '+buyerName+' → 🏪 '+sellerName+'</div></div>'
+      +'<span style="font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:99px;background:rgba(0,0,0,.06);color:var(--dark);flex-shrink:0;">'+sl+'</span>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem;">'
+      +'<div style="display:flex;gap:.7rem;flex-wrap:wrap;">'
+      +'<span style="font-family:monospace;font-size:.85rem;font-weight:700;color:var(--dark);">'+fmtF(tx.montant_total)+' F</span>'
+      +'<span style="font-size:.68rem;color:var(--gray);">Commission : '+fmtF(tx.commission_amt)+' F</span>'
+      +'<span style="font-size:.65rem;color:var(--gray);">🕐 '+d+'</span>'
+      +'</div>'
+      +'<div style="display:flex;gap:.4rem;">'+actions+'</div>'
+      +'</div>'
+      +(tx.status==='disputed'&&tx.dispute_reason?'<div style="margin-top:.5rem;font-size:.7rem;color:var(--red);background:#FFF3F3;border-radius:8px;padding:.4rem .7rem;">⚠️ '+tx.dispute_reason.slice(0,120)+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+/* ── LIBÉRATION ESCROW ── */
+function openRelease(txId, buyerName, sellerName, amount){
+  _pendingReleaseId = txId;
+  document.getElementById('releaseDesc').textContent = 'Libérer '+fmtF(amount)+' FCFA au vendeur "'+sellerName+'" (acheteur : '+buyerName+') ?';
+  openOv('releaseOv');
+}
+
+async function doManualRelease(){
+  if (!_pendingReleaseId) return;
+  var btn = document.getElementById('releaseConfirmBtn');
+  btn.disabled=true; btn.textContent='⏳…';
+  try {
+    /* Appeler la fonction RPC */
+    var res = await sb.rpc('admin_release_transaction', {p_tx_id: _pendingReleaseId});
+    if (res.error) {
+      /* Fallback : update direct */
+      var r2 = await sb.from('transactions').update({status:'completed',released_at:new Date().toISOString()}).eq('id',_pendingReleaseId);
+      if (r2.error) throw r2.error;
+    }
+    closeOv('releaseOv');
+    toast('✅ Escrow libéré ! Vendeur crédité.');
+    loadTransactions();
+  } catch(e){ toast('Erreur : '+e.message,'error'); }
+  finally{ btn.disabled=false; btn.textContent='✅ Libérer'; }
+}
+
+/* ── RÉSOLUTION LITIGES ── */
+function openResolve(txId, buyerName, sellerName, reasonEncoded, amount){
+  _pendingResolveId = txId;
+  document.getElementById('resolveTitle').textContent = '⚖️ Litige — '+fmtF(amount)+' FCFA';
+  document.getElementById('resolveDesc').textContent  = 'Acheteur : '+buyerName+' | Vendeur : '+sellerName;
+  document.getElementById('resolveReason').textContent = decodeURIComponent(reasonEncoded)||'Aucune raison fournie';
+  openOv('resolveOv');
+}
+
+async function resolveDispute(winner){
+  if (!_pendingResolveId) return;
+  try {
+    /* Update transaction */
+    var newStatus = winner==='buyer' ? 'refunded' : 'completed';
+    var { error } = await sb.from('transactions').update({
+      status              : newStatus,
+      dispute_resolved_at : new Date().toISOString(),
+      dispute_winner      : winner,
+      released_at         : winner==='seller' ? new Date().toISOString() : null
+    }).eq('id', _pendingResolveId);
+    if (error) throw error;
+
+    /* Trouver la tx pour notifier */
+    var tx = _allTx.find(function(t){return t.id===_pendingResolveId;});
+    if (tx){
+      /* Notif acheteur */
+      await sb.from('notifications').insert({user_id:tx.buyer_id,
+        title: winner==='buyer' ? '↩ Litige résolu — Remboursement en cours' : '⚖️ Litige résolu — En faveur du vendeur',
+        message: winner==='buyer' ? 'Ton litige a été tranché en ta faveur. Ton remboursement de '+fmtF(tx.montant_total)+' FCFA est en cours.'
+                                  : "Après examen, le litige a été tranché en faveur du vendeur. L'argent lui a été libéré.",
+        icon: winner==='buyer'?'↩':'⚖️', type: winner==='buyer'?'success':'info', read:false
+      });
+      /* Notif vendeur */
+      await sb.from('notifications').insert({user_id:tx.seller_id,
+        title: winner==='seller' ? '💰 Litige résolu — Paiement reçu !' : '⚖️ Litige résolu — Remboursement acheteur',
+        message: winner==='seller' ? 'Félicitations ! Le litige a été tranché en ta faveur. '+fmtF(tx.montant_vendeur)+' FCFA crédités à ton portefeuille.'
+                                   : "Après examen, le litige a été tranché en faveur de l'acheteur. Aucun montant ne te sera versé.",
+        icon: winner==='seller'?'💰':'⚖️', type: winner==='seller'?'success':'warning', read:false
+      });
+    }
+
+    closeOv('resolveOv');
+    toast(winner==='buyer'?'↩ Remboursement acheteur lancé':'💰 Vendeur payé — litige résolu');
+    loadTransactions(); loadLitiges();
+  } catch(e){ toast('Erreur : '+e.message,'error'); }
+}
+
+/* ════════════════════════════════════════
+   LITIGES
+════════════════════════════════════════ */
+async function loadLitiges(){
+  var list = document.getElementById('lit-list');
+  if (!list) return;
+  list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">⏳ Chargement…</div>';
+  try {
+    var res = await sb.from('transactions').select('*').in('status',['disputed','refunded']).order('dispute_at',{ascending:false});
+    if (res.error) throw res.error;
+    var litiges = res.data||[];
+
+    var ids = [...new Set([].concat(litiges.map(function(t){return t.buyer_id;}),litiges.map(function(t){return t.seller_id;})).filter(Boolean))];
+    var names = {};
+    if (ids.length){
+      var pr = await sb.from('profiles').select('id,full_name,whatsapp').in('id',ids);
+      (pr.data||[]).forEach(function(p){names[p.id]=p;});
+    }
+    litiges.forEach(function(t){t._buyer=names[t.buyer_id]||{};t._seller=names[t.seller_id]||{};});
+
+    /* Badge */
+    var openCount = litiges.filter(function(t){return t.status==='disputed';}).length;
+    var nbLit = document.getElementById('nb-lit');
+    if (nbLit){if(openCount>0){nbLit.textContent=openCount;nbLit.style.display='';}else nbLit.style.display='none';}
+
+    if (!litiges.length){
+      list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--gray);font-size:.83rem;">✅ Aucun litige en cours</div>';
+      return;
+    }
+
+    list.innerHTML = litiges.map(function(tx){
+      var buyerName=tx._buyer.full_name||'—', sellerName=tx._seller.full_name||'—';
+      var isOpen = tx.status==='disputed';
+      var d = tx.dispute_at?new Date(tx.dispute_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+      var wa_buyer  = tx._buyer.whatsapp  ? 'https://wa.me/'+tx._buyer.whatsapp.replace(/\D/g,'')+'?text=Bonjour%2C%20concernant%20votre%20litige%20AfriMarket'  : '#';
+      var wa_seller = tx._seller.whatsapp ? 'https://wa.me/'+tx._seller.whatsapp.replace(/\D/g,'')+'?text=Bonjour%2C%20concernant%20votre%20litige%20AfriMarket' : '#';
+      return '<div style="background:'+(isOpen?'#FFF3F3':'#F8F9FF')+';border-radius:16px;border:1.5px solid '+(isOpen?'rgba(232,48,48,.25)':'var(--border)')+';padding:1rem;">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;">'
+        +'<div style="font-size:.85rem;font-weight:700;color:var(--dark);">'+(tx.product_title||'Produit')+'</div>'
+        +'<span style="font-size:.62rem;font-weight:800;padding:.2rem .6rem;border-radius:99px;background:'+(isOpen?'rgba(232,48,48,.12)':'rgba(0,194,113,.1)')+';color:'+(isOpen?'var(--red)':'#007A46')+'">'+(isOpen?'⚠️ Ouvert':'✅ Résolu')+'</span>'
+        +'</div>'
+        +'<div style="font-size:.72rem;color:var(--gray);margin-bottom:.5rem;line-height:1.6;">'
+        +'💰 <strong>'+fmtF(tx.montant_total)+' FCFA</strong> · Ouvert le '+d+'<br>'
+        +'🛒 Acheteur : <strong>'+buyerName+'</strong> | 🏪 Vendeur : <strong>'+sellerName+'</strong>'
+        +'</div>'
+        +(tx.dispute_reason?'<div style="background:#FFF0F0;border-radius:8px;padding:.5rem .7rem;font-size:.72rem;color:var(--red);margin-bottom:.6rem;line-height:1.4;">📌 '+tx.dispute_reason+'</div>':'')
+        +(tx.dispute_winner?'<div style="font-size:.7rem;font-weight:700;color:#007A46;margin-bottom:.5rem;">⚖️ Décision : '+(tx.dispute_winner==='buyer'?'Remboursement acheteur':'Paiement vendeur')+'</div>':'')
+        +'<div style="display:flex;gap:.4rem;flex-wrap:wrap;">'
+        +(isOpen?'<button onclick="openResolveCached(\'' + tx.id + '\')" style="padding:.4rem .85rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-size:.7rem;font-weight:700;cursor:pointer;">⚖️ Trancher</button>\''
+        +'<button onclick="openReleaseCached(\'' + tx.id + '\')" style="padding:.4rem .85rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:sans-serif;">🔓 Libérer au vendeur</button>':'')
+        +'<a href="'+wa_buyer+'" target="_blank" style="padding:.4rem .7rem;border-radius:8px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.08);color:#00A878;font-size:.7rem;font-weight:700;text-decoration:none;">💬 Acheteur</a>'
+        +'<a href="'+wa_seller+'" target="_blank" style="padding:.4rem .7rem;border-radius:8px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.08);color:#00A878;font-size:.7rem;font-weight:700;text-decoration:none;">💬 Vendeur</a>'
+        +'</div></div>';
+    }).join('');
+  } catch(e){
+    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--red);font-size:.83rem;">Erreur : '+e.message+'</div>';
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   MISSIONS & PREUVES — Validation avec crédit wallet
+════════════════════════════════════════════════════════════ */
+var _allMissions = [], _missFilter = 'all', _pendingMissId = null;
+
+async function loadMissions() {
+  var list = document.getElementById('miss-list');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);">⏳ Chargement…</div>';
+
+  try {
+    var res = await sb.from('user_missions')
+      .select('*')
+      .order('submitted_at', { ascending: false, nullsFirst: false });
+    if (res.error) throw res.error;
+    _allMissions = res.data || [];
+
+    // Charger les profils des agents
+    var ids = [...new Set(_allMissions.map(function(m){ return m.user_id; }).filter(Boolean))];
+    var profils = {};
+    if (ids.length) {
+      var pr = await sb.from('profiles').select('id,full_name,whatsapp,avatar_url').in('id', ids);
+      (pr.data || []).forEach(function(p){ profils[p.id] = p; });
+    }
+    _allMissions.forEach(function(m){ m._agent = profils[m.user_id] || {}; });
+
+    // Stats
+    var pending   = _allMissions.filter(function(m){ return m.status === 'pending_user'; }).length;
+    var validated = _allMissions.filter(function(m){ return m.status === 'validated'; }).length;
+    var totalGains= _allMissions.filter(function(m){ return m.status === 'validated'; })
+                                .reduce(function(s,m){ return s + (m.gain || 0); }, 0);
+
+    var elP = document.getElementById('miss-stat-pending');
+    var elV = document.getElementById('miss-stat-validated');
+    var elG = document.getElementById('miss-stat-gains');
+    if (elP) elP.textContent = pending;
+    if (elV) elV.textContent = validated;
+    if (elG) elG.textContent = fmtF(totalGains);
+
+    // Badge sidebar
+    var nb = document.getElementById('nb-miss');
+    if (nb) { nb.textContent = pending; nb.style.display = pending > 0 ? '' : 'none'; }
+
+    renderMissions();
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--red);">Erreur : ' + e.message + '</div>';
+  }
+}
+
+function filterMiss(btn, status) {
+  document.querySelectorAll('.cand-filter').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  _missFilter = status;
+  renderMissions();
+}
+
+function renderMissions() {
+  var list = document.getElementById('miss-list');
+  if (!list) return;
+
+  var data = _missFilter === 'all' ? _allMissions
+    : _allMissions.filter(function(m){ return m.status === _missFilter; });
+
+  if (!data.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray);">Aucune mission dans cette catégorie.</div>';
+    return;
+  }
+
+  var STATUS_LABEL = {
+    inprogress: '🔄 En cours',
+    pending_user: '⏳ Preuve envoyée',
+    validated: '✅ Validée',
+    rejected: '❌ Rejetée'
+  };
+  var STATUS_BG = {
+    inprogress: '#F0F4FF',
+    pending_user: '#FFF8E0',
+    validated: '#E8FFF5',
+    rejected: '#FFF0F0'
+  };
+  var SERVICE_ICONS = {
+    chasseur:'🎯', verificateur:'🕵️', negociateur:'🗣️',
+    livreur:'📦', formateur:'🎓', courtier:'🌍', encheres:'🎰'
+  };
+
+  list.innerHTML = data.map(function(m) {
+    var agentName = m._agent.full_name || 'Agent inconnu';
+    var agentWA   = m._agent.whatsapp ? 'https://wa.me/' + (m._agent.whatsapp).replace(/\D/g,'') + '?text=Bonjour%20' + encodeURIComponent(agentName) : '#';
+    var sl  = STATUS_LABEL[m.status] || m.status;
+    var bg  = STATUS_BG[m.status] || '#F8F9FF';
+    var ico = SERVICE_ICONS[m.service] || '🎯';
+    var d   = m.submitted_at ? new Date(m.submitted_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+
+    // Boutons action
+    var actions = '';
+    if (m.status === 'pending_user') {
+      actions += '<button onclick="openMissVal('+m.id+')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),#00A878);color:white;font-size:.7rem;font-weight:700;cursor:pointer;font-family:sans-serif;">✅ Valider</button>';
+      actions += '<button onclick="openMissRej('+m.id+')" style="padding:.38rem .8rem;border-radius:8px;border:none;background:rgba(232,48,48,.12);color:var(--red);border:1px solid rgba(232,48,48,.2);font-size:.7rem;font-weight:700;cursor:pointer;font-family:sans-serif;">❌ Rejeter</button>';
+    }
+    actions += '<a href="' + agentWA + '" target="_blank" style="padding:.38rem .7rem;border-radius:8px;background:rgba(37,211,102,.1);color:#00A878;font-size:.7rem;font-weight:700;text-decoration:none;border:1px solid rgba(37,211,102,.25);">💬 WA</a>';
+
+    // Proof
+    var proofHtml = '';
+    if (m.report_proof) {
+      var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
+      proofHtml = isImg
+        ? '<div style="margin:.4rem 0;"><img src="' + m.report_proof + '" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" onerror="this.style.display=\'none\'"/></div>'
+        : '<a href="' + m.report_proof + '" target="_blank" style="font-size:.7rem;color:var(--blue2);font-weight:600;">🔗 Voir la preuve</a>';
+    }
+
+    return '<div style="background:' + bg + ';border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;">'
+      + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">'
+      +   '<div style="display:flex;gap:.6rem;align-items:flex-start;">'
+      +     '<div style="font-size:1.4rem;">' + ico + '</div>'
+      +     '<div>'
+      +       '<div style="font-size:.82rem;font-weight:700;color:var(--dark);">' + esc(m.title || m.service) + '</div>'
+      +       '<div style="font-size:.68rem;color:var(--gray);margin-top:.1rem;">👤 ' + esc(agentName) + ' · 📅 ' + d + '</div>'
+      +     '</div>'
+      +   '</div>'
+      +   '<span style="font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:99px;background:rgba(0,0,0,.07);color:var(--dark);white-space:nowrap;">' + sl + '</span>'
+      + '</div>'
+      + (m.report_desc ? '<div style="background:white;border-radius:10px;padding:.6rem .75rem;font-size:.74rem;color:var(--dark);line-height:1.55;margin-bottom:.4rem;border:1px solid var(--border);">' + esc(m.report_desc) + '</div>' : '')
+      + proofHtml
+      + (m.gain && m.status === 'validated' ? '<div style="font-size:.72rem;font-weight:700;color:#007A46;margin:.3rem 0;">💰 ' + fmtF(m.gain) + ' FCFA crédités</div>' : '')
+      + (m.admin_note ? '<div style="font-size:.7rem;color:var(--gray);font-style:italic;">Note admin : ' + esc(m.admin_note) + '</div>' : '')
+      + '<div style="display:flex;gap:.4rem;margin-top:.5rem;flex-wrap:wrap;">' + actions + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* ── Ouvrir modal validation ── */
+function openMissVal(missId) {
+  var m = _allMissions.find(function(x){ return x.id === missId; });
+  if (!m) return;
+  _pendingMissId = missId;
+
+  var agentName = m._agent.full_name || 'Agent';
+  document.getElementById('missValDesc').textContent =
+    'Mission : ' + (m.title || m.service) + ' · Agent : ' + agentName;
+
+  document.getElementById('missValReport').textContent = m.report_desc || '(aucun rapport)';
+  document.getElementById('missValGain').value = m.gain || '';
+  document.getElementById('missValNote').value = '';
+
+  // Preuve
+  var proofWrap = document.getElementById('missValProofWrap');
+  if (m.report_proof) {
+    var isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(m.report_proof);
+    proofWrap.innerHTML = isImg
+      ? '<img src="' + m.report_proof + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:.6rem;" onerror="this.style.display=\'none\'"/>'
+      : '<a href="' + m.report_proof + '" target="_blank" style="display:block;margin-bottom:.6rem;padding:.5rem .9rem;background:#F0F4FF;border-radius:10px;font-size:.78rem;color:var(--blue2);font-weight:600;text-decoration:none;">🔗 Voir la preuve</a>';
+  } else {
+    proofWrap.innerHTML = '<div style="font-size:.72rem;color:var(--gray);margin-bottom:.6rem;">Aucune preuve soumise</div>';
+  }
+  openOv('missValOv');
+}
+
+/* ── Valider & créditer le wallet ── */
+async function doValidateMission() {
+  if (!_pendingMissId) return;
+  var gain = parseInt(document.getElementById('missValGain').value) || 0;
+  var note = document.getElementById('missValNote').value.trim();
+  if (gain < 0) { toast('Le montant ne peut pas être négatif', 'error'); return; }
+
+  var btn = document.getElementById('missValBtn');
+  btn.disabled = true; btn.textContent = '⏳ Traitement…';
+
+  try {
+    var m = _allMissions.find(function(x){ return x.id === _pendingMissId; });
+    if (!m) throw new Error('Mission introuvable localement');
+
+    // 1. Mettre à jour la mission
+    var r1 = await sb.from('user_missions').update({
+      status: 'validated',
+      gain: gain,
+      admin_note: note || null,
+      validated_at: new Date().toISOString()
+    }).eq('id', _pendingMissId);
+    if (r1.error) throw r1.error;
+
+    // 2. Créer l'enregistrement de gain
+    if (gain > 0) {
+      var r2 = await sb.from('mission_gains').insert({
+        user_id: m.user_id,
+        mission_id: _pendingMissId,
+        service: m.service,
+        description: note || ('Mission validee : ' + (m.title || m.service)),
+        amount: gain
+      });
+      if (r2.error) throw r2.error;
+
+      // 3. Créditer le wallet (upsert)
+      var r3 = await sb.rpc('credit_agent_wallet', {
+        p_user_id: m.user_id,
+        p_amount: gain,
+        p_description: 'Mission validee : ' + (m.title || m.service)
+      });
+      // Si la fonction RPC n'existe pas encore, fallback direct
+      if (r3.error) {
+        // Fallback: mise à jour directe du wallet
+        var walletRes = await sb.from('user_wallets').select('id,solde,total_gagne').eq('user_id', m.user_id).maybeSingle();
+        if (walletRes.data) {
+          await sb.from('user_wallets').update({
+            solde: (walletRes.data.solde || 0) + gain,
+            total_gagne: (walletRes.data.total_gagne || 0) + gain,
+            updated_at: new Date().toISOString()
+          }).eq('user_id', m.user_id);
+        } else {
+          await sb.from('user_wallets').insert({
+            user_id: m.user_id,
+            solde: gain,
+            total_gagne: gain
+          });
+        }
+        // Mouvement wallet
+        await sb.from('wallet_movements').insert({
+          user_id: m.user_id,
+          type: 'credit',
+          amount: gain,
+          description: 'Mission validee : ' + (m.title || m.service)
+        });
+      }
+    }
+
+    // 4. Notifier l'agent
+    var notifMsg = gain > 0
+      ? fmtF(gain) + ' FCFA credites pour ta mission : ' + (m.title || m.service) + (note ? '. Note : ' + note : '')
+      : 'Ta mission a ete validee' + (note ? '. Note : ' + note : '');
+    await sb.from('notifications').insert({
+      user_id: m.user_id,
+      title: gain > 0 ? 'Mission validee - ' + fmtF(gain) + ' FCFA' : 'Mission validee',
+      message: notifMsg,
+      icon: 'check',
+      type: 'success',
+      read: false
+    });
+
+    closeOv('missValOv');
+    toast('✅ Mission validée' + (gain > 0 ? ' — ' + fmtF(gain) + ' FCFA crédités !' : ' !'), 'success');
+    await loadMissions();
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ Valider & Créditer';
+  }
+}
+
+/* ── Ouvrir modal rejet ── */
+function openMissRej(missId) {
+  var m = _allMissions.find(function(x){ return x.id === missId; });
+  if (!m) return;
+  _pendingMissId = missId;
+  var agentName = m._agent.full_name || 'Agent';
+  document.getElementById('missRejDesc').textContent =
+    'Mission : ' + (m.title || m.service) + ' · Agent : ' + agentName;
+  document.getElementById('missRejNote').value = '';
+  openOv('missRejOv');
+}
+
+/* ── Rejeter la mission ── */
+async function doRejectMission() {
+  if (!_pendingMissId) return;
+  var note = document.getElementById('missRejNote').value.trim();
+  if (!note) { toast('Explique la raison du rejet', 'error'); return; }
+
+  var btn = document.getElementById('missRejBtn');
+  btn.disabled = true; btn.textContent = '⏳…';
+
+  try {
+    var m = _allMissions.find(function(x){ return x.id === _pendingMissId; });
+    if (!m) throw new Error('Mission introuvable');
+
+    var r1 = await sb.from('user_missions').update({
+      status: 'rejected',
+      admin_note: note,
+      rejected_at: new Date().toISOString()
+    }).eq('id', _pendingMissId);
+    if (r1.error) throw r1.error;
+
+    await sb.from('notifications').insert({
+      user_id: m.user_id,
+      title: 'Mission rejetee',
+      message: 'Ta mission "' + (m.title || m.service) + '" a ete rejetee. Raison : ' + note,
+      icon: 'alert',
+      type: 'error',
+      read: false
+    });
+
+    closeOv('missRejOv');
+    toast('Mission rejetée — agent notifié', 'info');
+    await loadMissions();
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '❌ Rejeter';
+  }
+}
+
+
+/* ════════════════════════════════════════
+   TRAVAUX SOUMIS PAR LES AGENTS
+════════════════════════════════════════ */
+async function viewWorkSubs(regId, agentCode) {
+  try {
+    var { data, error } = await sb.from('work_submissions')
+      .select('*').eq('registration_id', regId).order('created_at', { ascending: false });
+    if (error) throw error;
+    showWorkSubsModal(data || [], agentCode);
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+function showWorkSubsModal(subs, agentCode) {
+  // Create or reuse modal
+  var existing = document.getElementById('workSubsModal');
+  if (existing) existing.remove();
+
+  var subsHtml = '';
+  if (!subs.length) {
+    subsHtml = '<div style="text-align:center;padding:1.5rem;color:var(--gray);font-size:.83rem;">Aucun travail soumis pour le moment.</div>';
+  } else {
+    subs.forEach(function(s) {
+      var statusColor = s.status==='validated'?'var(--green)':s.status==='rejected'?'var(--red)':'var(--gold)';
+      var statusLbl   = s.status==='validated'?'✅ Validé':s.status==='rejected'?'❌ Rejeté':'⏳ En attente';
+      var gainHtml    = s.status==='validated'
+        ? '<div style="font-family:monospace;color:var(--green);font-weight:700;font-size:.9rem;">+' + s.actual_gain + ' FCFA</div>'
+        : s.status==='pending'
+          ? '<div style="display:flex;gap:.4rem;margin-top:.5rem;">' +
+            '<input id="gain-'+s.id+'" type="number" placeholder="Montant FCFA" style="flex:1;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:10px;font-size:.8rem;"/>' +
+            '<input id="note-'+s.id+'" type="text" placeholder="Note optionnelle" style="flex:1;padding:.45rem .7rem;border:1.5px solid var(--border);border-radius:10px;font-size:.8rem;"/>' +
+            '<button onclick="validateWork(\'' + s.id + '\')" style="background:var(--green);color:white;border:none;border-radius:10px;padding:.45rem .8rem;font-size:.75rem;font-weight:700;cursor:pointer;">✅</button>' +
+            '<button onclick="rejectWork(\'' + s.id + '\')" style="background:var(--red);color:white;border:none;border-radius:10px;padding:.45rem .8rem;font-size:.75rem;font-weight:700;cursor:pointer;">❌</button>' +
+            '</div>' : '';
+      var proofHtml = s.proof_link
+        ? '<a href="'+s.proof_link+'" target="_blank" style="font-size:.72rem;color:var(--blue2);text-decoration:none;">🔗 Voir la preuve →</a>'
+        : '';
+      var dt = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '';
+      subsHtml +=
+        '<div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:.9rem 1rem;margin-bottom:.6rem;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;">' +
+            '<div style="font-size:.85rem;font-weight:700;color:var(--dark);">' + s.mission_title + '</div>' +
+            '<span style="font-size:.65rem;font-weight:700;color:'+statusColor+';">'+statusLbl+'</span>' +
+          '</div>' +
+          '<div style="font-size:.72rem;color:var(--gray);margin-bottom:.4rem;">📅 ' + dt + ' · Quantité : ' + (s.quantity||1) + '</div>' +
+          '<div style="font-size:.76rem;color:#444;background:#F8F9FF;border-radius:8px;padding:.5rem .7rem;margin-bottom:.4rem;border:1px solid var(--border);">' + s.description + '</div>' +
+          proofHtml + gainHtml +
+          (s.admin_note ? '<div style="font-size:.72rem;color:var(--gray);margin-top:.3rem;">💬 ' + s.admin_note + '</div>' : '') +
+        '</div>';
+    });
+  }
+
+  var modal = document.createElement('div');
+  modal.id = 'workSubsModal';
+  modal.style = 'position:fixed;inset:0;background:rgba(8,14,42,.6);z-index:600;display:flex;align-items:flex-end;backdrop-filter:blur(4px);';
+  modal.innerHTML =
+    '<div style="background:white;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:1.4rem 1.2rem 2rem;animation:slideUp .3s ease;">' +
+      '<div style="width:36px;height:4px;border-radius:99px;background:var(--border);margin:0 auto .9rem;"></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">' +
+        '<div style="font-family:monospace;font-size:1rem;font-weight:700;color:var(--dark);">📋 Travaux soumis' + (agentCode?' — <span style="color:var(--blue2);">'+agentCode+'</span>':'') + '</div>' +
+        '<button onclick="document.getElementById(\'workSubsModal\').remove()" style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:.3rem .7rem;font-size:.8rem;cursor:pointer;">✕</button>' +
+      '</div>' +
+      subsHtml +
+    '</div>';
+  modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+async function validateWork(subId) {
+  var gain = parseFloat(document.getElementById('gain-' + subId)?.value) || 0;
+  var note = document.getElementById('note-' + subId)?.value?.trim() || null;
+  if (!gain) { toast('Saisis le montant à payer', 'error'); return; }
+  try {
+    var { error } = await sb.rpc('validate_work_submission', { p_sub_id: subId, p_gain: gain, p_note: note });
+    if (error) {
+      // fallback direct
+      await sb.from('work_submissions').update({ status:'validated', actual_gain:gain, admin_note:note, validated_at:new Date().toISOString() }).eq('id', subId);
+    }
+    toast('✅ Travail validé — ' + gain + ' FCFA crédités');
+    document.getElementById('workSubsModal')?.remove();
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+async function rejectWork(subId) {
+  var note = document.getElementById('note-' + subId)?.value?.trim() || 'Travail non conforme.';
+  try {
+    await sb.from('work_submissions').update({ status:'rejected', admin_note:note }).eq('id', subId);
+    toast('❌ Soumission rejetée');
+    document.getElementById('workSubsModal')?.remove();
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+/* ── Cached wrappers for openRelease/openResolve ── */
+function openReleaseCached(id) {
+  var t = _txCache[id];
+  if (!t) { toast('Transaction introuvable', 'error'); return; }
+  openRelease(id, t.buyerName, t.sellerName, t.amount);
+}
+function openResolveCached(id) {
+  var t = _txCache[id];
+  if (!t) { toast('Transaction introuvable', 'error'); return; }
+  openResolve(id, t.buyerName, t.sellerName, t.reasonEncoded, t.amount);
+}
+</script>
+
+<!-- MODAL RECHARGE SOLDE -->
+<div class="ov" id="mRecharge" onclick="if(event.target===this)closeOv('mRecharge')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Recharger le solde</div>
+    <div class="modal-desc" id="mRechargeInfo">—</div>
+    <div style="display:flex;flex-direction:column;gap:.7rem;margin-bottom:1rem;">
+      <label style="font-size:.78rem;font-weight:700;color:var(--dark);">Montant à ajouter (FCFA)</label>
+      <input type="number" id="mRechargeAmount" placeholder="Ex: 500" min="0" step="100" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:sans-serif;outline:none;"/>
+      <label style="font-size:.78rem;font-weight:700;color:var(--dark);">Motif (optionnel)</label>
+      <input type="text" id="mRechargeNote" placeholder="Ex: Bonus parrainage, correction erreur…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.65rem .9rem;font-size:.88rem;font-family:sans-serif;outline:none;"/>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('mRecharge')">Annuler</button>
+      <button class="mbtn mbtn-ok" id="mRechargeBtn" style="background:linear-gradient(135deg,var(--green),#00A878);" onclick="doRecharge()">💰 Créditer</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

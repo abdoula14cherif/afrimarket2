@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Debug AfriMarket</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    body{font-family:monospace;background:#0a0a0a;color:#00ff88;padding:1.5rem;font-size:.85rem;line-height:1.6;}
+    h2{color:#F5B731;margin:.5rem 0;}
+    .box{background:#111;border:1px solid #333;border-radius:8px;padding:1rem;margin-bottom:1rem;}
+    .ok{color:#00ff88;}.err{color:#ff4444;}.warn{color:#F5B731;}.info{color:#4af;}
+    button{background:#1B3FE4;color:white;border:none;padding:.6rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.85rem;margin:.3rem .3rem .3rem 0;}
+    button:hover{background:#2D55FF;}
+    input{background:#1a1a1a;border:1px solid #444;color:white;padding:.5rem .8rem;border-radius:6px;font-size:.85rem;width:100%;margin-top:.3rem;}
+    pre{white-space:pre-wrap;word-break:break-all;font-size:.78rem;}
+    .sep{border-top:1px solid #333;margin:1rem 0;}
+  </style>
+</head>
+<body>
+
+<h2>🔧 Debug AfriMarket — Supabase</h2>
+
+<div class="box">
+  <div class="warn">⚙️ ÉTAPE 1 — Connexion & Session</div>
+  <button onclick="testSession()">Tester la session</button>
+  <pre id="r1">En attente…</pre>
+</div>
+
+<div class="box">
+  <div class="warn">⚙️ ÉTAPE 2 — Lire le profil (voir les vraies colonnes)</div>
+  <button onclick="testProfile()">Lire mon profil</button>
+  <pre id="r2">En attente…</pre>
+</div>
+
+<div class="box">
+  <div class="warn">⚙️ ÉTAPE 3 — Mettre à jour is_premium manuellement</div>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem;">
+    <button onclick="setPremium(true)">✅ Activer Premium (true)</button>
+    <button onclick="setPremium(false)" style="background:#555">❌ Désactiver (false)</button>
+  </div>
+  <pre id="r3">En attente…</pre>
+</div>
+
+<div class="box">
+  <div class="warn">⚙️ ÉTAPE 4 — Tester payment_requests</div>
+  <button onclick="testPaymentTable()">Tester la table payment_requests</button>
+  <pre id="r4">En attente…</pre>
+</div>
+
+<div class="box">
+  <div class="warn">⚙️ ÉTAPE 5 — Realtime (écouter profiles)</div>
+  <button onclick="testRealtime()">Démarrer l'écoute Realtime</button>
+  <button onclick="triggerUpdate()" style="background:#C8901A">Déclencher un UPDATE</button>
+  <pre id="r5">En attente…</pre>
+</div>
+
+<div class="box">
+  <div class="warn">⚙️ ÉTAPE 6 — Voir toutes les colonnes exactes de profiles</div>
+  <button onclick="showColumns()">Voir les colonnes</button>
+  <pre id="r6">En attente…</pre>
+</div>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient(
+  'https://elgbvitijyjriozvzqpf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsZ2J2aXRpanlqcmlvenZ6cXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODczNDcsImV4cCI6MjA4Njk2MzM0N30.7juarApMsBUf4b2n8ObuWYl2hMHahQC-qwjORjCTkIM'
+);
+
+let uid = null;
+
+function log(id, msg, type='ok'){
+  document.getElementById(id).innerHTML += `<span class="${type}">${msg}</span>\n`;
+}
+
+// ── SESSION ──
+async function testSession(){
+  document.getElementById('r1').textContent = '';
+  const{data:{session},error}=await sb.auth.getSession();
+  if(error){log('r1','ERREUR: '+error.message,'err');return;}
+  if(!session){log('r1','❌ Pas de session — tu n\'es pas connecté\n→ Ouvre d\'abord dashboard.html pour te connecter','warn');return;}
+  uid = session.user.id;
+  log('r1','✅ Connecté !','ok');
+  log('r1','ID: '+uid,'info');
+  log('r1','Email: '+session.user.email,'info');
+  log('r1','Créé le: '+session.user.created_at,'info');
+}
+
+// ── PROFIL ──
+async function testProfile(){
+  document.getElementById('r2').textContent = '';
+  if(!uid){log('r2','❌ Lance d\'abord l\'étape 1','warn');return;}
+  const{data,error}=await sb.from('profiles').select('*').eq('id',uid).single();
+  if(error){log('r2','ERREUR: '+error.message,'err');log('r2','Code: '+error.code,'err');return;}
+  if(!data){log('r2','❌ Profil introuvable pour cet utilisateur','warn');return;}
+  log('r2','✅ Profil trouvé ! Voici TOUTES les colonnes:\n','ok');
+  Object.entries(data).forEach(([k,v])=>{
+    const isPremCol = k.toLowerCase()==='is_premium'||k.toLowerCase()==='plan'||k.toLowerCase()==='plan_expires';
+    log('r2',`  "${k}" = ${JSON.stringify(v)}`, isPremCol?'warn':'info');
+  });
+}
+
+// ── ACTIVER PREMIUM ──
+async function setPremium(val){
+  document.getElementById('r3').textContent = '';
+  if(!uid){log('r3','❌ Lance d\'abord l\'étape 1','warn');return;}
+
+  // On essaie toutes les variantes de noms
+  const payload = {is_premium: val};
+
+  // Tester d'abord avec 'plan' minuscule
+  const{error:e1}=await sb.from('profiles').update({...payload, plan: val?'premium':'free'}).eq('id',uid);
+  if(e1){
+    log('r3','⚠️ plan (minuscule) échoué: '+e1.message,'warn');
+    // Essayer 'Plan' majuscule
+    const{error:e2}=await sb.from('profiles').update({...payload, Plan: val?'premium':'free'}).eq('id',uid);
+    if(e2){log('r3','❌ Plan (majuscule) aussi échoué: '+e2.message,'err');}
+    else{log('r3','✅ Mis à jour avec Plan (MAJUSCULE) — le code doit utiliser "Plan"','warn');}
+  } else {
+    log('r3','✅ Mis à jour avec plan (minuscule) — le code est correct','ok');
+  }
+
+  // Vérifier le résultat
+  const{data}=await sb.from('profiles').select('is_premium, plan, Plan, plan_expires').eq('id',uid).single();
+  log('r3','\nRésultat après update:','info');
+  if(data) Object.entries(data).forEach(([k,v])=>log('r3',`  "${k}" = ${JSON.stringify(v)}`,'info'));
+}
+
+// ── PAYMENT_REQUESTS ──
+async function testPaymentTable(){
+  document.getElementById('r4').textContent = '';
+  if(!uid){log('r4','❌ Lance d\'abord l\'étape 1','warn');return;}
+
+  // Test INSERT
+  const{data,error}=await sb.from('payment_requests').insert({
+    user_id: uid,
+    plan: 'premium',
+    billing: 'monthly',
+    amount: 1000,
+    operator: 'orange',
+    sender_name: 'Test Debug',
+    sender_phone: '+237600000000',
+    transaction_ref: 'DEBUG_'+Date.now(),
+    status: 'pending'
+  }).select().single();
+
+  if(error){
+    log('r4','❌ ERREUR INSERT payment_requests:\n'+error.message,'err');
+    log('r4','Code: '+error.code,'err');
+    if(error.code==='42P01') log('r4','\n→ La table payment_requests n\'existe pas encore!\n→ Exécute le SQL afrimarket_sql_complet.sql','warn');
+    if(error.message.includes('permission')) log('r4','\n→ Problème RLS — exécute fix_rls_permissions.sql','warn');
+    return;
+  }
+  log('r4','✅ payment_requests fonctionne ! ID: '+data.id,'ok');
+
+  // Nettoyer
+  await sb.from('payment_requests').delete().eq('id',data.id);
+  log('r4','🧹 Entrée de test supprimée','info');
+}
+
+// ── REALTIME ──
+let rtChannel = null;
+async function testRealtime(){
+  document.getElementById('r5').textContent = '';
+  if(!uid){log('r5','❌ Lance d\'abord l\'étape 1','warn');return;}
+  log('r5','⏳ Connexion Realtime en cours…','warn');
+
+  rtChannel = sb.channel('debug-'+uid)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${uid}`},
+      (payload)=>{
+        log('r5','🔴 REALTIME REÇU !','ok');
+        log('r5','Nouvelles valeurs: '+JSON.stringify(payload.new,null,2),'info');
+      }
+    )
+    .subscribe((status)=>{
+      log('r5','Status Realtime: '+status, status==='SUBSCRIBED'?'ok':'warn');
+    });
+}
+
+async function triggerUpdate(){
+  if(!uid){log('r5','❌ Lance d\'abord l\'étape 1','warn');return;}
+  // Faire un UPDATE trivial pour déclencher le Realtime
+  const{error}=await sb.from('profiles').update({is_premium:false}).eq('id',uid);
+  if(error) log('r5','❌ Update échoué: '+error.message,'err');
+  else log('r5','↑ UPDATE déclenché — tu devrais voir "REALTIME REÇU" ci-dessus','warn');
+}
+
+// ── COLONNES ──
+async function showColumns(){
+  document.getElementById('r6').textContent = '';
+  const{data,error}=await sb.rpc('get_columns_info').catch(()=>({data:null,error:{message:'rpc non disponible'}}));
+
+  // Méthode alternative : lire une ligne et voir les clés
+  if(!uid){log('r6','❌ Lance d\'abord l\'étape 1','warn');return;}
+  const{data:row}=await sb.from('profiles').select('*').eq('id',uid).single();
+  if(row){
+    const cols = Object.keys(row);
+    log('r6','Colonnes exactes dans profiles ('+cols.length+') :','ok');
+    cols.forEach(c=>log('r6','  → "'+c+'" (type: '+typeof row[c]+')','info'));
+    log('r6','\n⚠️ IMPORTANT — colonnes premium détectées:','warn');
+    cols.filter(c=>['premium','plan','expires','paye','bloque'].some(k=>c.toLowerCase().includes(k)))
+      .forEach(c=>log('r6','  🎯 "'+c+'" = '+JSON.stringify(row[c]),'warn'));
+  }
+}
+</script>
+</body>
+</html>

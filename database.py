@@ -1,7 +1,12 @@
 from supabase import create_client
-from config import settings
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
+supabase = create_client(
+    os.getenv("SUPABASE_URL", ""),
+    os.getenv("SUPABASE_ANON_KEY", "")
+)
 
 def get_db():
     return supabase

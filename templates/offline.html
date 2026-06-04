@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AfriMarket — Hors ligne</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:linear-gradient(135deg,#080E2A 0%,#0D1E6B 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;}
+    .logo{font-size:2rem;font-weight:700;letter-spacing:-1px;margin-bottom:2rem;}
+    .la{color:#00C2B7;}.lm{color:#FF6B1A;}
+    .ico{font-size:4rem;margin-bottom:1.2rem;animation:float 3s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    h1{font-size:1.5rem;font-weight:700;color:white;margin-bottom:.6rem;}
+    p{font-size:.85rem;color:rgba(255,255,255,.45);line-height:1.7;max-width:300px;margin-bottom:2rem;}
+    .btn{background:linear-gradient(135deg,#1B3FE4,#2D55FF);color:white;border:none;padding:.85rem 2rem;border-radius:14px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(27,63,228,.4);}
+    .btn:hover{transform:translateY(-2px);}
+    .dots{display:flex;gap:.5rem;justify-content:center;margin-top:2rem;}
+    .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);animation:pulse 1.5s infinite;}
+    .dot:nth-child(2){animation-delay:.3s;}.dot:nth-child(3){animation-delay:.6s;}
+    @keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+  </style>
+</head>
+<body>
+  <div class="logo"><span class="la">Afri</span><span class="lm">Market</span></div>
+  <div class="ico">📡</div>
+  <h1>Pas de connexion</h1>
+  <p>Tu es hors ligne. Reconnecte-toi à Internet pour accéder à AfriMarket et voir les annonces.</p>
+  <button class="btn" onclick="window.location.reload()">🔄 Réessayer</button>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</body>
+</html>
