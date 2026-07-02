@@ -3,18 +3,13 @@ import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
 
-const CATEGORY_EMOJI = {
-  telephones: '📱',
-  services: '🔧',
-  mode: '👗',
-  maison: '🏠',
-  autres: '🛍️',
-}
+const CATEGORY_EMOJI = { telephones: '📱', services: '🔧', mode: '👗', maison: '🏠', autres: '🛍️' }
 
 export default function DashboardPage({ user, onNavigate, onLogout }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [annoncesCount, setAnnoncesCount] = useState(0)
+  const [contactsCount, setContactsCount] = useState(0)
   const [featured, setFeatured] = useState([])
 
   useEffect(() => {
@@ -25,6 +20,12 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
 
       const { count } = await supabase.from('annonces').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
       setAnnoncesCount(count || 0)
+
+      const { count: contactCount } = await supabase
+        .from('contacts_log')
+        .select('id, annonces!inner(user_id)', { count: 'exact', head: true })
+        .eq('annonces.user_id', user.id)
+      setContactsCount(contactCount || 0)
 
       const { data: recent } = await supabase
         .from('annonces')
@@ -43,9 +44,10 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
     onLogout?.()
   }
 
-  const handleContact = (contact) => {
-    if (!contact) return
-    const digits = contact.replace(/[^\d]/g, '')
+  const handleContact = async (item) => {
+    if (!item.contact) return
+    supabase.from('contacts_log').insert({ annonce_id: item.id })
+    const digits = item.contact.replace(/[^\d]/g, '')
     window.open(`https://wa.me/${digits}`, '_blank')
   }
 
@@ -53,25 +55,22 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
     <div style={styles.page}>
       <div style={styles.header}>
         <div style={styles.topRow}>
-          <div style={styles.brand}>
-            Gain<span style={{ color: COLORS.marigold }}>Pay</span>
-          </div>
+          <div style={styles.brand}>Gain<span style={{ color: COLORS.marigold }}>Pay</span></div>
           <span style={styles.logout} onClick={handleLogout}>Déconnexion</span>
         </div>
-        <p style={styles.greeting}>
-          {loading ? 'Chargement...' : `Salut ${profile?.prenom || ''} 👋`}
-        </p>
+        <p style={styles.greeting}>{loading ? 'Chargement...' : `Salut ${profile?.prenom || ''} 👋`}</p>
         {profile?.entreprise && <p style={styles.entreprise}>{profile.entreprise}</p>}
       </div>
 
       <div style={styles.stats}>
-        <StatCard label="Annonces publiées" value={String(annoncesCount)} color={COLORS.indigo} />
-        <StatCard label="Contacts reçus" value="0" color={COLORS.terracotta} />
+        <StatCard label="Annonces publiées" value={String(annoncesCount)} color={COLORS.indigo} onClick={() => onNavigate?.('my-listings')} />
+        <StatCard label="Contacts reçus" value={String(contactsCount)} color={COLORS.terracotta} />
       </div>
 
       <div style={styles.section}>
         <h2 style={styles.sectionTitle}>Commence ici</h2>
-        <ActionCard icon="📢" title="Publier ta première annonce" subtitle="Produit ou service, en 2 minutes" onClick={() => onNavigate?.('publish')} />
+        <ActionCard icon="📢" title="Publier une annonce" subtitle="Produit ou service, en 2 minutes" onClick={() => onNavigate?.('publish')} />
+        <ActionCard icon="📦" title="Mes annonces" subtitle="Voir, modifier ou supprimer" onClick={() => onNavigate?.('my-listings')} />
         <ActionCard icon="🔍" title="Explorer la marketplace" subtitle="Vois ce que les autres proposent" onClick={() => onNavigate?.('explore')} />
       </div>
 
@@ -80,28 +79,18 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
           <h2 style={styles.sectionTitle}>Annonces en vedette</h2>
           <span style={styles.seeAll} onClick={() => onNavigate?.('explore')}>Tout voir</span>
         </div>
-
-        {!loading && featured.length === 0 && (
-          <p style={styles.emptyText}>Aucune annonce pour l'instant — sois le premier à publier !</p>
-        )}
-
+        {!loading && featured.length === 0 && <p style={styles.emptyText}>Aucune annonce pour l'instant — sois le premier à publier !</p>}
         <div style={styles.grid}>
           {featured.map((item) => (
             <div key={item.id} style={styles.card}>
               <div style={styles.cardImg}>
-                {item.photo_url ? (
-                  <img src={item.photo_url} alt={item.titre} style={styles.cardImgTag} />
-                ) : (
-                  <span style={styles.cardImgFallback}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>
-                )}
+                {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={styles.cardImgTag} /> : <span style={styles.cardImgFallback}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
               </div>
               <div style={styles.cardBody}>
                 <p style={styles.cardTitle}>{item.titre}</p>
                 <p style={styles.cardLoc}>📍 {item.ville}</p>
                 <span style={styles.priceTag}>{item.prix?.toLocaleString('fr-FR')} F</span>
-                <button style={styles.contactBtn} onClick={() => handleContact(item.contact)}>
-                  💬 Contacter
-                </button>
+                <button style={styles.contactBtn} onClick={() => handleContact(item)}>💬 Contacter</button>
               </div>
             </div>
           ))}
@@ -113,9 +102,9 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
   )
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, color, onClick }) {
   return (
-    <div style={styles.statCard}>
+    <div style={{ ...styles.statCard, cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
       <div style={{ ...styles.statValue, color }}>{value}</div>
       <div style={styles.statLabel}>{label}</div>
     </div>

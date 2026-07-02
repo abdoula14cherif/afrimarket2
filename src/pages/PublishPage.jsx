@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
@@ -11,14 +11,29 @@ const CATEGORIES = [
   { key: 'autres', label: 'Autres', color: '#6C6396' },
 ]
 
-export default function PublishPage({ user, profile, onNavigate }) {
-  const [form, setForm] = useState({
-    titre: '', description: '', prix: '', ville: '', categorie: '', contact: profile?.numero || '',
-  })
+export default function PublishPage({ user, profile, editId, onNavigate }) {
+  const [form, setForm] = useState({ titre: '', description: '', prix: '', ville: '', categorie: '', contact: profile?.numero || '' })
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [loadingExisting, setLoadingExisting] = useState(!!editId)
   const [error, setError] = useState(null)
+
+  useEffect(() => {
+    async function loadExisting() {
+      if (!editId) return
+      const { data } = await supabase.from('annonces').select('*').eq('id', editId).single()
+      if (data) {
+        setForm({
+          titre: data.titre, description: data.description || '', prix: String(data.prix),
+          ville: data.ville, categorie: data.categorie, contact: data.contact || '',
+        })
+        if (data.photo_url) setPhotoPreview(data.photo_url)
+      }
+      setLoadingExisting(false)
+    }
+    loadExisting()
+  }, [editId])
 
   const handleChange = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
@@ -38,7 +53,7 @@ export default function PublishPage({ user, profile, onNavigate }) {
     }
     setSaving(true)
 
-    let photoUrl = null
+    let photoUrl = editId ? undefined : null
     if (photoFile) {
       const fileExt = photoFile.name.split('.').pop()
       const filePath = `${user.id}/${Date.now()}.${fileExt}`
@@ -52,28 +67,36 @@ export default function PublishPage({ user, profile, onNavigate }) {
       photoUrl = publicUrlData.publicUrl
     }
 
-    const { error: insertError } = await supabase.from('annonces').insert({
-      user_id: user.id,
-      titre: form.titre,
-      description: form.description,
-      prix: Number(form.prix),
-      categorie: form.categorie,
-      ville: form.ville,
-      contact: form.contact,
-      photo_url: photoUrl,
-    })
+    const payload = {
+      titre: form.titre, description: form.description, prix: Number(form.prix),
+      categorie: form.categorie, ville: form.ville, contact: form.contact,
+    }
+    if (photoUrl !== undefined) payload.photo_url = photoUrl
+
+    let submitError
+    if (editId) {
+      const { error: updateError } = await supabase.from('annonces').update(payload).eq('id', editId)
+      submitError = updateError
+    } else {
+      const { error: insertError } = await supabase.from('annonces').insert({ ...payload, user_id: user.id })
+      submitError = insertError
+    }
     setSaving(false)
-    if (insertError) {
-      setError(insertError.message)
+    if (submitError) {
+      setError(submitError.message)
       return
     }
-    onNavigate?.('dashboard')
+    onNavigate?.('my-listings')
+  }
+
+  if (loadingExisting) {
+    return <div style={{ padding: 24, fontFamily: FONT_BODY }}>Chargement de l'annonce...</div>
   }
 
   return (
     <div style={styles.page}>
       <div style={styles.header}>
-        <div style={styles.brand}>Publier une annonce</div>
+        <div style={styles.brand}>{editId ? "Modifier l'annonce" : 'Publier une annonce'}</div>
         <p style={styles.subtitle}>Produit ou service, en quelques infos.</p>
       </div>
 
@@ -81,11 +104,7 @@ export default function PublishPage({ user, profile, onNavigate }) {
         <label style={styles.fieldWrapper}>
           <span style={styles.label}>Photo</span>
           <label style={styles.photoDrop}>
-            {photoPreview ? (
-              <img src={photoPreview} alt="Aperçu" style={styles.photoPreview} />
-            ) : (
-              <span style={styles.photoPlaceholder}>📷 Ajouter une photo</span>
-            )}
+            {photoPreview ? <img src={photoPreview} alt="Aperçu" style={styles.photoPreview} /> : <span style={styles.photoPlaceholder}>📷 Ajouter une photo</span>}
             <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
           </label>
         </label>
@@ -102,11 +121,8 @@ export default function PublishPage({ user, profile, onNavigate }) {
           <span style={styles.label}>Catégorie</span>
           <div style={styles.catRow}>
             {CATEGORIES.map((cat) => (
-              <div
-                key={cat.key}
-                onClick={() => setForm((prev) => ({ ...prev, categorie: cat.key }))}
-                style={{ ...styles.chip, background: cat.color, color: cat.key === 'maison' ? COLORS.ink : '#fff', outline: form.categorie === cat.key ? `2px solid ${COLORS.ink}` : 'none', outlineOffset: 2 }}
-              >
+              <div key={cat.key} onClick={() => setForm((prev) => ({ ...prev, categorie: cat.key }))}
+                style={{ ...styles.chip, background: cat.color, color: cat.key === 'maison' ? COLORS.ink : '#fff', outline: form.categorie === cat.key ? `2px solid ${COLORS.ink}` : 'none', outlineOffset: 2 }}>
                 {cat.label}
               </div>
             ))}
@@ -115,7 +131,7 @@ export default function PublishPage({ user, profile, onNavigate }) {
 
         {error && <p style={styles.error}>{error}</p>}
         <button type="submit" disabled={saving} style={styles.submitBtn}>
-          {saving ? 'Publication...' : "Publier l'annonce"}
+          {saving ? 'Enregistrement...' : editId ? 'Enregistrer les modifications' : "Publier l'annonce"}
         </button>
       </form>
 
@@ -128,11 +144,7 @@ function Field({ label, value, onChange, placeholder, type = 'text', textarea = 
   return (
     <label style={styles.fieldWrapper}>
       <span style={styles.label}>{label}</span>
-      {textarea ? (
-        <textarea value={value} onChange={onChange} placeholder={placeholder} style={{ ...styles.input, minHeight: 80, resize: 'vertical' }} />
-      ) : (
-        <input type={type} value={value} onChange={onChange} placeholder={placeholder} style={styles.input} />
-      )}
+      {textarea ? <textarea value={value} onChange={onChange} placeholder={placeholder} style={{ ...styles.input, minHeight: 80, resize: 'vertical' }} /> : <input type={type} value={value} onChange={onChange} placeholder={placeholder} style={styles.input} />}
     </label>
   )
 }

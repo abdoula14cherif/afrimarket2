@@ -7,12 +7,14 @@ import ProfilePage from './pages/ProfilePage.jsx'
 import PublishPage from './pages/PublishPage.jsx'
 import ExplorePage from './pages/ExplorePage.jsx'
 import ContactsPage from './pages/ContactsPage.jsx'
+import MyListingsPage from './pages/MyListingsPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [checkingSession, setCheckingSession] = useState(true)
+  const [editId, setEditId] = useState(null)
 
   useEffect(() => {
     async function restoreSession() {
@@ -59,26 +61,21 @@ export default function App() {
     return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Chargement...</div>
   }
 
-  if (page === 'signup') {
-    return <SignupPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToLogin={() => navigateTo('login')} />
-  }
-  if (page === 'login') {
-    return <LoginPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToSignup={() => navigateTo('signup')} />
-  }
-  if (page === 'dashboard') {
-    return <DashboardPage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
-  }
-  if (page === 'profile') {
-    return <ProfilePage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
-  }
-  if (page === 'publish') {
-    return <PublishPage user={user} profile={profile} onNavigate={(dest) => navigateTo(dest)} />
-  }
-  if (page === 'explore') {
-    return <ExplorePage onNavigate={(dest) => navigateTo(dest)} />
-  }
-  if (page === 'contacts') {
-    return <ContactsPage user={user} onNavigate={(dest) => navigateTo(dest)} />
+  if (page === 'signup') return <SignupPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToLogin={() => navigateTo('login')} />
+  if (page === 'login') return <LoginPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToSignup={() => navigateTo('signup')} />
+  if (page === 'dashboard') return <DashboardPage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
+  if (page === 'profile') return <ProfilePage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
+  if (page === 'publish') return <PublishPage user={user} profile={profile} editId={editId} onNavigate={(dest) => { setEditId(null); navigateTo(dest) }} />
+  if (page === 'explore') return <ExplorePage onNavigate={(dest) => navigateTo(dest)} />
+  if (page === 'contacts') return <ContactsPage user={user} onNavigate={(dest) => navigateTo(dest)} />
+  if (page === 'my-listings') {
+    return (
+      <MyListingsPage
+        user={user}
+        onNavigate={(dest) => navigateTo(dest)}
+        onEdit={(id) => { setEditId(id); navigateTo('publish') }}
+      />
+    )
   }
 
   return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Page "{page}" à venir</div>
