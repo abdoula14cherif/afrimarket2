@@ -2,6 +2,7 @@ import { useState } from 'react'
 import SignupPage from './pages/SignupPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -28,6 +29,16 @@ export default function App() {
   if (page === 'dashboard') {
     return (
       <DashboardPage
+        user={user}
+        onNavigate={(dest) => setPage(dest)}
+        onLogout={() => { setUser(null); setPage('login') }}
+      />
+    )
+  }
+
+  if (page === 'profile') {
+    return (
+      <ProfilePage
         user={user}
         onNavigate={(dest) => setPage(dest)}
         onLogout={() => { setUser(null); setPage('login') }}
