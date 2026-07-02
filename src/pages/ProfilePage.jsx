@@ -4,8 +4,8 @@ import BottomNav from '../components/BottomNav.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
 
 export default function ProfilePage({ user, onNavigate, onLogout }) {
-  const [verified, setVerified] = useState(false)
   const [form, setForm] = useState({ prenom: '', nom: '', entreprise: '', numero: '' })
+  const [verified, setVerified] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
@@ -66,8 +66,17 @@ export default function ProfilePage({ user, onNavigate, onLogout }) {
         <div style={styles.avatar}>{form.prenom ? form.prenom[0].toUpperCase() : '👤'}</div>
         <div style={styles.name}>{loading ? 'Chargement...' : `${form.prenom} ${form.nom}`}</div>
         <div style={styles.email}>{user?.email}</div>
-        <span style={{ ...styles.badge, background: verified ? '#2F8F82' : 'rgba(255,255,255,0.15)' }}>{verified ? '✅ Vérifié' : '⚪ Non vérifié'}</span>
+        <span style={{ ...styles.badge, background: verified ? '#2F8F82' : 'rgba(255,255,255,0.15)' }}>
+          {verified ? '✅ Vérifié' : '⚪ Non vérifié'}
+        </span>
       </div>
+
+      {!verified && (
+        <div style={styles.verifyBanner} onClick={() => onNavigate?.('verification')}>
+          <span style={styles.verifyBannerText}>🔒 Vérifier mon compte pour publier sans limite</span>
+          <span style={styles.verifyBannerArrow}>→</span>
+        </div>
+      )}
 
       <form style={styles.form} onSubmit={handleSave}>
         <div style={styles.row}>
@@ -108,6 +117,9 @@ const styles = {
   name: { fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18 },
   email: { fontSize: 12, color: '#E4E1F2', marginTop: 2 },
   badge: { fontSize: 11, fontWeight: 700, color: '#fff', padding: '4px 10px', borderRadius: 12, marginTop: 8 },
+  verifyBanner: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: COLORS.marigold, margin: '16px 20px 0', borderRadius: 12, padding: '12px 16px', cursor: 'pointer' },
+  verifyBannerText: { fontSize: 12.5, fontWeight: 700, color: COLORS.ink },
+  verifyBannerArrow: { fontSize: 14, fontWeight: 700, color: COLORS.ink },
   form: { padding: '22px 20px', display: 'flex', flexDirection: 'column', gap: 14 },
   row: { display: 'flex', gap: 12 },
   fieldWrapper: { display: 'flex', flexDirection: 'column', gap: 6, flex: 1 },
