@@ -4,6 +4,7 @@ import BottomNav from '../components/BottomNav.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
 
 export default function ProfilePage({ user, onNavigate, onLogout }) {
+  const [verified, setVerified] = useState(false)
   const [form, setForm] = useState({ prenom: '', nom: '', entreprise: '', numero: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -15,7 +16,7 @@ export default function ProfilePage({ user, onNavigate, onLogout }) {
       if (!user?.id) return
       const { data, error: fetchError } = await supabase
         .from('profiles')
-        .select('prenom, nom, entreprise, numero')
+        .select('prenom, nom, entreprise, numero, verified')
         .eq('id', user.id)
         .single()
 
@@ -23,6 +24,7 @@ export default function ProfilePage({ user, onNavigate, onLogout }) {
         setError("Impossible de charger le profil.")
       } else if (data) {
         setForm(data)
+        setVerified(data.verified || false)
       }
       setLoading(false)
     }
@@ -64,6 +66,7 @@ export default function ProfilePage({ user, onNavigate, onLogout }) {
         <div style={styles.avatar}>{form.prenom ? form.prenom[0].toUpperCase() : '👤'}</div>
         <div style={styles.name}>{loading ? 'Chargement...' : `${form.prenom} ${form.nom}`}</div>
         <div style={styles.email}>{user?.email}</div>
+        <span style={{ ...styles.badge, background: verified ? '#2F8F82' : 'rgba(255,255,255,0.15)' }}>{verified ? '✅ Vérifié' : '⚪ Non vérifié'}</span>
       </div>
 
       <form style={styles.form} onSubmit={handleSave}>
@@ -104,6 +107,7 @@ const styles = {
   avatar: { width: 64, height: 64, borderRadius: '50%', background: COLORS.marigold, color: COLORS.ink, fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   name: { fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18 },
   email: { fontSize: 12, color: '#E4E1F2', marginTop: 2 },
+  badge: { fontSize: 11, fontWeight: 700, color: '#fff', padding: '4px 10px', borderRadius: 12, marginTop: 8 },
   form: { padding: '22px 20px', display: 'flex', flexDirection: 'column', gap: 14 },
   row: { display: 'flex', gap: 12 },
   fieldWrapper: { display: 'flex', flexDirection: 'column', gap: 6, flex: 1 },

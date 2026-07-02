@@ -18,6 +18,8 @@ export default function PublishPage({ user, profile, editId, onNavigate }) {
   const [saving, setSaving] = useState(false)
   const [loadingExisting, setLoadingExisting] = useState(!!editId)
   const [error, setError] = useState(null)
+  const [limitReached, setLimitReached] = useState(false)
+  const [checkingLimit, setCheckingLimit] = useState(!editId)
 
   useEffect(() => {
     async function loadExisting() {
@@ -34,6 +36,18 @@ export default function PublishPage({ user, profile, editId, onNavigate }) {
     }
     loadExisting()
   }, [editId])
+
+  useEffect(() => {
+    async function checkLimit() {
+      if (editId || !user?.id) { setCheckingLimit(false); return }
+      const { data: prof } = await supabase.from('profiles').select('verified').eq('id', user.id).single()
+      if (prof?.verified) { setCheckingLimit(false); return }
+      const { count } = await supabase.from('annonces').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
+      if ((count || 0) >= 3) setLimitReached(true)
+      setCheckingLimit(false)
+    }
+    checkLimit()
+  }, [editId, user])
 
   const handleChange = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
@@ -89,8 +103,29 @@ export default function PublishPage({ user, profile, editId, onNavigate }) {
     onNavigate?.('my-listings')
   }
 
-  if (loadingExisting) {
-    return <div style={{ padding: 24, fontFamily: FONT_BODY }}>Chargement de l'annonce...</div>
+  if (loadingExisting || checkingLimit) {
+    return <div style={{ padding: 24, fontFamily: FONT_BODY }}>Chargement...</div>
+  }
+
+  if (limitReached) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.header}>
+          <div style={styles.brand}>Limite atteinte</div>
+          <p style={styles.subtitle}>3 annonces maximum pour un compte non vérifié</p>
+        </div>
+        <div style={styles.limitBox}>
+          <span style={{ fontSize: 34 }}>🔒</span>
+          <p style={styles.limitText}>
+            Tu as déjà publié 3 annonces. Vérifie ton compte pour publier sans limite et débloquer ta boutique perso.
+          </p>
+          <button style={styles.submitBtn} onClick={() => onNavigate?.('verification')}>
+            Vérifier mon compte
+          </button>
+        </div>
+        <BottomNav active="publish" onNavigate={onNavigate} />
+      </div>
+    )
   }
 
   return (
@@ -166,4 +201,6 @@ const styles = {
   chip: { padding: '8px 14px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: 'pointer' },
   error: { color: COLORS.terracotta, fontSize: 13, fontWeight: 600, margin: 0 },
   submitBtn: { marginTop: 6, background: COLORS.marigold, color: COLORS.ink, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 700, cursor: 'pointer' },
+  limitBox: { background: COLORS.card, margin: '20px', borderRadius: 16, padding: '30px 20px', textAlign: 'center', boxShadow: '0 4px 14px rgba(43,37,96,0.08)' },
+  limitText: { fontSize: 13, color: COLORS.muted, margin: '12px 0 18px', lineHeight: 1.5 },
 }

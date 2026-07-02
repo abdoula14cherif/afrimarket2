@@ -9,6 +9,7 @@ import ExplorePage from './pages/ExplorePage.jsx'
 import ContactsPage from './pages/ContactsPage.jsx'
 import MyListingsPage from './pages/MyListingsPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
+import VerificationPage from './pages/VerificationPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -69,6 +70,8 @@ export default function App() {
   if (page === 'publish') return <PublishPage user={user} profile={profile} editId={editId} onNavigate={(dest) => { setEditId(null); navigateTo(dest) }} />
   if (page === 'explore') return <ExplorePage user={user} onNavigate={(dest) => navigateTo(dest)} />
   if (page === 'contacts') return <ContactsPage user={user} onNavigate={(dest) => navigateTo(dest)} />
+  if (page === 'verification') return <VerificationPage user={user} onNavigate={(dest) => navigateTo(dest)} />
+
   if (page === 'favoris') return <FavoritesPage user={user} onNavigate={(dest) => navigateTo(dest)} />
 
   if (page === 'my-listings') {
