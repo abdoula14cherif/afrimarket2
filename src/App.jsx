@@ -4,10 +4,22 @@ import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import PublishPage from './pages/PublishPage.jsx'
+import { supabase } from './supabaseClient'
+import { useEffect } from 'react'
 
 export default function App() {
   const [page, setPage] = useState('signup')
   const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
+
+  useEffect(() => {
+    async function loadProfile() {
+      if (!user?.id) return
+      const { data } = await supabase.from('profiles').select('numero').eq('id', user.id).single()
+      setProfile(data)
+    }
+    loadProfile()
+  }, [user])
 
   if (page === 'signup') {
     return <SignupPage onSuccess={(data) => { setUser(data.user); setPage('dashboard') }} goToLogin={() => setPage('login')} />
@@ -22,7 +34,7 @@ export default function App() {
     return <ProfilePage user={user} onNavigate={(dest) => setPage(dest)} onLogout={() => { setUser(null); setPage('login') }} />
   }
   if (page === 'publish') {
-    return <PublishPage user={user} onNavigate={(dest) => setPage(dest)} />
+    return <PublishPage user={user} profile={profile} onNavigate={(dest) => setPage(dest)} />
   }
 
   return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Page "{page}" à venir</div>

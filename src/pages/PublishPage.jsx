@@ -11,24 +11,47 @@ const CATEGORIES = [
   { key: 'autres', label: 'Autres', color: '#6C6396' },
 ]
 
-export default function PublishPage({ user, onNavigate }) {
-  const [form, setForm] = useState({ titre: '', description: '', prix: '', ville: '', categorie: '' })
+export default function PublishPage({ user, profile, onNavigate }) {
+  const [form, setForm] = useState({
+    titre: '', description: '', prix: '', ville: '', categorie: '', contact: profile?.numero || '',
+  })
+  const [photoFile, setPhotoFile] = useState(null)
+  const [photoPreview, setPhotoPreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
-  const handleChange = (field) => (e) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }))
+  const handleChange = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPhotoFile(file)
+    setPhotoPreview(URL.createObjectURL(file))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
-
-    if (!form.titre || !form.prix || !form.ville || !form.categorie) {
-      setError('Titre, prix, ville et catégorie sont obligatoires.')
+    if (!form.titre || !form.prix || !form.ville || !form.categorie || !form.contact) {
+      setError('Titre, prix, ville, catégorie et contact sont obligatoires.')
       return
     }
-
     setSaving(true)
+
+    let photoUrl = null
+    if (photoFile) {
+      const fileExt = photoFile.name.split('.').pop()
+      const filePath = `${user.id}/${Date.now()}.${fileExt}`
+      const { error: uploadError } = await supabase.storage.from('annonces-photos').upload(filePath, photoFile)
+      if (uploadError) {
+        setSaving(false)
+        setError("Erreur lors de l'envoi de la photo : " + uploadError.message)
+        return
+      }
+      const { data: publicUrlData } = supabase.storage.from('annonces-photos').getPublicUrl(filePath)
+      photoUrl = publicUrlData.publicUrl
+    }
+
     const { error: insertError } = await supabase.from('annonces').insert({
       user_id: user.id,
       titre: form.titre,
@@ -36,14 +59,14 @@ export default function PublishPage({ user, onNavigate }) {
       prix: Number(form.prix),
       categorie: form.categorie,
       ville: form.ville,
+      contact: form.contact,
+      photo_url: photoUrl,
     })
     setSaving(false)
-
     if (insertError) {
       setError(insertError.message)
       return
     }
-
     onNavigate?.('dashboard')
   }
 
@@ -55,12 +78,25 @@ export default function PublishPage({ user, onNavigate }) {
       </div>
 
       <form style={styles.form} onSubmit={handleSubmit}>
+        <label style={styles.fieldWrapper}>
+          <span style={styles.label}>Photo</span>
+          <label style={styles.photoDrop}>
+            {photoPreview ? (
+              <img src={photoPreview} alt="Aperçu" style={styles.photoPreview} />
+            ) : (
+              <span style={styles.photoPlaceholder}>📷 Ajouter une photo</span>
+            )}
+            <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
+          </label>
+        </label>
+
         <Field label="Titre" value={form.titre} onChange={handleChange('titre')} placeholder="Ex: iPhone 11 64Go, bon état" />
         <Field label="Description" value={form.description} onChange={handleChange('description')} placeholder="Détaille ton produit ou service" textarea />
         <div style={styles.row}>
           <Field label="Prix (FCFA)" value={form.prix} onChange={handleChange('prix')} placeholder="15000" type="number" />
           <Field label="Ville" value={form.ville} onChange={handleChange('ville')} placeholder="Lomé" />
         </div>
+        <Field label="Numéro de contact" value={form.contact} onChange={handleChange('contact')} placeholder="+228 90 00 00 00" type="tel" />
 
         <div>
           <span style={styles.label}>Catégorie</span>
@@ -69,13 +105,7 @@ export default function PublishPage({ user, onNavigate }) {
               <div
                 key={cat.key}
                 onClick={() => setForm((prev) => ({ ...prev, categorie: cat.key }))}
-                style={{
-                  ...styles.chip,
-                  background: cat.color,
-                  color: cat.key === 'maison' ? COLORS.ink : '#fff',
-                  outline: form.categorie === cat.key ? `2px solid ${COLORS.ink}` : 'none',
-                  outlineOffset: 2,
-                }}
+                style={{ ...styles.chip, background: cat.color, color: cat.key === 'maison' ? COLORS.ink : '#fff', outline: form.categorie === cat.key ? `2px solid ${COLORS.ink}` : 'none', outlineOffset: 2 }}
               >
                 {cat.label}
               </div>
@@ -84,7 +114,6 @@ export default function PublishPage({ user, onNavigate }) {
         </div>
 
         {error && <p style={styles.error}>{error}</p>}
-
         <button type="submit" disabled={saving} style={styles.submitBtn}>
           {saving ? 'Publication...' : "Publier l'annonce"}
         </button>
@@ -118,6 +147,9 @@ const styles = {
   fieldWrapper: { display: 'flex', flexDirection: 'column', gap: 6, flex: 1 },
   label: { fontSize: 12, fontWeight: 600, color: COLORS.indigoSoft },
   input: { background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '11px 12px', fontSize: 14, outline: 'none', fontFamily: FONT_BODY },
+  photoDrop: { display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: `1.5px dashed ${COLORS.border}`, borderRadius: 14, height: 140, cursor: 'pointer', overflow: 'hidden' },
+  photoPlaceholder: { fontSize: 13, color: COLORS.muted, fontWeight: 600 },
+  photoPreview: { width: '100%', height: '100%', objectFit: 'cover' },
   catRow: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 },
   chip: { padding: '8px 14px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: 'pointer' },
   error: { color: COLORS.terracotta, fontSize: 13, fontWeight: 600, margin: 0 },
