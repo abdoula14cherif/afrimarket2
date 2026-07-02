@@ -1,40 +1,107 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from './supabaseClient'
 import SignupPage from './pages/SignupPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import PublishPage from './pages/PublishPage.jsx'
-import { supabase } from './supabaseClient'
-import { useEffect } from 'react'
 
 export default function App() {
   const [page, setPage] = useState('signup')
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
+  const [checkingSession, setCheckingSession] = useState(true)
+
+  useEffect(() => {
+    async function restoreSession() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        setUser(session.user)
+        navigateTo('dashboard', { replace: true })
+      } else {
+        navigateTo('signup', { replace: true })
+      }
+      setCheckingSession(false)
+    }
+    restoreSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+    return () => listener.subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     async function loadProfile() {
-      if (!user?.id) return
+      if (!user?.id) { setProfile(null); return }
       const { data } = await supabase.from('profiles').select('numero').eq('id', user.id).single()
       setProfile(data)
     }
     loadProfile()
   }, [user])
 
+  function navigateTo(dest, { replace = false } = {}) {
+    setPage(dest)
+    if (replace) {
+      window.history.replaceState({ page: dest }, '', '')
+    } else {
+      window.history.pushState({ page: dest }, '', '')
+    }
+  }
+
+  useEffect(() => {
+    function handlePopState(event) {
+      const dest = event.state?.page || 'dashboard'
+      setPage(dest)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  if (checkingSession) {
+    return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Chargement...</div>
+  }
+
   if (page === 'signup') {
-    return <SignupPage onSuccess={(data) => { setUser(data.user); setPage('dashboard') }} goToLogin={() => setPage('login')} />
+    return (
+      <SignupPage
+        onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }}
+        goToLogin={() => navigateTo('login')}
+      />
+    )
   }
+
   if (page === 'login') {
-    return <LoginPage onSuccess={(data) => { setUser(data.user); setPage('dashboard') }} goToSignup={() => setPage('signup')} />
+    return (
+      <LoginPage
+        onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }}
+        goToSignup={() => navigateTo('signup')}
+      />
+    )
   }
+
   if (page === 'dashboard') {
-    return <DashboardPage user={user} onNavigate={(dest) => setPage(dest)} onLogout={() => { setUser(null); setPage('login') }} />
+    return (
+      <DashboardPage
+        user={user}
+        onNavigate={(dest) => navigateTo(dest)}
+        onLogout={() => { setUser(null); navigateTo('login') }}
+      />
+    )
   }
+
   if (page === 'profile') {
-    return <ProfilePage user={user} onNavigate={(dest) => setPage(dest)} onLogout={() => { setUser(null); setPage('login') }} />
+    return (
+      <ProfilePage
+        user={user}
+        onNavigate={(dest) => navigateTo(dest)}
+        onLogout={() => { setUser(null); navigateTo('login') }}
+      />
+    )
   }
+
   if (page === 'publish') {
-    return <PublishPage user={user} profile={profile} onNavigate={(dest) => setPage(dest)} />
+    return <PublishPage user={user} profile={profile} onNavigate={(dest) => navigateTo(dest)} />
   }
 
   return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Page "{page}" à venir</div>
