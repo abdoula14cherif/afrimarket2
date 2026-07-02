@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import SignupPage from './pages/SignupPage.jsx'
+import LoginPage from './pages/LoginPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -17,9 +18,21 @@ export default function App() {
     )
   }
 
-  if (page === 'home') {
-    return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Compte créé ✅ — bienvenue sur GainPay</div>
+  if (page === 'login') {
+    return (
+      <LoginPage
+        onSuccess={(data) => {
+          setUser(data.user)
+          setPage('home')
+        }}
+        goToSignup={() => setPage('signup')}
+      />
+    )
   }
 
-  return <div style={{ padding: 24 }}>Page de connexion à venir</div>
+  return (
+    <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>
+      Connecté ✅ — bienvenue sur GainPay, {user?.email}
+    </div>
+  )
 }
