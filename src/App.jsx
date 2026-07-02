@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import PublishPage from './pages/PublishPage.jsx'
+import ExplorePage from './pages/ExplorePage.jsx'
+import ContactsPage from './pages/ContactsPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -24,7 +26,6 @@ export default function App() {
       setCheckingSession(false)
     }
     restoreSession()
-
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
@@ -42,17 +43,13 @@ export default function App() {
 
   function navigateTo(dest, { replace = false } = {}) {
     setPage(dest)
-    if (replace) {
-      window.history.replaceState({ page: dest }, '', '')
-    } else {
-      window.history.pushState({ page: dest }, '', '')
-    }
+    if (replace) window.history.replaceState({ page: dest }, '', '')
+    else window.history.pushState({ page: dest }, '', '')
   }
 
   useEffect(() => {
     function handlePopState(event) {
-      const dest = event.state?.page || 'dashboard'
-      setPage(dest)
+      setPage(event.state?.page || 'dashboard')
     }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
@@ -63,45 +60,25 @@ export default function App() {
   }
 
   if (page === 'signup') {
-    return (
-      <SignupPage
-        onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }}
-        goToLogin={() => navigateTo('login')}
-      />
-    )
+    return <SignupPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToLogin={() => navigateTo('login')} />
   }
-
   if (page === 'login') {
-    return (
-      <LoginPage
-        onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }}
-        goToSignup={() => navigateTo('signup')}
-      />
-    )
+    return <LoginPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToSignup={() => navigateTo('signup')} />
   }
-
   if (page === 'dashboard') {
-    return (
-      <DashboardPage
-        user={user}
-        onNavigate={(dest) => navigateTo(dest)}
-        onLogout={() => { setUser(null); navigateTo('login') }}
-      />
-    )
+    return <DashboardPage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
   }
-
   if (page === 'profile') {
-    return (
-      <ProfilePage
-        user={user}
-        onNavigate={(dest) => navigateTo(dest)}
-        onLogout={() => { setUser(null); navigateTo('login') }}
-      />
-    )
+    return <ProfilePage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
   }
-
   if (page === 'publish') {
     return <PublishPage user={user} profile={profile} onNavigate={(dest) => navigateTo(dest)} />
+  }
+  if (page === 'explore') {
+    return <ExplorePage onNavigate={(dest) => navigateTo(dest)} />
+  }
+  if (page === 'contacts') {
+    return <ContactsPage user={user} onNavigate={(dest) => navigateTo(dest)} />
   }
 
   return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Page "{page}" à venir</div>
