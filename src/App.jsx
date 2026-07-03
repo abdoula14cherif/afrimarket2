@@ -14,6 +14,7 @@ import AnnonceDetailPage from './pages/AnnonceDetailPage.jsx'
 import LegalPage from './pages/LegalPage.jsx'
 import BoutiqueSettingsPage from './pages/BoutiqueSettingsPage.jsx'
 import BoutiquePage from './pages/BoutiquePage.jsx'
+import AdminPage from './pages/AdminPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -103,6 +104,8 @@ export default function App() {
   if (page === 'favoris') return <FavoritesPage user={user} onNavigate={handleNavigate} />
   if (page === 'verification') return <VerificationPage user={user} onNavigate={handleNavigate} />
   if (page === 'legal') return <LegalPage onNavigate={handleNavigate} />
+  if (page === 'admin') return <AdminPage user={user} onNavigate={handleNavigate} />
+
   if (page === 'boutique-settings') return <BoutiqueSettingsPage user={user} onNavigate={handleNavigate} />
   if (page === 'my-listings') {
     return (
