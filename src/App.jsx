@@ -11,6 +11,7 @@ import MyListingsPage from './pages/MyListingsPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import VerificationPage from './pages/VerificationPage.jsx'
 import AnnonceDetailPage from './pages/AnnonceDetailPage.jsx'
+import LegalPage from './pages/LegalPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -81,6 +82,8 @@ export default function App() {
   if (page === 'contacts') return <ContactsPage user={user} onNavigate={handleNavigate} />
   if (page === 'favoris') return <FavoritesPage user={user} onNavigate={handleNavigate} />
   if (page === 'verification') return <VerificationPage user={user} onNavigate={handleNavigate} />
+  if (page === 'legal') return <LegalPage onNavigate={handleNavigate} />
+
   if (page === 'annonce-detail') return <AnnonceDetailPage annonceId={selectedAnnonceId} user={user} onNavigate={handleNavigate} />
   if (page === 'my-listings') {
     return (

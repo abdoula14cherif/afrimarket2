@@ -92,6 +92,10 @@ export default function ProfilePage({ user, onNavigate, onLogout }) {
         </button>
       </form>
 
+      <div style={{ padding: '0 20px 12px', textAlign: 'center' }}>
+        <span style={{ fontSize: 12, color: '#8b8578', cursor: 'pointer' }} onClick={() => onNavigate?.('legal')}>CGU · Confidentialité · À propos</span>
+      </div>
+
       <div style={styles.logoutWrapper}>
         <span style={styles.logoutBtn} onClick={handleLogout}>Se déconnecter</span>
       </div>
