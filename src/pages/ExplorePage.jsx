@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
 import AvisModal from '../components/AvisModal.jsx'
+import SignalementModal from '../components/SignalementModal.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
 
 const CATEGORIES = [
@@ -22,6 +23,8 @@ export default function ExplorePage({ user, onNavigate }) {
   const [search, setSearch] = useState('')
   const [activeCat, setActiveCat] = useState('tout')
   const [ratingTarget, setRatingTarget] = useState(null)
+  const [reportTarget, setReportTarget] = useState(null)
+  const [menuOpenId, setMenuOpenId] = useState(null)
 
   useEffect(() => {
     loadAll()
@@ -120,6 +123,12 @@ export default function ExplorePage({ user, onNavigate }) {
               <div style={styles.cardImg}>
                 {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={styles.cardImgTag} /> : <span style={styles.cardImgFallback}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
                 <span style={styles.heart} onClick={() => toggleFavori(item.id)}>{isFav ? '❤️' : '🤍'}</span>
+                <span style={styles.menuDots} onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}>⋮</span>
+                {menuOpenId === item.id && (
+                  <div style={styles.dropdown}>
+                    <div style={styles.dropdownItem} onClick={() => { setReportTarget(item); setMenuOpenId(null) }}>🚩 Signaler</div>
+                  </div>
+                )}
               </div>
               <div style={styles.cardBody}>
                 <p style={styles.cardTitle}>{item.titre}</p>
@@ -133,14 +142,8 @@ export default function ExplorePage({ user, onNavigate }) {
         })}
       </div>
 
-      {ratingTarget && (
-        <AvisModal
-          annonce={ratingTarget}
-          user={user}
-          onClose={() => setRatingTarget(null)}
-          onSubmitted={loadAll}
-        />
-      )}
+      {ratingTarget && <AvisModal annonce={ratingTarget} user={user} onClose={() => setRatingTarget(null)} onSubmitted={loadAll} />}
+      {reportTarget && <SignalementModal annonce={reportTarget} user={user} onClose={() => setReportTarget(null)} />}
 
       <BottomNav active="explore" onNavigate={onNavigate} />
     </div>
@@ -162,6 +165,9 @@ const styles = {
   cardImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
   cardImgFallback: { fontSize: 34 },
   heart: { position: 'absolute', top: 8, right: 8, fontSize: 16, cursor: 'pointer', background: 'rgba(255,255,255,0.85)', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  menuDots: { position: 'absolute', top: 8, left: 8, fontSize: 16, fontWeight: 900, cursor: 'pointer', background: 'rgba(255,255,255,0.85)', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  dropdown: { position: 'absolute', top: 38, left: 8, background: '#fff', borderRadius: 10, boxShadow: '0 4px 14px rgba(0,0,0,0.15)', zIndex: 10, overflow: 'hidden' },
+  dropdownItem: { padding: '10px 14px', fontSize: 12, fontWeight: 600, color: COLORS.terracotta, whiteSpace: 'nowrap', cursor: 'pointer' },
   cardBody: { padding: '10px 12px 12px' },
   cardTitle: { fontSize: 13, fontWeight: 600, margin: '0 0 4px', lineHeight: 1.3, minHeight: 34 },
   cardLoc: { fontSize: 11, color: COLORS.muted, margin: '0 0 6px' },
