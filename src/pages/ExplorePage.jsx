@@ -3,7 +3,11 @@ import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
 import AvisModal from '../components/AvisModal.jsx'
 import SignalementModal from '../components/SignalementModal.jsx'
+import ErrorState from '../components/ErrorState.jsx'
+import { CardSkeletonGrid } from '../components/LoadingSkeleton.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
+
+const PAGE_SIZE = 12
 
 const CATEGORIES = [
   { key: 'tout', label: 'Tout', color: COLORS.indigo },
@@ -20,6 +24,10 @@ export default function ExplorePage({ user, onNavigate }) {
   const [favoris, setFavoris] = useState(new Set())
   const [avisMap, setAvisMap] = useState({})
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [activeCat, setActiveCat] = useState('tout')
   const [ratingTarget, setRatingTarget] = useState(null)
@@ -27,34 +35,64 @@ export default function ExplorePage({ user, onNavigate }) {
   const [menuOpenId, setMenuOpenId] = useState(null)
 
   useEffect(() => {
-    loadAll()
+    loadPage(0, true)
+  }, [activeCat, search])
+
+  useEffect(() => {
+    loadFavoris()
   }, [user])
 
-  async function loadAll() {
-    setLoading(true)
-    const { data: list } = await supabase
+  async function loadFavoris() {
+    if (!user?.id) return
+    const { data } = await supabase.from('favoris').select('annonce_id').eq('user_id', user.id)
+    setFavoris(new Set((data || []).map((f) => f.annonce_id)))
+  }
+
+  async function loadPage(offset, reset) {
+    if (reset) { setLoading(true); setError(false) } else { setLoadingMore(true) }
+
+    let query = supabase
       .from('annonces')
       .select('id, titre, description, prix, ville, photo_url, contact, categorie')
       .order('created_at', { ascending: false })
-    setAnnonces(list || [])
+      .range(offset, offset + PAGE_SIZE - 1)
 
-    if (list?.length) {
-      const ids = list.map((a) => a.id)
-      const { data: avisData } = await supabase.from('avis').select('annonce_id, note').in('annonce_id', ids)
-      const map = {}
-      ;(avisData || []).forEach((a) => {
-        if (!map[a.annonce_id]) map[a.annonce_id] = []
-        map[a.annonce_id].push(a.note)
-      })
-      setAvisMap(map)
+    if (activeCat !== 'tout') query = query.eq('categorie', activeCat)
+    if (search) query = query.or(`titre.ilike.%${search}%,ville.ilike.%${search}%`)
+
+    const { data, error: fetchError } = await query
+
+    if (fetchError) {
+      setError(true)
+      setLoading(false)
+      setLoadingMore(false)
+      return
     }
 
-    if (user?.id) {
-      const { data: favData } = await supabase.from('favoris').select('annonce_id').eq('user_id', user.id)
-      setFavoris(new Set((favData || []).map((f) => f.annonce_id)))
+    const list = data || []
+    setAnnonces((prev) => (reset ? list : [...prev, ...list]))
+    setHasMore(list.length === PAGE_SIZE)
+
+    const ids = list.map((a) => a.id)
+    if (ids.length) {
+      const { data: avisData } = await supabase.from('avis').select('annonce_id, note').in('annonce_id', ids)
+      setAvisMap((prev) => {
+        const next = { ...prev }
+        ;(avisData || []).forEach((a) => {
+          if (!next[a.annonce_id]) next[a.annonce_id] = []
+          next[a.annonce_id].push(a.note)
+        })
+        return next
+      })
     }
 
     setLoading(false)
+    setLoadingMore(false)
+  }
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault()
+    setSearch(searchInput)
   }
 
   const handleContact = async (item) => {
@@ -85,21 +123,14 @@ export default function ExplorePage({ user, onNavigate }) {
     return (notes.reduce((a, b) => a + b, 0) / notes.length).toFixed(1)
   }
 
-  const filtered = annonces.filter((a) => {
-    const matchCat = activeCat === 'tout' || a.categorie === activeCat
-    const q = search.toLowerCase()
-    const matchSearch = !q || a.titre?.toLowerCase().includes(q) || a.ville?.toLowerCase().includes(q)
-    return matchCat && matchSearch
-  })
-
   return (
     <div style={styles.page}>
       <div style={styles.header}>
         <div style={styles.brand}>Marketplace</div>
-        <div style={styles.searchBar}>
+        <form onSubmit={handleSearchSubmit} style={styles.searchBar}>
           <span>🔍</span>
-          <input type="text" placeholder="Chercher un produit, une ville..." value={search} onChange={(e) => setSearch(e.target.value)} style={styles.searchInput} />
-        </div>
+          <input type="text" placeholder="Chercher un produit, une ville..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} style={styles.searchInput} />
+        </form>
       </div>
 
       <div style={styles.catRow}>
@@ -111,38 +142,51 @@ export default function ExplorePage({ user, onNavigate }) {
         ))}
       </div>
 
-      {loading && <p style={styles.emptyText}>Chargement...</p>}
-      {!loading && filtered.length === 0 && <p style={styles.emptyText}>Aucune annonce ne correspond à ta recherche.</p>}
+      {loading && <CardSkeletonGrid count={6} />}
+      {!loading && error && <ErrorState message="Impossible de charger les annonces." onRetry={() => loadPage(0, true)} />}
+      {!loading && !error && annonces.length === 0 && <p style={styles.emptyText}>Aucune annonce ne correspond à ta recherche.</p>}
 
-      <div style={styles.grid}>
-        {filtered.map((item) => {
-          const note = avgNote(item.id)
-          const isFav = favoris.has(item.id)
-          return (
-            <div key={item.id} style={styles.card} onClick={(e) => { if (e.target.closest("[data-noclick]")) return; onNavigate("annonce-detail", item.id) }}>
-              <div style={styles.cardImg}>
-                {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={styles.cardImgTag} /> : <span style={styles.cardImgFallback}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
-                <span data-noclick="true" style={styles.heart} onClick={() => toggleFavori(item.id)}>{isFav ? '❤️' : '🤍'}</span>
-                <span data-noclick="true" style={styles.menuDots} onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}>⋮</span>
-                {menuOpenId === item.id && (
-                  <div style={styles.dropdown}>
-                    <div data-noclick="true" style={styles.dropdownItem} onClick={() => { setReportTarget(item); setMenuOpenId(null) }}>🚩 Signaler</div>
+      {!loading && !error && annonces.length > 0 && (
+        <>
+          <div style={styles.grid}>
+            {annonces.map((item) => {
+              const note = avgNote(item.id)
+              const isFav = favoris.has(item.id)
+              return (
+                <div key={item.id} style={styles.card} onClick={(e) => { if (e.target.closest('[data-noclick]')) return; onNavigate('annonce-detail', item.id) }}>
+                  <div style={styles.cardImg}>
+                    {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={styles.cardImgTag} /> : <span style={styles.cardImgFallback}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
+                    <span data-noclick="true" style={styles.heart} onClick={() => toggleFavori(item.id)}>{isFav ? '❤️' : '🤍'}</span>
+                    <span data-noclick="true" style={styles.menuDots} onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}>⋮</span>
+                    {menuOpenId === item.id && (
+                      <div style={styles.dropdown}>
+                        <div data-noclick="true" style={styles.dropdownItem} onClick={() => { setReportTarget(item); setMenuOpenId(null) }}>🚩 Signaler</div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div style={styles.cardBody}>
-                <p style={styles.cardTitle}>{item.titre}</p>
-                <p style={styles.cardLoc}>📍 {item.ville}{note && <span style={styles.noteBadge}> · ⭐ {note}</span>}</p>
-                <span style={styles.priceTag}>{item.prix?.toLocaleString('fr-FR')} F</span>
-                <button data-noclick="true" style={styles.contactBtn} onClick={() => handleContact(item)}>💬 Contacter</button>
-                {user && <span data-noclick="true" style={styles.rateLink} onClick={() => setRatingTarget(item)}>Laisser un avis</span>}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+                  <div style={styles.cardBody}>
+                    <p style={styles.cardTitle}>{item.titre}</p>
+                    <p style={styles.cardLoc}>📍 {item.ville}{note && <span style={styles.noteBadge}> · ⭐ {note}</span>}</p>
+                    <span style={styles.priceTag}>{item.prix?.toLocaleString('fr-FR')} F</span>
+                    <button data-noclick="true" style={styles.contactBtn} onClick={() => handleContact(item)}>💬 Contacter</button>
+                    {user && <span data-noclick="true" style={styles.rateLink} onClick={() => setRatingTarget(item)}>Laisser un avis</span>}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
 
-      {ratingTarget && <AvisModal annonce={ratingTarget} user={user} onClose={() => setRatingTarget(null)} onSubmitted={loadAll} />}
+          {hasMore && (
+            <div style={styles.loadMoreWrapper}>
+              <button style={styles.loadMoreBtn} onClick={() => loadPage(annonces.length, false)} disabled={loadingMore}>
+                {loadingMore ? 'Chargement...' : "Voir plus d'annonces"}
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {ratingTarget && <AvisModal annonce={ratingTarget} user={user} onClose={() => setRatingTarget(null)} onSubmitted={() => loadPage(0, true)} />}
       {reportTarget && <SignalementModal annonce={reportTarget} user={user} onClose={() => setReportTarget(null)} />}
 
       <BottomNav active="explore" onNavigate={onNavigate} />
@@ -155,12 +199,12 @@ const styles = {
   header: { background: COLORS.indigo, padding: '24px 20px 20px', borderRadius: '0 0 28px 28px', color: '#fff' },
   brand: { fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 20, marginBottom: 14 },
   searchBar: { background: '#fff', borderRadius: 14, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 },
-  searchInput: { border: 'none', outline: 'none', fontSize: 14, width: '100%', color: COLORS.ink, fontFamily: FONT_BODY },
+  searchInput: { border: 'none', outline: 'none', fontSize: 14, width: '100%', color: COLORS.ink, fontFamily: FONT_BODY, background: 'transparent' },
   catRow: { display: 'flex', gap: 8, padding: '16px 20px 4px', overflowX: 'auto' },
   chip: { flex: '0 0 auto', padding: '8px 14px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' },
   emptyText: { fontSize: 13, color: COLORS.muted, textAlign: 'center', padding: '30px 20px' },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, padding: '16px 20px' },
-  card: { background: COLORS.card, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 14px rgba(43,37,96,0.08)' },
+  card: { background: COLORS.card, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 14px rgba(43,37,96,0.08)', cursor: 'pointer' },
   cardImg: { height: 110, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
   cardImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
   cardImgFallback: { fontSize: 34 },
@@ -175,4 +219,6 @@ const styles = {
   priceTag: { fontFamily: 'monospace', fontWeight: 700, fontSize: 13.5, color: COLORS.indigo },
   contactBtn: { display: 'block', width: '100%', marginTop: 8, background: COLORS.marigold, color: COLORS.ink, border: 'none', fontWeight: 700, fontSize: 11.5, padding: '8px 0', borderRadius: 10, cursor: 'pointer' },
   rateLink: { display: 'block', textAlign: 'center', marginTop: 6, fontSize: 10.5, color: COLORS.indigoSoft, fontWeight: 600, cursor: 'pointer' },
+  loadMoreWrapper: { textAlign: 'center', padding: '0 20px 20px' },
+  loadMoreBtn: { background: COLORS.card, color: COLORS.indigo, border: `1.5px solid ${COLORS.indigo}`, borderRadius: 12, padding: '12px 24px', fontSize: 13, fontWeight: 700, cursor: 'pointer' },
 }
