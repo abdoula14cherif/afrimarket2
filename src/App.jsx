@@ -10,6 +10,7 @@ import ContactsPage from './pages/ContactsPage.jsx'
 import MyListingsPage from './pages/MyListingsPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import VerificationPage from './pages/VerificationPage.jsx'
+import AnnonceDetailPage from './pages/AnnonceDetailPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -17,15 +18,16 @@ export default function App() {
   const [profile, setProfile] = useState(null)
   const [checkingSession, setCheckingSession] = useState(true)
   const [editId, setEditId] = useState(null)
+  const [selectedAnnonceId, setSelectedAnnonceId] = useState(null)
 
   useEffect(() => {
     async function restoreSession() {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
         setUser(session.user)
-        navigateTo('dashboard', { replace: true })
+        navigateTo('dashboard', null, { replace: true })
       } else {
-        navigateTo('signup', { replace: true })
+        navigateTo('signup', null, { replace: true })
       }
       setCheckingSession(false)
     }
@@ -45,19 +47,26 @@ export default function App() {
     loadProfile()
   }, [user])
 
-  function navigateTo(dest, { replace = false } = {}) {
+  function navigateTo(dest, param = null, { replace = false } = {}) {
     setPage(dest)
-    if (replace) window.history.replaceState({ page: dest }, '', '')
-    else window.history.pushState({ page: dest }, '', '')
+    if (dest === 'annonce-detail') setSelectedAnnonceId(param)
+    if (replace) window.history.replaceState({ page: dest, param }, '', '')
+    else window.history.pushState({ page: dest, param }, '', '')
   }
 
   useEffect(() => {
     function handlePopState(event) {
-      setPage(event.state?.page || 'dashboard')
+      const dest = event.state?.page || 'dashboard'
+      setPage(dest)
+      if (dest === 'annonce-detail') setSelectedAnnonceId(event.state?.param || null)
     }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
+
+  function handleNavigate(dest, param) {
+    navigateTo(dest, param)
+  }
 
   if (checkingSession) {
     return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Chargement...</div>
@@ -65,20 +74,19 @@ export default function App() {
 
   if (page === 'signup') return <SignupPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToLogin={() => navigateTo('login')} />
   if (page === 'login') return <LoginPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToSignup={() => navigateTo('signup')} />
-  if (page === 'dashboard') return <DashboardPage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
-  if (page === 'profile') return <ProfilePage user={user} onNavigate={(dest) => navigateTo(dest)} onLogout={() => { setUser(null); navigateTo('login') }} />
+  if (page === 'dashboard') return <DashboardPage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
+  if (page === 'profile') return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
   if (page === 'publish') return <PublishPage user={user} profile={profile} editId={editId} onNavigate={(dest) => { setEditId(null); navigateTo(dest) }} />
-  if (page === 'explore') return <ExplorePage user={user} onNavigate={(dest) => navigateTo(dest)} />
-  if (page === 'contacts') return <ContactsPage user={user} onNavigate={(dest) => navigateTo(dest)} />
-  if (page === 'verification') return <VerificationPage user={user} onNavigate={(dest) => navigateTo(dest)} />
-
-  if (page === 'favoris') return <FavoritesPage user={user} onNavigate={(dest) => navigateTo(dest)} />
-
+  if (page === 'explore') return <ExplorePage user={user} onNavigate={handleNavigate} />
+  if (page === 'contacts') return <ContactsPage user={user} onNavigate={handleNavigate} />
+  if (page === 'favoris') return <FavoritesPage user={user} onNavigate={handleNavigate} />
+  if (page === 'verification') return <VerificationPage user={user} onNavigate={handleNavigate} />
+  if (page === 'annonce-detail') return <AnnonceDetailPage annonceId={selectedAnnonceId} user={user} onNavigate={handleNavigate} />
   if (page === 'my-listings') {
     return (
       <MyListingsPage
         user={user}
-        onNavigate={(dest) => navigateTo(dest)}
+        onNavigate={handleNavigate}
         onEdit={(id) => { setEditId(id); navigateTo('publish') }}
       />
     )

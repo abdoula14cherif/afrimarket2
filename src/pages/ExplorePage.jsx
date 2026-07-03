@@ -119,14 +119,14 @@ export default function ExplorePage({ user, onNavigate }) {
           const note = avgNote(item.id)
           const isFav = favoris.has(item.id)
           return (
-            <div key={item.id} style={styles.card}>
+            <div key={item.id} style={styles.card} onClick={(e) => { if (e.target.closest("[data-noclick]")) return; onNavigate("annonce-detail", item.id) }}>
               <div style={styles.cardImg}>
                 {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={styles.cardImgTag} /> : <span style={styles.cardImgFallback}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
-                <span style={styles.heart} onClick={() => toggleFavori(item.id)}>{isFav ? '❤️' : '🤍'}</span>
-                <span style={styles.menuDots} onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}>⋮</span>
+                <span data-noclick="true" style={styles.heart} onClick={() => toggleFavori(item.id)}>{isFav ? '❤️' : '🤍'}</span>
+                <span data-noclick="true" style={styles.menuDots} onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}>⋮</span>
                 {menuOpenId === item.id && (
                   <div style={styles.dropdown}>
-                    <div style={styles.dropdownItem} onClick={() => { setReportTarget(item); setMenuOpenId(null) }}>🚩 Signaler</div>
+                    <div data-noclick="true" style={styles.dropdownItem} onClick={() => { setReportTarget(item); setMenuOpenId(null) }}>🚩 Signaler</div>
                   </div>
                 )}
               </div>
@@ -134,8 +134,8 @@ export default function ExplorePage({ user, onNavigate }) {
                 <p style={styles.cardTitle}>{item.titre}</p>
                 <p style={styles.cardLoc}>📍 {item.ville}{note && <span style={styles.noteBadge}> · ⭐ {note}</span>}</p>
                 <span style={styles.priceTag}>{item.prix?.toLocaleString('fr-FR')} F</span>
-                <button style={styles.contactBtn} onClick={() => handleContact(item)}>💬 Contacter</button>
-                {user && <span style={styles.rateLink} onClick={() => setRatingTarget(item)}>Laisser un avis</span>}
+                <button data-noclick="true" style={styles.contactBtn} onClick={() => handleContact(item)}>💬 Contacter</button>
+                {user && <span data-noclick="true" style={styles.rateLink} onClick={() => setRatingTarget(item)}>Laisser un avis</span>}
               </div>
             </div>
           )
