@@ -12,6 +12,8 @@ import FavoritesPage from './pages/FavoritesPage.jsx'
 import VerificationPage from './pages/VerificationPage.jsx'
 import AnnonceDetailPage from './pages/AnnonceDetailPage.jsx'
 import LegalPage from './pages/LegalPage.jsx'
+import BoutiqueSettingsPage from './pages/BoutiqueSettingsPage.jsx'
+import BoutiquePage from './pages/BoutiquePage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -20,12 +22,22 @@ export default function App() {
   const [checkingSession, setCheckingSession] = useState(true)
   const [editId, setEditId] = useState(null)
   const [selectedAnnonceId, setSelectedAnnonceId] = useState(null)
+  const [selectedBoutiqueSlug, setSelectedBoutiqueSlug] = useState(null)
 
   useEffect(() => {
     async function restoreSession() {
       const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setUser(session.user)
+      if (session?.user) setUser(session.user)
+
+      const params = new URLSearchParams(window.location.search)
+      const annonceParam = params.get('annonce')
+      const boutiqueParam = params.get('boutique')
+
+      if (annonceParam) {
+        navigateTo('annonce-detail', annonceParam, { replace: true })
+      } else if (boutiqueParam) {
+        navigateTo('boutique', boutiqueParam, { replace: true })
+      } else if (session?.user) {
         navigateTo('dashboard', null, { replace: true })
       } else {
         navigateTo('signup', null, { replace: true })
@@ -51,6 +63,7 @@ export default function App() {
   function navigateTo(dest, param = null, { replace = false } = {}) {
     setPage(dest)
     if (dest === 'annonce-detail') setSelectedAnnonceId(param)
+    if (dest === 'boutique') setSelectedBoutiqueSlug(param)
     if (replace) window.history.replaceState({ page: dest, param }, '', '')
     else window.history.pushState({ page: dest, param }, '', '')
   }
@@ -60,6 +73,7 @@ export default function App() {
       const dest = event.state?.page || 'dashboard'
       setPage(dest)
       if (dest === 'annonce-detail') setSelectedAnnonceId(event.state?.param || null)
+      if (dest === 'boutique') setSelectedBoutiqueSlug(event.state?.param || null)
     }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
@@ -73,8 +87,14 @@ export default function App() {
     return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Chargement...</div>
   }
 
-  if (page === 'signup') return <SignupPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToLogin={() => navigateTo('login')} />
-  if (page === 'login') return <LoginPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToSignup={() => navigateTo('signup')} />
+  if (page === 'boutique') return <BoutiquePage slug={selectedBoutiqueSlug} onNavigate={handleNavigate} />
+  if (page === 'annonce-detail') return <AnnonceDetailPage annonceId={selectedAnnonceId} user={user} onNavigate={handleNavigate} />
+
+  if (!user) {
+    if (page === 'login') return <LoginPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToSignup={() => navigateTo('signup')} />
+    return <SignupPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToLogin={() => navigateTo('login')} />
+  }
+
   if (page === 'dashboard') return <DashboardPage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
   if (page === 'profile') return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
   if (page === 'publish') return <PublishPage user={user} profile={profile} editId={editId} onNavigate={(dest) => { setEditId(null); navigateTo(dest) }} />
@@ -83,8 +103,7 @@ export default function App() {
   if (page === 'favoris') return <FavoritesPage user={user} onNavigate={handleNavigate} />
   if (page === 'verification') return <VerificationPage user={user} onNavigate={handleNavigate} />
   if (page === 'legal') return <LegalPage onNavigate={handleNavigate} />
-
-  if (page === 'annonce-detail') return <AnnonceDetailPage annonceId={selectedAnnonceId} user={user} onNavigate={handleNavigate} />
+  if (page === 'boutique-settings') return <BoutiqueSettingsPage user={user} onNavigate={handleNavigate} />
   if (page === 'my-listings') {
     return (
       <MyListingsPage
@@ -95,5 +114,5 @@ export default function App() {
     )
   }
 
-  return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Page "{page}" à venir</div>
+  return <DashboardPage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
 }

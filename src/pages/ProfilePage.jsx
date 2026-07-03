@@ -71,6 +71,13 @@ export default function ProfilePage({ user, onNavigate, onLogout }) {
         </span>
       </div>
 
+      {verified && (
+        <div style={styles.verifyBanner} onClick={() => onNavigate?.('boutique-settings')}>
+          <span style={styles.verifyBannerText}>🏪 Personnaliser ma boutique</span>
+          <span style={styles.verifyBannerArrow}>→</span>
+        </div>
+      )}
+
       {!verified && (
         <div style={styles.verifyBanner} onClick={() => onNavigate?.('verification')}>
           <span style={styles.verifyBannerText}>🔒 Vérifier mon compte pour publier sans limite</span>
@@ -93,7 +100,9 @@ export default function ProfilePage({ user, onNavigate, onLogout }) {
       </form>
 
       <div style={{ padding: '0 20px 12px', textAlign: 'center' }}>
-        <span style={{ fontSize: 12, color: '#8b8578', cursor: 'pointer' }} onClick={() => onNavigate?.('legal')}>CGU · Confidentialité · À propos</span>
+        <span style={{ fontSize: 12, color: '#8b8578', cursor: 'pointer' }} onClick={() => onNavigate?.('legal')}>
+          CGU · Confidentialité · À propos
+        </span>
       </div>
 
       <div style={styles.logoutWrapper}>

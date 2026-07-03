@@ -14,3 +14,15 @@ export const COLORS = {
 
 export const FONT_BODY = 'Inter, sans-serif'
 export const FONT_DISPLAY = 'Fraunces, serif'
+
+export const BOUTIQUE_THEMES = {
+  indigo: { label: 'Royal', primary: '#2B2560', accent: '#F2A93B' },
+  sunset: { label: 'Coucher de soleil', primary: '#D2603A', accent: '#2B2560' },
+  foret: { label: 'Forêt', primary: '#2F8F82', accent: '#F2A93B' },
+  rose: { label: 'Rose poudré', primary: '#B23A55', accent: '#F1EDE4' },
+}
+
+export const BOUTIQUE_FONTS = {
+  classique: { label: 'Classique', display: 'Fraunces, serif', body: 'Inter, sans-serif' },
+  moderne: { label: 'Moderne', display: 'Poppins, sans-serif', body: 'Poppins, sans-serif' },
+}
