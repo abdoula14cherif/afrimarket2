@@ -71,6 +71,8 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
         <h2 style={styles.sectionTitle}>Commence ici</h2>
         <ActionCard icon="📢" title="Publier une annonce" subtitle="Produit ou service, en 2 minutes" onClick={() => onNavigate?.('publish')} />
         <ActionCard icon="📦" title="Mes annonces" subtitle="Voir, modifier ou supprimer" onClick={() => onNavigate?.('my-listings')} />
+        <ActionCard icon="❤️" title="Mes favoris" subtitle="Les annonces que tu as sauvegardées" onClick={() => onNavigate?.('favoris')} />
+        <ActionCard icon="🎁" title="Parrainage & Points" subtitle="Invite tes amis, gagne de l'argent" onClick={() => onNavigate?.('parrainage')} />
         <ActionCard icon="🔍" title="Explorer la marketplace" subtitle="Vois ce que les autres proposent" onClick={() => onNavigate?.('explore')} />
       </div>
 
@@ -82,7 +84,7 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
         {!loading && featured.length === 0 && <p style={styles.emptyText}>Aucune annonce pour l'instant — sois le premier à publier !</p>}
         <div style={styles.grid}>
           {featured.map((item) => (
-            <div key={item.id} style={styles.card}>
+            <div key={item.id} style={styles.card} onClick={() => onNavigate?.('annonce-detail', item.id)}>
               <div style={styles.cardImg}>
                 {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={styles.cardImgTag} /> : <span style={styles.cardImgFallback}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
               </div>
@@ -90,7 +92,7 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
                 <p style={styles.cardTitle}>{item.titre}</p>
                 <p style={styles.cardLoc}>📍 {item.ville}</p>
                 <span style={styles.priceTag}>{item.prix?.toLocaleString('fr-FR')} F</span>
-                <button style={styles.contactBtn} onClick={() => handleContact(item)}>💬 Contacter</button>
+                <button style={styles.contactBtn} onClick={(e) => { e.stopPropagation(); handleContact(item) }}>💬 Contacter</button>
               </div>
             </div>
           ))}
@@ -145,7 +147,7 @@ const styles = {
   actionTitle: { fontSize: 14, fontWeight: 700, color: COLORS.ink },
   actionSubtitle: { fontSize: 12, color: COLORS.muted, marginTop: 2 },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, paddingBottom: 10 },
-  card: { background: COLORS.card, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 14px rgba(43,37,96,0.08)' },
+  card: { background: COLORS.card, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 14px rgba(43,37,96,0.08)', cursor: 'pointer' },
   cardImg: { height: 100, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   cardImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
   cardImgFallback: { fontSize: 32 },
