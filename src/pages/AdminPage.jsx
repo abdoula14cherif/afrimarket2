@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
 
@@ -133,6 +133,7 @@ export default function AdminPage({ user, onNavigate }) {
         <Tab active={tab === 'verifications'} onClick={() => setTab('verifications')} label={`Vérifs (${verifications.length})`} />
         <Tab active={tab === 'signalements'} onClick={() => setTab('signalements')} label={`Signal. (${signalements.length})`} />
         <Tab active={tab === 'utilisateurs'} onClick={() => setTab('utilisateurs')} label={`Users (${users.length})`} />
+        <Tab active={tab === 'support'} onClick={() => setTab('support')} label="💬 Support" />
         <Tab active={tab === 'maintenance'} onClick={() => setTab('maintenance')} label="Maintenance" />
       </div>
 
@@ -197,6 +198,8 @@ export default function AdminPage({ user, onNavigate }) {
         </div>
       )}
 
+      {!loading && tab === 'support' && <AdminSupportTab users={users} />}
+
       {!loading && tab === 'maintenance' && (
         <div style={styles.list}>
           <div style={styles.card}>
@@ -222,6 +225,133 @@ export default function AdminPage({ user, onNavigate }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function AdminSupportTab({ users }) {
+  const [threads, setThreads] = useState([])
+  const [loadingThreads, setLoadingThreads] = useState(true)
+  const [selectedUserId, setSelectedUserId] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [loadingMessages, setLoadingMessages] = useState(false)
+  const [input, setInput] = useState('')
+  const [sending, setSending] = useState(false)
+  const bottomRef = useRef(null)
+
+  useEffect(() => {
+    loadThreads()
+  }, [])
+
+  useEffect(() => {
+    if (!selectedUserId) return
+    loadMessages(selectedUserId)
+
+    const channel = supabase
+      .channel(`admin-support-${selectedUserId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'support_messages', filter: `user_id=eq.${selectedUserId}` }, (payload) => {
+        setMessages((prev) => [...prev, payload.new])
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [selectedUserId])
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  async function loadThreads() {
+    setLoadingThreads(true)
+    const { data } = await supabase
+      .from('support_messages')
+      .select('user_id, message, sender, created_at')
+      .order('created_at', { ascending: false })
+
+    const byUser = {}
+    ;(data || []).forEach((m) => {
+      if (!byUser[m.user_id]) byUser[m.user_id] = m
+    })
+    const list = Object.entries(byUser).map(([userId, lastMsg]) => {
+      const profile = users.find((u) => u.id === userId)
+      return { userId, lastMsg, profile }
+    })
+    setThreads(list)
+    setLoadingThreads(false)
+  }
+
+  async function loadMessages(userId) {
+    setLoadingMessages(true)
+    const { data } = await supabase
+      .from('support_messages')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+    setMessages(data || [])
+    setLoadingMessages(false)
+  }
+
+  const handleSend = async () => {
+    if (!input.trim() || !selectedUserId) return
+    setSending(true)
+    const text = input.trim()
+    setInput('')
+    const { error } = await supabase.from('support_messages').insert({
+      user_id: selectedUserId,
+      sender: 'admin',
+      message: text,
+    })
+    setSending(false)
+    if (!error) {
+      setMessages((prev) => [...prev, { sender: 'admin', message: text, created_at: new Date().toISOString() }])
+    }
+  }
+
+  if (selectedUserId) {
+    const profile = users.find((u) => u.id === selectedUserId)
+    return (
+      <div style={styles.chatWrapper}>
+        <div style={styles.chatHeader}>
+          <span style={styles.backBtn} onClick={() => setSelectedUserId(null)}>← Retour aux conversations</span>
+          <p style={styles.cardTitle}>{profile?.prenom} {profile?.nom}</p>
+        </div>
+        <div style={styles.chatMessages}>
+          {loadingMessages && <p style={styles.emptyText}>Chargement...</p>}
+          {messages.map((m, i) => (
+            <div key={i} style={{ ...styles.bubbleRow, justifyContent: m.sender === 'admin' ? 'flex-end' : 'flex-start' }}>
+              <div style={{ ...styles.bubble, background: m.sender === 'admin' ? COLORS.indigo : '#fff', color: m.sender === 'admin' ? '#fff' : COLORS.ink }}>
+                {m.message}
+              </div>
+            </div>
+          ))}
+          <div ref={bottomRef} />
+        </div>
+        <div style={styles.chatInputRow}>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            placeholder="Répondre..."
+            style={styles.chatInput}
+          />
+          <button style={styles.sendBtn} onClick={handleSend} disabled={sending}>➤</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={styles.list}>
+      {loadingThreads && <p style={styles.emptyText}>Chargement...</p>}
+      {!loadingThreads && threads.length === 0 && <p style={styles.emptyText}>Aucun message pour l'instant.</p>}
+      {threads.map((t) => (
+        <div key={t.userId} style={styles.card} onClick={() => setSelectedUserId(t.userId)}>
+          <p style={styles.cardTitle}>{t.profile?.prenom || 'Utilisateur'} {t.profile?.nom || ''}</p>
+          <p style={styles.cardSub}>
+            {t.lastMsg.sender === 'admin' ? 'Toi: ' : ''}{t.lastMsg.message.slice(0, 50)}{t.lastMsg.message.length > 50 ? '...' : ''}
+          </p>
+        </div>
+      ))}
     </div>
   )
 }
@@ -253,13 +383,13 @@ const styles = {
   page: { minHeight: '100vh', background: COLORS.sand, fontFamily: FONT_BODY, paddingBottom: 40 },
   header: { background: COLORS.indigo, padding: '20px 20px 22px', color: '#fff' },
   brand: { fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 20, marginBottom: 6 },
-  backBtn: { fontSize: 12, color: '#E4E1F2', cursor: 'pointer', fontWeight: 600 },
+  backBtn: { fontSize: 12, color: COLORS.indigo, cursor: 'pointer', fontWeight: 600, display: 'block', marginBottom: 8 },
   tabs: { display: 'flex', gap: 6, padding: '16px 16px 0', overflowX: 'auto' },
   tab: { flex: '0 0 auto', textAlign: 'center', padding: '9px 12px', borderRadius: 10, fontSize: 11.5, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(43,37,96,0.08)', whiteSpace: 'nowrap' },
   emptyText: { fontSize: 13, color: COLORS.muted, textAlign: 'center', padding: '30px 20px' },
   list: { padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 },
   searchInput: { background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '11px 12px', fontSize: 13, outline: 'none', fontFamily: FONT_BODY, marginBottom: 4 },
-  card: { background: COLORS.card, borderRadius: 14, padding: '14px 16px', boxShadow: '0 4px 14px rgba(43,37,96,0.06)' },
+  card: { background: COLORS.card, borderRadius: 14, padding: '14px 16px', boxShadow: '0 4px 14px rgba(43,37,96,0.06)', cursor: 'pointer' },
   cardTitle: { fontSize: 14, fontWeight: 700, color: COLORS.ink, margin: '0 0 3px' },
   cardSub: { fontSize: 12, color: COLORS.muted, margin: '0 0 8px' },
   viewDocBtn: { display: 'inline-block', fontSize: 12, fontWeight: 700, color: COLORS.indigo, cursor: 'pointer', marginBottom: 10 },
@@ -271,4 +401,12 @@ const styles = {
   rejectBtn: { flex: 1, background: '#F1EDE4', color: COLORS.ink, border: 'none', borderRadius: 10, padding: '10px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' },
   approveBtn: { flex: 1, background: COLORS.teal, color: '#fff', border: 'none', borderRadius: 10, padding: '10px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' },
   deleteBtn: { flex: 1, background: COLORS.terracotta, color: '#fff', border: 'none', borderRadius: 10, padding: '10px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' },
+  chatWrapper: { display: 'flex', flexDirection: 'column', padding: '16px 20px', minHeight: '60vh' },
+  chatHeader: { marginBottom: 10 },
+  chatMessages: { flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 200, paddingBottom: 10 },
+  bubbleRow: { display: 'flex' },
+  bubble: { maxWidth: '75%', padding: '10px 14px', borderRadius: 14, fontSize: 13, lineHeight: 1.4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  chatInputRow: { display: 'flex', gap: 8, padding: '10px 0' },
+  chatInput: { flex: 1, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 20, padding: '11px 16px', fontSize: 13, outline: 'none', fontFamily: FONT_BODY },
+  sendBtn: { background: COLORS.indigo, color: '#fff', border: 'none', borderRadius: '50%', width: 42, height: 42, fontSize: 16, fontWeight: 700, cursor: 'pointer' },
 }
