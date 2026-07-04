@@ -16,6 +16,9 @@ import BoutiqueSettingsPage from './pages/BoutiqueSettingsPage.jsx'
 import BoutiquePage from './pages/BoutiquePage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import ParrainagePage from './pages/ParrainagePage.jsx'
+import MaintenancePage from './pages/MaintenancePage.jsx'
+
+const ADMIN_EMAIL = 'abdoula14cherif@gmail.com'
 
 export default function App() {
   const [page, setPage] = useState('signup')
@@ -25,11 +28,15 @@ export default function App() {
   const [editId, setEditId] = useState(null)
   const [selectedAnnonceId, setSelectedAnnonceId] = useState(null)
   const [selectedBoutiqueSlug, setSelectedBoutiqueSlug] = useState(null)
+  const [maintenance, setMaintenance] = useState({ mode: false, message: '' })
 
   useEffect(() => {
     async function restoreSession() {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) setUser(session.user)
+
+      const { data: config } = await supabase.from('site_config').select('*').eq('id', 1).single()
+      if (config) setMaintenance({ mode: config.maintenance_mode, message: config.maintenance_message })
 
       const params = new URLSearchParams(window.location.search)
       const annonceParam = params.get('annonce')
@@ -89,6 +96,10 @@ export default function App() {
     return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Chargement...</div>
   }
 
+  if (maintenance.mode && user?.email !== ADMIN_EMAIL) {
+    return <MaintenancePage message={maintenance.message} />
+  }
+
   if (page === 'boutique') return <BoutiquePage slug={selectedBoutiqueSlug} onNavigate={handleNavigate} />
   if (page === 'annonce-detail') return <AnnonceDetailPage annonceId={selectedAnnonceId} user={user} onNavigate={handleNavigate} />
 
@@ -105,11 +116,9 @@ export default function App() {
   if (page === 'favoris') return <FavoritesPage user={user} onNavigate={handleNavigate} />
   if (page === 'verification') return <VerificationPage user={user} onNavigate={handleNavigate} />
   if (page === 'legal') return <LegalPage onNavigate={handleNavigate} />
-  if (page === 'parrainage') return <ParrainagePage user={user} onNavigate={handleNavigate} />
-
-  if (page === 'admin') return <AdminPage user={user} onNavigate={handleNavigate} />
-
   if (page === 'boutique-settings') return <BoutiqueSettingsPage user={user} onNavigate={handleNavigate} />
+  if (page === 'admin') return <AdminPage user={user} onNavigate={handleNavigate} />
+  if (page === 'parrainage') return <ParrainagePage user={user} onNavigate={handleNavigate} />
   if (page === 'my-listings') {
     return (
       <MyListingsPage
