@@ -3,6 +3,7 @@ export const COLORS = {
   ink: '#211E1B',
   indigo: '#2B2560',
   indigoSoft: '#3E3679',
+  indigoDeep: '#181433',
   marigold: '#F2A93B',
   terracotta: '#D2603A',
   teal: '#2F8F82',
@@ -10,6 +11,18 @@ export const COLORS = {
   card: '#FFFFFF',
   border: '#E3DFD3',
   muted: '#8b8578',
+}
+
+export const GRADIENTS = {
+  hero: 'linear-gradient(135deg, #181433 0%, #2B2560 55%, #3E3679 100%)',
+  marigoldGlow: 'radial-gradient(circle at 30% 20%, rgba(242,169,59,0.35), transparent 60%)',
+  cardShine: 'linear-gradient(160deg, rgba(255,255,255,0.06), transparent 40%)',
+}
+
+export const SHADOWS = {
+  soft: '0 4px 14px rgba(43,37,96,0.08)',
+  lifted: '0 10px 30px rgba(24,20,51,0.25)',
+  button: '0 6px 16px rgba(242,169,59,0.35)',
 }
 
 export const FONT_BODY = 'Inter, sans-serif'
