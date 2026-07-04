@@ -17,8 +17,7 @@ export default function SignupPage({ onSuccess, goToLogin }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const handleChange = (field) => (e) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }))
+  const handleChange = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -31,29 +30,37 @@ export default function SignupPage({ onSuccess, goToLogin }) {
     const { data, error: signupError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-      options: {
-        data: {
-          nom: form.nom,
-          prenom: form.prenom,
-          entreprise: form.entreprise,
-          numero: form.numero,
-        },
-      },
+      options: { data: { nom: form.nom, prenom: form.prenom, entreprise: form.entreprise, numero: form.numero } },
     })
-    setLoading(false)
+
     if (signupError) {
+      setLoading(false)
       setError(signupError.message)
       return
     }
+
+    if (data?.user) {
+      try {
+        const params = new URLSearchParams(window.location.search)
+        const refCode = params.get('ref')
+        let ip = null
+        try {
+          const ipRes = await fetch('https://api.ipify.org?format=json')
+          const ipData = await ipRes.json()
+          ip = ipData.ip
+        } catch (_) { ip = null }
+        await supabase.rpc('apply_referral', { new_user_id: data.user.id, ref_code: refCode, user_ip: ip })
+      } catch (_) {}
+    }
+
+    setLoading(false)
     onSuccess?.(data)
   }
 
   return (
     <div style={styles.page}>
       <div style={styles.header}>
-        <div style={styles.brand}>
-          Gain<span style={{ color: COLORS.marigold }}>Pay</span>
-        </div>
+        <div style={styles.brand}>Gain<span style={{ color: COLORS.marigold }}>Pay</span></div>
         <p style={styles.subtitle}>Crée ton compte pour publier et trouver des clients.</p>
       </div>
 
@@ -72,9 +79,7 @@ export default function SignupPage({ onSuccess, goToLogin }) {
         </button>
         <p style={styles.loginLink}>
           Déjà un compte ?{' '}
-          <span style={{ color: COLORS.indigo, fontWeight: 700, cursor: 'pointer' }} onClick={goToLogin}>
-            Se connecter
-          </span>
+          <span style={{ color: COLORS.indigo, fontWeight: 700, cursor: 'pointer' }} onClick={goToLogin}>Se connecter</span>
         </p>
       </form>
     </div>
