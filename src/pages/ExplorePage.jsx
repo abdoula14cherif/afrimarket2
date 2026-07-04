@@ -97,7 +97,7 @@ export default function ExplorePage({ user, onNavigate }) {
 
   const handleContact = async (item) => {
     if (!item.contact) return
-    supabase.from('contacts_log').insert({ annonce_id: item.id })
+    await supabase.from('contacts_log').insert({ annonce_id: item.id })
     const digits = item.contact.replace(/[^\d]/g, '')
     window.open(`https://wa.me/${digits}`, '_blank')
   }
