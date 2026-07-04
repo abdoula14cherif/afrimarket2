@@ -52,7 +52,8 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
 
   const handleContact = async (item) => {
     if (!item.contact) return
-    supabase.from('contacts_log').insert({ annonce_id: item.id })
+    const { error: logError } = await supabase.from('contacts_log').insert({ annonce_id: item.id })
+    if (logError) alert('Erreur log contact: ' + logError.message)
     const digits = item.contact.replace(/[^\d]/g, '')
     window.open(`https://wa.me/${digits}`, '_blank')
   }
