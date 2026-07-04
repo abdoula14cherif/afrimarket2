@@ -11,6 +11,7 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
   const [annoncesCount, setAnnoncesCount] = useState(0)
   const [contactsCount, setContactsCount] = useState(0)
   const [featured, setFeatured] = useState([])
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -34,6 +35,11 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
         .limit(4)
       setFeatured(recent || [])
 
+      const seenKey = `gp_dash_welcome_${user.id}`
+      if (!localStorage.getItem(seenKey)) {
+        setShowWelcomeBanner(true)
+      }
+
       setLoading(false)
     }
     loadData()
@@ -51,6 +57,13 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
     window.open(`https://wa.me/${digits}`, '_blank')
   }
 
+  const dismissBanner = () => {
+    if (user?.id) localStorage.setItem(`gp_dash_welcome_${user.id}`, '1')
+    setShowWelcomeBanner(false)
+  }
+
+  const firstFeatured = featured[0]
+
   return (
     <div style={styles.page}>
       <div style={styles.header}>
@@ -62,6 +75,28 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
         <p style={styles.greeting}>{loading ? 'Chargement...' : `Salut ${profile?.prenom || ''} 👋`}</p>
         {profile?.entreprise && <p style={styles.entreprise}>{profile.entreprise}</p>}
       </div>
+
+      {showWelcomeBanner && firstFeatured && (
+        <div style={styles.welcomeBanner}>
+          <span style={styles.welcomeCloseBtn} onClick={dismissBanner}>✕</span>
+          <p style={styles.welcomeTitle}>👋 Bienvenue sur GainPay !</p>
+          <p style={styles.welcomeText}>Voici ce qui se vend en ce moment sur la marketplace :</p>
+          <div style={styles.welcomeCard} onClick={() => onNavigate?.('annonce-detail', firstFeatured.id)}>
+            <div style={styles.welcomeCardImg}>
+              {firstFeatured.photo_url ? (
+                <img src={firstFeatured.photo_url} alt={firstFeatured.titre} style={styles.welcomeCardImgTag} />
+              ) : (
+                <span style={styles.welcomeCardImgFallback}>{CATEGORY_EMOJI[firstFeatured.categorie] || '🛍️'}</span>
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={styles.welcomeCardTitle}>{firstFeatured.titre}</p>
+              <p style={styles.welcomeCardMeta}>📍 {firstFeatured.ville} · {firstFeatured.prix?.toLocaleString('fr-FR')} F</p>
+            </div>
+            <span style={styles.welcomeCardArrow}>→</span>
+          </div>
+        </div>
+      )}
 
       <div style={styles.stats}>
         <StatCard label="Annonces publiées" value={String(annoncesCount)} color={COLORS.indigo} onClick={() => onNavigate?.('my-listings')} delay={0} />
@@ -141,6 +176,28 @@ const styles = {
   logout: { fontSize: 12, color: 'rgba(255,255,255,0.75)', cursor: 'pointer', textDecoration: 'underline' },
   greeting: { fontFamily: FONT_DISPLAY, fontSize: 19, fontWeight: 600, marginTop: 18, marginBottom: 2, position: 'relative' },
   entreprise: { fontSize: 13, color: 'rgba(255,255,255,0.7)', margin: 0, position: 'relative' },
+  welcomeBanner: {
+    background: COLORS.card, margin: '16px 20px 0', borderRadius: 18, padding: '16px 18px 18px',
+    boxShadow: SHADOWS.lifted, position: 'relative', animation: 'gp-fade-up 0.4s ease both',
+  },
+  welcomeCloseBtn: {
+    position: 'absolute', top: 12, right: 14, fontSize: 13, fontWeight: 700, color: COLORS.muted, cursor: 'pointer',
+  },
+  welcomeTitle: { fontFamily: FONT_DISPLAY, fontSize: 15, fontWeight: 700, color: COLORS.ink, margin: '0 22px 4px 0' },
+  welcomeText: { fontSize: 12, color: COLORS.muted, margin: '0 0 12px' },
+  welcomeCard: {
+    display: 'flex', alignItems: 'center', gap: 12, background: COLORS.sand, borderRadius: 14,
+    padding: '10px 12px', cursor: 'pointer',
+  },
+  welcomeCardImg: {
+    width: 52, height: 52, borderRadius: 10, background: '#fff', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', overflow: 'hidden', flexShrink: 0,
+  },
+  welcomeCardImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
+  welcomeCardImgFallback: { fontSize: 24 },
+  welcomeCardTitle: { fontSize: 13, fontWeight: 700, color: COLORS.ink, margin: 0 },
+  welcomeCardMeta: { fontSize: 11, color: COLORS.muted, margin: '2px 0 0' },
+  welcomeCardArrow: { fontSize: 16, fontWeight: 700, color: COLORS.indigo },
   stats: { display: 'flex', gap: 12, padding: '18px 20px 0', marginTop: -14 },
   statCard: { flex: 1, background: COLORS.card, borderRadius: 16, padding: '15px 16px', boxShadow: SHADOWS.lifted },
   statValue: { fontFamily: FONT_DISPLAY, fontSize: 25, fontWeight: 700 },
