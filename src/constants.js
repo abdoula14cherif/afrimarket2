@@ -33,9 +33,22 @@ export const BOUTIQUE_THEMES = {
   sunset: { label: 'Coucher de soleil', primary: '#D2603A', accent: '#2B2560' },
   foret: { label: 'Forêt', primary: '#2F8F82', accent: '#F2A93B' },
   rose: { label: 'Rose poudré', primary: '#B23A55', accent: '#F1EDE4' },
+  ocean: { label: 'Océan', primary: '#1B4965', accent: '#F2A93B' },
+  noir: { label: 'Noir & or', primary: '#141414', accent: '#D4AF37' },
+  corail: { label: 'Corail', primary: '#E8635A', accent: '#2B2560' },
+  emeraude: { label: 'Émeraude', primary: '#0B6E4F', accent: '#F2A93B' },
 }
 
 export const BOUTIQUE_FONTS = {
   classique: { label: 'Classique', display: 'Fraunces, serif', body: 'Inter, sans-serif' },
   moderne: { label: 'Moderne', display: 'Poppins, sans-serif', body: 'Poppins, sans-serif' },
+  elegant: { label: 'Élégant', display: '"Playfair Display", serif', body: 'Manrope, sans-serif' },
+  tech: { label: 'Tech', display: '"Space Grotesk", sans-serif', body: '"Space Grotesk", sans-serif' },
+  editorial: { label: 'Éditorial', display: '"DM Serif Display", serif', body: '"DM Sans", sans-serif' },
+}
+
+export const BOUTIQUE_LAYOUTS = {
+  grid: { label: 'Grille', description: '2 colonnes compactes' },
+  liste: { label: 'Liste', description: 'Une colonne, plus de détails' },
+  vitrine: { label: 'Vitrine', description: 'Grandes photos en avant' },
 }

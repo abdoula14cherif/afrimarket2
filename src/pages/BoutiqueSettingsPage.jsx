@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
-import { COLORS, FONT_BODY, FONT_DISPLAY, BOUTIQUE_THEMES, BOUTIQUE_FONTS } from '../constants.js'
+import { COLORS, FONT_BODY, FONT_DISPLAY, BOUTIQUE_THEMES, BOUTIQUE_FONTS, BOUTIQUE_LAYOUTS } from '../constants.js'
 
 export default function BoutiqueSettingsPage({ user, onNavigate }) {
   const [loading, setLoading] = useState(true)
@@ -10,6 +10,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
   const [slug, setSlug] = useState('')
   const [theme, setTheme] = useState('indigo')
   const [font, setFont] = useState('classique')
+  const [layout, setLayout] = useState('grid')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
@@ -19,7 +20,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
       if (!user?.id) return
       const { data } = await supabase
         .from('profiles')
-        .select('verified, subscription_active, boutique_slug, boutique_theme, boutique_font')
+        .select('verified, subscription_active, boutique_slug, boutique_theme, boutique_font, boutique_layout')
         .eq('id', user.id)
         .single()
       if (data) {
@@ -28,6 +29,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
         setSlug(data.boutique_slug || '')
         setTheme(data.boutique_theme || 'indigo')
         setFont(data.boutique_font || 'classique')
+        setLayout(data.boutique_layout || 'grid')
       }
       setLoading(false)
     }
@@ -49,7 +51,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
     setSaving(true)
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ boutique_slug: slug, boutique_theme: theme, boutique_font: font })
+      .update({ boutique_slug: slug, boutique_theme: theme, boutique_font: font, boutique_layout: layout })
       .eq('id', user.id)
     setSaving(false)
     if (updateError) {
@@ -90,10 +92,18 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
 
       <div style={styles.content}>
         <span style={styles.label}>Lien de ta boutique</span>
-        <div style={styles.slugRow}>
-          <span style={styles.slugPrefix}>gainpaye.vercel.app/boutique/</span>
-        </div>
+        <span style={styles.slugPrefix}>gainpaye.vercel.app/boutique/</span>
         <input value={slug} onChange={handleSlugChange} placeholder="ma-boutique" style={styles.input} />
+
+        <span style={styles.label}>Structure de la page</span>
+        <div style={styles.layoutRow}>
+          {Object.entries(BOUTIQUE_LAYOUTS).map(([key, l]) => (
+            <div key={key} onClick={() => setLayout(key)} style={{ ...styles.layoutCard, outline: layout === key ? `2px solid ${COLORS.ink}` : 'none' }}>
+              <p style={styles.layoutLabel}>{l.label}</p>
+              <p style={styles.layoutDesc}>{l.description}</p>
+            </div>
+          ))}
+        </div>
 
         <span style={styles.label}>Thème de couleur</span>
         <div style={styles.themeGrid}>
@@ -107,7 +117,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
         </div>
 
         <span style={styles.label}>Police</span>
-        <div style={styles.fontRow}>
+        <div style={styles.fontGrid}>
           {Object.entries(BOUTIQUE_FONTS).map(([key, f]) => (
             <div key={key} onClick={() => setFont(key)} style={{ ...styles.fontChip, outline: font === key ? `2px solid ${COLORS.ink}` : 'none', fontFamily: f.display }}>
               {f.label}
@@ -134,7 +144,9 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
           {saving ? 'Enregistrement...' : 'Enregistrer ma boutique'}
         </button>
 
-        {slug && <span style={styles.viewLink} onClick={() => onNavigate?.('boutique', slug)}>Voir ma boutique publique →</span>}
+        {slug && (
+          <span style={styles.viewLink} onClick={() => onNavigate?.('boutique', slug)}>Voir ma boutique publique →</span>
+        )}
       </div>
 
       <BottomNav active="profile" onNavigate={onNavigate} />
@@ -149,15 +161,18 @@ const styles = {
   brand: { fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 19 },
   content: { padding: '20px' },
   label: { fontSize: 12, fontWeight: 700, color: COLORS.indigoSoft, display: 'block', marginTop: 18, marginBottom: 8 },
-  slugRow: { marginBottom: 4 },
-  slugPrefix: { fontSize: 11, color: COLORS.muted },
+  slugPrefix: { fontSize: 11, color: COLORS.muted, display: 'block', marginBottom: 4 },
   input: { width: '100%', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '11px 12px', fontSize: 14, outline: 'none', fontFamily: FONT_BODY, boxSizing: 'border-box' },
+  layoutRow: { display: 'flex', gap: 8 },
+  layoutCard: { flex: 1, background: '#fff', borderRadius: 12, padding: '12px 10px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  layoutLabel: { fontSize: 12.5, fontWeight: 700, color: COLORS.ink, margin: '0 0 2px' },
+  layoutDesc: { fontSize: 10, color: COLORS.muted, margin: 0 },
   themeGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
   themeSwatch: { borderRadius: 12, overflow: 'hidden', cursor: 'pointer', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   swatchHalf: { height: 28 },
   themeLabel: { display: 'block', fontSize: 11, fontWeight: 700, padding: '6px 10px', color: COLORS.ink },
-  fontRow: { display: 'flex', gap: 8 },
-  fontChip: { flex: 1, textAlign: 'center', background: '#fff', borderRadius: 10, padding: '12px 0', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  fontGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 },
+  fontChip: { textAlign: 'center', background: '#fff', borderRadius: 10, padding: '12px 0', fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   preview: { marginTop: 20, borderRadius: 16, padding: '24px 20px', textAlign: 'center' },
   previewTitle: { fontSize: 20, fontWeight: 900, margin: '0 0 10px' },
   previewBadge: { fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 12 },

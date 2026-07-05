@@ -11,17 +11,29 @@ export default function BoutiquePage({ slug, onNavigate }) {
   const [annonces, setAnnonces] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [slideIndex, setSlideIndex] = useState(0)
 
   useEffect(() => {
     loadBoutique()
   }, [slug])
 
+  const photosForCarousel = annonces.filter((a) => a.photo_url).slice(0, 6)
+
+  useEffect(() => {
+    if (photosForCarousel.length < 2) return
+    const interval = setInterval(() => {
+      setSlideIndex((i) => (i + 1) % photosForCarousel.length)
+    }, 3200)
+    return () => clearInterval(interval)
+  }, [photosForCarousel.length])
+
   async function loadBoutique() {
     setLoading(true)
     setError(false)
+
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('id, prenom, nom, entreprise, verified, subscription_active, boutique_theme, boutique_font')
+      .select('id, prenom, nom, entreprise, verified, subscription_active, boutique_theme, boutique_font, boutique_layout')
       .eq('boutique_slug', slug)
       .single()
 
@@ -34,10 +46,11 @@ export default function BoutiquePage({ slug, onNavigate }) {
 
     const { data: list } = await supabase
       .from('annonces')
-      .select('id, titre, prix, ville, photo_url, contact, categorie')
+      .select('id, titre, description, prix, ville, photo_url, contact, categorie')
       .eq('user_id', profileData.id)
       .order('created_at', { ascending: false })
     setAnnonces(list || [])
+
     setLoading(false)
   }
 
@@ -58,40 +71,112 @@ export default function BoutiquePage({ slug, onNavigate }) {
 
   const theme = BOUTIQUE_THEMES[seller.boutique_theme] || BOUTIQUE_THEMES.indigo
   const font = BOUTIQUE_FONTS[seller.boutique_font] || BOUTIQUE_FONTS.classique
+  const layout = seller.boutique_layout || 'grid'
   const displayName = seller.entreprise || `${seller.prenom} ${seller.nom}`
+  const accentTextColor = theme.accent === '#F1EDE4' ? COLORS.ink : '#fff'
 
   return (
     <div style={{ minHeight: '100vh', background: COLORS.sand, fontFamily: font.body, paddingBottom: 40 }}>
-      <div style={{ background: theme.primary, padding: '36px 20px 30px', borderRadius: '0 0 28px 28px', textAlign: 'center', color: '#fff' }}>
-        <div style={{ width: 64, height: 64, borderRadius: '50%', background: theme.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontFamily: font.display, fontWeight: 900, fontSize: 26, color: theme.accent === '#F1EDE4' ? COLORS.ink : '#fff' }}>
-          {displayName[0]?.toUpperCase()}
+      <div style={{ position: 'relative', height: 230, overflow: 'hidden', background: theme.primary }}>
+        {photosForCarousel.length > 0 ? (
+          photosForCarousel.map((item, i) => (
+            <img
+              key={item.id}
+              src={item.photo_url}
+              alt={item.titre}
+              style={{
+                position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                opacity: i === slideIndex ? 1 : 0, transition: 'opacity 0.8s ease',
+              }}
+            />
+          ))
+        ) : null}
+
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)' }} />
+
+        {photosForCarousel.length > 1 && (
+          <div style={{ position: 'absolute', top: 12, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 }}>
+            {photosForCarousel.map((_, i) => (
+              <div key={i} style={{ width: i === slideIndex ? 16 : 6, height: 6, borderRadius: 3, background: i === slideIndex ? theme.accent : 'rgba(255,255,255,0.5)', transition: 'width 0.3s ease' }} />
+            ))}
+          </div>
+        )}
+
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 20px', textAlign: 'center' }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: theme.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px', fontFamily: font.display, fontWeight: 900, fontSize: 22, color: accentTextColor, boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}>
+            {displayName[0]?.toUpperCase()}
+          </div>
+          <p style={{ fontFamily: font.display, fontWeight: 900, fontSize: 21, margin: '0 0 4px', color: '#fff' }}>{displayName}</p>
+          {seller.verified && <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontWeight: 700, color: '#fff' }}>✅ Vendeur vérifié</span>}
         </div>
-        <p style={{ fontFamily: font.display, fontWeight: 900, fontSize: 22, margin: '0 0 4px' }}>{displayName}</p>
-        {seller.verified && <span style={{ fontSize: 12, background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontWeight: 700 }}>✅ Vendeur vérifié</span>}
       </div>
 
       <div style={{ padding: '20px' }}>
         <p style={{ fontFamily: font.display, fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: COLORS.ink }}>
           {annonces.length} annonce{annonces.length > 1 ? 's' : ''}
         </p>
+
         {annonces.length === 0 && <p style={{ fontSize: 13, color: COLORS.muted, textAlign: 'center', padding: '20px 0' }}>Pas encore d'annonce publiée.</p>}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          {annonces.map((item) => (
-            <div key={item.id} style={{ background: COLORS.card, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,0.08)', cursor: 'pointer' }} onClick={(e) => { if (e.target.closest('[data-noclick]')) return; onNavigate('annonce-detail', item.id) }}>
-              <div style={{ height: 100, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 30 }}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
+
+        {layout === 'grid' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            {annonces.map((item) => (
+              <div key={item.id} style={{ background: COLORS.card, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,0.08)', cursor: 'pointer' }} onClick={(e) => { if (e.target.closest('[data-noclick]')) return; onNavigate('annonce-detail', item.id) }}>
+                <div style={{ height: 100, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 30 }}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
+                </div>
+                <div style={{ padding: '10px 12px 12px' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, margin: '0 0 4px', color: COLORS.ink }}>{item.titre}</p>
+                  <p style={{ fontSize: 11, color: COLORS.muted, margin: '0 0 6px' }}>📍 {item.ville}</p>
+                  <p style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: theme.primary, margin: '0 0 8px' }}>{item.prix?.toLocaleString('fr-FR')} F</p>
+                  <button data-noclick="true" onClick={() => handleContact(item)} style={{ width: '100%', background: theme.accent, color: accentTextColor, border: 'none', fontWeight: 700, fontSize: 11.5, padding: '8px 0', borderRadius: 10, cursor: 'pointer' }}>
+                    💬 Contacter
+                  </button>
+                </div>
               </div>
-              <div style={{ padding: '10px 12px 12px' }}>
-                <p style={{ fontSize: 13, fontWeight: 600, margin: '0 0 4px', color: COLORS.ink }}>{item.titre}</p>
-                <p style={{ fontSize: 11, color: COLORS.muted, margin: '0 0 6px' }}>📍 {item.ville}</p>
-                <p style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: theme.primary, margin: '0 0 8px' }}>{item.prix?.toLocaleString('fr-FR')} F</p>
-                <button data-noclick="true" onClick={() => handleContact(item)} style={{ width: '100%', background: theme.accent, color: theme.accent === '#F1EDE4' ? COLORS.ink : '#fff', border: 'none', fontWeight: 700, fontSize: 11.5, padding: '8px 0', borderRadius: 10, cursor: 'pointer' }}>
-                  💬 Contacter
-                </button>
+            ))}
+          </div>
+        )}
+
+        {layout === 'liste' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {annonces.map((item) => (
+              <div key={item.id} style={{ display: 'flex', gap: 12, background: COLORS.card, borderRadius: 16, padding: 10, boxShadow: '0 4px 14px rgba(0,0,0,0.06)', cursor: 'pointer' }} onClick={(e) => { if (e.target.closest('[data-noclick]')) return; onNavigate('annonce-detail', item.id) }}>
+                <div style={{ width: 76, height: 76, borderRadius: 12, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                  {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 26 }}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 3px', color: COLORS.ink }}>{item.titre}</p>
+                  {item.description && <p style={{ fontSize: 11.5, color: COLORS.muted, margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description}</p>}
+                  <p style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: theme.primary, margin: '0 0 6px' }}>{item.prix?.toLocaleString('fr-FR')} F · 📍 {item.ville}</p>
+                  <button data-noclick="true" onClick={() => handleContact(item)} style={{ background: theme.accent, color: accentTextColor, border: 'none', fontWeight: 700, fontSize: 11, padding: '7px 16px', borderRadius: 10, cursor: 'pointer' }}>
+                    💬 Contacter
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {layout === 'vitrine' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {annonces.map((item) => (
+              <div key={item.id} style={{ background: COLORS.card, borderRadius: 20, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', cursor: 'pointer' }} onClick={(e) => { if (e.target.closest('[data-noclick]')) return; onNavigate('annonce-detail', item.id) }}>
+                <div style={{ height: 190, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 44 }}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
+                </div>
+                <div style={{ padding: '14px 16px 16px' }}>
+                  <p style={{ fontFamily: font.display, fontSize: 16, fontWeight: 700, margin: '0 0 4px', color: COLORS.ink }}>{item.titre}</p>
+                  <p style={{ fontSize: 12, color: COLORS.muted, margin: '0 0 8px' }}>📍 {item.ville}</p>
+                  <p style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 16, color: theme.primary, margin: '0 0 12px' }}>{item.prix?.toLocaleString('fr-FR')} F</p>
+                  <button data-noclick="true" onClick={() => handleContact(item)} style={{ width: '100%', background: theme.accent, color: accentTextColor, border: 'none', fontWeight: 700, fontSize: 13, padding: '12px 0', borderRadius: 12, cursor: 'pointer' }}>
+                    💬 Contacter
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {!seller.subscription_active && (
           <p style={{ textAlign: 'center', fontSize: 11, color: COLORS.muted, marginTop: 24 }}>
