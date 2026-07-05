@@ -5,6 +5,15 @@ import { COLORS, FONT_BODY, FONT_DISPLAY, GRADIENTS, SHADOWS } from '../constant
 
 const CATEGORY_EMOJI = { telephones: '📱', services: '🔧', mode: '👗', maison: '🏠', autres: '🛍️' }
 
+const SHORTCUTS = [
+  { icon: '📢', label: 'Publier', dest: 'publish' },
+  { icon: '📦', label: 'Mes annonces', dest: 'my-listings' },
+  { icon: '❤️', label: 'Favoris', dest: 'favoris' },
+  { icon: '🎁', label: 'Parrainage', dest: 'parrainage' },
+  { icon: '🎟️', label: 'Codes promo', dest: 'promo-codes' },
+  { icon: '🔍', label: 'Explorer', dest: 'explore' },
+]
+
 export default function DashboardPage({ user, onNavigate, onLogout }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -22,11 +31,17 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
       const { count } = await supabase.from('annonces').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
       setAnnoncesCount(count || 0)
 
-      const { count: contactCount } = await supabase
-        .from('contacts_log')
-        .select('id, annonces!inner(user_id)', { count: 'exact', head: true })
-        .eq('annonces.user_id', user.id)
-      setContactsCount(contactCount || 0)
+      const { data: myAnnonces } = await supabase.from('annonces').select('id').eq('user_id', user.id)
+      const myAnnonceIds = (myAnnonces || []).map((a) => a.id)
+      if (myAnnonceIds.length > 0) {
+        const { count: contactCount } = await supabase
+          .from('contacts_log')
+          .select('id', { count: 'exact', head: true })
+          .in('annonce_id', myAnnonceIds)
+        setContactsCount(contactCount || 0)
+      } else {
+        setContactsCount(0)
+      }
 
       const { data: recent } = await supabase
         .from('annonces')
@@ -103,13 +118,13 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
         <StatCard label="Contacts reçus" value={String(contactsCount)} color={COLORS.terracotta} delay={60} />
       </div>
 
-      <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>Commence ici</h2>
-        <ActionCard icon="📢" title="Publier une annonce" subtitle="Produit ou service, en 2 minutes" onClick={() => onNavigate?.('publish')} delay={0} />
-        <ActionCard icon="📦" title="Mes annonces" subtitle="Voir, modifier ou supprimer" onClick={() => onNavigate?.('my-listings')} delay={40} />
-        <ActionCard icon="❤️" title="Mes favoris" subtitle="Les annonces que tu as sauvegardées" onClick={() => onNavigate?.('favoris')} delay={80} />
-        <ActionCard icon="🎁" title="Parrainage & Points" subtitle="Invite tes amis, gagne de l'argent" onClick={() => onNavigate?.('parrainage')} delay={120} />
-        <ActionCard icon="🔍" title="Explorer la marketplace" subtitle="Vois ce que les autres proposent" onClick={() => onNavigate?.('explore')} delay={160} />
+      <div style={styles.shortcutsRow}>
+        {SHORTCUTS.map((s, i) => (
+          <div key={s.dest} style={{ ...styles.shortcutItem, animation: `gp-fade-up 0.4s ease ${i * 40}ms both` }} onClick={() => onNavigate?.(s.dest)}>
+            <div style={styles.shortcutIcon}>{s.icon}</div>
+            <span style={styles.shortcutLabel}>{s.label}</span>
+          </div>
+        ))}
       </div>
 
       <div style={styles.section}>
@@ -154,19 +169,6 @@ function StatCard({ label, value, color, onClick, delay }) {
   )
 }
 
-function ActionCard({ icon, title, subtitle, onClick, delay }) {
-  return (
-    <div style={{ ...styles.actionCard, animation: `gp-fade-up 0.45s ease ${delay}ms both` }} onClick={onClick}>
-      <span style={styles.actionIcon}>{icon}</span>
-      <div>
-        <div style={styles.actionTitle}>{title}</div>
-        <div style={styles.actionSubtitle}>{subtitle}</div>
-      </div>
-      <span style={styles.actionArrow}>→</span>
-    </div>
-  )
-}
-
 const styles = {
   page: { minHeight: '100vh', background: COLORS.sand, fontFamily: FONT_BODY, paddingBottom: 90 },
   header: { background: GRADIENTS.hero, padding: '30px 20px 36px', borderRadius: '0 0 32px 32px', color: '#fff', position: 'relative', overflow: 'hidden', boxShadow: SHADOWS.lifted },
@@ -180,19 +182,11 @@ const styles = {
     background: COLORS.card, margin: '16px 20px 0', borderRadius: 18, padding: '16px 18px 18px',
     boxShadow: SHADOWS.lifted, position: 'relative', animation: 'gp-fade-up 0.4s ease both',
   },
-  welcomeCloseBtn: {
-    position: 'absolute', top: 12, right: 14, fontSize: 13, fontWeight: 700, color: COLORS.muted, cursor: 'pointer',
-  },
+  welcomeCloseBtn: { position: 'absolute', top: 12, right: 14, fontSize: 13, fontWeight: 700, color: COLORS.muted, cursor: 'pointer' },
   welcomeTitle: { fontFamily: FONT_DISPLAY, fontSize: 15, fontWeight: 700, color: COLORS.ink, margin: '0 22px 4px 0' },
   welcomeText: { fontSize: 12, color: COLORS.muted, margin: '0 0 12px' },
-  welcomeCard: {
-    display: 'flex', alignItems: 'center', gap: 12, background: COLORS.sand, borderRadius: 14,
-    padding: '10px 12px', cursor: 'pointer',
-  },
-  welcomeCardImg: {
-    width: 52, height: 52, borderRadius: 10, background: '#fff', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', overflow: 'hidden', flexShrink: 0,
-  },
+  welcomeCard: { display: 'flex', alignItems: 'center', gap: 12, background: COLORS.sand, borderRadius: 14, padding: '10px 12px', cursor: 'pointer' },
+  welcomeCardImg: { width: 52, height: 52, borderRadius: 10, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
   welcomeCardImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
   welcomeCardImgFallback: { fontSize: 24 },
   welcomeCardTitle: { fontSize: 13, fontWeight: 700, color: COLORS.ink, margin: 0 },
@@ -202,16 +196,15 @@ const styles = {
   statCard: { flex: 1, background: COLORS.card, borderRadius: 16, padding: '15px 16px', boxShadow: SHADOWS.lifted },
   statValue: { fontFamily: FONT_DISPLAY, fontSize: 25, fontWeight: 700 },
   statLabel: { fontSize: 11, color: COLORS.muted, marginTop: 2 },
-  section: { padding: '24px 20px 4px' },
+  shortcutsRow: { display: 'flex', gap: 14, padding: '20px 20px 6px', overflowX: 'auto' },
+  shortcutItem: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flex: '0 0 auto', cursor: 'pointer', width: 66 },
+  shortcutIcon: { width: 54, height: 54, borderRadius: 16, background: COLORS.card, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, boxShadow: SHADOWS.soft },
+  shortcutLabel: { fontSize: 10.5, fontWeight: 600, color: COLORS.ink, textAlign: 'center', lineHeight: 1.2 },
+  section: { padding: '20px 20px 4px' },
   sectionHeadRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' },
   sectionTitle: { fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 700, margin: '0 0 14px', color: COLORS.ink },
   seeAll: { fontSize: 12, fontWeight: 600, color: COLORS.indigoSoft, cursor: 'pointer' },
   emptyText: { fontSize: 13, color: COLORS.muted, textAlign: 'center', padding: '20px 0' },
-  actionCard: { display: 'flex', alignItems: 'center', gap: 14, background: COLORS.card, borderRadius: 16, padding: '15px 16px', marginBottom: 12, boxShadow: SHADOWS.soft, cursor: 'pointer' },
-  actionIcon: { fontSize: 26 },
-  actionTitle: { fontSize: 14, fontWeight: 700, color: COLORS.ink },
-  actionSubtitle: { fontSize: 12, color: COLORS.muted, marginTop: 2 },
-  actionArrow: { marginLeft: 'auto', color: COLORS.border, fontSize: 16, fontWeight: 700 },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, paddingBottom: 10 },
   card: { background: COLORS.card, borderRadius: 18, overflow: 'hidden', boxShadow: SHADOWS.soft, cursor: 'pointer' },
   cardImg: { height: 105, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
