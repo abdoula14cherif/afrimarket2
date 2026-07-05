@@ -11,10 +11,11 @@ const CATEGORIES = [
   { key: 'autres', label: 'Autres', color: '#6C6396' },
 ]
 
+const MAX_PHOTOS = 4
+
 export default function PublishPage({ user, profile, editId, onNavigate }) {
   const [form, setForm] = useState({ titre: '', description: '', prix: '', ville: '', categorie: '', contact: profile?.numero || '' })
-  const [photoFile, setPhotoFile] = useState(null)
-  const [photoPreview, setPhotoPreview] = useState(null)
+  const [photoSlots, setPhotoSlots] = useState([])
   const [saving, setSaving] = useState(false)
   const [loadingExisting, setLoadingExisting] = useState(!!editId)
   const [error, setError] = useState(null)
@@ -30,7 +31,8 @@ export default function PublishPage({ user, profile, editId, onNavigate }) {
           titre: data.titre, description: data.description || '', prix: String(data.prix),
           ville: data.ville, categorie: data.categorie, contact: data.contact || '',
         })
-        if (data.photo_url) setPhotoPreview(data.photo_url)
+        const existingPhotos = data.photos && data.photos.length > 0 ? data.photos : (data.photo_url ? [data.photo_url] : [])
+        setPhotoSlots(existingPhotos.map((url) => ({ file: null, preview: url, existingUrl: url })))
       }
       setLoadingExisting(false)
     }
@@ -51,11 +53,16 @@ export default function PublishPage({ user, profile, editId, onNavigate }) {
 
   const handleChange = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setPhotoFile(file)
-    setPhotoPreview(URL.createObjectURL(file))
+  const handleAddPhoto = (e) => {
+    const files = Array.from(e.target.files || [])
+    const remaining = MAX_PHOTOS - photoSlots.length
+    const toAdd = files.slice(0, remaining).map((file) => ({ file, preview: URL.createObjectURL(file), existingUrl: null }))
+    setPhotoSlots((prev) => [...prev, ...toAdd])
+    e.target.value = ''
+  }
+
+  const handleRemovePhoto = (index) => {
+    setPhotoSlots((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (e) => {
@@ -67,25 +74,29 @@ export default function PublishPage({ user, profile, editId, onNavigate }) {
     }
     setSaving(true)
 
-    let photoUrl = editId ? undefined : null
-    if (photoFile) {
-      const fileExt = photoFile.name.split('.').pop()
-      const filePath = `${user.id}/${Date.now()}.${fileExt}`
-      const { error: uploadError } = await supabase.storage.from('annonces-photos').upload(filePath, photoFile)
+    const finalUrls = []
+    for (const slot of photoSlots) {
+      if (slot.existingUrl) {
+        finalUrls.push(slot.existingUrl)
+        continue
+      }
+      const fileExt = slot.file.name.split('.').pop()
+      const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
+      const { error: uploadError } = await supabase.storage.from('annonces-photos').upload(filePath, slot.file)
       if (uploadError) {
         setSaving(false)
-        setError("Erreur lors de l'envoi de la photo : " + uploadError.message)
+        setError("Erreur lors de l'envoi d'une photo : " + uploadError.message)
         return
       }
       const { data: publicUrlData } = supabase.storage.from('annonces-photos').getPublicUrl(filePath)
-      photoUrl = publicUrlData.publicUrl
+      finalUrls.push(publicUrlData.publicUrl)
     }
 
     const payload = {
       titre: form.titre, description: form.description, prix: Number(form.prix),
       categorie: form.categorie, ville: form.ville, contact: form.contact,
+      photos: finalUrls, photo_url: finalUrls[0] || null,
     }
-    if (photoUrl !== undefined) payload.photo_url = photoUrl
 
     let submitError
     if (editId) {
@@ -136,13 +147,24 @@ export default function PublishPage({ user, profile, editId, onNavigate }) {
       </div>
 
       <form style={styles.form} onSubmit={handleSubmit}>
-        <label style={styles.fieldWrapper}>
-          <span style={styles.label}>Photo</span>
-          <label style={styles.photoDrop}>
-            {photoPreview ? <img src={photoPreview} alt="Aperçu" style={styles.photoPreview} /> : <span style={styles.photoPlaceholder}>📷 Ajouter une photo</span>}
-            <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
-          </label>
-        </label>
+        <div>
+          <span style={styles.label}>Photos ({photoSlots.length}/{MAX_PHOTOS})</span>
+          <div style={styles.photoGrid}>
+            {photoSlots.map((slot, i) => (
+              <div key={i} style={styles.photoThumbWrapper}>
+                <img src={slot.preview} alt={`Photo ${i + 1}`} style={styles.photoThumb} />
+                <span style={styles.removePhotoBtn} onClick={() => handleRemovePhoto(i)}>✕</span>
+                {i === 0 && <span style={styles.mainPhotoTag}>Principale</span>}
+              </div>
+            ))}
+            {photoSlots.length < MAX_PHOTOS && (
+              <label style={styles.addPhotoSlot}>
+                <span style={styles.addPhotoIcon}>+</span>
+                <input type="file" accept="image/*" multiple onChange={handleAddPhoto} style={{ display: 'none' }} />
+              </label>
+            )}
+          </div>
+        </div>
 
         <Field label="Titre" value={form.titre} onChange={handleChange('titre')} placeholder="Ex: iPhone 11 64Go, bon état" />
         <Field label="Description" value={form.description} onChange={handleChange('description')} placeholder="Détaille ton produit ou service" textarea />
@@ -192,11 +214,15 @@ const styles = {
   form: { padding: '22px 20px', display: 'flex', flexDirection: 'column', gap: 14 },
   row: { display: 'flex', gap: 12 },
   fieldWrapper: { display: 'flex', flexDirection: 'column', gap: 6, flex: 1 },
-  label: { fontSize: 12, fontWeight: 600, color: COLORS.indigoSoft },
+  label: { fontSize: 12, fontWeight: 600, color: COLORS.indigoSoft, display: 'block', marginBottom: 8 },
   input: { background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '11px 12px', fontSize: 14, outline: 'none', fontFamily: FONT_BODY },
-  photoDrop: { display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: `1.5px dashed ${COLORS.border}`, borderRadius: 14, height: 140, cursor: 'pointer', overflow: 'hidden' },
-  photoPlaceholder: { fontSize: 13, color: COLORS.muted, fontWeight: 600 },
-  photoPreview: { width: '100%', height: '100%', objectFit: 'cover' },
+  photoGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 },
+  photoThumbWrapper: { position: 'relative', aspectRatio: '1', borderRadius: 12, overflow: 'hidden' },
+  photoThumb: { width: '100%', height: '100%', objectFit: 'cover' },
+  removePhotoBtn: { position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', width: 20, height: 20, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, cursor: 'pointer' },
+  mainPhotoTag: { position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 8, fontWeight: 700, padding: '2px 6px', borderRadius: 6 },
+  addPhotoSlot: { aspectRatio: '1', borderRadius: 12, border: `1.5px dashed ${COLORS.border}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
+  addPhotoIcon: { fontSize: 22, color: COLORS.muted, fontWeight: 300 },
   catRow: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 },
   chip: { padding: '8px 14px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: 'pointer' },
   error: { color: COLORS.terracotta, fontSize: 13, fontWeight: 600, margin: 0 },

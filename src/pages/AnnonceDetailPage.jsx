@@ -12,11 +12,13 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
   const [annonce, setAnnonce] = useState(null)
   const [seller, setSeller] = useState(null)
   const [avis, setAvis] = useState([])
+  const [similaires, setSimilaires] = useState([])
   const [isFav, setIsFav] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [showRating, setShowRating] = useState(false)
   const [showReport, setShowReport] = useState(false)
+  const [activePhoto, setActivePhoto] = useState(0)
 
   useEffect(() => {
     loadDetail()
@@ -25,6 +27,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
   async function loadDetail() {
     setLoading(true)
     setError(false)
+    setActivePhoto(0)
 
     const { data: item, error: itemError } = await supabase
       .from('annonces')
@@ -53,6 +56,15 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
       .order('created_at', { ascending: false })
     setAvis(avisData || [])
 
+    const { data: similarData } = await supabase
+      .from('annonces')
+      .select('id, titre, prix, ville, photo_url, categorie')
+      .eq('categorie', item.categorie)
+      .neq('id', annonceId)
+      .order('created_at', { ascending: false })
+      .limit(6)
+    setSimilaires(similarData || [])
+
     if (user?.id) {
       const { data: fav } = await supabase.from('favoris').select('user_id').eq('user_id', user.id).eq('annonce_id', annonceId).maybeSingle()
       setIsFav(!!fav)
@@ -61,9 +73,9 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
     setLoading(false)
   }
 
-  const handleContact = () => {
+  const handleContact = async () => {
     if (!annonce?.contact) return
-    supabase.from('contacts_log').insert({ annonce_id: annonce.id })
+    await supabase.from('contacts_log').insert({ annonce_id: annonce.id })
     const digits = annonce.contact.replace(/[^\d]/g, '')
     window.open(`https://wa.me/${digits}`, '_blank')
   }
@@ -102,6 +114,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
     )
   }
 
+  const photos = annonce.photos && annonce.photos.length > 0 ? annonce.photos : (annonce.photo_url ? [annonce.photo_url] : [])
   const avgNote = avis.length ? (avis.reduce((a, b) => a + b.note, 0) / avis.length).toFixed(1) : null
 
   return (
@@ -115,11 +128,32 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
         </div>
       </div>
 
-      <div style={styles.imgWrapper}>
-        {annonce.photo_url ? (
-          <img src={annonce.photo_url} alt={annonce.titre} style={styles.img} />
+      <div style={styles.galleryWrapper}>
+        {photos.length > 0 ? (
+          <>
+            <div
+              style={styles.gallery}
+              onScroll={(e) => {
+                const idx = Math.round(e.target.scrollLeft / e.target.clientWidth)
+                setActivePhoto(idx)
+              }}
+            >
+              {photos.map((url, i) => (
+                <img key={i} src={url} alt={`${annonce.titre} ${i + 1}`} style={styles.galleryImg} />
+              ))}
+            </div>
+            {photos.length > 1 && (
+              <div style={styles.dots}>
+                {photos.map((_, i) => (
+                  <div key={i} style={{ ...styles.dot, background: i === activePhoto ? COLORS.marigold : 'rgba(255,255,255,0.6)' }} />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
-          <span style={styles.imgFallback}>{CATEGORY_EMOJI[annonce.categorie] || '🛍️'}</span>
+          <div style={styles.imgFallbackWrapper}>
+            <span style={styles.imgFallback}>{CATEGORY_EMOJI[annonce.categorie] || '🛍️'}</span>
+          </div>
         )}
       </div>
 
@@ -160,6 +194,23 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
             </div>
           ))}
         </div>
+
+        {similaires.length > 0 && (
+          <div style={styles.section}>
+            <p style={styles.sectionTitle}>Produits similaires</p>
+            <div style={styles.similairesRow}>
+              {similaires.map((item) => (
+                <div key={item.id} style={styles.similaireCard} onClick={() => onNavigate?.('annonce-detail', item.id)}>
+                  <div style={styles.similaireImg}>
+                    {item.photo_url ? <img src={item.photo_url} alt={item.titre} style={styles.similaireImgTag} /> : <span style={{ fontSize: 24 }}>{CATEGORY_EMOJI[item.categorie] || '🛍️'}</span>}
+                  </div>
+                  <p style={styles.similaireTitle}>{item.titre}</p>
+                  <p style={styles.similairePrice}>{item.prix?.toLocaleString('fr-FR')} F</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {showRating && <AvisModal annonce={annonce} user={user} onClose={() => setShowRating(false)} onSubmitted={loadDetail} />}
@@ -176,9 +227,13 @@ const styles = {
   backBtn: { fontSize: 13, fontWeight: 700, color: COLORS.indigo, cursor: 'pointer' },
   topActions: { display: 'flex', gap: 14, fontSize: 18 },
   topIcon: { cursor: 'pointer' },
-  imgWrapper: { height: 260, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  img: { width: '100%', height: '100%', objectFit: 'cover' },
+  galleryWrapper: { position: 'relative', background: '#fff' },
+  gallery: { display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', height: 260 },
+  galleryImg: { flex: '0 0 100%', width: '100%', height: '100%', objectFit: 'cover', scrollSnapAlign: 'start' },
+  imgFallbackWrapper: { height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   imgFallback: { fontSize: 60 },
+  dots: { position: 'absolute', bottom: 10, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
   content: { padding: '20px' },
   title: { fontFamily: FONT_DISPLAY, fontSize: 19, fontWeight: 700, margin: '0 0 6px', color: COLORS.ink },
   price: { fontFamily: 'monospace', fontSize: 20, fontWeight: 700, color: COLORS.indigo, margin: '0 0 6px' },
@@ -199,4 +254,10 @@ const styles = {
   avisStars: { fontSize: 12, margin: '0 0 4px' },
   avisComment: { fontSize: 12.5, color: COLORS.ink, margin: '0 0 4px' },
   avisAuteur: { fontSize: 11, color: COLORS.muted, margin: 0 },
+  similairesRow: { display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 },
+  similaireCard: { flex: '0 0 auto', width: 120, cursor: 'pointer' },
+  similaireImg: { width: 120, height: 90, borderRadius: 12, background: COLORS.card, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 6, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  similaireImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
+  similaireTitle: { fontSize: 11.5, fontWeight: 600, color: COLORS.ink, margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  similairePrice: { fontFamily: 'monospace', fontSize: 11.5, fontWeight: 700, color: COLORS.indigo, margin: 0 },
 }
