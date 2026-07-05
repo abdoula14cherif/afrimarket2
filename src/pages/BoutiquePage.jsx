@@ -12,6 +12,9 @@ export default function BoutiquePage({ slug, onNavigate }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
+  const [promoInput, setPromoInput] = useState('')
+  const [promoResult, setPromoResult] = useState(null)
+  const [checkingPromo, setCheckingPromo] = useState(false)
 
   useEffect(() => {
     loadBoutique()
@@ -61,6 +64,32 @@ export default function BoutiquePage({ slug, onNavigate }) {
     window.open(`https://wa.me/${digits}`, '_blank')
   }
 
+  const handleShare = async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      navigator.share({ title: seller.entreprise || 'Boutique GainPay', url })
+    } else {
+      navigator.clipboard.writeText(url)
+      alert('Lien de la boutique copié !')
+    }
+  }
+
+  const handleCheckPromo = async () => {
+    if (!promoInput.trim()) return
+    setCheckingPromo(true)
+    setPromoResult(null)
+    const { data, error: rpcError } = await supabase.rpc('use_promo_code', {
+      p_user_id: seller.id,
+      p_code: promoInput.trim(),
+    })
+    setCheckingPromo(false)
+    if (rpcError || !data?.[0]) {
+      setPromoResult({ valid: false, message: 'Erreur, réessaie.' })
+      return
+    }
+    setPromoResult(data[0])
+  }
+
   if (loading) {
     return <div style={{ minHeight: '100vh', background: COLORS.sand }}><CardSkeletonGrid count={4} /></div>
   }
@@ -78,24 +107,24 @@ export default function BoutiquePage({ slug, onNavigate }) {
   return (
     <div style={{ minHeight: '100vh', background: COLORS.sand, fontFamily: font.body, paddingBottom: 40 }}>
       <div style={{ position: 'relative', height: 230, overflow: 'hidden', background: theme.primary }}>
-        {photosForCarousel.length > 0 ? (
-          photosForCarousel.map((item, i) => (
-            <img
-              key={item.id}
-              src={item.photo_url}
-              alt={item.titre}
-              style={{
-                position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-                opacity: i === slideIndex ? 1 : 0, transition: 'opacity 0.8s ease',
-              }}
-            />
-          ))
-        ) : null}
+        {photosForCarousel.map((item, i) => (
+          <img
+            key={item.id}
+            src={item.photo_url}
+            alt={item.titre}
+            style={{
+              position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+              opacity: i === slideIndex ? 1 : 0, transition: 'opacity 0.8s ease',
+            }}
+          />
+        ))}
 
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)' }} />
 
+        <span onClick={handleShare} style={{ position: 'absolute', top: 14, right: 14, fontSize: 16, background: 'rgba(255,255,255,0.25)', borderRadius: '50%', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>📤</span>
+
         {photosForCarousel.length > 1 && (
-          <div style={{ position: 'absolute', top: 12, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 }}>
+          <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 }}>
             {photosForCarousel.map((_, i) => (
               <div key={i} style={{ width: i === slideIndex ? 16 : 6, height: 6, borderRadius: 3, background: i === slideIndex ? theme.accent : 'rgba(255,255,255,0.5)', transition: 'width 0.3s ease' }} />
             ))}
@@ -112,6 +141,28 @@ export default function BoutiquePage({ slug, onNavigate }) {
       </div>
 
       <div style={{ padding: '20px' }}>
+        <div style={{ background: COLORS.card, borderRadius: 14, padding: '12px 14px', marginBottom: 18, boxShadow: '0 4px 14px rgba(0,0,0,0.06)' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: COLORS.ink, margin: '0 0 8px' }}>🎟️ Un code promo ?</p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              value={promoInput}
+              onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+              placeholder="CODE"
+              style={{ flex: 1, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', textTransform: 'uppercase' }}
+            />
+            <button onClick={handleCheckPromo} disabled={checkingPromo} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '9px 16px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>
+              {checkingPromo ? '...' : 'Vérifier'}
+            </button>
+          </div>
+          {promoResult && (
+            <p style={{ fontSize: 12, fontWeight: 700, marginTop: 8, color: promoResult.valid ? COLORS.teal : COLORS.terracotta }}>
+              {promoResult.valid
+                ? `✅ ${promoResult.type === 'pourcentage' ? promoResult.valeur + '% de réduction' : promoResult.valeur.toLocaleString('fr-FR') + ' F CFA de réduction'} — montre ce code au vendeur`
+                : `❌ ${promoResult.message}`}
+            </p>
+          )}
+        </div>
+
         <p style={{ fontFamily: font.display, fontSize: 15, fontWeight: 700, margin: '0 0 12px', color: COLORS.ink }}>
           {annonces.length} annonce{annonces.length > 1 ? 's' : ''}
         </p>
@@ -180,7 +231,10 @@ export default function BoutiquePage({ slug, onNavigate }) {
 
         {!seller.subscription_active && (
           <p style={{ textAlign: 'center', fontSize: 11, color: COLORS.muted, marginTop: 24 }}>
-            Propulsé par <span style={{ fontWeight: 700, color: theme.primary }}>GainPay</span>
+            Propulsé par{' '}
+            <a href="/" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: theme.primary, textDecoration: 'none' }}>
+              GainPay
+            </a>
           </p>
         )}
       </div>
