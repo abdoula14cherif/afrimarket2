@@ -11,7 +11,10 @@ export default function ContactsPage({ user, onNavigate }) {
   const [loadingChat, setLoadingChat] = useState(true)
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [recording, setRecording] = useState(false)
   const bottomRef = useRef(null)
+  const mediaRecorderRef = useRef(null)
+  const chunksRef = useRef([])
 
   useEffect(() => {
     loadLogs()
@@ -72,6 +75,52 @@ export default function ContactsPage({ user, onNavigate }) {
     }
   }
 
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const recorder = new MediaRecorder(stream)
+      chunksRef.current = []
+      recorder.ondataavailable = (e) => chunksRef.current.push(e.data)
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop())
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        await uploadAndSendAudio(blob)
+      }
+      recorder.start()
+      mediaRecorderRef.current = recorder
+      setRecording(true)
+    } catch (err) {
+      alert("Impossible d'accéder au micro. Vérifie les permissions.")
+    }
+  }
+
+  const handleStopRecording = () => {
+    mediaRecorderRef.current?.stop()
+    setRecording(false)
+  }
+
+  const uploadAndSendAudio = async (blob) => {
+    setSending(true)
+    const filePath = `${user.id}/${Date.now()}.webm`
+    const { error: uploadError } = await supabase.storage.from('support-audio').upload(filePath, blob)
+    if (uploadError) {
+      setSending(false)
+      alert("Erreur lors de l'envoi du vocal.")
+      return
+    }
+    const { data: publicUrlData } = supabase.storage.from('support-audio').getPublicUrl(filePath)
+    const { error } = await supabase.from('support_messages').insert({
+      user_id: user.id,
+      sender: 'user',
+      message: '🎤 Message vocal',
+      audio_url: publicUrlData.publicUrl,
+    })
+    setSending(false)
+    if (!error) {
+      setMessages((prev) => [...prev, { sender: 'user', message: '🎤 Message vocal', audio_url: publicUrlData.publicUrl, created_at: new Date().toISOString() }])
+    }
+  }
+
   return (
     <div style={styles.page}>
       <div style={styles.header}>
@@ -111,7 +160,7 @@ export default function ContactsPage({ user, onNavigate }) {
       {tab === 'support' && (
         <div style={styles.chatWrapper}>
           <div style={styles.chatIntro}>
-            <p style={styles.chatIntroText}>Une question, un problème ? Écris-nous, on te répond dès que possible.</p>
+            <p style={styles.chatIntroText}>Une question, un problème ? Écris-nous ou envoie un vocal, on te répond dès que possible.</p>
           </div>
           <div style={styles.chatMessages}>
             {loadingChat && <p style={styles.emptyText}>Chargement...</p>}
@@ -119,7 +168,11 @@ export default function ContactsPage({ user, onNavigate }) {
             {messages.map((m, i) => (
               <div key={i} style={{ ...styles.bubbleRow, justifyContent: m.sender === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{ ...styles.bubble, background: m.sender === 'user' ? COLORS.marigold : '#fff', color: COLORS.ink }}>
-                  {m.message}
+                  {m.audio_url ? (
+                    <audio controls src={m.audio_url} style={styles.audioPlayer} />
+                  ) : (
+                    m.message
+                  )}
                 </div>
               </div>
             ))}
@@ -132,8 +185,16 @@ export default function ContactsPage({ user, onNavigate }) {
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Écris ton message..."
               style={styles.chatInput}
+              disabled={recording}
             />
-            <button style={styles.sendBtn} onClick={handleSend} disabled={sending}>➤</button>
+            {!recording ? (
+              <>
+                <button style={styles.micBtn} onClick={handleStartRecording}>🎤</button>
+                <button style={styles.sendBtn} onClick={handleSend} disabled={sending}>➤</button>
+              </>
+            ) : (
+              <button style={styles.recordingBtn} onClick={handleStopRecording}>⏹ Envoyer le vocal</button>
+            )}
           </div>
         </div>
       )}
@@ -162,8 +223,11 @@ const styles = {
   chatIntroText: { fontSize: 12, color: COLORS.muted, margin: 0 },
   chatMessages: { flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 200, paddingBottom: 10 },
   bubbleRow: { display: 'flex' },
-  bubble: { maxWidth: '75%', padding: '10px 14px', borderRadius: 14, fontSize: 13, lineHeight: 1.4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  bubble: { maxWidth: '78%', padding: '10px 14px', borderRadius: 14, fontSize: 13, lineHeight: 1.4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  audioPlayer: { height: 34, maxWidth: 220 },
   chatInputRow: { display: 'flex', gap: 8, padding: '10px 0 16px' },
   chatInput: { flex: 1, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 20, padding: '11px 16px', fontSize: 13, outline: 'none', fontFamily: FONT_BODY },
+  micBtn: { background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: '50%', width: 42, height: 42, fontSize: 16, cursor: 'pointer' },
   sendBtn: { background: COLORS.marigold, color: COLORS.ink, border: 'none', borderRadius: '50%', width: 42, height: 42, fontSize: 16, fontWeight: 700, cursor: 'pointer' },
+  recordingBtn: { flex: 1, background: COLORS.terracotta, color: '#fff', border: 'none', borderRadius: 20, padding: '11px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', animation: 'gp-pulse 1s ease-in-out infinite' },
 }
