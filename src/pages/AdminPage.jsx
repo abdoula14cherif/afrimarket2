@@ -237,7 +237,10 @@ function AdminSupportTab({ users }) {
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [recording, setRecording] = useState(false)
   const bottomRef = useRef(null)
+  const mediaRecorderRef = useRef(null)
+  const chunksRef = useRef([])
 
   useEffect(() => {
     loadThreads()
@@ -307,6 +310,53 @@ function AdminSupportTab({ users }) {
     }
   }
 
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const recorder = new MediaRecorder(stream)
+      chunksRef.current = []
+      recorder.ondataavailable = (e) => chunksRef.current.push(e.data)
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop())
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        await uploadAndSendAudio(blob)
+      }
+      recorder.start()
+      mediaRecorderRef.current = recorder
+      setRecording(true)
+    } catch (err) {
+      alert("Impossible d'accéder au micro. Vérifie les permissions.")
+    }
+  }
+
+  const handleStopRecording = () => {
+    mediaRecorderRef.current?.stop()
+    setRecording(false)
+  }
+
+  const uploadAndSendAudio = async (blob) => {
+    if (!selectedUserId) return
+    setSending(true)
+    const filePath = `admin/${Date.now()}.webm`
+    const { error: uploadError } = await supabase.storage.from('support-audio').upload(filePath, blob)
+    if (uploadError) {
+      setSending(false)
+      alert("Erreur lors de l'envoi du vocal.")
+      return
+    }
+    const { data: publicUrlData } = supabase.storage.from('support-audio').getPublicUrl(filePath)
+    const { error } = await supabase.from('support_messages').insert({
+      user_id: selectedUserId,
+      sender: 'admin',
+      message: '🎤 Message vocal',
+      audio_url: publicUrlData.publicUrl,
+    })
+    setSending(false)
+    if (!error) {
+      setMessages((prev) => [...prev, { sender: 'admin', message: '🎤 Message vocal', audio_url: publicUrlData.publicUrl, created_at: new Date().toISOString() }])
+    }
+  }
+
   if (selectedUserId) {
     const profile = users.find((u) => u.id === selectedUserId)
     return (
@@ -320,7 +370,7 @@ function AdminSupportTab({ users }) {
           {messages.map((m, i) => (
             <div key={i} style={{ ...styles.bubbleRow, justifyContent: m.sender === 'admin' ? 'flex-end' : 'flex-start' }}>
               <div style={{ ...styles.bubble, background: m.sender === 'admin' ? COLORS.indigo : '#fff', color: m.sender === 'admin' ? '#fff' : COLORS.ink }}>
-                {m.message}
+                {m.audio_url ? <audio controls src={m.audio_url} style={styles.audioPlayer} /> : m.message}
               </div>
             </div>
           ))}
@@ -333,8 +383,16 @@ function AdminSupportTab({ users }) {
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Répondre..."
             style={styles.chatInput}
+            disabled={recording}
           />
-          <button style={styles.sendBtn} onClick={handleSend} disabled={sending}>➤</button>
+          {!recording ? (
+            <>
+              <button style={styles.micBtn} onClick={handleStartRecording}>🎤</button>
+              <button style={styles.sendBtn} onClick={handleSend} disabled={sending}>➤</button>
+            </>
+          ) : (
+            <button style={styles.recordingBtn} onClick={handleStopRecording}>⏹ Envoyer</button>
+          )}
         </div>
       </div>
     )
@@ -406,7 +464,10 @@ const styles = {
   chatMessages: { flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 200, paddingBottom: 10 },
   bubbleRow: { display: 'flex' },
   bubble: { maxWidth: '75%', padding: '10px 14px', borderRadius: 14, fontSize: 13, lineHeight: 1.4, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+  audioPlayer: { height: 34, maxWidth: 220 },
   chatInputRow: { display: 'flex', gap: 8, padding: '10px 0' },
   chatInput: { flex: 1, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 20, padding: '11px 16px', fontSize: 13, outline: 'none', fontFamily: FONT_BODY },
+  micBtn: { background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: '50%', width: 42, height: 42, fontSize: 16, cursor: 'pointer' },
   sendBtn: { background: COLORS.indigo, color: '#fff', border: 'none', borderRadius: '50%', width: 42, height: 42, fontSize: 16, fontWeight: 700, cursor: 'pointer' },
+  recordingBtn: { flex: 1, background: COLORS.terracotta, color: '#fff', border: 'none', borderRadius: 20, padding: '11px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', animation: 'gp-pulse 1s ease-in-out infinite' },
 }
