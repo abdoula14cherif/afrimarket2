@@ -145,7 +145,18 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
         </button>
 
         {slug && (
-          <span style={styles.viewLink} onClick={() => onNavigate?.('boutique', slug)}>Voir ma boutique publique →</span>
+          <>
+            <span style={styles.viewLink} onClick={() => onNavigate?.('boutique', slug)}>Voir ma boutique publique →</span>
+            <div style={styles.qrBox}>
+              <p style={styles.qrLabel}>QR code de ta boutique</p>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.origin + '?boutique=' + slug)}`}
+                alt="QR code boutique"
+                style={styles.qrImg}
+              />
+              <span style={styles.qrHint}>Fais-le scanner sur ta carte de visite ou en boutique</span>
+            </div>
+          </>
         )}
       </div>
 
@@ -185,4 +196,8 @@ const styles = {
   viewLink: { display: 'block', textAlign: 'center', marginTop: 14, fontSize: 13, fontWeight: 700, color: COLORS.indigo, cursor: 'pointer' },
   lockedBox: { background: COLORS.card, margin: '20px', borderRadius: 16, padding: '30px 20px', textAlign: 'center', boxShadow: '0 4px 14px rgba(43,37,96,0.08)' },
   lockedText: { fontSize: 13, color: COLORS.muted, margin: '12px 0 18px', lineHeight: 1.5 },
+  qrBox: { textAlign: 'center', marginTop: 20, background: COLORS.card, borderRadius: 16, padding: '18px' },
+  qrLabel: { fontSize: 12, fontWeight: 700, color: COLORS.ink, margin: '0 0 12px' },
+  qrImg: { width: 160, height: 160, borderRadius: 10 },
+  qrHint: { display: 'block', fontSize: 11, color: COLORS.muted, marginTop: 10 },
 }
