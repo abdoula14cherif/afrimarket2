@@ -17,6 +17,7 @@ import BoutiquePage from './pages/BoutiquePage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import ParrainagePage from './pages/ParrainagePage.jsx'
 import PromoCodesPage from './pages/PromoCodesPage.jsx'
+import OffersPage from './pages/OffersPage.jsx'
 import MaintenancePage from './pages/MaintenancePage.jsx'
 
 const ADMIN_EMAIL = 'abdoula14cherif@gmail.com'
@@ -119,6 +120,8 @@ export default function App() {
   if (page === 'legal') return <LegalPage onNavigate={handleNavigate} />
   if (page === 'boutique-settings') return <BoutiqueSettingsPage user={user} onNavigate={handleNavigate} />
   if (page === 'promo-codes') return <PromoCodesPage user={user} onNavigate={handleNavigate} />
+
+  if (page === 'offres') return <OffersPage user={user} onNavigate={handleNavigate} />
 
   if (page === 'admin') return <AdminPage user={user} onNavigate={handleNavigate} />
   if (page === 'parrainage') return <ParrainagePage user={user} onNavigate={handleNavigate} />

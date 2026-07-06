@@ -11,6 +11,7 @@ const SHORTCUTS = [
   { icon: '❤️', label: 'Favoris', dest: 'favoris' },
   { icon: '🎁', label: 'Parrainage', dest: 'parrainage' },
   { icon: '🎟️', label: 'Codes promo', dest: 'promo-codes' },
+  { icon: '💰', label: 'Offres', dest: 'offres' },
   { icon: '🔍', label: 'Explorer', dest: 'explore' },
 ]
 

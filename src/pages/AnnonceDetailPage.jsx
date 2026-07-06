@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
 import AvisModal from '../components/AvisModal.jsx'
+import OffreModal from '../components/OffreModal.jsx'
 import SignalementModal from '../components/SignalementModal.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
@@ -17,6 +18,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [showRating, setShowRating] = useState(false)
+  const [showOffre, setShowOffre] = useState(false)
   const [showReport, setShowReport] = useState(false)
   const [activePhoto, setActivePhoto] = useState(0)
 
@@ -181,6 +183,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
         </div>
 
         <button style={styles.contactBtn} onClick={handleContact}>💬 Contacter sur WhatsApp</button>
+        {user && <button style={styles.offreBtn} onClick={() => setShowOffre(true)}>💰 Faire une offre</button>}
         {user && <span style={styles.rateLink} onClick={() => setShowRating(true)}>Laisser un avis</span>}
 
         <div style={styles.section}>
@@ -214,6 +217,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
       </div>
 
       {showRating && <AvisModal annonce={annonce} user={user} onClose={() => setShowRating(false)} onSubmitted={loadDetail} />}
+      {showOffre && <OffreModal annonce={annonce} user={user} onClose={() => setShowOffre(false)} />}
       {showReport && <SignalementModal annonce={annonce} user={user} onClose={() => setShowReport(false)} />}
 
       <BottomNav active="explore" onNavigate={onNavigate} />
@@ -249,6 +253,7 @@ const styles = {
   sellerSub: { fontSize: 11, color: COLORS.muted, margin: '2px 0 0' },
   contactBtn: { width: '100%', marginTop: 16, background: COLORS.marigold, color: COLORS.ink, border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, cursor: 'pointer' },
   rateLink: { display: 'block', textAlign: 'center', marginTop: 10, fontSize: 12, color: COLORS.indigoSoft, fontWeight: 600, cursor: 'pointer' },
+  offreBtn: { width: '100%', marginTop: 10, background: '#fff', color: COLORS.indigo, border: `1.5px solid ${COLORS.indigo}`, borderRadius: 12, padding: '13px', fontSize: 13.5, fontWeight: 700, cursor: 'pointer' },
   noAvis: { fontSize: 12.5, color: COLORS.muted },
   avisItem: { background: COLORS.card, borderRadius: 12, padding: '10px 14px', marginBottom: 8 },
   avisStars: { fontSize: 12, margin: '0 0 4px' },
