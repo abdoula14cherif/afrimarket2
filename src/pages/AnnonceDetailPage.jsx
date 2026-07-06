@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
 import AvisModal from '../components/AvisModal.jsx'
+import TrustBadge from '../components/TrustBadge.jsx'
 import OffreModal from '../components/OffreModal.jsx'
 import SignalementModal from '../components/SignalementModal.jsx'
 import ErrorState from '../components/ErrorState.jsx'
@@ -179,6 +180,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
               {seller?.verified && <span style={styles.verifiedTag}> ✅</span>}
             </p>
             <p style={styles.sellerSub}>{seller?.verified ? 'Vendeur vérifié' : 'Vendeur non vérifié'}</p>
+            {annonce?.user_id && <div style={{ marginTop: 4 }}><TrustBadge userId={annonce.user_id} size="small" /></div>}
           </div>
         </div>
 

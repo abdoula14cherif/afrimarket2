@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import ErrorState from '../components/ErrorState.jsx'
+import TrustBadge from '../components/TrustBadge.jsx'
 import { CardSkeletonGrid } from '../components/LoadingSkeleton.jsx'
 import { COLORS, BOUTIQUE_THEMES, BOUTIQUE_FONTS } from '../constants.js'
 
@@ -136,7 +137,8 @@ export default function BoutiquePage({ slug, onNavigate }) {
             {displayName[0]?.toUpperCase()}
           </div>
           <p style={{ fontFamily: font.display, fontWeight: 900, fontSize: 21, margin: '0 0 4px', color: '#fff' }}>{displayName}</p>
-          {seller.verified && <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontWeight: 700, color: '#fff' }}>✅ Vendeur vérifié</span>}
+          {seller.verified && <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontWeight: 700, color: '#fff', marginRight: 6 }}>✅ Vendeur vérifié</span>}
+          <TrustBadge userId={seller.id} size="small" />
         </div>
       </div>
 
