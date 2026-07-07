@@ -98,8 +98,8 @@ export default function App() {
     return <div style={{ padding: 24, fontFamily: 'Inter, sans-serif' }}>Chargement...</div>
   }
 
-  if (maintenance.mode && user?.email !== ADMIN_EMAIL) {
-    return <MaintenancePage message={maintenance.message} />
+  if (maintenance.mode && user?.email !== ADMIN_EMAIL && page !== 'login') {
+    return <MaintenancePage message={maintenance.message} onLoginClick={() => navigateTo('login')} />
   }
 
   if (page === 'boutique') return <BoutiquePage slug={selectedBoutiqueSlug} onNavigate={handleNavigate} />
