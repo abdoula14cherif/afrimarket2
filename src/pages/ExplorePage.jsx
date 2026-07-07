@@ -6,6 +6,7 @@ import SignalementModal from '../components/SignalementModal.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import { CardSkeletonGrid } from '../components/LoadingSkeleton.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
+import { buildWhatsAppLink } from '../utils/waMessage.js'
 
 const PAGE_SIZE = 12
 
@@ -98,8 +99,7 @@ export default function ExplorePage({ user, onNavigate }) {
   const handleContact = async (item) => {
     if (!item.contact) return
     await supabase.from('contacts_log').insert({ annonce_id: item.id })
-    const digits = item.contact.replace(/[^\d]/g, '')
-    window.open(`https://wa.me/${digits}`, '_blank')
+    window.open(buildWhatsAppLink(item), '_blank')
   }
 
   const toggleFavori = async (annonceId) => {

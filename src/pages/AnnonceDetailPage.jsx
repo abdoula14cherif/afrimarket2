@@ -7,6 +7,7 @@ import OffreModal from '../components/OffreModal.jsx'
 import SignalementModal from '../components/SignalementModal.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
+import { buildWhatsAppLink } from '../utils/waMessage.js'
 
 const CATEGORY_EMOJI = { telephones: '📱', services: '🔧', mode: '👗', maison: '🏠', autres: '🛍️' }
 
@@ -79,8 +80,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
   const handleContact = async () => {
     if (!annonce?.contact) return
     await supabase.from('contacts_log').insert({ annonce_id: annonce.id })
-    const digits = annonce.contact.replace(/[^\d]/g, '')
-    window.open(`https://wa.me/${digits}`, '_blank')
+    window.open(buildWhatsAppLink(annonce), '_blank')
   }
 
   const toggleFavori = async () => {

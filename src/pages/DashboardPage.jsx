@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import BottomNav from '../components/BottomNav.jsx'
 import { COLORS, FONT_BODY, FONT_DISPLAY, GRADIENTS, SHADOWS } from '../constants.js'
+import { buildWhatsAppLink } from '../utils/waMessage.js'
 
 const CATEGORY_EMOJI = { telephones: '📱', services: '🔧', mode: '👗', maison: '🏠', autres: '🛍️' }
 
@@ -69,8 +70,7 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
   const handleContact = async (item) => {
     if (!item.contact) return
     await supabase.from('contacts_log').insert({ annonce_id: item.id })
-    const digits = item.contact.replace(/[^\d]/g, '')
-    window.open(`https://wa.me/${digits}`, '_blank')
+    window.open(buildWhatsAppLink(item), '_blank')
   }
 
   const dismissBanner = () => {

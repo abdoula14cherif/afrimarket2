@@ -4,6 +4,7 @@ import ErrorState from '../components/ErrorState.jsx'
 import TrustBadge from '../components/TrustBadge.jsx'
 import { CardSkeletonGrid } from '../components/LoadingSkeleton.jsx'
 import { COLORS, BOUTIQUE_THEMES, BOUTIQUE_FONTS } from '../constants.js'
+import { buildWhatsAppLink } from '../utils/waMessage.js'
 
 const CATEGORY_EMOJI = { telephones: '📱', services: '🔧', mode: '👗', maison: '🏠', autres: '🛍️' }
 
@@ -61,8 +62,7 @@ export default function BoutiquePage({ slug, onNavigate }) {
   const handleContact = async (item) => {
     if (!item.contact) return
     await supabase.from('contacts_log').insert({ annonce_id: item.id })
-    const digits = item.contact.replace(/[^\d]/g, '')
-    window.open(`https://wa.me/${digits}`, '_blank')
+    window.open(buildWhatsAppLink(item), '_blank')
   }
 
   const handleShare = async () => {
