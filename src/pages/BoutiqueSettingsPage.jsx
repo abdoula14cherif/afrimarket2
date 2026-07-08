@@ -14,6 +14,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
+  const [payingLoading, setPayingLoading] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -59,6 +60,31 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
       return
     }
     setMessage('Boutique enregistrée ✅')
+  }
+
+  const handlePassPro = async () => {
+    setPayingLoading(true)
+    try {
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'subscription',
+          id: user.id,
+          amount: 2000,
+          description: 'GainPay - Abonnement Pro boutique (1 mois)',
+        }),
+      })
+      const data = await res.json()
+      if (data.payment_url) {
+        window.location.href = data.payment_url
+      } else {
+        setError(data.error || 'Erreur lors de la creation du paiement.')
+      }
+    } catch (err) {
+      setError('Erreur reseau, reessaie.')
+    }
+    setPayingLoading(false)
   }
 
   if (loading) return <div style={{ padding: 24, fontFamily: FONT_BODY }}>Chargement...</div>
@@ -133,7 +159,10 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
         {!subscriptionActive && (
           <div style={styles.subBanner}>
             <span style={styles.subBannerText}>💎 Passe Pro pour retirer "Propulsé par GainPay" de ta boutique</span>
-            <span style={styles.subBannerTag}>Abonnement bientôt disponible</span>
+            <span style={styles.subBannerTag}>2 000 F CFA / mois</span>
+            <button style={styles.payBtn} onClick={handlePassPro} disabled={payingLoading}>
+              {payingLoading ? 'Redirection...' : 'Passer Pro maintenant'}
+            </button>
           </div>
         )}
 
@@ -190,6 +219,7 @@ const styles = {
   subBanner: { marginTop: 18, background: '#fff', border: `1.5px dashed ${COLORS.marigold}`, borderRadius: 12, padding: '12px 14px' },
   subBannerText: { display: 'block', fontSize: 12.5, fontWeight: 700, color: COLORS.ink },
   subBannerTag: { display: 'block', fontSize: 11, color: COLORS.muted, marginTop: 4 },
+  payBtn: { width: '100%', marginTop: 12, background: COLORS.indigo, color: '#fff', border: 'none', borderRadius: 10, padding: '11px', fontSize: 13, fontWeight: 700, cursor: 'pointer' },
   error: { color: COLORS.terracotta, fontSize: 13, fontWeight: 600, marginTop: 12 },
   success: { color: COLORS.teal, fontSize: 13, fontWeight: 600, marginTop: 12 },
   primaryBtn: { width: '100%', marginTop: 18, background: COLORS.marigold, color: COLORS.ink, border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, cursor: 'pointer' },
