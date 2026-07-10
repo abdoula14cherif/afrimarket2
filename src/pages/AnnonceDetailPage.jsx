@@ -79,6 +79,7 @@ export default function AnnonceDetailPage({ annonceId, user, onNavigate }) {
 
   const handleContact = async () => {
     if (!annonce?.contact) return
+    if (!user) { onNavigate('signup'); return }
     await supabase.from('contacts_log').insert({ annonce_id: annonce.id })
     window.open(buildWhatsAppLink(annonce), '_blank')
   }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
+import LandingPage from './pages/LandingPage.jsx'
 import SignupPage from './pages/SignupPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
@@ -16,14 +17,14 @@ import BoutiqueSettingsPage from './pages/BoutiqueSettingsPage.jsx'
 import BoutiquePage from './pages/BoutiquePage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import ParrainagePage from './pages/ParrainagePage.jsx'
-import PromoCodesPage from './pages/PromoCodesPage.jsx'
-import OffersPage from './pages/OffersPage.jsx'
 import MaintenancePage from './pages/MaintenancePage.jsx'
+import OffersPage from './pages/OffersPage.jsx'
+import PromoCodesPage from './pages/PromoCodesPage.jsx'
 
 const ADMIN_EMAIL = 'abdoula14cherif@gmail.com'
 
 export default function App() {
-  const [page, setPage] = useState('signup')
+  const [page, setPage] = useState('landing')
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [checkingSession, setCheckingSession] = useState(true)
@@ -51,7 +52,7 @@ export default function App() {
       } else if (session?.user) {
         navigateTo('dashboard', null, { replace: true })
       } else {
-        navigateTo('signup', null, { replace: true })
+        navigateTo('landing', null, { replace: true })
       }
       setCheckingSession(false)
     }
@@ -81,7 +82,7 @@ export default function App() {
 
   useEffect(() => {
     function handlePopState(event) {
-      const dest = event.state?.page || 'dashboard'
+      const dest = event.state?.page || 'landing'
       setPage(dest)
       if (dest === 'annonce-detail') setSelectedAnnonceId(event.state?.param || null)
       if (dest === 'boutique') setSelectedBoutiqueSlug(event.state?.param || null)
@@ -102,29 +103,28 @@ export default function App() {
     return <MaintenancePage message={maintenance.message} onLoginClick={() => navigateTo('login')} />
   }
 
-  if (page === 'boutique') return <BoutiquePage slug={selectedBoutiqueSlug} onNavigate={handleNavigate} />
+  if (page === 'landing') return <LandingPage onNavigate={handleNavigate} />
+  if (page === 'boutique') return <BoutiquePage slug={selectedBoutiqueSlug} user={user} onNavigate={handleNavigate} />
   if (page === 'annonce-detail') return <AnnonceDetailPage annonceId={selectedAnnonceId} user={user} onNavigate={handleNavigate} />
+  if (page === 'explore') return <ExplorePage user={user} onNavigate={handleNavigate} />
+  if (page === 'legal') return <LegalPage onNavigate={handleNavigate} />
 
   if (!user) {
     if (page === 'login') return <LoginPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToSignup={() => navigateTo('signup')} />
     return <SignupPage onSuccess={(data) => { setUser(data.user); navigateTo('dashboard') }} goToLogin={() => navigateTo('login')} />
   }
 
-  if (page === 'dashboard') return <DashboardPage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
-  if (page === 'profile') return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
+  if (page === 'dashboard') return <DashboardPage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('landing') }} />
+  if (page === 'profile') return <ProfilePage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('landing') }} />
   if (page === 'publish') return <PublishPage user={user} profile={profile} editId={editId} onNavigate={(dest) => { setEditId(null); navigateTo(dest) }} />
-  if (page === 'explore') return <ExplorePage user={user} onNavigate={handleNavigate} />
   if (page === 'contacts') return <ContactsPage user={user} onNavigate={handleNavigate} />
   if (page === 'favoris') return <FavoritesPage user={user} onNavigate={handleNavigate} />
   if (page === 'verification') return <VerificationPage user={user} onNavigate={handleNavigate} />
-  if (page === 'legal') return <LegalPage onNavigate={handleNavigate} />
   if (page === 'boutique-settings') return <BoutiqueSettingsPage user={user} onNavigate={handleNavigate} />
-  if (page === 'promo-codes') return <PromoCodesPage user={user} onNavigate={handleNavigate} />
-
-  if (page === 'offres') return <OffersPage user={user} onNavigate={handleNavigate} />
-
   if (page === 'admin') return <AdminPage user={user} onNavigate={handleNavigate} />
   if (page === 'parrainage') return <ParrainagePage user={user} onNavigate={handleNavigate} />
+  if (page === 'offres') return <OffersPage user={user} onNavigate={handleNavigate} />
+  if (page === 'promo-codes') return <PromoCodesPage user={user} onNavigate={handleNavigate} />
   if (page === 'my-listings') {
     return (
       <MyListingsPage
@@ -135,5 +135,5 @@ export default function App() {
     )
   }
 
-  return <DashboardPage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('login') }} />
+  return <DashboardPage user={user} onNavigate={handleNavigate} onLogout={() => { setUser(null); navigateTo('landing') }} />
 }

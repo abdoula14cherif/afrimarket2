@@ -61,6 +61,7 @@ export default function BoutiquePage({ slug, onNavigate }) {
 
   const handleContact = async (item) => {
     if (!item.contact) return
+    if (!user) { onNavigate('signup'); return }
     await supabase.from('contacts_log').insert({ annonce_id: item.id })
     window.open(buildWhatsAppLink(item), '_blank')
   }
