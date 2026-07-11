@@ -118,7 +118,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
 
       <div style={styles.content}>
         <span style={styles.label}>Lien de ta boutique</span>
-        <span style={styles.slugPrefix}>gainpaye.vercel.app/boutique/</span>
+        <span style={styles.slugPrefix}>gainpaye.vercel.app/?boutique=</span>
         <input value={slug} onChange={handleSlugChange} placeholder="ma-boutique" style={styles.input} />
 
         <span style={styles.label}>Structure de la page</span>
