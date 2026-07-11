@@ -11,6 +11,8 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
   const [theme, setTheme] = useState('indigo')
   const [font, setFont] = useState('classique')
   const [layout, setLayout] = useState('grid')
+  const [bannerFile, setBannerFile] = useState(null)
+  const [bannerPreview, setBannerPreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
@@ -22,7 +24,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
       if (!user?.id) return
       const { data } = await supabase
         .from('profiles')
-        .select('verified, subscription_active, boutique_slug, boutique_theme, boutique_font, boutique_layout')
+        .select('verified, subscription_active, boutique_slug, boutique_theme, boutique_font, boutique_layout, boutique_banner_url')
         .eq('id', user.id)
         .single()
       if (data) {
@@ -32,11 +34,19 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
         setTheme(data.boutique_theme || 'indigo')
         setFont(data.boutique_font || 'classique')
         setLayout(data.boutique_layout || 'grid')
+        if (data.boutique_banner_url) setBannerPreview(data.boutique_banner_url)
       }
       setLoading(false)
     }
     load()
   }, [user])
+
+  const handleBannerChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBannerFile(file)
+    setBannerPreview(URL.createObjectURL(file))
+  }
 
   const handleSlugChange = (e) => {
     const clean = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')
@@ -58,9 +68,27 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
       return
     }
     setSaving(true)
+
+    let bannerUrl = bannerPreview && !bannerFile ? bannerPreview : undefined
+    if (bannerFile) {
+      const fileExt = bannerFile.name.split('.').pop()
+      const filePath = `${user.id}/${Date.now()}.${fileExt}`
+      const { error: uploadError } = await supabase.storage.from('boutique-banners').upload(filePath, bannerFile)
+      if (uploadError) {
+        setSaving(false)
+        setError("Erreur lors de l'envoi de la bannière : " + uploadError.message)
+        return
+      }
+      const { data: publicUrlData } = supabase.storage.from('boutique-banners').getPublicUrl(filePath)
+      bannerUrl = publicUrlData.publicUrl
+    }
+
+    const updatePayload = { boutique_slug: slug, boutique_theme: theme, boutique_font: font, boutique_layout: layout }
+    if (bannerUrl !== undefined) updatePayload.boutique_banner_url = bannerUrl
+
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ boutique_slug: slug, boutique_theme: theme, boutique_font: font, boutique_layout: layout })
+      .update(updatePayload)
       .eq('id', user.id)
     setSaving(false)
     if (updateError) {
@@ -144,6 +172,16 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
           ))}
         </div>
 
+        <span style={styles.label}>Bannière de ta boutique</span>
+        <label style={styles.bannerDrop}>
+          {bannerPreview ? (
+            <img src={bannerPreview} alt="Bannière" style={styles.bannerPreview} />
+          ) : (
+            <span style={styles.bannerPlaceholder}>📷 Ajouter une bannière (optionnel)</span>
+          )}
+          <input type="file" accept="image/*" onChange={handleBannerChange} style={{ display: 'none' }} />
+        </label>
+
         <span style={styles.label}>Thème de couleur</span>
         <div style={styles.themeGrid}>
           {Object.entries(BOUTIQUE_THEMES).map(([key, t]) => (
@@ -218,6 +256,9 @@ const styles = {
   copyBtn: { width: '100%', marginTop: 8, background: '#F1EDE4', color: COLORS.indigo, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '10px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' },
   input: { width: '100%', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '11px 12px', fontSize: 14, outline: 'none', fontFamily: FONT_BODY, boxSizing: 'border-box' },
   layoutRow: { display: 'flex', gap: 8 },
+  bannerDrop: { display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: `1.5px dashed ${COLORS.border}`, borderRadius: 14, height: 120, cursor: 'pointer', overflow: 'hidden' },
+  bannerPlaceholder: { fontSize: 12.5, color: COLORS.muted, fontWeight: 600, textAlign: 'center', padding: '0 20px' },
+  bannerPreview: { width: '100%', height: '100%', objectFit: 'cover' },
   layoutCard: { flex: 1, background: '#fff', borderRadius: 12, padding: '12px 10px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
   layoutLabel: { fontSize: 12.5, fontWeight: 700, color: COLORS.ink, margin: '0 0 2px' },
   layoutDesc: { fontSize: 10, color: COLORS.muted, margin: 0 },

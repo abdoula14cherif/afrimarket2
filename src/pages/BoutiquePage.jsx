@@ -38,7 +38,7 @@ export default function BoutiquePage({ slug, onNavigate }) {
 
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('id, prenom, nom, entreprise, verified, subscription_active, boutique_theme, boutique_font, boutique_layout')
+      .select('id, prenom, nom, entreprise, verified, subscription_active, boutique_theme, boutique_font, boutique_layout, boutique_banner_url')
       .eq('boutique_slug', slug)
       .single()
 
@@ -109,23 +109,27 @@ export default function BoutiquePage({ slug, onNavigate }) {
   return (
     <div style={{ minHeight: '100vh', background: COLORS.sand, fontFamily: font.body, paddingBottom: 40 }}>
       <div style={{ position: 'relative', height: 230, overflow: 'hidden', background: theme.primary }}>
-        {photosForCarousel.map((item, i) => (
-          <img
-            key={item.id}
-            src={item.photo_url}
-            alt={item.titre}
-            style={{
-              position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-              opacity: i === slideIndex ? 1 : 0, transition: 'opacity 0.8s ease',
-            }}
-          />
-        ))}
+        {seller.boutique_banner_url ? (
+          <img src={seller.boutique_banner_url} alt="Bannière" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          photosForCarousel.map((item, i) => (
+            <img
+              key={item.id}
+              src={item.photo_url}
+              alt={item.titre}
+              style={{
+                position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                opacity: i === slideIndex ? 1 : 0, transition: 'opacity 0.8s ease',
+              }}
+            />
+          ))
+        )}
 
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)' }} />
 
         <span onClick={handleShare} style={{ position: 'absolute', top: 14, right: 14, fontSize: 16, background: 'rgba(255,255,255,0.25)', borderRadius: '50%', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>📤</span>
 
-        {photosForCarousel.length > 1 && (
+        {!seller.boutique_banner_url && photosForCarousel.length > 1 && (
           <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 }}>
             {photosForCarousel.map((_, i) => (
               <div key={i} style={{ width: i === slideIndex ? 16 : 6, height: 6, borderRadius: 3, background: i === slideIndex ? theme.accent : 'rgba(255,255,255,0.5)', transition: 'width 0.3s ease' }} />
