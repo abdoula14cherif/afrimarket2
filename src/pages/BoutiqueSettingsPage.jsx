@@ -14,6 +14,7 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
+  const [copied, setCopied] = useState(false)
   const [payingLoading, setPayingLoading] = useState(false)
 
   useEffect(() => {
@@ -40,6 +41,13 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
   const handleSlugChange = (e) => {
     const clean = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')
     setSlug(clean)
+  }
+
+  const handleCopyLink = () => {
+    const link = `${window.location.origin}/?boutique=${slug}`
+    navigator.clipboard.writeText(link)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const handleSave = async () => {
@@ -120,6 +128,11 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
         <span style={styles.label}>Lien de ta boutique</span>
         <span style={styles.slugPrefix}>gainpaye.vercel.app/?boutique=</span>
         <input value={slug} onChange={handleSlugChange} placeholder="ma-boutique" style={styles.input} />
+        {slug && (
+          <button type="button" style={styles.copyBtn} onClick={handleCopyLink}>
+            {copied ? '✅ Lien copié !' : '📋 Copier le lien de ma boutique'}
+          </button>
+        )}
 
         <span style={styles.label}>Structure de la page</span>
         <div style={styles.layoutRow}>
@@ -202,6 +215,7 @@ const styles = {
   content: { padding: '20px' },
   label: { fontSize: 12, fontWeight: 700, color: COLORS.indigoSoft, display: 'block', marginTop: 18, marginBottom: 8 },
   slugPrefix: { fontSize: 11, color: COLORS.muted, display: 'block', marginBottom: 4 },
+  copyBtn: { width: '100%', marginTop: 8, background: '#F1EDE4', color: COLORS.indigo, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '10px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' },
   input: { width: '100%', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '11px 12px', fontSize: 14, outline: 'none', fontFamily: FONT_BODY, boxSizing: 'border-box' },
   layoutRow: { display: 'flex', gap: 8 },
   layoutCard: { flex: 1, background: '#fff', borderRadius: 12, padding: '12px 10px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
