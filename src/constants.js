@@ -1,4 +1,4 @@
-export const COLORS = {
+export const LIGHT_COLORS = {
   sand: '#F1EDE4',
   ink: '#211E1B',
   indigo: '#2B2560',
@@ -12,6 +12,23 @@ export const COLORS = {
   border: '#E3DFD3',
   muted: '#8b8578',
 }
+
+export const DARK_COLORS = {
+  sand: '#0F0C1D',
+  ink: '#FFFFFF',
+  indigo: '#2B2560',
+  indigoSoft: '#4A4180',
+  indigoDeep: '#0B0916',
+  marigold: '#F2A93B',
+  terracotta: '#D2603A',
+  teal: '#2F8F82',
+  clay: '#B23A55',
+  card: '#1C1830',
+  border: '#2D2748',
+  muted: '#9C97B5',
+}
+
+export const COLORS = LIGHT_COLORS
 
 export const GRADIENTS = {
   hero: 'linear-gradient(135deg, #181433 0%, #2B2560 55%, #3E3679 100%)',
