@@ -96,7 +96,7 @@ export default function DashboardPage({ user, onNavigate, onLogout }) {
       </div>
 
       <div style={styles.body}>
-        <div style={styles.promoBanner} onClick={() => onNavigate?.('explore')}>
+        <div style={styles.promoBanner} onClick={() => onNavigate?.('ventes')}>
           <div style={styles.promoGlow} />
           <div style={styles.promoText}>
             <p style={styles.promoTitle}>Tout ce dont vous avez besoin,<br /><span style={{ color: colors.marigold }}>au même endroit.</span></p>

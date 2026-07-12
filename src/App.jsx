@@ -20,6 +20,7 @@ import ParrainagePage from './pages/ParrainagePage.jsx'
 import MaintenancePage from './pages/MaintenancePage.jsx'
 import OffersPage from './pages/OffersPage.jsx'
 import PromoCodesPage from './pages/PromoCodesPage.jsx'
+import SalesPage from './pages/SalesPage.jsx'
 
 const ADMIN_EMAIL = 'abdoula14cherif@gmail.com'
 
@@ -124,6 +125,8 @@ export default function App() {
   if (page === 'admin') return <AdminPage user={user} onNavigate={handleNavigate} />
   if (page === 'parrainage') return <ParrainagePage user={user} onNavigate={handleNavigate} />
   if (page === 'offres') return <OffersPage user={user} onNavigate={handleNavigate} />
+  if (page === 'ventes') return <SalesPage user={user} onNavigate={handleNavigate} />
+
   if (page === 'promo-codes') return <PromoCodesPage user={user} onNavigate={handleNavigate} />
   if (page === 'my-listings') {
     return (
