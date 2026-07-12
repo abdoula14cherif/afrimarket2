@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import ErrorState from '../components/ErrorState.jsx'
-import TrustBadge from '../components/TrustBadge.jsx'
 import { CardSkeletonGrid } from '../components/LoadingSkeleton.jsx'
+import TrustBadge from '../components/TrustBadge.jsx'
 import { COLORS, BOUTIQUE_THEMES, BOUTIQUE_FONTS } from '../constants.js'
-import { buildWhatsAppLink } from '../utils/waMessage.js'
 
 const CATEGORY_EMOJI = { telephones: '📱', services: '🔧', mode: '👗', maison: '🏠', autres: '🛍️' }
 
-export default function BoutiquePage({ slug, onNavigate }) {
+export default function BoutiquePage({ slug, user, onNavigate }) {
   const [seller, setSeller] = useState(null)
   const [annonces, setAnnonces] = useState([])
   const [loading, setLoading] = useState(true)
@@ -20,6 +19,7 @@ export default function BoutiquePage({ slug, onNavigate }) {
   const [subEmail, setSubEmail] = useState('')
   const [subSaving, setSubSaving] = useState(false)
   const [subDone, setSubDone] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
 
   useEffect(() => {
     loadBoutique()
@@ -28,12 +28,13 @@ export default function BoutiquePage({ slug, onNavigate }) {
   const photosForCarousel = annonces.filter((a) => a.photo_url).slice(0, 6)
 
   useEffect(() => {
+    if (seller?.boutique_banner_url) return
     if (photosForCarousel.length < 2) return
     const interval = setInterval(() => {
       setSlideIndex((i) => (i + 1) % photosForCarousel.length)
     }, 3200)
     return () => clearInterval(interval)
-  }, [photosForCarousel.length])
+  }, [photosForCarousel.length, seller])
 
   async function loadBoutique() {
     setLoading(true)
@@ -66,7 +67,8 @@ export default function BoutiquePage({ slug, onNavigate }) {
     if (!item.contact) return
     if (!user) { onNavigate('signup'); return }
     await supabase.from('contacts_log').insert({ annonce_id: item.id })
-    window.open(buildWhatsAppLink(item), '_blank')
+    const digits = item.contact.replace(/[^\d]/g, '')
+    window.open(`https://wa.me/${digits}`, '_blank')
   }
 
   const handleShare = async () => {
@@ -76,20 +78,6 @@ export default function BoutiquePage({ slug, onNavigate }) {
     } else {
       navigator.clipboard.writeText(url)
       alert('Lien de la boutique copié !')
-    }
-  }
-
-  const handleSubscribe = async () => {
-    if (!subEmail.trim() || !subEmail.includes('@')) return
-    setSubSaving(true)
-    const { error } = await supabase.from('boutique_subscribers').insert({
-      vendeur_id: seller.id,
-      email: subEmail.trim().toLowerCase(),
-    })
-    setSubSaving(false)
-    if (!error) {
-      setSubDone(true)
-      setSubEmail('')
     }
   }
 
@@ -107,6 +95,20 @@ export default function BoutiquePage({ slug, onNavigate }) {
       return
     }
     setPromoResult(data[0])
+  }
+
+  const handleSubscribe = async () => {
+    if (!subEmail.trim() || !subEmail.includes('@')) return
+    setSubSaving(true)
+    const { error } = await supabase.from('boutique_subscribers').insert({
+      vendeur_id: seller.id,
+      email: subEmail.trim().toLowerCase(),
+    })
+    setSubSaving(false)
+    if (!error) {
+      setSubDone(true)
+      setSubEmail('')
+    }
   }
 
   if (loading) {
@@ -144,6 +146,32 @@ export default function BoutiquePage({ slug, onNavigate }) {
 
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)' }} />
 
+        <div style={{ position: 'absolute', top: 14, left: 14 }}>
+          <span onClick={() => setShowMenu((v) => !v)} style={{ fontSize: 16, background: 'rgba(255,255,255,0.25)', borderRadius: '50%', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>☰</span>
+
+          {showMenu && (
+            <div style={{ position: 'absolute', top: 40, left: 0, background: '#fff', borderRadius: 14, padding: '14px', width: 240, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', zIndex: 10 }}>
+              {subDone ? (
+                <p style={{ fontSize: 12, fontWeight: 700, color: COLORS.teal, margin: 0 }}>✅ Tu seras notifié(e) des nouveautés !</p>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: COLORS.ink, margin: '0 0 8px' }}>🔔 Sois notifié(e) des nouvelles annonces</p>
+                  <input
+                    type="email"
+                    value={subEmail}
+                    onChange={(e) => setSubEmail(e.target.value)}
+                    placeholder="Ton email"
+                    style={{ width: '100%', border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 8 }}
+                  />
+                  <button onClick={handleSubscribe} disabled={subSaving} style={{ width: '100%', background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '9px 0', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>
+                    {subSaving ? '...' : "S'abonner"}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
         <span onClick={handleShare} style={{ position: 'absolute', top: 14, right: 14, fontSize: 16, background: 'rgba(255,255,255,0.25)', borderRadius: '50%', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>📤</span>
 
         {!seller.boutique_banner_url && photosForCarousel.length > 1 && (
@@ -159,12 +187,14 @@ export default function BoutiquePage({ slug, onNavigate }) {
             {displayName[0]?.toUpperCase()}
           </div>
           <p style={{ fontFamily: font.display, fontWeight: 900, fontSize: 21, margin: '0 0 4px', color: '#fff' }}>{displayName}</p>
-          {seller.verified && <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontWeight: 700, color: '#fff', marginRight: 6 }}>✅ Vendeur vérifié</span>}
+          {seller.verified && (
+            <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontWeight: 700, color: '#fff', marginRight: 6 }}>✅ Vendeur vérifié</span>
+          )}
           <TrustBadge userId={seller.id} size="small" />
         </div>
       </div>
 
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '20px' }} onClick={() => showMenu && setShowMenu(false)}>
         <div style={{ background: COLORS.card, borderRadius: 14, padding: '12px 14px', marginBottom: 18, boxShadow: '0 4px 14px rgba(0,0,0,0.06)' }}>
           <p style={{ fontSize: 12, fontWeight: 700, color: COLORS.ink, margin: '0 0 8px' }}>🎟️ Un code promo ?</p>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -184,28 +214,6 @@ export default function BoutiquePage({ slug, onNavigate }) {
                 ? `✅ ${promoResult.type === 'pourcentage' ? promoResult.valeur + '% de réduction' : promoResult.valeur.toLocaleString('fr-FR') + ' F CFA de réduction'} — montre ce code au vendeur`
                 : `❌ ${promoResult.message}`}
             </p>
-          )}
-        </div>
-
-        <div style={{ background: COLORS.card, borderRadius: 14, padding: '12px 14px', marginBottom: 18, boxShadow: '0 4px 14px rgba(0,0,0,0.06)' }}>
-          {subDone ? (
-            <p style={{ fontSize: 12.5, fontWeight: 700, color: COLORS.teal, margin: 0 }}>✅ Tu seras notifié(e) des nouvelles annonces de {displayName} !</p>
-          ) : (
-            <>
-              <p style={{ fontSize: 12, fontWeight: 700, color: COLORS.ink, margin: '0 0 8px' }}>🔔 Sois notifié(e) des nouvelles annonces</p>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  type="email"
-                  value={subEmail}
-                  onChange={(e) => setSubEmail(e.target.value)}
-                  placeholder="Ton email"
-                  style={{ flex: 1, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none' }}
-                />
-                <button onClick={handleSubscribe} disabled={subSaving} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '9px 16px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>
-                  {subSaving ? '...' : "S'abonner"}
-                </button>
-              </div>
-            </>
           )}
         </div>
 
