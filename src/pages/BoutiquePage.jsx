@@ -17,6 +17,9 @@ export default function BoutiquePage({ slug, onNavigate }) {
   const [promoInput, setPromoInput] = useState('')
   const [promoResult, setPromoResult] = useState(null)
   const [checkingPromo, setCheckingPromo] = useState(false)
+  const [subEmail, setSubEmail] = useState('')
+  const [subSaving, setSubSaving] = useState(false)
+  const [subDone, setSubDone] = useState(false)
 
   useEffect(() => {
     loadBoutique()
@@ -73,6 +76,20 @@ export default function BoutiquePage({ slug, onNavigate }) {
     } else {
       navigator.clipboard.writeText(url)
       alert('Lien de la boutique copié !')
+    }
+  }
+
+  const handleSubscribe = async () => {
+    if (!subEmail.trim() || !subEmail.includes('@')) return
+    setSubSaving(true)
+    const { error } = await supabase.from('boutique_subscribers').insert({
+      vendeur_id: seller.id,
+      email: subEmail.trim().toLowerCase(),
+    })
+    setSubSaving(false)
+    if (!error) {
+      setSubDone(true)
+      setSubEmail('')
     }
   }
 
@@ -167,6 +184,28 @@ export default function BoutiquePage({ slug, onNavigate }) {
                 ? `✅ ${promoResult.type === 'pourcentage' ? promoResult.valeur + '% de réduction' : promoResult.valeur.toLocaleString('fr-FR') + ' F CFA de réduction'} — montre ce code au vendeur`
                 : `❌ ${promoResult.message}`}
             </p>
+          )}
+        </div>
+
+        <div style={{ background: COLORS.card, borderRadius: 14, padding: '12px 14px', marginBottom: 18, boxShadow: '0 4px 14px rgba(0,0,0,0.06)' }}>
+          {subDone ? (
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: COLORS.teal, margin: 0 }}>✅ Tu seras notifié(e) des nouvelles annonces de {displayName} !</p>
+          ) : (
+            <>
+              <p style={{ fontSize: 12, fontWeight: 700, color: COLORS.ink, margin: '0 0 8px' }}>🔔 Sois notifié(e) des nouvelles annonces</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="email"
+                  value={subEmail}
+                  onChange={(e) => setSubEmail(e.target.value)}
+                  placeholder="Ton email"
+                  style={{ flex: 1, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '9px 12px', fontSize: 13, outline: 'none' }}
+                />
+                <button onClick={handleSubscribe} disabled={subSaving} style={{ background: theme.primary, color: '#fff', border: 'none', borderRadius: 10, padding: '9px 16px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>
+                  {subSaving ? '...' : "S'abonner"}
+                </button>
+              </div>
+            </>
           )}
         </div>
 

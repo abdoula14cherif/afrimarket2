@@ -17,6 +17,8 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [subscribers, setSubscribers] = useState([])
+  const [loadingSubs, setLoadingSubs] = useState(true)
   const [payingLoading, setPayingLoading] = useState(false)
 
   useEffect(() => {
@@ -39,6 +41,13 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
       setLoading(false)
     }
     load()
+
+    async function loadSubscribers() {
+      const { data } = await supabase.from('boutique_subscribers').select('id, email, created_at').eq('vendeur_id', user.id).order('created_at', { ascending: false })
+      setSubscribers(data || [])
+      setLoadingSubs(false)
+    }
+    loadSubscribers()
   }, [user])
 
   const handleBannerChange = (e) => {
@@ -220,6 +229,16 @@ export default function BoutiqueSettingsPage({ user, onNavigate }) {
         {error && <p style={styles.error}>{error}</p>}
         {message && <p style={styles.success}>{message}</p>}
 
+        <span style={styles.label}>Abonnés à ta boutique ({subscribers.length})</span>
+        <div style={styles.subscribersBox}>
+          {loadingSubs && <p style={styles.subEmptyText}>Chargement...</p>}
+          {!loadingSubs && subscribers.length === 0 && <p style={styles.subEmptyText}>Aucun abonné pour l'instant.</p>}
+          {subscribers.slice(0, 5).map((s) => (
+            <p key={s.id} style={styles.subscriberRow}>📧 {s.email}</p>
+          ))}
+          {subscribers.length > 5 && <p style={styles.subEmptyText}>+ {subscribers.length - 5} autres</p>}
+        </div>
+
         <button style={styles.primaryBtn} onClick={handleSave} disabled={saving}>
           {saving ? 'Enregistrement...' : 'Enregistrer ma boutique'}
         </button>
@@ -277,6 +296,9 @@ const styles = {
   payBtn: { width: '100%', marginTop: 12, background: COLORS.indigo, color: '#fff', border: 'none', borderRadius: 10, padding: '11px', fontSize: 13, fontWeight: 700, cursor: 'pointer' },
   error: { color: COLORS.terracotta, fontSize: 13, fontWeight: 600, marginTop: 12 },
   success: { color: COLORS.teal, fontSize: 13, fontWeight: 600, marginTop: 12 },
+  subscribersBox: { background: COLORS.card, borderRadius: 12, padding: '12px 14px' },
+  subscriberRow: { fontSize: 12, color: COLORS.ink, margin: '0 0 6px' },
+  subEmptyText: { fontSize: 12, color: COLORS.muted, margin: 0 },
   primaryBtn: { width: '100%', marginTop: 18, background: COLORS.marigold, color: COLORS.ink, border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, cursor: 'pointer' },
   viewLink: { display: 'block', textAlign: 'center', marginTop: 14, fontSize: 13, fontWeight: 700, color: COLORS.indigo, cursor: 'pointer' },
   lockedBox: { background: COLORS.card, margin: '20px', borderRadius: 16, padding: '30px 20px', textAlign: 'center', boxShadow: '0 4px 14px rgba(43,37,96,0.08)' },
