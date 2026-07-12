@@ -5,22 +5,24 @@ import AvisModal from '../components/AvisModal.jsx'
 import SignalementModal from '../components/SignalementModal.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import { CardSkeletonGrid } from '../components/LoadingSkeleton.jsx'
-import { COLORS, FONT_BODY, FONT_DISPLAY } from '../constants.js'
+import { useTheme } from '../components/ThemeContext.jsx'
+import { FONT_BODY, FONT_DISPLAY } from '../constants.js'
 import { buildWhatsAppLink } from '../utils/waMessage.js'
 
 const PAGE_SIZE = 12
 
 const CATEGORIES = [
-  { key: 'tout', label: 'Tout', color: COLORS.indigo },
-  { key: 'telephones', label: 'Téléphones', color: COLORS.terracotta },
-  { key: 'services', label: 'Services', color: COLORS.teal },
-  { key: 'mode', label: 'Mode', color: COLORS.clay },
-  { key: 'maison', label: 'Maison', color: COLORS.marigold },
-  { key: 'autres', label: 'Autres', color: '#6C6396' },
+  { key: 'tout', label: 'Tout' },
+  { key: 'telephones', label: 'Téléphones' },
+  { key: 'services', label: 'Services' },
+  { key: 'mode', label: 'Mode' },
+  { key: 'maison', label: 'Maison' },
+  { key: 'autres', label: 'Autres' },
 ]
 const CATEGORY_EMOJI = { telephones: '📱', services: '🔧', mode: '👗', maison: '🏠', autres: '🛍️' }
 
 export default function ExplorePage({ user, onNavigate }) {
+  const { colors } = useTheme()
   const [annonces, setAnnonces] = useState([])
   const [favoris, setFavoris] = useState(new Set())
   const [avisMap, setAvisMap] = useState({})
@@ -124,6 +126,9 @@ export default function ExplorePage({ user, onNavigate }) {
     return (notes.reduce((a, b) => a + b, 0) / notes.length).toFixed(1)
   }
 
+  const filtered = annonces
+  const styles = getStyles(colors)
+
   return (
     <div style={styles.page}>
       <div style={styles.header}>
@@ -137,7 +142,7 @@ export default function ExplorePage({ user, onNavigate }) {
       <div style={styles.catRow}>
         {CATEGORIES.map((cat) => (
           <div key={cat.key} onClick={() => setActiveCat(cat.key)}
-            style={{ ...styles.chip, background: cat.color, color: cat.key === 'maison' ? COLORS.ink : '#fff', outline: activeCat === cat.key ? `2px solid ${COLORS.ink}` : 'none', outlineOffset: 2 }}>
+            style={{ ...styles.chip, background: activeCat === cat.key ? colors.marigold : colors.card, color: activeCat === cat.key ? colors.indigoDeep : colors.ink, border: `1px solid ${activeCat === cat.key ? colors.marigold : colors.border}` }}>
             {cat.label}
           </div>
         ))}
@@ -145,12 +150,12 @@ export default function ExplorePage({ user, onNavigate }) {
 
       {loading && <CardSkeletonGrid count={6} />}
       {!loading && error && <ErrorState message="Impossible de charger les annonces." onRetry={() => loadPage(0, true)} />}
-      {!loading && !error && annonces.length === 0 && <p style={styles.emptyText}>Aucune annonce ne correspond à ta recherche.</p>}
+      {!loading && !error && filtered.length === 0 && <p style={styles.emptyText}>Aucune annonce ne correspond à ta recherche.</p>}
 
-      {!loading && !error && annonces.length > 0 && (
+      {!loading && !error && filtered.length > 0 && (
         <>
           <div style={styles.grid}>
-            {annonces.map((item) => {
+            {filtered.map((item) => {
               const note = avgNote(item.id)
               const isFav = favoris.has(item.id)
               return (
@@ -195,31 +200,33 @@ export default function ExplorePage({ user, onNavigate }) {
   )
 }
 
-const styles = {
-  page: { minHeight: '100vh', background: COLORS.sand, fontFamily: FONT_BODY, paddingBottom: 90 },
-  header: { background: COLORS.indigo, padding: '24px 20px 20px', borderRadius: '0 0 28px 28px', color: '#fff' },
-  brand: { fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 20, marginBottom: 14 },
-  searchBar: { background: '#fff', borderRadius: 14, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 },
-  searchInput: { border: 'none', outline: 'none', fontSize: 14, width: '100%', color: COLORS.ink, fontFamily: FONT_BODY, background: 'transparent' },
-  catRow: { display: 'flex', gap: 8, padding: '16px 20px 4px', overflowX: 'auto' },
-  chip: { flex: '0 0 auto', padding: '8px 14px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' },
-  emptyText: { fontSize: 13, color: COLORS.muted, textAlign: 'center', padding: '30px 20px' },
-  grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, padding: '16px 20px' },
-  card: { background: COLORS.card, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 14px rgba(43,37,96,0.08)', cursor: 'pointer' },
-  cardImg: { height: 110, background: COLORS.sand, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  cardImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
-  cardImgFallback: { fontSize: 34 },
-  heart: { position: 'absolute', top: 8, right: 8, fontSize: 16, cursor: 'pointer', background: 'rgba(255,255,255,0.85)', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  menuDots: { position: 'absolute', top: 8, left: 8, fontSize: 16, fontWeight: 900, cursor: 'pointer', background: 'rgba(255,255,255,0.85)', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  dropdown: { position: 'absolute', top: 38, left: 8, background: '#fff', borderRadius: 10, boxShadow: '0 4px 14px rgba(0,0,0,0.15)', zIndex: 10, overflow: 'hidden' },
-  dropdownItem: { padding: '10px 14px', fontSize: 12, fontWeight: 600, color: COLORS.terracotta, whiteSpace: 'nowrap', cursor: 'pointer' },
-  cardBody: { padding: '10px 12px 12px' },
-  cardTitle: { fontSize: 13, fontWeight: 600, margin: '0 0 4px', lineHeight: 1.3, minHeight: 34 },
-  cardLoc: { fontSize: 11, color: COLORS.muted, margin: '0 0 6px' },
-  noteBadge: { color: COLORS.marigold, fontWeight: 700 },
-  priceTag: { fontFamily: 'monospace', fontWeight: 700, fontSize: 13.5, color: COLORS.indigo },
-  contactBtn: { display: 'block', width: '100%', marginTop: 8, background: COLORS.marigold, color: COLORS.ink, border: 'none', fontWeight: 700, fontSize: 11.5, padding: '8px 0', borderRadius: 10, cursor: 'pointer' },
-  rateLink: { display: 'block', textAlign: 'center', marginTop: 6, fontSize: 10.5, color: COLORS.indigoSoft, fontWeight: 600, cursor: 'pointer' },
-  loadMoreWrapper: { textAlign: 'center', padding: '0 20px 20px' },
-  loadMoreBtn: { background: COLORS.card, color: COLORS.indigo, border: `1.5px solid ${COLORS.indigo}`, borderRadius: 12, padding: '12px 24px', fontSize: 13, fontWeight: 700, cursor: 'pointer' },
+function getStyles(colors) {
+  return {
+    page: { minHeight: '100vh', background: colors.sand, fontFamily: FONT_BODY, paddingBottom: 90 },
+    header: { background: colors.indigoDeep, padding: '24px 20px 20px', borderRadius: '0 0 28px 28px', color: '#fff' },
+    brand: { fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 20, marginBottom: 14 },
+    searchBar: { background: colors.card, borderRadius: 14, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, border: `1px solid ${colors.border}` },
+    searchInput: { border: 'none', outline: 'none', fontSize: 14, width: '100%', color: colors.ink, fontFamily: FONT_BODY, background: 'transparent' },
+    catRow: { display: 'flex', gap: 8, padding: '16px 20px 4px', overflowX: 'auto' },
+    chip: { flex: '0 0 auto', padding: '8px 14px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' },
+    emptyText: { fontSize: 13, color: colors.muted, textAlign: 'center', padding: '30px 20px' },
+    grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, padding: '16px 20px' },
+    card: { background: colors.card, borderRadius: 16, overflow: 'hidden', cursor: 'pointer', border: `1px solid ${colors.border}` },
+    cardImg: { height: 110, background: colors.sand, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
+    cardImgTag: { width: '100%', height: '100%', objectFit: 'cover' },
+    cardImgFallback: { fontSize: 34 },
+    heart: { position: 'absolute', top: 8, right: 8, fontSize: 16, cursor: 'pointer', background: 'rgba(0,0,0,0.4)', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    menuDots: { position: 'absolute', top: 8, left: 8, fontSize: 16, fontWeight: 900, cursor: 'pointer', background: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    dropdown: { position: 'absolute', top: 38, left: 8, background: colors.card, borderRadius: 10, boxShadow: '0 4px 14px rgba(0,0,0,0.3)', zIndex: 10, overflow: 'hidden', border: `1px solid ${colors.border}` },
+    dropdownItem: { padding: '10px 14px', fontSize: 12, fontWeight: 600, color: colors.terracotta, whiteSpace: 'nowrap', cursor: 'pointer' },
+    cardBody: { padding: '10px 12px 12px' },
+    cardTitle: { fontSize: 13, fontWeight: 600, margin: '0 0 4px', lineHeight: 1.3, minHeight: 34, color: colors.ink },
+    cardLoc: { fontSize: 11, color: colors.muted, margin: '0 0 6px' },
+    noteBadge: { color: colors.marigold, fontWeight: 700 },
+    priceTag: { fontFamily: 'monospace', fontWeight: 700, fontSize: 13.5, color: colors.marigold },
+    contactBtn: { display: 'block', width: '100%', marginTop: 8, background: colors.marigold, color: colors.indigoDeep, border: 'none', fontWeight: 700, fontSize: 11.5, padding: '8px 0', borderRadius: 10, cursor: 'pointer' },
+    rateLink: { display: 'block', textAlign: 'center', marginTop: 6, fontSize: 10.5, color: colors.muted, fontWeight: 600, cursor: 'pointer' },
+    loadMoreWrapper: { textAlign: 'center', padding: '0 20px 20px' },
+    loadMoreBtn: { background: colors.card, color: colors.ink, border: `1.5px solid ${colors.border}`, borderRadius: 12, padding: '12px 24px', fontSize: 13, fontWeight: 700, cursor: 'pointer' },
+  }
 }
